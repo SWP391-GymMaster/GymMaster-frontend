@@ -1,0 +1,160 @@
+import { http, HttpResponse } from "msw"
+
+import type { ApiResponse, AuthUser, LoginSuccess, UserRole } from "@/types/auth"
+import { created, fail, ok } from "@/mocks/utils/api-response"
+
+const demoUsers: Record<UserRole, AuthUser> = {
+  admin: {
+    userId: 1,
+    email: "admin@gymmaster.local",
+    fullName: "GymMaster Admin",
+    role: "admin",
+    status: "active",
+  },
+  staff: {
+    userId: 2,
+    email: "staff@gymmaster.local",
+    fullName: "Front Desk Staff",
+    role: "staff",
+    status: "active",
+  },
+  pt: {
+    userId: 3,
+    email: "pt@gymmaster.local",
+    fullName: "Coach PT",
+    role: "pt",
+    status: "active",
+  },
+  member: {
+    userId: 4,
+    email: "member@gymmaster.local",
+    fullName: "Gym Member",
+    role: "member",
+    status: "active",
+  },
+}
+
+function loginSuccess(role: UserRole): ApiResponse<LoginSuccess> {
+  return {
+    success: true,
+    error: null,
+    meta: null,
+    data: {
+      accessToken: `access-${role}`,
+      refreshToken: `refresh-${role}`,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      user: demoUsers[role],
+      role,
+      redirectPath: `/${role}`,
+    },
+  }
+}
+
+export const authHandlers = [
+  http.post("/api/v1/auth/login", async ({ request }) => {
+    const body = (await request.json()) as { email?: string; password?: string }
+    const email = body.email ?? ""
+
+    if (email === "locked@gymmaster.local") {
+      return fail("ACCOUNT_LOCKED", "Account is locked", 423)
+    }
+
+    if (email === "missing-role@gymmaster.local") {
+      const payload = loginSuccess("member")
+
+      return HttpResponse.json({
+        ...payload,
+        data: payload.data
+          ? {
+              ...payload.data,
+              role: undefined,
+              user: {
+                ...payload.data.user,
+                role: undefined,
+              },
+            }
+          : null,
+      })
+    }
+
+    const role = (["admin", "staff", "pt", "member"] as const).find((item) =>
+      email.startsWith(`${item}@`),
+    )
+
+    if (!role || body.password !== "Password123!") {
+      return fail("INVALID_CREDENTIALS", "Invalid credentials", 401)
+    }
+
+    return HttpResponse.json(loginSuccess(role))
+  }),
+  http.get("/api/v1/auth/me", ({ request }) => {
+    const authHeader = request.headers.get("Authorization")
+
+    if (!authHeader?.startsWith("Bearer access-")) {
+      return fail("UNAUTHORIZED", "Unauthorized", 401)
+    }
+
+    const role = authHeader.replace("Bearer access-", "") as UserRole
+    const user = demoUsers[role]
+
+    if (!user) {
+      return fail("UNAUTHORIZED", "Unauthorized", 401)
+    }
+
+    return ok(user)
+  }),
+  http.post("/api/v1/auth/refresh", async ({ request }) => {
+    const body = (await request.json()) as { refreshToken?: string }
+    const role = body.refreshToken?.replace("refresh-", "") as UserRole
+
+    if (!demoUsers[role]) {
+      return fail("INVALID_REFRESH_TOKEN", "Invalid refresh token", 401)
+    }
+
+    return HttpResponse.json(loginSuccess(role))
+  }),
+  http.post("/api/v1/auth/register", async ({ request }) => {
+    const body = (await request.json()) as { email?: string; fullName?: string }
+
+    return created({
+      accessToken: "access-member",
+      refreshToken: "refresh-member",
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      user: {
+        ...demoUsers.member,
+        email: body.email ?? demoUsers.member.email,
+        fullName: body.fullName ?? demoUsers.member.fullName,
+      },
+      role: "member",
+      redirectPath: "/member",
+    })
+  }),
+  http.post("/api/v1/auth/forgot-password", async ({ request }) => {
+    await request.json()
+
+    return ok({
+      message: "Neu email ton tai, he thong se tao yeu cau dat lai mat khau.",
+      resetToken: "mock-reset-token",
+    })
+  }),
+  http.post("/api/v1/auth/reset-password", async ({ request }) => {
+    await request.json()
+
+    return ok({
+      message: "Dat lai mat khau thanh cong.",
+    })
+  }),
+  http.post("/api/v1/auth/change-password", async ({ request }) => {
+    await request.json()
+
+    return ok({
+      message: "Doi mat khau thanh cong.",
+    })
+  }),
+  http.post("/api/v1/auth/google", async ({ request }) => {
+    await request.json()
+
+    return HttpResponse.json(loginSuccess("member"))
+  }),
+  http.post("/api/v1/auth/logout", () => new HttpResponse(null, { status: 204 })),
+]

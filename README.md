@@ -10,14 +10,15 @@ Read in this order:
 
 1. `AGENTS.md` — agent rules and non-negotiable frontend constraints.
 2. `docs/init/` — full-system GymMaster product scope, roles, use cases, requirements, roadmap, and API expectations.
-3. `docs/design/` — frontend UX/UI, route map, component, architecture, workflow, and testing guidance derived from `docs/init`.
-4. Current code/config — what is actually implemented today.
+3. `docs/backend/` — backend feature specs, auth API details, RBAC rules, response shapes, error codes, and endpoint contracts for frontend integration/mocking.
+4. `docs/design/` — frontend UX/UI, route map, component, architecture, workflow, and testing guidance derived from `docs/init`.
+5. Current code/config — what is actually implemented today.
 
-Backend, database, authentication server, storage, notification, Azure, and AI Vision details in `docs/init/` are external contracts for this frontend repo.
+Backend, database, authentication server, storage, notification, Azure, and AI Vision details in `docs/init/` and `docs/backend/` are external contracts for this frontend repo.
 
 ## Current Status
 
-Current implementation is still a minimal Next.js starter with Tailwind CSS and initial shadcn-style UI wiring. GymMaster frontend features are not implemented yet.
+Current implementation includes the first GymMaster frontend auth shell: `/welcome`, `/login`, backend-role redirect normalization, protected dashboard skeletons, permission denial, logout, and focused Vitest/React Testing Library coverage. Real role workflows and live backend validation are still pending.
 
 Current scripts:
 
@@ -27,9 +28,10 @@ npm run build
 npm run start
 npm run typecheck
 npm run lint
+npm run test
 ```
 
-Test, E2E, and Storybook scripts are planned but not installed/configured yet.
+Unit/component testing is configured with Vitest, React Testing Library, jest-dom, and jsdom. E2E and Storybook scripts are planned but not installed/configured yet.
 
 ## Product Summary
 

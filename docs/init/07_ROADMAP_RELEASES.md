@@ -1,166 +1,53 @@
-# 07 — Roadmap & Releases
+# 07 — ROADMAP & RELEASES
 
-# GymMaster — Phase Plan, Milestone & Version Release
+**Status:** Approved | **Mô hình:** Hybrid SDD+ADD, sprint 2 tuần | **Team:** 5 người
 
----
+## 1. Phase tổng quan
+| Phase | Tuần | Trọng tâm | Phương pháp |
+|---|---|---|---|
+| Phase 0 — Foundation | 1–2 | Constitution, AGENTS/CLAUDE, spec, scaffold | SDD |
+| Phase 1 — Core Ops | 3–6 | Auth, Member, Package, Membership, Payment, Check-in | Hybrid |
+| Phase 2 — Training | 7–9 | PT Assignment, Workout, Note, Progress, 360 Profile | ADD |
+| Phase 3 — Nutrition+Dashboard | 10–12 | Meal Journal, Calorie, Dashboard, Audit | ADD |
+| Phase 4 — Polish & Deliver | 13–15 | Test, security, deploy, docs, demo | Hybrid |
 
-# 0. Technology Stack
-
-| Layer | Công nghệ |
-|---|---|
-| Frontend | Next.js |
-| Backend | C# / ASP.NET Core 8 Web API |
-| Database | MySQL |
-| ORM | Entity Framework Core 8 - Code First Migrations |
-| Authentication | JWT Bearer Token + BCrypt |
-| Token Policy | Access Token 15 phút, Refresh Token 7 ngày |
-| AI Vision | Google Cloud Vision API |
-| Push Notification | Firebase Cloud Messaging |
-| File Storage | Azure Blob Storage |
-| Frontend Deploy | Vercel |
-| Backend Deploy | Azure App Service |
-| Version Control | GitHub Monorepo |
-| API Testing | Postman / Thunder Client |
-
----
-
-# 1. Phase Overview
-
-| Phase | Tên | Timeline | Story Points | Mục tiêu |
-|---|---|---:|---:|---|
-| Phase 0 | Discovery & Foundation | 1 tuần | 20 SP | Chốt docs, 4 roles, tech stack, repo, wireframe, database draft |
-| Phase 1 | Core Operation | 3 tuần | 65 SP | Auth, user/member/PT/package, sell/renew, check-in, assignment |
-| Phase 2 | Progress & Nutrition | 3 tuần | 70 SP | Workout, notes, progress, meal journal |
-| Phase 3 | Dashboard & Finalization | 2 tuần | 45 SP | Dashboard, audit log, testing, UAT, final demo |
-| Enhancement | Sau secondary nếu còn thời gian | TBD | TBD | Image Food Recognition Assist |
-| Total |  | 9 tuần + enhancement optional | 200 SP + TBD |  |
-
----
-
-# 2. Phase 0 — Discovery & Foundation
-
-## Description
-Thiết lập nền tảng tài liệu, repository, wireframe và scope.
-
-## Features / Tasks
-- Chốt actors.
-- Chốt MVP.
-- Chốt tech stack.
-- Viết SRS/use cases.
-- Draft ERD.
-- Setup GitHub.
-- Setup frontend skeleton.
-- Setup deployment thử.
-- Chốt AI workflow.
-
-## Deliverables
-- Context docs.
-- SRS draft.
-- Use case list.
-- Database draft.
-- GitHub repo.
-- Initial UI skeleton.
-- Deployment URL nếu có.
-
----
-
-# 3. Phase 1 — Core Operation
-
-## Features
-- Authentication.
-- User management.
-- Member management.
-- PT management.
-- Package management.
-- Sell package.
-- Renew package.
-- Check-in.
-- PT assignment.
-- Basic audit log.
-
-## Deliverables
-- Login/logout.
-- CRUD users/members/PT/packages.
-- Membership selling/renewal flow.
-- Check-in flow.
-- PT assignment flow.
-- Workflow 0/1/2 demo.
-
----
-
-# 4. Phase 2 — Progress & Nutrition
-
-## Features
-- Member 360° Profile.
-- Assigned Member List.
-- Workout Plan.
-- Workout Exercises.
-- Daily Trainer Notes.
-- Progress Tracking.
-- Calorie Target.
-- Food Database.
-- Add Custom Food.
-- Meal Journal.
-- Daily Calorie Summary.
-- Calorie History.
-- Optional Barcode Lookup.
-
-## Deliverables
-- PT dashboard.
-- Member profile 360°.
-- Workout module.
-- Notes module.
-- Progress module.
-- Calorie tracking module.
-
----
-
-# 5. Phase 3 — Dashboard, Testing & Finalization
-
-## Features
-- Revenue dashboard.
-- Payment status dashboard.
-- Active/expired members.
-- Check-in statistics.
-- Audit log management.
-- Basic reminder.
-- Test cases.
-- UAT.
-- Defect log.
-- Seed data.
-- Final deployment.
-
-## Deliverables
-- Admin dashboard.
-- Audit log screen.
-- Test case document.
-- UAT checklist.
-- Demo script.
-- Final release.
-
----
-
-# 6. Version Releases
-
-| Version | Scope | Expected Output |
+## 2. Release plan
+| Version | Mốc | Nội dung |
 |---|---|---|
-| v0.1 | Docs & Discovery | Context, SRS, use cases, feature specs |
-| v0.2 | Foundation | Repo, skeleton, routing, basic layout |
-| v0.3 | Auth & Master Data | Auth, users, members, PT, packages |
-| v0.4 | Core Transaction | Sell/renew, payment, check-in, PT assignment |
-| v0.5 | PT & Progress | Workout, notes, progress |
-| v0.6 | Nutrition | Calorie target, food DB, meal log, summary |
-| v0.7 | Dashboard | Revenue, payment status, check-ins, audit log |
-| v0.8 | Enhancement Candidate | Image Food Recognition Assist nếu team approve và còn thời gian |
-| v1.0 | Final Demo | Stable demo, test evidence, final report |
+| v0.1 | Tuần 2 | Scaffold + auth chạy được, DB migration đầu |
+| v0.2 | Tuần 6 | Core operation: bán gói, payment, check-in, dashboard sơ bộ |
+| v0.3 | Tuần 9 | Training module đầy đủ + Member 360 |
+| v0.4 | Tuần 12 | Nutrition + dashboard hoàn chỉnh + audit |
+| v1.0 | Tuần 15 | Bản demo: test ≥80%, security clean, deploy staging |
 
----
+## 3. Sprint breakdown & story points
+| Sprint | Tuần | Mục tiêu | SP ước tính |
+|---|---|---|---|
+| S0 | 1–2 | Foundation + scaffold | 13 |
+| S1 | 3–4 | Auth + Member + Package | 21 |
+| S2 | 5–6 | Membership + Payment + Check-in + Dashboard sơ bộ | 21 |
+| S3 | 7–8 | PT Assignment + Workout Plan + Note | 21 |
+| S4 | 9 | Progress + Member 360 Profile | 13 |
+| S5 | 10–11 | Meal Journal + Calorie Summary | 18 |
+| S6 | 12 | Dashboard hoàn chỉnh + Audit Log | 13 |
+| S7 | 13–14 | Testing + Security + Performance | 18 |
+| S8 | 15 | Deploy + Docs + Demo | 8 |
 
-# 7. SWP Milestone Mapping
+## 4. Milestone gate (không qua thì không sang phase sau)
+| Milestone | Tuần | Tiêu chí pass |
+|---|---|---|
+| Spec Approved | 2 | 15 file + Constitution + CLAUDE đã Approved |
+| Auth working | 4 | Login JWT + RBAC, coverage ≥80% module auth |
+| Core ops done | 6 | Bán gói→payment→check-in→dashboard chạy end-to-end |
+| Training done | 9 | PT flow + 360 profile pass acceptance |
+| Feature complete | 12 | Toàn bộ MVP-01..15 pass acceptance |
+| Security clean | 14 | Không Critical/High vuln; coverage ≥80% |
+| Delivery | 15 | Staging deploy + report + slide + demo rehearsal |
 
-| SWP Milestone | Project Output |
-|---|---|
-| Milestone 1 | SRS, use cases, ERD draft, architecture draft, UI wireframes |
-| Milestone 2 | Workflow 0, Workflow 1, Workflow 2 implementation |
-| Milestone 3 | Full system completion, dashboard, testing, UAT |
-| Final Presentation | Full demo flow, final report, lessons learned |
+## 5. Rủi ro & dự phòng
+| Rủi ro | Mức | Giảm thiểu |
+|---|---|---|
+| Scope creep (nutrition AI) | Cao | Giữ ENH-01 ngoài MVP; chỉ làm sau v1.0 |
+| Tích hợp Azure/Vercel trễ | TB | Demo localhost backup; deploy sớm từ tuần 13 |
+| Lệch spec↔code | Cao | Validation Gate mỗi PR; cập nhật spec trước khi đổi code |
+| Thành viên chưa quen ASP.NET | TB | Pair + prompt library + skill docs |

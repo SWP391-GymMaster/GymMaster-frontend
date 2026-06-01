@@ -1,0 +1,162 @@
+import { http } from "msw"
+
+import { foodItems, mealLogs } from "@/mocks/data/gymmaster.mock-data"
+import {
+  created,
+  fail,
+  getPage,
+  ok,
+  paged,
+  requireRole,
+} from "@/mocks/utils/api-response"
+
+function calculateMealCalories(log: (typeof mealLogs)[number]) {
+  return log.items.reduce((total, item) => {
+    const food = foodItems.find((candidate) => candidate.id === item.foodItemId)
+
+    return total + (food?.caloriesPerUnit ?? 0) * item.quantity
+  }, 0)
+}
+
+function enrichMealLog(log: (typeof mealLogs)[number]) {
+  return {
+    ...log,
+    items: log.items.map((item) => {
+      const food = foodItems.find((candidate) => candidate.id === item.foodItemId)
+
+      return {
+        ...item,
+        foodName: food?.name,
+        unit: food?.unit,
+        calories: (food?.caloriesPerUnit ?? 0) * item.quantity,
+      }
+    }),
+  }
+}
+
+export const nutritionHandlers = [
+  http.post("/api/members/:id/calorie-target", async ({ params, request }) => {
+    const role = requireRole(request, ["member", "pt"])
+    if (typeof role !== "string") return role
+    const body = (await request.json()) as Record<string, unknown>
+
+    return created({
+      memberId: Number(params.id),
+      ...body,
+    })
+  }),
+  http.get("/api/food-items", ({ request }) => {
+    const role = requireRole(request, ["member", "pt", "admin"])
+    if (typeof role !== "string") return role
+
+    const query = new URL(request.url).searchParams.get("query")?.toLowerCase()
+    const filtered = query
+      ? foodItems.filter((item) => item.name.toLowerCase().includes(query))
+      : foodItems
+
+    return paged(filtered, getPage(request.url))
+  }),
+  http.post("/api/food-items", async ({ request }) => {
+    const role = requireRole(request, ["member"])
+    if (typeof role !== "string") return role
+
+    const body = (await request.json()) as Partial<(typeof foodItems)[number]>
+    const food = {
+      id: Math.max(...foodItems.map((item) => item.id)) + 1,
+      name: body.name ?? "Custom food",
+      unit: body.unit ?? "serving",
+      caloriesPerUnit: body.caloriesPerUnit ?? 0,
+    }
+    foodItems.push(food)
+
+    return created(food)
+  }),
+  http.get("/api/meal-logs", ({ request }) => {
+    const role = requireRole(request, ["member"])
+    if (typeof role !== "string") return role
+
+    const url = new URL(request.url)
+    const memberId = Number(url.searchParams.get("memberId") ?? "0")
+    const date = url.searchParams.get("date")
+
+    if (!memberId || !date) {
+      return fail("VALIDATION_ERROR", "Member and date are required", 422)
+    }
+
+    return ok(
+      mealLogs
+        .filter((log) => log.memberId === memberId && log.logDate === date)
+        .map(enrichMealLog),
+    )
+  }),
+  http.post("/api/meal-logs", async ({ request }) => {
+    const role = requireRole(request, ["member"])
+    if (typeof role !== "string") return role
+
+    const body = (await request.json()) as Partial<(typeof mealLogs)[number]>
+
+    if (!body.items?.length) {
+      return fail("VALIDATION_ERROR", "Meal log requires at least one item", 422)
+    }
+
+    const invalidItem = body.items.find((item) => item.quantity <= 0)
+    if (invalidItem) {
+      return fail("INVALID_QUANTITY", "Quantity must be greater than zero", 422)
+    }
+
+    const missingFood = body.items.find(
+      (item) => !foodItems.some((food) => food.id === item.foodItemId),
+    )
+    if (missingFood) {
+      return fail("FOOD_NOT_FOUND", "Food item was not found", 404)
+    }
+
+    const log = {
+      id: Math.max(...mealLogs.map((item) => item.id)) + 1,
+      memberId: body.memberId ?? 101,
+      logDate: body.logDate ?? new Date().toISOString().slice(0, 10),
+      mealType: body.mealType ?? "meal",
+      items: body.items,
+    }
+    mealLogs.push(log)
+
+    return created(enrichMealLog(log))
+  }),
+  http.get("/api/members/:id/calorie-summary", ({ params, request }) => {
+    const role = requireRole(request, ["member", "pt"])
+    if (typeof role !== "string") return role
+
+    const date =
+      new URL(request.url).searchParams.get("date") ??
+      new Date().toISOString().slice(0, 10)
+    const target = 2200
+    const consumed = mealLogs
+      .filter(
+        (item) => item.memberId === Number(params.id) && item.logDate === date,
+      )
+      .reduce((total, item) => total + calculateMealCalories(item), 0)
+
+    return ok({
+      memberId: Number(params.id),
+      date,
+      consumed,
+      target,
+      remaining: target - consumed,
+    })
+  }),
+  http.get("/api/members/:id/calorie-history", ({ params, request }) => {
+    const role = requireRole(request, ["member", "pt"])
+    if (typeof role !== "string") return role
+
+    const memberLogs = mealLogs.filter(
+      (item) => item.memberId === Number(params.id),
+    )
+    const daily = memberLogs.map((log) => ({
+      date: log.logDate,
+      consumed: calculateMealCalories(log),
+      target: 2200,
+    }))
+
+    return ok(daily)
+  }),
+]

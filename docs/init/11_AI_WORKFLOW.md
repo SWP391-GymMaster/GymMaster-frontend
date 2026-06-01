@@ -1,126 +1,41 @@
 # 11 — AI Workflow
 
-# GymMaster — AI Workflow for Team
+> Quy trình làm việc với AI theo mô hình **Hybrid SDD + ADD** (sách Ch.13). Mục tiêu: AI tăng tốc nhưng spec & người vẫn là "nguồn chân lý".
 
 ---
 
-# 1. Mục tiêu dùng AI
+# 1. Vòng đời ADD 4 pha cho mỗi feature
+| Pha | Tên | Việc người làm | Việc AI làm | Output |
+|---|---|---|---|---|
+| B1 | **Spec** | Viết/duyệt spec (04/06) | Soạn nháp EARS, gợi error case | Spec Approved |
+| B2 | **Plan** | Duyệt plan | Đề xuất task list, file ảnh hưởng | Task breakdown (08) |
+| B3 | **Implement** | Review từng bước | Sinh code theo spec + convention | Code + test |
+| B4 | **Validate** | Tick Validation Gate (09) | Chạy test, tự rà spec | Merge / quay lại |
 
-AI được dùng để tăng tốc quá trình học và phát triển, nhưng không thay thế quyết định của team.
+> Quy tắc vàng: **"Sai ở đâu, sửa ở Spec đó"** — code lệch acceptance thì kiểm tra & sửa Spec trước, rồi mới regenerate.
 
-AI hỗ trợ trong các giai đoạn:
+# 2. Quy trình theo phase dự án
+- **Phase 0 (Foundation):** dùng AI soạn nháp spec/constitution → người chốt. SDD nặng.
+- **Phase 1–3 (Build):** mỗi feature chạy vòng B1→B4. Hybrid.
+- **Phase 4 (Polish):** AI hỗ trợ viết test, tìm bug, refactor; người kiểm soát security.
 
-- Requirement.
-- Design.
-- Database.
-- Coding.
-- Debugging.
-- Testing.
-- Reporting.
-- Presentation.
+# 3. Kỹ thuật prompt nên dùng (chi tiết ở `14`)
+- **Clarification-First:** "Liệt kê mọi điểm chưa rõ trước khi code."
+- **Plan-then-Execute:** "Trình bày plan, đợi tôi duyệt rồi mới code."
+- **Spec-Compliance:** "Chỉ implement đúng các SHALL trong spec này, không thêm."
+- **Shadowing/Self-review:** "Đóng vai reviewer, tự tìm lỗi spec-violation trong code bạn vừa viết."
 
----
+# 4. AI Interaction Log (template ghi lại mỗi lần dùng AI)
+| # | Ngày | Task | Prompt tóm tắt | Model | Kết quả | Người verify | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| 1 | 2026-05-30 | Soạn docs | "Bổ sung 15 file theo sách" | Opus 4.8 | Đã tạo/khôi phục | minhbao | — |
+| 2 | 2026-05-30 | Đổi DB | "Chốt dùng SQL Server" | Opus 4.8 | Đã đổi toàn bộ docs | minhbao | Đảo ADR-02, xem D-17 |
 
-# 2. AI Workflow tổng quát
+# 5. Ranh giới an toàn khi dùng AI
+- KHÔNG dán secret/connection string thật vào prompt.
+- KHÔNG để AI tự quyết business rule chưa chốt.
+- KHÔNG merge code AI mà chưa qua Validation Gate (09 §6).
+- AI Vision (UC-26) **chỉ gợi ý**, người xác nhận trước khi lưu.
 
-```text
-Team xác định task
-→ Viết prompt rõ context
-→ AI đề xuất output
-→ Thành viên review
-→ Chỉnh sửa theo project scope
-→ Commit/update docs
-→ Ghi AI log nếu cần
-```
-
----
-
-# 3. AI Usage by Phase
-
-## Phase 0 — Discovery & Docs
-
-AI có thể hỗ trợ:
-
-- Viết problem statement.
-- Chuẩn hóa use cases.
-- Gợi ý business rules.
-- Gợi ý ERD.
-- Review scope.
-- Viết prompt cho team discussion.
-
-## Phase 1 — Core Operation
-
-AI có thể hỗ trợ:
-
-- Gợi ý UI layout.
-- Viết form validation.
-- Gợi ý API contract.
-- Debug auth flow.
-- Sinh test cases cho membership/check-in/PT assignment.
-
-Không được để AI tự thêm:
-
-- Payment gateway.
-- External notification.
-- AI calorie như core feature.
-- Role mới.
-
-## Phase 2 — Progress & Nutrition
-
-AI có thể hỗ trợ:
-
-- Thiết kế meal journal.
-- Tính daily calorie summary.
-- Gợi ý database food_items/meal_logs.
-- Gợi ý test cases cho nutrition.
-- Review access control PT/Member.
-
-## Phase 3 — Testing & Final
-
-AI có thể hỗ trợ:
-
-- Viết test cases.
-- Tạo UAT checklist.
-- Tạo demo script.
-- Tạo final report outline.
-- Viết retrospective.
-- Chuẩn hóa presentation script.
-
----
-
-# 4. AI Log Template
-
-| Date | Member | Phase | Task | Tool | Prompt Summary | Output Used | Human Review | Link/Evidence |
-|---|---|---|---|---|---|---|---|---|
-
----
-
-# 5. AI Review Checklist
-
-Trước khi dùng output AI:
-
-- [ ] Có đúng scope không?
-- [ ] Có tự thêm feature không?
-- [ ] Có mâu thuẫn với business rules không?
-- [ ] Có map được với database không?
-- [ ] Có thể test được không?
-- [ ] Có phù hợp timeline không?
-- [ ] Có cần team approve không?
-
-
----
-
-# 6. AI Workflow cho Image Food Recognition Assist
-
-Nếu team approve enhancement này, AI/vision chỉ được dùng theo workflow:
-
-```text
-Ảnh bữa ăn
-→ gợi ý tên món/nguyên liệu
-→ map với FoodItem nếu có
-→ Member xác nhận/chỉnh sửa
-→ Member nhập khẩu phần
-→ hệ thống tính calories từ dữ liệu đã xác nhận
-```
-
-Không được dùng AI để tự động lưu calories mà không có user confirmation.
+# 6. Đo hiệu quả (optional)
+Theo dõi: % task AI-assisted pass review lần 1, số lần phải sửa spec, thời gian/feature. Dùng để cải thiện prompt library.

@@ -1,255 +1,96 @@
-# 06 — Feature Specs
+# 06 — FEATURE SPECS
 
-# GymMaster — Feature Specifications
-
----
-
-# SPEC-01 — Authentication
-
-## Goal
-Cho phép người dùng đăng nhập/đăng xuất và truy cập hệ thống theo vai trò.
-
-## Scope
-- Login.
-- Logout.
-- Role-based redirect.
-- Protected pages/features.
-
-## Acceptance Criteria
-- User hợp lệ đăng nhập thành công.
-- User bị khóa không đăng nhập được.
-- User chỉ truy cập chức năng theo quyền.
-- Logout kết thúc session.
+**Status:** Approved
+Mỗi feature theo cấu trúc **8 thành phần** (Ch.5 sách): Context · Actors · Functional (EARS) · Non-functional · Data · Error Handling · Acceptance Criteria · Out of Scope.
 
 ---
 
-# SPEC-02 — Member Management
+## F1 — Sell & Renew Membership (CORE, Risk: High → Full Spec)
 
-## Goal
-Cho phép Admin/Staff quản lý hồ sơ hội viên.
+**1. Context & Goal:** Cho phép Staff bán/gia hạn gói cho hội viên, là nguồn doanh thu chính và đầu vào cho dashboard. Sai = sai doanh thu + tranh chấp.
 
-## Scope
-- Create member.
-- Update member.
-- Search member.
-- View member detail.
-- View membership status.
+**2. Actors:** Admin, Staff (thực hiện); System (tính ngày hết hạn, set status).
 
-## Acceptance Criteria
-- Tạo hội viên thành công.
-- Không cho trùng email/phone nếu được cấu hình unique.
-- Có thể tìm hội viên.
-- Có thể xem trạng thái gói của hội viên.
+**3. Functional (EARS):**
+- WHEN Staff bán gói hợp lệ, THE system SHALL tạo Membership `PendingPayment` + tính `EndDate = StartDate + Package.DurationDays`.
+- WHEN Payment ghi nhận, THE system SHALL chuyển Membership → `Active` và ghi AuditLog.
+- WHEN gia hạn cho Member có gói active, THE system SHALL set `StartDate = EndDate cũ`, nối tiếp thời hạn.
+- WHERE Member chưa thanh toán, THE system SHALL KHÔNG cho check-in.
 
+**4. Non-functional:** Thao tác bán gói < 500ms; mọi bước có audit.
 
----
+**5. Data:** Memberships, Payments, MembershipPackages, Members (xem `05`).
 
-# SPEC-02A — Staff Management
+**6. Error Handling (Unwanted):**
+- Gói không tồn tại → 404. · Member không tồn tại → 404.
+- Ghi payment trùng kỳ → 409. · StartDate quá khứ xa/không hợp lệ → 422.
 
-## Goal
-Cho phép Admin quản lý tài khoản và hồ sơ Staff trong hệ thống 4 role.
+**7. Acceptance Criteria (Given-When-Then):**
+- [ ] Bán gói hợp lệ → Membership `PendingPayment`, EndDate đúng.
+- [ ] Ghi payment → status `Active`, AuditLog `SELL_MEMBERSHIP`.
+- [ ] Gia hạn khi đang active → EndDate nối tiếp, không trùng lặp ngày.
+- [ ] Member chưa thanh toán → check-in bị từ chối.
 
-## Scope
-- Create staff account.
-- Update staff profile.
-- Lock/unlock staff account.
-- Search staff.
-- View staff operation history.
-
-## Acceptance Criteria
-- Admin tạo Staff thành công với role Staff.
-- Staff bị khóa không đăng nhập được.
-- Staff chỉ truy cập được chức năng vận hành như quản lý hội viên, bán/gia hạn gói, check-in hỗ trợ.
-- Mọi thao tác quan trọng được ghi Audit Log.
+**8. Out of Scope:** Payment gateway tự động; hoá đơn điện tử; trả góp.
 
 ---
 
-# SPEC-03 — Membership Package
+## F2 — Check-in (CORE, Risk: Medium → Detailed)
 
-## Goal
-Cho phép Admin quản lý các gói tập.
-
-## Scope
-- Create package.
-- Update package.
-- Deactivate package.
-- View package list.
-
-## Acceptance Criteria
-- Package có tên, giá, thời hạn.
-- Không bán package inactive.
-- Package price phải hợp lệ.
+**1. Context:** Ghi nhận lượt đến phòng, đầu vào cho dashboard & xác thực gói còn hạn.
+**2. Actors:** Staff (quầy), Member (self).
+**3. Functional (EARS):**
+- WHEN Member có Membership Active còn hạn check-in, THE system SHALL tạo CheckIn (timestamp UTC).
+- WHERE membership hết hạn/không active, THE system SHALL từ chối + hiện nhắc gia hạn.
+- (Optional) WHERE cấu hình giới hạn 1 lần/ngày bật, THE system SHALL chặn check-in thứ 2 trong ngày.
+**4. Non-functional:** Check-in < 300ms, ≤ 3 click.
+**5. Data:** CheckIns, Memberships, Members.
+**6. Error Handling:** Member không tồn tại → 404; không có gói active → 403/422 kèm message gia hạn.
+**7. Acceptance:** [ ] Member còn hạn → tạo CheckIn. [ ] Member hết hạn → từ chối + cảnh báo. [ ] Check-in hiện trong dashboard hôm nay.
+**8. Out of Scope:** Quét vân tay/thẻ từ phần cứng (MVP dùng tìm theo mã/SĐT).
 
 ---
 
-# SPEC-04 — Membership Selling & Renewal
+## F3 — PT Assignment & Workout Plan (CORE, Risk: Medium → Detailed)
 
-## Goal
-Bán hoặc gia hạn gói tập cho hội viên.
-
-## Scope
-- Sell package.
-- Renew package.
-- Create payment.
-- Update membership.
-- Audit log.
-
-## Acceptance Criteria
-- Bán gói tạo payment và membership.
-- Gia hạn cập nhật ngày hết hạn.
-- Payment status được lưu.
-- Audit log được tạo.
+**1. Context:** Admin phân công PT; PT lập giáo án cho Member của mình.
+**2. Actors:** Admin (phân công), PT (giáo án/note).
+**3. Functional (EARS):**
+- WHEN Admin phân công PT cho Member chưa có PT active, THE system SHALL tạo TrainerAssignment active.
+- WHERE Member đã có PT active, THE system SHALL trả 422.
+- WHEN PT tạo WorkoutPlan cho Member được phân công, THE system SHALL lưu plan + exercises.
+- WHERE PT thao tác trên Member không thuộc mình, THE system SHALL trả 403.
+**4. Non-functional:** Lưu giáo án < 500ms.
+**5. Data:** TrainerAssignments, WorkoutPlans, WorkoutExercises, TrainerNotes.
+**6. Error Handling:** Member/PT không tồn tại → 404; trùng PT active → 422; vượt quyền → 403.
+**7. Acceptance:** [ ] Phân công thành công khi Member chưa có PT. [ ] PT chỉ thấy Member của mình. [ ] Tạo plan + ≥1 exercise. [ ] PT lạ bị 403.
+**8. Out of Scope:** Lịch buổi tập theo slot, video bài tập.
 
 ---
 
-# SPEC-05 — Check-in
+## F4 — Meal Journal & Calorie Summary (CORE, Risk: Low-Med → Detailed)
 
-## Goal
-Ghi nhận lượt đến phòng tập.
-
-## Scope
-- Check-in bằng QR/card hoặc hỗ trợ tại quầy.
-- Validate membership.
-- Save check-in record.
-- Dashboard summary.
-
-## Acceptance Criteria
-- Check-in hợp lệ được lưu.
-- Membership expired được cảnh báo/từ chối theo rule team chốt.
-- Check-in records hiển thị trong lịch sử.
+**1. Context:** Member ghi bữa ăn từ food database, hệ thống tính calo/macro ngày.
+**2. Actors:** Member (nhập), System (tính tổng).
+**3. Functional (EARS):**
+- WHEN Member thêm món với khẩu phần > 0, THE system SHALL tạo MealLogItem + tính lại Daily Calorie Summary.
+- WHERE khẩu phần ≤ 0 → 422; FoodItem không tồn tại → 404.
+- THE system SHALL tính Summary = Σ(calo × khẩu phần) trong ngày.
+**4. Non-functional:** Cập nhật summary < 500ms sau khi thêm món.
+**5. Data:** FoodItems, MealLogs, MealLogItems.
+**6. Error Handling:** Khẩu phần âm/0 → 422; món lạ → 404; trùng món → cộng dồn khẩu phần.
+**7. Acceptance:** [ ] Thêm món hợp lệ → summary cập nhật đúng. [ ] Khẩu phần 0 → 422. [ ] Tổng calo = đúng công thức.
+**8. Out of Scope:** Tự định lượng calo từ ảnh (chỉ gợi ý tên — ENH-01); gợi ý thực đơn AI.
 
 ---
 
-# SPEC-06 — PT Assignment
+## F5 — Dashboard (CORE, Risk: Low → Sketch+Detailed)
 
-## Goal
-Phân công PT cho hội viên.
-
-## Scope
-- Admin assign PT.
-- Close old assignment if needed.
-- Create new assignment.
-- Audit log.
-- PT view assigned members.
-
-## Acceptance Criteria
-- Member có tối đa 1 PT active.
-- PT chỉ xem Member được phân công.
-- Audit log được tạo.
-
----
-
-# SPEC-07 — Workout Plan & Trainer Notes
-
-## Goal
-PT tạo giáo án và ghi chú cho hội viên.
-
-## Scope
-- Create workout plan.
-- Add exercises.
-- Assign plan to Member.
-- Add daily note.
-- Member view plan/note.
-
-## Acceptance Criteria
-- PT tạo được plan cho assigned Member.
-- Member xem được plan/note.
-- PT không tạo note cho Member không thuộc mình.
-
----
-
-# SPEC-08 — Progress Tracking
-
-## Goal
-Theo dõi tiến độ tập luyện của hội viên.
-
-## Scope
-- Weight log.
-- Body measurement.
-- Before/after photo metadata.
-- Progress history.
-
-## Acceptance Criteria
-- Member/PT thêm được progress record.
-- Member xem được lịch sử.
-- PT xem được progress của assigned Member.
-
----
-
-# SPEC-09 — Calorie Tracking & Meal Journal
-
-## Goal
-Hỗ trợ hội viên theo dõi calories thủ công.
-
-## Scope
-- Set calorie target.
-- Search food database.
-- Add custom food.
-- Add meal log.
-- View daily summary.
-- View history.
-- PT view assigned member nutrition progress.
-
-## Enhancement Boundary
-- Image Food Recognition Assist có thể xem xét sau secondary scope.
-- Tính năng này chỉ gợi ý tên món/nguyên liệu từ ảnh.
-- Không tự động định lượng calories hoàn toàn bằng AI.
-- User phải xác nhận món và khẩu phần trước khi lưu.
-
-## Acceptance Criteria
-- Member thêm được meal log.
-- Tổng calories trong ngày được tính đúng.
-- Remaining calories được tính từ target.
-- PT xem được nutrition history của assigned Member.
-
----
-
-# SPEC-10 — Dashboard & Audit Log
-
-## Goal
-Admin theo dõi vận hành và audit trail.
-
-## Scope
-- Revenue summary.
-- Payment status.
-- Active/expired members.
-- Check-in stats.
-- Audit logs.
-
-## Acceptance Criteria
-- Dashboard lấy dữ liệu thật từ payment/membership/checkin.
-- Audit log hiển thị các hành động quan trọng.
-- Admin có thể lọc audit logs.
-
-
----
-
-# SPEC-11 — Image Food Recognition Assist
-
-## Goal
-Hỗ trợ Member nhập meal log nhanh hơn bằng cách dùng ảnh để gợi ý tên món hoặc nguyên liệu.
-
-## Scope
-- Upload meal image.
-- Recognize possible food names/ingredients.
-- Suggest matching FoodItems.
-- User confirms/edits suggestions.
-- Calories calculated from confirmed food items and quantity.
-
-## Out of Scope
-- Automatic calorie calculation directly from image.
-- Automatic portion size estimation.
-- Saving calories without user confirmation.
-
-## Acceptance Criteria
-- Manual Meal Journal vẫn hoạt động nếu recognition service lỗi.
-- Recognition result chỉ là suggestion.
-- User phải xác nhận/chỉnh sửa trước khi lưu.
-- MealLog cuối cùng vẫn dựa trên FoodItem/CustomFood và quantity.
-
-
----
-
-## Approved Architecture
-
-Frontend Next.js gọi Backend ASP.NET Core 8 Web API thông qua RESTful API. Backend dùng MySQL thông qua Entity Framework Core 8 Code First Migrations, xác thực bằng JWT Bearer Token + BCrypt.
+**1. Context:** Admin xem doanh thu, membership active/expired, check-in.
+**2. Actors:** Admin.
+**3. Functional (EARS):** WHEN Admin mở dashboard, THE system SHALL trả số liệu từ dữ liệu thật (không mock): tổng doanh thu kỳ, #active/#expired, check-in theo ngày.
+**4. Non-functional:** Load < 2s với ~1000 hội viên.
+**5. Data:** Payments, Memberships, CheckIns (aggregate query).
+**6. Error Handling:** Không có dữ liệu kỳ → trả 0, không lỗi.
+**7. Acceptance:** [ ] Số liệu khớp DB. [ ] Lọc theo khoảng ngày. [ ] Member/PT không truy cập được (403).
+**8. Out of Scope:** Realtime, export báo cáo nâng cao (Secondary).
