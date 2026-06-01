@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GymMaster Frontend
 
-## Getting Started
+GymMaster frontend implementation for the gym management system specified in `docs/init/`.
 
-First, run the development server:
+This repository is frontend-only. It implements the Next.js UI, frontend routes, role-aware workspaces, API client integration, state handling, forms, validation, responsive UX, and frontend tests for GymMaster.
+
+## Source of Truth
+
+Read in this order:
+
+1. `AGENTS.md` — agent rules and non-negotiable frontend constraints.
+2. `docs/init/` — full-system GymMaster product scope, roles, use cases, requirements, roadmap, and API expectations.
+3. `docs/design/` — frontend UX/UI, route map, component, architecture, workflow, and testing guidance derived from `docs/init`.
+4. Current code/config — what is actually implemented today.
+
+Backend, database, authentication server, storage, notification, Azure, and AI Vision details in `docs/init/` are external contracts for this frontend repo.
+
+## Current Status
+
+Current implementation is still a minimal Next.js starter with Tailwind CSS and initial shadcn-style UI wiring. GymMaster frontend features are not implemented yet.
+
+Current scripts:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run typecheck
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Test, E2E, and Storybook scripts are planned but not installed/configured yet.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Product Summary
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+GymMaster supports four roles:
 
-## Learn More
+- Admin
+- Staff
+- PT
+- Member
 
-To learn more about Next.js, take a look at the following resources:
+MVP flow:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+Login
+→ member/profile management
+→ sell/renew membership
+→ check-in
+→ assign PT
+→ workout plan and trainer notes
+→ progress and meal journal
+→ dashboard and audit log
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Important Rules
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Use npm.
+- Do not add a role picker to login.
+- Backend determines role after authentication.
+- Frontend redirects by authenticated user role.
+- Do not add backend/database source code to this repo unless scope is explicitly changed.

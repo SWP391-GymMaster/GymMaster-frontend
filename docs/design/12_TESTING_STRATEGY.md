@@ -1,5 +1,7 @@
 # 12 — Frontend Testing Strategy
 
+> Repo-local status: Frontend target testing guide. Current repo has `typecheck` and `lint` only; Vitest, React Testing Library, MSW, Playwright, and Storybook evidence are planned until installed/configured.
+
 ## 1. Mục tiêu
 
 Testing của frontend nhằm đảm bảo demo và core flow ổn định cao nhất có thể.

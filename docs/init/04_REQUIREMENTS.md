@@ -2,6 +2,8 @@
 
 # GymMaster — Functional & Non-functional Requirements
 
+> Repo-local status: Full-system requirements source of truth. Frontend work owns UI, route, client validation, client state, API integration, and frontend permission presentation. Backend, database, token issuing, hashing, and server-side authorization are external contracts for this repo.
+
 ---
 
 # 0. Technology Stack

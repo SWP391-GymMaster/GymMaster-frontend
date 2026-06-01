@@ -2,6 +2,8 @@
 
 # GymMaster — MVP, Features & Scope
 
+> Repo-local status: Full-system product scope source of truth. Frontend tasks must derive feature priority from this file, then use `docs/design/` for frontend implementation guidance. Backend/database implementation remains outside this frontend repo.
+
 ## 1. MVP Definition
 
 MVP của GymMaster là phiên bản tối thiểu nhưng đủ chứng minh hệ thống có thể quản lý vận hành phòng tập theo một flow hoàn chỉnh:

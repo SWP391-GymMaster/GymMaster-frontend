@@ -1,5 +1,7 @@
 # 02 — Frontend Tech Stack
 
+> Repo-local status: Frontend target implementation guide derived from `docs/init/`. Packages listed here are target dependencies, not necessarily installed. Check `package.json` and `docs/implementation/package-tooling-audit.md` for current implementation evidence.
+
 ## 1. Stack chính thức
 
 | Layer | Technology | Vai trò |

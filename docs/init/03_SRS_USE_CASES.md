@@ -4,6 +4,8 @@
 
 **Status:** Updated — Approved 4 Roles
 
+> Repo-local status: Full-system use-case source of truth. Frontend implementation should map screens, routes, permissions, loading/error states, and Playwright flows to these use cases. Server-side enforcement is an external backend contract.
+
 ---
 
 # 1. Actors

@@ -4,6 +4,8 @@
 **Last Updated**: 2026-05-30  
 **Base URL**: /api  
 
+> Repo-local status: External API contract for the frontend. This frontend repo should consume/mock these endpoints and response shapes, but must not implement the ASP.NET Core API here unless repo scope is explicitly changed.
+
 ---
 
 ## Conventions

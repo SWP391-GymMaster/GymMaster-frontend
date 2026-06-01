@@ -5,6 +5,8 @@
 **Status:** Updated — Approved 4 Roles & Tech Stack  
 **Phase:** Phase 0 — Context Discovery
 
+> Repo-local status: Full-system product source of truth. This frontend repository uses this file for product context, roles, goals, assumptions, and business flow. Backend/database/service details are external contracts, not frontend implementation scope.
+
 ## 1. Problem Statement
 
 Phòng tập gym quy mô nhỏ đến trung bình thường vận hành bằng Excel, sổ tay, Zalo hoặc nhiều công cụ rời rạc. Điều này gây ra các vấn đề:

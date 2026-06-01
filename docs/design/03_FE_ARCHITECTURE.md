@@ -1,5 +1,7 @@
 # 03 — Frontend Architecture
 
+> Repo-local status: Frontend target architecture. Current code has not fully adopted this structure yet. Any move to `src/` or feature-first folders requires a scoped implementation/refactor task.
+
 ## 1. Folder structure đề xuất
 
 ```text

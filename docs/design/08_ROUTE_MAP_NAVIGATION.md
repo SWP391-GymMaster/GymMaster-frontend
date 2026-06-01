@@ -1,5 +1,7 @@
 # 08 — Route Map & Role-based Navigation
 
+> Repo-local status: Frontend target route map derived from `docs/init` roles and use cases. Routes in this file are planned until implemented in code. Login must not include role selection.
+
 ## 1. Route map
 
 ```text
