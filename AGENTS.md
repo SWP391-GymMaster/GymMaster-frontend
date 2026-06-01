@@ -24,8 +24,9 @@ Use source-of-truth layers in this order:
 
 1. `AGENTS.md` for agent rules and non-negotiable frontend constraints.
 2. `docs/init/` for full-system product scope, roles, use cases, requirements, API expectations, roadmap, and business rules.
-3. `docs/design/` for frontend UX/UI, frontend architecture, route map, component, workflow, and implementation guidance derived from the product spec.
-4. Actual code/config for current implemented behavior.
+3. `docs/backend/` for backend feature specs, auth API details, RBAC rules, response shapes, error codes, and endpoint contracts that the frontend must integrate with or mock.
+4. `docs/design/` for frontend UX/UI, frontend architecture, route map, component, workflow, and implementation guidance derived from the product spec.
+5. Actual code/config for current implemented behavior.
 
 The official design sources have been packaged into this repository under `docs/design/`:
 
@@ -39,9 +40,9 @@ The original **GymMaster Full Premium App v8** remains the selected design direc
 The **Auth Update** version only updates authentication and navigation rules while preserving the original v8 direction.  
 The packaged **Final V4** docs in `docs/design/` are the practical repo-local reference agents must read for implementation work.
 
-Backend, database, ORM, Azure, and API testing details in `docs/init/` are **external system contracts** for this frontend repo. Do not implement backend/database code here unless the human owner explicitly changes repo scope.
+Backend, database, ORM, Azure, and API testing details in `docs/init/` and `docs/backend/` are **external system contracts** for this frontend repo. Do not implement backend/database code here unless the human owner explicitly changes repo scope.
 
-If older docs/plugins conflict with this file, follow this file first, then `docs/init/` for product rules, then the relevant files in `docs/design/` for frontend implementation.
+If older docs/plugins conflict with this file, follow this file first, then `docs/init/` for product rules, then `docs/backend/` for API/RBAC/backend contracts, then the relevant files in `docs/design/` for frontend implementation.
 
 ---
 
@@ -409,19 +410,63 @@ Do not leak technical permission details.
 
 Follow **GymMaster Full Premium App v8**.
 
-Design identity:
+### Design identity
 
 ```text
 Apple-inspired premium fitness operations product
 Bento layout
-Glass-like cards
-Large typography
+Glass-like cards (backdrop-blur + layered borders + highlight overlays)
+Large typography (display up to 5xl–7xl)
 Dark metric hero
 Role-focused workspaces
 Mobile-first member experience
+Emerald single accent
+Geist font family (primary) + Geist Mono (code)
+Restrained motion with tactile feedback
 ```
 
-Do not create:
+### Font rule
+
+Primary font: **Geist** (loaded via `next/font`).  
+Mono font: **Geist Mono**.  
+Do not use Inter, Roboto, Arial, or Open Sans as display/body fonts.
+
+### Icon rule
+
+Use **Lucide React** (per tech stack in Section 4).  
+Do not mix Lucide with other icon libraries.  
+Standardize stroke width. Keep icons consistent across all views.
+
+### Color rule
+
+Single accent: Emerald (`#10B981`).  
+Primary text/button: Zinc-950 / near-black neutral.  
+Do not use Indigo/Purple as primary accent.  
+Do not use pure `#000000` for shadows.  
+Status colors are managed centrally by `StatusPill`.
+
+### Radii consistency
+
+Use one radii scale across the entire app:
+
+| Element | Radius |
+|---|---|
+| Glass shell / outer card | `rounded-[2rem]` |
+| Inner card / section | `rounded-[1.5rem]` |
+| Form input | `rounded-2xl` |
+| Primary CTA / button | `rounded-full` |
+| Pill / badge | `rounded-full` |
+| Dialog | `rounded-[1.5rem]` |
+
+### Interaction patterns
+
+- All interactive elements must have hover state.
+- Buttons get `active:scale-[0.98]` press feedback.
+- Cards get hover lift (`-translate-y-0.5` + `shadow-lg`).
+- Transitions use custom cubic-bezier, never `linear` or `ease-in-out`.
+- Motion duration: 150–250ms (subtle). No distracting animations.
+
+### Do not create
 
 ```text
 Generic admin dashboard
@@ -429,9 +474,10 @@ Plain CRUD table-only pages
 Neon gaming UI
 Overly tactical console UI
 Over-colorful student project UI
+Sidebar-topbar classic admin layout
 ```
 
-Each screen must have:
+### Each screen must have
 
 ```text
 clear hierarchy
@@ -440,7 +486,16 @@ visible status
 role context
 loading/error/empty state
 responsive behavior
+tactile feedback on interactive elements
 ```
+
+### Premium visual patterns (from taste-skill)
+
+- Glass surface: `backdrop-blur` + `border border-white/70` + `bg-white/75` + tinted shadow.
+- Dark surface: `bg-zinc-950` + `border border-white/10` + `shadow-xl` + white text.
+- Background: radial gradient with emerald wash + soft linear gradient.
+- Status: `StatusPill` with text + color (never color only).
+- No hardcoded status colors per page.
 
 ---
 

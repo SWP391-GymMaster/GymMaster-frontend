@@ -1,115 +1,50 @@
-# 02 — Product Scope
+# 02 — PRODUCT SCOPE
 
-# GymMaster — MVP, Features & Scope
+**Status:** Approved | **Direction:** Core Gym Operation & Member Progress
 
-> Repo-local status: Full-system product scope source of truth. Frontend tasks must derive feature priority from this file, then use `docs/design/` for frontend implementation guidance. Backend/database implementation remains outside this frontend repo.
+## 1. Product Direction
+GymMaster tập trung vào **vận hành cốt lõi của phòng gym + theo dõi tiến độ hội viên**, không phải nền tảng đa năng. Mục tiêu: 1 core flow chạy xuyên suốt, demo ổn định, dữ liệu thật từ workflow.
 
-## 1. MVP Definition
-
-MVP của GymMaster là phiên bản tối thiểu nhưng đủ chứng minh hệ thống có thể quản lý vận hành phòng tập theo một flow hoàn chỉnh:
-
-```text
-Member Management
-→ Membership Selling/Renewal
-→ Check-in
-→ PT Assignment
-→ Workout/Notes
-→ Progress Tracking
-→ Meal Journal
-→ Dashboard/Audit Log
-```
-
-## 2. MVP Core Modules
-
-| ID | Module | Actor chính | Trạng thái |
-|---|---|---|---|
-| M-01 | Authentication & Authorization | All | Core |
-| M-02 | User & Role Management | Admin | Core |
-| M-03 | Member Management | Admin/Staff | Core |
-| M-03A | Staff Management | Admin | Core |
-| M-04 | PT Management | Admin | Core |
-| M-05 | Membership Package Management | Admin | Core |
-| M-06 | Membership Selling & Renewal | Admin/Staff/Member | Core |
-| M-07 | Check-in | Member/Admin/Staff | Core |
-| M-08 | PT Assignment | Admin | Core |
-| M-09 | Workout Plan | PT | Core |
-| M-10 | Trainer Notes | PT | Core |
-| M-11 | Member 360° Profile | Member/PT/Admin | Core |
-| M-12 | Progress Tracking | Member/PT | Core |
-| M-13 | Calorie Tracking & Meal Journal | Member/PT | Core |
-| M-14 | Revenue & Payment Dashboard | Admin | Core |
-| M-15 | Audit Log | Admin/System | Core |
-
-## 3. Core Features
-
-| Feature ID | Feature | Description |
+## 2. MVP (bắt buộc cho demo)
+| ID | Feature | Mô tả |
 |---|---|---|
-| F-01 | Login / Logout | Người dùng đăng nhập/đăng xuất. |
-| F-02 | Role-based Access | Người dùng chỉ truy cập chức năng theo vai trò. |
-| F-03 | Manage Users | Admin quản lý tài khoản. |
-| F-04 | Manage Members | Admin/Staff quản lý hội viên. |
-| F-04A | Manage Staff | Admin tạo, cập nhật, khóa tài khoản Staff. |
-| F-05 | Manage PTs | Admin quản lý hồ sơ PT. |
-| F-06 | Manage Packages | Admin quản lý gói tập. |
-| F-07 | Sell Package | Admin/Staff bán gói cho hội viên. |
-| F-08 | Renew Package | Admin/Staff/Member gia hạn gói. |
-| F-09 | Check-in | Member check-in hoặc Admin/Staff check-in hỗ trợ. |
-| F-10 | Assign PT | Admin phân công PT cho Member. |
-| F-11 | View Assigned Members | PT xem hội viên được phân công. |
-| F-12 | Create Workout Plan | PT tạo giáo án. |
-| F-13 | Add Trainer Note | PT ghi chú hằng ngày. |
-| F-14 | View 360° Profile | Member/PT/Admin xem hồ sơ tổng quan. |
-| F-15 | Track Progress | Theo dõi cân nặng, số đo, ảnh before/after. |
-| F-16 | Set Calorie Target | PT/Member đặt mục tiêu calories. |
-| F-17 | Add Meal Log | Member ghi bữa ăn. |
-| F-18 | Search Food Item | Member chọn món từ food database. |
-| F-19 | Add Custom Food | Member tự thêm món. |
-| F-20 | View Daily Calorie Summary | Member xem calories đã nạp/còn lại. |
-| F-21 | View Revenue Dashboard | Admin xem doanh thu và thanh toán. |
-| F-22 | View Audit Logs | Admin xem audit log. |
+| MVP-01 | Auth & Role | Đăng nhập JWT, 4 role Admin/Staff/PT/Member |
+| MVP-02 | Member Management | Admin/Staff tạo, sửa, tìm hồ sơ hội viên |
+| MVP-03 | Membership Package | Admin tạo/sửa gói tập mẫu |
+| MVP-04 | Sell & Renew Membership | Bán/gia hạn gói, gán cho Member, set ngày hết hạn |
+| MVP-05 | Payment (manual) | Ghi nhận thanh toán thủ công cho membership |
+| MVP-06 | Check-in | Ghi nhận lượt check-in của Member |
+| MVP-07 | PT Assignment | Admin phân công PT cho Member |
+| MVP-08 | Workout Plan | PT tạo giáo án + bài tập cho Member |
+| MVP-09 | Trainer Note | PT ghi chú luyện tập hằng ngày |
+| MVP-10 | Progress Log | Member/PT ghi tiến độ (cân nặng, body metrics) |
+| MVP-11 | Member 360 Profile | Member xem hồ sơ tổng hợp: gói, PT, giáo án, tiến độ |
+| MVP-12 | Meal Journal (manual) | Member nhập bữa ăn từ food database |
+| MVP-13 | Daily Calorie Summary | Hệ thống tính tổng calo/macro từ MealLog |
+| MVP-14 | Dashboard | Doanh thu, trạng thái thanh toán, check-in |
+| MVP-15 | Audit Log | Ghi log hành động quan trọng |
 
-## 4. Secondary Features
-
-| ID | Feature | Description |
-|---|---|---|
-| S-01 | Barcode Lookup | Member nhập/scan barcode để tìm sản phẩm đóng gói. |
-| S-02 | Basic In-app Notification | Nhắc gói sắp hết hạn trong app. |
-| S-03 | PT Online Booking | Member đặt lịch PT. |
-| S-04 | Basic Group Classes | Quản lý lớp Yoga/Zumba/HIIT mức đơn giản. |
-| S-05 | Combo Packages | Gói combo và dịch vụ. |
-| S-06 | Basic PT KPI | Theo dõi số buổi/hội viên của PT. |
-
-
-## 5. Enhancement sau Secondary
-
-Các tính năng enhancement chỉ xem xét sau khi core và secondary đã ổn định.
-
-| ID | Feature | Description |
-|---|---|---|
-| E-01 | Image Food Recognition Assist | Member upload ảnh bữa ăn, hệ thống dùng AI/vision để gợi ý tên món hoặc nguyên liệu. User phải xác nhận/chỉnh sửa món và khẩu phần. Calories được tính từ food database/meal log, không tự động định lượng hoàn toàn bằng AI. |
-
-## 6. Out-of-scope
-
-| ID | Feature | Reason |
-|---|---|---|
-
-| O-01 | Payment gateway thật | Phức tạp, cần callback, bảo mật và test nhiều. |
-| O-02 | Zalo/SMS realtime | Phụ thuộc account/API/chi phí. |
-| O-03 | Realtime chat | Tăng scope socket/message state. |
-| O-04 | Auto assign PT | Cần thuật toán và rule rõ. |
-| O-05 | Advanced reports/PDF export | Để phase mở rộng. |
-| O-06 | Multi-branch support | Thay đổi schema và phân quyền. |
-| O-07 | PT salary calculation nâng cao | Cần rule lương rõ. |
-
-## 7. Release Scope Summary
-
-| Release | Scope |
+## 3. Secondary (làm nếu còn thời gian)
+| ID | Feature |
 |---|---|
-| v0.1 | Docs, context, use cases, wireframe, database draft |
-| v0.2 | Auth, users, members, packages |
-| v0.3 | Membership selling/renewal, check-in, PT assignment |
-| v0.4 | Workout plan, notes, progress tracking |
-| v0.5 | Calorie tracking & meal journal |
-| v0.6 | Dashboard, audit log, test, UAT |
-| v0.8 | Enhancement candidate: Image Food Recognition Assist nếu core/secondary đã ổn |
-| v1.0 | Final demo release |
+| SEC-01 | Custom food do Member tự thêm |
+| SEC-02 | Calorie target/macro goal cá nhân hóa |
+| SEC-03 | Barcode lookup món ăn |
+| SEC-04 | Lọc/báo cáo nâng cao trên dashboard |
+| SEC-05 | Push notification (FCM) nhắc hết hạn gói |
+
+## 4. Enhancement (sau secondary)
+| ID | Feature | Ghi chú |
+|---|---|---|
+| ENH-01 | Image Food Recognition Assist | Dùng Google Cloud Vision đọc ảnh → **gợi ý tên món/nguyên liệu**, KHÔNG tự định lượng calo. User phải xác nhận món + khẩu phần trước khi lưu. |
+
+## 5. Out of Scope (CHỐT — KHÔNG làm trong MVP)
+- Multi-branch / chuỗi phòng gym.
+- Tích hợp payment gateway tự động (VNPay/Momo/Stripe).
+- Realtime dashboard / websocket.
+- Đặt lịch lớp học, booking PT theo slot.
+- Mobile app native (chỉ web responsive).
+- E-commerce bán supplement / sản phẩm.
+- Tự động định lượng calo từ ảnh (chỉ gợi ý tên món — xem ENH-01).
+
+> **Lý do giữ Out of Scope:** giảm rủi ro external API, đảm bảo core flow demo ổn định, dễ chia việc 5 người trong timeline.

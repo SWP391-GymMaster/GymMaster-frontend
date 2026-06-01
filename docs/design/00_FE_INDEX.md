@@ -5,6 +5,8 @@
 **Owner:** Frontend + UX/UI  
 **Mục tiêu:** Chuẩn hóa toàn bộ kiến trúc frontend, UX/UI, testing, AI workflow, context management và repo workflow cho dự án GymMaster.
 
+> Runtime UI copy decision: MVP frontend screens use English user-facing copy for implementation/demo stability. Vietnamese remains the language of this docs pack and product planning docs. See `docs/07-copy-language-decision.md`.
+
 ---
 
 ## 1. Frontend stack đã chốt
@@ -17,9 +19,10 @@ Read order for frontend work:
 
 1. `AGENTS.md` for repo rules.
 2. `docs/init/00_INDEX.md`, `01_CONTEXT.md`, `02_PRODUCT_SCOPE.md`, `03_SRS_USE_CASES.md`, `04_REQUIREMENTS.md`, and `16_API_ENDPOINT_REFERENCE.md` for product and API rules.
-3. This `docs/design/` pack for frontend UX/UI and implementation guidance.
+3. `docs/backend/` for concrete backend API/RBAC/error contracts used by frontend integration and MSW mocks.
+4. This `docs/design/` pack for frontend UX/UI and implementation guidance.
 
-This repo implements frontend only. Backend, database, auth server, storage, notification, and AI service details from `docs/init/` are external contracts.
+This repo implements frontend only. Backend, database, auth server, storage, notification, and AI service details from `docs/init/` and `docs/backend/` are external contracts.
 
 ---
 

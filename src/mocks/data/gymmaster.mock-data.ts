@@ -1,0 +1,231 @@
+export type MockMember = {
+  id: number
+  memberCode: string
+  fullName: string
+  email: string
+  phone: string
+  status: "active" | "pending" | "expired"
+  currentPackageId?: number
+  assignedTrainerId?: number
+}
+
+export type MockPackage = {
+  id: number
+  name: string
+  durationDays: number
+  price: number
+  status: "active" | "locked"
+}
+
+export type MockMembership = {
+  id: number
+  memberId: number
+  packageId: number
+  startDate: string
+  endDate: string
+  status: "PendingPayment" | "Active" | "Expired"
+}
+
+export type MockTrainer = {
+  id: number
+  userId: number
+  fullName: string
+  specialty: string
+  status: "active" | "locked"
+}
+
+export type MockWorkoutPlan = {
+  id: number
+  memberId: number
+  trainerId: number
+  title: string
+  exercises: unknown[]
+}
+
+export type MockProgressEntry = {
+  id: number
+  memberId: number
+  measuredAt: string
+  weightKg: number
+  bodyFatPct?: number
+}
+
+export const members: MockMember[] = [
+  {
+    id: 101,
+    memberCode: "GM-101",
+    fullName: "Nguyen Minh Anh",
+    email: "member@gymmaster.local",
+    phone: "0900000101",
+    status: "active",
+    currentPackageId: 1,
+    assignedTrainerId: 301,
+  },
+  {
+    id: 102,
+    memberCode: "GM-102",
+    fullName: "Tran Bao Long",
+    email: "long@gymmaster.local",
+    phone: "0900000102",
+    status: "pending",
+    currentPackageId: 2,
+  },
+  {
+    id: 103,
+    memberCode: "GM-103",
+    fullName: "Le Hoang My",
+    email: "my@gymmaster.local",
+    phone: "0900000103",
+    status: "expired",
+  },
+]
+
+export const packages: MockPackage[] = [
+  {
+    id: 1,
+    name: "Premium 30",
+    durationDays: 30,
+    price: 900000,
+    status: "active",
+  },
+  {
+    id: 2,
+    name: "Strength 90",
+    durationDays: 90,
+    price: 2400000,
+    status: "active",
+  },
+]
+
+export const memberships: MockMembership[] = [
+  {
+    id: 201,
+    memberId: 101,
+    packageId: 1,
+    startDate: "2026-06-01",
+    endDate: "2026-06-30",
+    status: "Active",
+  },
+  {
+    id: 202,
+    memberId: 102,
+    packageId: 2,
+    startDate: "2026-06-01",
+    endDate: "2026-08-29",
+    status: "PendingPayment",
+  },
+]
+
+export const trainers: MockTrainer[] = [
+  {
+    id: 301,
+    userId: 3,
+    fullName: "Coach PT",
+    specialty: "Strength and conditioning",
+    status: "active",
+  },
+]
+
+export const assignments = [
+  {
+    id: 401,
+    memberId: 101,
+    trainerId: 301,
+    status: "active",
+    assignedAt: "2026-06-01T08:00:00.000Z",
+  },
+]
+
+export const checkins = [
+  {
+    id: 501,
+    memberId: 101,
+    checkInAt: "2026-06-01T09:15:00.000Z",
+    source: "front-desk",
+  },
+]
+
+export const workoutPlans: MockWorkoutPlan[] = [
+  {
+    id: 601,
+    memberId: 101,
+    trainerId: 301,
+    title: "Foundation Strength",
+    exercises: [
+      { name: "Squat", sets: 4, reps: 8 },
+      { name: "Bench Press", sets: 4, reps: 8 },
+    ],
+  },
+]
+
+export const trainerNotes = [
+  {
+    id: 701,
+    memberId: 101,
+    trainerId: 301,
+    content: "Keep shoulder warm-up before pressing.",
+    createdAt: "2026-06-01T10:00:00.000Z",
+  },
+]
+
+export const progressEntries: MockProgressEntry[] = [
+  {
+    id: 801,
+    memberId: 101,
+    measuredAt: "2026-06-01",
+    weightKg: 68.2,
+    bodyFatPct: 18.5,
+  },
+]
+
+export const foodItems = [
+  { id: 901, name: "Chicken breast", unit: "100g", caloriesPerUnit: 165 },
+  { id: 902, name: "White rice", unit: "100g", caloriesPerUnit: 130 },
+  { id: 903, name: "Banana", unit: "piece", caloriesPerUnit: 105 },
+]
+
+export const mealLogs = [
+  {
+    id: 1001,
+    memberId: 101,
+    logDate: "2026-06-01",
+    mealType: "lunch",
+    items: [
+      { foodItemId: 901, quantity: 1.5 },
+      { foodItemId: 902, quantity: 2 },
+    ],
+  },
+]
+
+export type MockAuditLog = {
+  id: number
+  userId: number
+  userDisplayName?: string
+  action: string
+  createdAt: string
+  entityType: string
+  entityId: number
+}
+
+export const auditLogs: MockAuditLog[] = [
+  { id: 1101, userId: 1, userDisplayName: "Admin User", action: "MEMBERSHIP_PAYMENT_CONFIRMED", createdAt: "2026-06-01T09:30:00.000Z", entityType: "membership", entityId: 201 },
+  { id: 1102, userId: 2, userDisplayName: "Front Desk Staff", action: "MEMBER_CHECK_IN", createdAt: "2026-06-01T09:15:00.000Z", entityType: "member", entityId: 101 },
+  { id: 1103, userId: 2, userDisplayName: "Front Desk Staff", action: "SELL_MEMBERSHIP", createdAt: "2026-06-01T08:45:00.000Z", entityType: "membership", entityId: 202 },
+  { id: 1104, userId: 1, userDisplayName: "Admin User", action: "ASSIGN_PT", createdAt: "2026-06-01T08:00:00.000Z", entityType: "member", entityId: 103 },
+  { id: 1105, userId: 3, userDisplayName: "Coach Minh", action: "CREATE_WORKOUT_PLAN", createdAt: "2026-05-31T17:30:00.000Z", entityType: "workout", entityId: 301 },
+  { id: 1106, userId: 1, userDisplayName: "Admin User", action: "CREATE_STAFF_ACCOUNT", createdAt: "2026-05-31T14:20:00.000Z", entityType: "user", entityId: 6 },
+  { id: 1107, userId: 2, userDisplayName: "Front Desk Staff", action: "MEMBERSHIP_RENEWAL", createdAt: "2026-05-31T11:10:00.000Z", entityType: "membership", entityId: 201 },
+  { id: 1108, userId: 2, userDisplayName: "Front Desk Staff", action: "MEMBER_CHECK_IN", createdAt: "2026-05-31T09:00:00.000Z", entityType: "member", entityId: 102 },
+  { id: 1109, userId: 3, userDisplayName: "Coach Minh", action: "ADD_TRAINER_NOTE", createdAt: "2026-05-30T16:45:00.000Z", entityType: "workout", entityId: 301 },
+  { id: 1110, userId: 1, userDisplayName: "Admin User", action: "LOCK_MEMBER_ACCOUNT", createdAt: "2026-05-30T10:30:00.000Z", entityType: "member", entityId: 105 },
+  { id: 1111, userId: 2, userDisplayName: "Front Desk Staff", action: "MEMBER_CHECK_IN", createdAt: "2026-05-30T08:20:00.000Z", entityType: "member", entityId: 101 },
+  { id: 1112, userId: 4, userDisplayName: "Nguyen Van A", action: "MEMBER_CHECK_IN", createdAt: "2026-05-29T07:55:00.000Z", entityType: "member", entityId: 101 },
+  { id: 1113, userId: 1, userDisplayName: "Admin User", action: "UPDATE_PACKAGE", createdAt: "2026-05-29T14:00:00.000Z", entityType: "package", entityId: 3 },
+  { id: 1114, userId: 2, userDisplayName: "Front Desk Staff", action: "SELL_MEMBERSHIP", createdAt: "2026-05-28T16:10:00.000Z", entityType: "membership", entityId: 203 },
+  { id: 1115, userId: 1, userDisplayName: "Admin User", action: "ASSIGN_PT", createdAt: "2026-05-28T11:30:00.000Z", entityType: "member", entityId: 106 },
+  { id: 1116, userId: 3, userDisplayName: "Coach Minh", action: "CREATE_WORKOUT_PLAN", createdAt: "2026-05-27T15:20:00.000Z", entityType: "workout", entityId: 302 },
+  { id: 1117, userId: 2, userDisplayName: "Front Desk Staff", action: "MEMBER_CHECK_IN", createdAt: "2026-05-27T09:45:00.000Z", entityType: "member", entityId: 103 },
+  { id: 1118, userId: 1, userDisplayName: "Admin User", action: "MEMBERSHIP_PAYMENT_CONFIRMED", createdAt: "2026-05-27T08:00:00.000Z", entityType: "membership", entityId: 203 },
+  { id: 1119, userId: 5, userDisplayName: "Tran Van B", action: "MEMBER_CHECK_IN", createdAt: "2026-05-26T07:30:00.000Z", entityType: "member", entityId: 102 },
+  { id: 1120, userId: 2, userDisplayName: "Front Desk Staff", action: "MEMBERSHIP_RENEWAL", createdAt: "2026-05-26T14:50:00.000Z", entityType: "membership", entityId: 204 },
+]

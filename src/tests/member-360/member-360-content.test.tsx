@@ -1,0 +1,50 @@
+import { render, screen } from "@testing-library/react"
+import { describe, expect, it } from "vitest"
+
+import { Member360Content } from "@/features/member-360/components/Member360Content"
+
+describe("Member360Content", () => {
+  it("renders loading state", () => {
+    const { container } = render(
+      <Member360Content isLoading viewContext="admin" />,
+    )
+
+    const pulses = container.querySelectorAll(".animate-pulse")
+    expect(pulses.length).toBeGreaterThan(0)
+  })
+
+  it("renders error state", () => {
+    render(
+      <Member360Content
+        error={new Error("Failed to load member data")}
+        viewContext="admin"
+      />,
+    )
+
+    expect(
+      screen.getByText("Failed to load member data"),
+    ).toBeInTheDocument()
+  })
+
+  it("renders error state with retry", () => {
+    render(
+      <Member360Content
+        error={new Error("Error")}
+        onRetry={() => {}}
+        viewContext="admin"
+      />,
+    )
+
+    expect(screen.getByText("Retry")).toBeInTheDocument()
+  })
+
+  it("renders empty data gracefully", () => {
+    render(<Member360Content viewContext="admin" />)
+
+    // The hero should show with empty props (no crash)
+    expect(screen.getByText("Member detail")).toBeInTheDocument()
+    expect(screen.getByText("No active membership")).toBeInTheDocument()
+    expect(screen.getByText("No PT assigned")).toBeInTheDocument()
+    expect(screen.getByText("No check-ins recorded")).toBeInTheDocument()
+  })
+})

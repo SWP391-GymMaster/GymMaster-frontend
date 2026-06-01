@@ -1,72 +1,35 @@
-# GymMaster — Full Docs Review Pack
+# 00 — INDEX | GymMaster Documentation
 
-**Phiên bản:** v0.2-approved-stack  
-**Ngôn ngữ:** Tiếng Việt  
-**Trạng thái:** Updated — 4 roles & approved tech stack
+**Phiên bản:** v1.0 | **Ngôn ngữ:** Tiếng Việt | **Trạng thái:** Spec hoàn chỉnh — 4 roles, SQL Server stack
 
-## Mục tiêu
+Bộ tài liệu này là **SPEC chính** (source of truth) cho dự án GymMaster, soạn theo phương pháp **Hybrid SDD + ADD** (Spec-Driven & Agent-Driven Development).
 
-Bộ tài liệu này dùng làm bộ SPEC chính cho dự án GymMaster. Phiên bản này đã chốt mô hình 4 role gồm **Admin, Staff, PT, Member** và tech stack chính thức cho frontend, backend, database, authentication, deployment và testing.
+## Thứ tự đọc khuyến nghị
+1. `CONSTITUTION.md` — luật bất biến của dự án (đọc TRƯỚC khi code).
+2. `CLAUDE.md` + `10_AGENTS.md` — ngữ cảnh & quy tắc cho AI agent.
+3. `01_CONTEXT.md` → `08_TASKS_BACKLOG.md` — tầng SDD (đọc tuần tự).
+4. `09`–`15` — test, workflow, decision, prompt, schema (tra cứu khi cần).
 
-## Repo-local usage note
+## Danh mục file
+| File | Nội dung | Tầng |
+|---|---|---|
+| `CONSTITUTION.md` | Luật 3 lớp (Hard/Arch/Eng) + AI policy | Core |
+| `CLAUDE.md` | Bộ nhớ ngữ cảnh dự án cho AI | Core |
+| `01_CONTEXT.md` | Problem, goals, stakeholders, glossary, assumptions | SDD |
+| `02_PRODUCT_SCOPE.md` | MVP, core/secondary features, out-of-scope | SDD |
+| `03_SRS_USE_CASES.md` | Actors, use cases, chi tiết UC | SDD |
+| `04_REQUIREMENTS.md` | Functional (EARS) + Non-functional | SDD |
+| `05_DATABASE_SPEC.md` | Bảng, quan hệ, ưu tiên dữ liệu | SDD |
+| `06_FEATURE_SPECS.md` | Spec 8 thành phần cho module core | SDD |
+| `07_ROADMAP_RELEASES.md` | Phase, timeline, story point, release | SDD |
+| `08_TASKS_BACKLOG.md` | Epic, task, DoR/DoD | SDD/ADD |
+| `09_TEST_PLAN.md` | Test strategy, cases, UAT, defect log | QA |
+| `10_AGENTS.md` | Persona + rules cho AI/coding agents | ADD |
+| `11_AI_WORKFLOW.md` | Workflow dùng AI cho team (Hybrid) | ADD |
+| `12_DECISION_LOG.md` | Decision log / ADR | ADD |
+| `13_TEAM_WORKFLOW.md` | Git flow, PR, ceremony, review | ADD |
+| `14_PROMPT_LIBRARY.md` | Prompt mẫu cho BA, DB, code, test | ADD |
+| `15_DATABASE_SCHEMA.md` | SQL Server + EF Core schema chi tiết | SDD |
 
-Trong repository `gym-master`, bộ `docs/init/` là **source of truth cho toàn hệ thống GymMaster**. Repository này chỉ triển khai **frontend**.
-
-- Frontend implementation đọc product/business rules từ `docs/init/`.
-- Backend, database, ORM, authentication server, Azure services, Google Cloud Vision và API testing trong bộ docs này là **external contracts** cho frontend repo.
-- Không thêm backend/database source code vào repo này nếu owner chưa đổi scope.
-- Frontend UX/UI và implementation guidance nằm trong `docs/design/`, được hiểu là lớp diễn giải frontend từ SPEC này.
-
-## Cấu trúc file
-
-| File | Nội dung |
-|---|---|
-| `01_CONTEXT.md` | Bối cảnh, problem statement, goals, stakeholders, assumptions |
-| `02_PRODUCT_SCOPE.md` | MVP, core features, secondary features, out-of-scope |
-| `03_SRS_USE_CASES.md` | Actors, use cases, use case details |
-| `04_REQUIREMENTS.md` | Functional và non-functional requirements |
-| `05_DATABASE_SPEC.md` | Bảng chính/phụ, relationship, database priority |
-| `06_FEATURE_SPECS.md` | Spec ngắn cho từng module core |
-| `07_ROADMAP_RELEASES.md` | Phase, timeline, story point, release version |
-| `08_TASKS_BACKLOG.md` | Epic, task backlog, Definition of Ready/Done |
-| `09_TEST_PLAN.md` | Test strategy, test cases, UAT, defect log |
-| `10_AGENTS.md` | Quy tắc cho AI/coding agents |
-| `11_AI_WORKFLOW.md` | Workflow dùng AI cho cả team |
-| `12_DECISION_LOG.md` | Decision log / ADR pending |
-| `13_TEAM_WORKFLOW.md` | Git flow, PR, meeting, review |
-| `14_PROMPT_LIBRARY.md` | Prompt mẫu cho BA, DB, code, test, report |
-| `15_DATABASE_SCHEMA.md` | MySQL + Entity Framework Core schema documentation |
-
-
-## Trạng thái khuyến nghị hiện tại
-
-| Hạng mục | Đề xuất |
-|---|---|
-| Product direction | Core Gym Operation & Member Progress |
-| Nutrition | Manual Calorie Tracking & Meal Journal |
-| Image Food Recognition Assist | Enhancement sau secondary: phân tích ảnh để gợi ý tên món/nguyên liệu, không tự định lượng calories |
-| Barcode lookup | Secondary |
-| Roles | Approved: 4 roles — Admin, Staff, PT, Member |
-| Frontend | Next.js |
-| Backend | C# / ASP.NET Core 8 Web API |
-| Database | MySQL |
-| Deployment | Vercel + Azure App Service |
-
-
-## Technology Stack
-
-| Layer | Công nghệ |
-|---|---|
-| Frontend | Next.js |
-| Backend | C# / ASP.NET Core 8 Web API |
-| Database | MySQL |
-| ORM | Entity Framework Core 8 - Code First Migrations |
-| Authentication | JWT Bearer Token + BCrypt |
-| Token Policy | Access Token 15 phút, Refresh Token 7 ngày |
-| AI Vision | Google Cloud Vision API |
-| Push Notification | Firebase Cloud Messaging |
-| File Storage | Azure Blob Storage |
-| Frontend Deploy | Vercel |
-| Backend Deploy | Azure App Service |
-| Version Control | GitHub Monorepo |
-| API Testing | Postman / Thunder Client |
+## Quy ước trạng thái Spec
+`Draft` → `Review` → `Approved` → `Implemented`. Chỉ code khi spec ở trạng thái **Approved**.

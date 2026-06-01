@@ -26,7 +26,7 @@ Product source: `docs/init/` is the full-system source of truth. This `docs/desi
 - `21_FRONTEND_BACKLOG.md`
 - `22_FRONTEND_DEFINITION_OF_DONE.md`
 - `23_PACKAGE_INSTALLATION.md`
-- `24_HANDOFF_CHECKLIST.md`
+- `25_TASTE_SKILL_AUDIT.md`
 - `templates/AI_CONTEXT_PACK_TEMPLATE.md`
 - `templates/FEATURE_SPEC_TEMPLATE.md`
 - `templates/PULL_REQUEST_TEMPLATE.md`

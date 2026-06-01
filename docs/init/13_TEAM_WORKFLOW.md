@@ -1,83 +1,55 @@
 # 13 — Team Workflow
 
-# GymMaster — Team Working Agreement
+> Quy trình làm việc nhóm 5 người, sprint 2 tuần, kết hợp Git + Validation Gate (sách Ch.13/16).
 
 ---
 
-# 1. Working Principles
+# 1. Git Workflow
+- Nhánh chính: `main` (luôn deploy được), `develop` (tích hợp).
+- Nhánh feature: `feature/<epic>-<mô-tả-ngắn>` (vd `feature/EP05-sell-membership`).
+- Nhánh fix: `fix/<mô-tả>`, hotfix: `hotfix/<mô-tả>`.
+- **Không commit thẳng vào `main`/`develop`** — luôn qua PR.
+- Commit theo **Conventional Commits**: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`.
 
-- Không merge code chưa review.
-- Không tự ý đổi scope.
-- Không tự ý thêm external API.
-- Không lock quyết định lớn nếu chưa team vote.
-- Mỗi task phải có owner.
-- Mỗi feature core phải có use case và acceptance criteria.
-- Demo phải chạy bằng dữ liệu thật từ workflow.
+# 2. Pull Request Rules
+- PR nhỏ (≤ ~400 dòng đổi nếu được).
+- Mô tả PR gồm: spec ref (UC/FR/F), tóm tắt thay đổi, cách test, screenshot nếu UI.
+- **≥1 approval** mới merge; CI phải xanh.
+- Reviewer dùng checklist Pre-commit (`10` §4) + Validation Gate (`09` §6).
+- Squash merge để lịch sử gọn.
 
----
-
-# 2. Git Workflow
-
-## Branch Types
-
-| Type | Pattern | Example |
-|---|---|---|
-| Feature | `feat/module-description` | `feat/member-management` |
-| Fix | `fix/module-description` | `fix/checkin-expired-member` |
-| Docs | `docs/topic` | `docs/update-srs` |
-| Spec | `spec/feature` | `spec/calorie-tracking` |
-| Chore | `chore/task` | `chore/setup-eslint` |
-
-## Commit Format
-
-```text
-<type>(<scope>): <description>
-```
-
-Examples:
-
-```text
-feat(member): add create member form
-fix(checkin): reject expired membership
-docs(scope): update MVP scope
-spec(calorie): add meal journal use cases
-```
-
----
-
-# 3. Pull Request Checklist
-
-- [ ] PR title rõ ràng.
-- [ ] Có mô tả thay đổi.
-- [ ] Có link task/use case.
-- [ ] Không hardcode secret.
-- [ ] Có screenshot/video nếu là UI.
-- [ ] Có test happy path.
-- [ ] Có test error case nếu có logic.
-- [ ] Có update docs nếu thay đổi requirement.
-- [ ] Có ít nhất 1 reviewer.
-
----
-
-# 4. Meeting Rhythm
-
-| Meeting | Frequency | Purpose |
-|---|---|---|
-| Scope/Decision Meeting | Khi cần | Chốt decisions lớn |
-| Weekly Planning | Mỗi tuần | Chia task, update progress |
-| Mid-week Sync | 1 lần/tuần | Check blocker |
-| Demo Review | Cuối phase | Demo phần đã làm |
-| Retrospective | Sau milestone | Rút kinh nghiệm |
-
----
-
-# 5. Task Status
-
-| Status | Meaning |
+# 3. Branch Protection / CI
+| Gate | Yêu cầu |
 |---|---|
-| Todo | Chưa bắt đầu |
-| In Progress | Đang làm |
-| Review | Đang chờ review |
-| Testing | Đang test |
-| Done | Hoàn thành |
-| Blocked | Bị chặn bởi decision/task khác |
+| Build | `dotnet build` pass |
+| Test | `dotnet test` pass, coverage phần mới ≥80% |
+| Lint | 0 error |
+| Secret scan | gitleaks: không secret |
+| Review | ≥1 approval |
+
+# 4. Phân vai (gợi ý cho team 5 người)
+| Vai | Trách nhiệm chính |
+|---|---|
+| Team Lead / BA | Spec, backlog, duyệt PR, giữ CONSTITUTION |
+| Backend Dev x2 | API, service, EF migration, test |
+| Frontend Dev | Next.js UI, tích hợp API |
+| QA / Tester | Test plan (09), UAT, defect log |
+
+*(Vai có thể kiêm nhiệm; mọi người đều review được.)*
+
+# 5. Ceremonies (sprint 2 tuần)
+| Sự kiện | Khi nào | Mục đích |
+|---|---|---|
+| Sprint Planning | Đầu sprint | Chọn task từ backlog (08), xác nhận DoR |
+| Daily standup | Mỗi ngày 15' | Hôm qua / hôm nay / blocker |
+| Backlog refinement | Giữa sprint | Làm rõ spec, ước lượng SP |
+| Sprint Review/Demo | Cuối sprint | Demo theo acceptance criteria |
+| Retrospective | Cuối sprint | Cải thiện quy trình + prompt library |
+
+# 6. Định nghĩa hoàn thành chung
+Task chỉ "Done" khi qua **DoD (08 §8)** + **Validation Gate 4 lớp (09 §6)**. PT vận hành: "spec sai sửa spec trước, code sau".
+
+# 7. Quản lý spec & đồng bộ
+- Mọi thay đổi business rule → cập nhật spec (03/04/06) + Decision Log (12) **trong cùng PR**.
+- Tránh Context Amnesia: trước khi build feature, đọc `CLAUDE.md` + spec liên quan.
+- File docs cũng review qua PR như code.
