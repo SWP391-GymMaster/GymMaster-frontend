@@ -1,5 +1,7 @@
 # GymMaster Frontend Docs Manifest
 
+Product source: `docs/init/` is the full-system source of truth. This `docs/design/` pack translates that product scope into frontend architecture, UX/UI, workflow, and implementation guidance for this frontend-only repository.
+
 - `00_FE_INDEX.md`
 - `01_FE_FINAL_RECOMMENDATION.md`
 - `02_FE_TECH_STACK.md`

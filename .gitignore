@@ -39,3 +39,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+<!-- agent-harness:managed:start -->
+## AI Harness Privacy
+
+# AI Harness private docs
+/docs/
+/.ai/
+/specs/
+/.specify/
+/*.zip
+
+# Secrets
+.env
+.env.*
+!.env.example
+<!-- agent-harness:managed:end -->

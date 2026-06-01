@@ -8,6 +8,15 @@
 
 Bộ tài liệu này dùng làm bộ SPEC chính cho dự án GymMaster. Phiên bản này đã chốt mô hình 4 role gồm **Admin, Staff, PT, Member** và tech stack chính thức cho frontend, backend, database, authentication, deployment và testing.
 
+## Repo-local usage note
+
+Trong repository `gym-master`, bộ `docs/init/` là **source of truth cho toàn hệ thống GymMaster**. Repository này chỉ triển khai **frontend**.
+
+- Frontend implementation đọc product/business rules từ `docs/init/`.
+- Backend, database, ORM, authentication server, Azure services, Google Cloud Vision và API testing trong bộ docs này là **external contracts** cho frontend repo.
+- Không thêm backend/database source code vào repo này nếu owner chưa đổi scope.
+- Frontend UX/UI và implementation guidance nằm trong `docs/design/`, được hiểu là lớp diễn giải frontend từ SPEC này.
+
 ## Cấu trúc file
 
 | File | Nội dung |

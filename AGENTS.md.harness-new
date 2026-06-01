@@ -1,0 +1,7 @@
+# Agent Instructions
+
+This repository uses @anhdaijka/anhdaijka.
+
+Agents must read .ai/AGENT_RULES.md, .ai/TASK_UPDATE_POLICY.md, .ai/PROMPT_ALIASES.md, .ai/CURRENT_TASK.md, and .ai/HANDOFF.md before working.
+
+Do not read the whole repo unless explicitly asked. Do not bypass task scope.
