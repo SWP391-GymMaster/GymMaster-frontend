@@ -30,10 +30,13 @@ test("Staff searches and opens member detail", async ({ page }) => {
 
   await page.goto("/staff/members")
   await page.getByTestId("staff-member-search-input").fill("0900000101")
-  await page.getByTestId("staff-member-search-button").click()
   await expect(page.getByText("Nguyen Minh Anh")).toBeVisible()
 
-  await page.getByTestId("staff-member-result").first().click()
+  await page
+    .getByTestId("staff-member-result")
+    .first()
+    .getByRole("link", { name: "Open" })
+    .click()
   await expect(page).toHaveURL(/\/staff\/members\/101$/, { timeout: 15_000 })
   await expect(page.getByRole("heading", { name: "Member Detail" })).toBeVisible()
   await expect(page.getByText("Premium 30")).toBeVisible()

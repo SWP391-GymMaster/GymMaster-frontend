@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/staff/dashboard",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }))
 
@@ -21,6 +22,7 @@ describe("WorkspaceShell", () => {
 
     expect(screen.getByText("Staff Dashboard")).toBeInTheDocument()
     expect(screen.getByText("Workspace content")).toBeInTheDocument()
+    expect(screen.getByTestId("command-rail")).toBeInTheDocument()
     expect(screen.queryByText("Protected shell ready")).not.toBeInTheDocument()
     expect(screen.queryByText("Backend role")).not.toBeInTheDocument()
     expect(screen.queryByText("Skeleton only")).not.toBeInTheDocument()

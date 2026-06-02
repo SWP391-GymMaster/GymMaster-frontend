@@ -26,4 +26,33 @@ describe("auth error mapper", () => {
     expect(error.message).toContain("missing a valid role")
     expect(error.message).not.toMatch(/choose|select|picker/i)
   })
+
+  it("maps auth account management errors", () => {
+    expect(
+      mapAuthError(
+        new ApiClientError({
+          code: "EMAIL_EXISTS",
+          message: "Email already exists",
+        }),
+      ).message,
+    ).toBe("This email is already registered.")
+
+    expect(
+      mapAuthError(
+        new ApiClientError({
+          code: "INVALID_RESET_TOKEN",
+          message: "Invalid reset token",
+        }),
+      ).message,
+    ).toBe("This reset link is invalid or expired.")
+
+    expect(
+      mapAuthError(
+        new ApiClientError({
+          code: "INVALID_CURRENT_PASSWORD",
+          message: "Invalid current password",
+        }),
+      ).message,
+    ).toBe("Current password is incorrect.")
+  })
 })

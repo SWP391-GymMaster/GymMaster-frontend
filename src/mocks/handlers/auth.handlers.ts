@@ -114,7 +114,22 @@ export const authHandlers = [
     return HttpResponse.json(loginSuccess(role))
   }),
   http.post("/api/v1/auth/register", async ({ request }) => {
-    const body = (await request.json()) as { email?: string; fullName?: string }
+    const body = (await request.json()) as {
+      email?: string
+      fullName?: string
+      phone?: string
+    }
+
+    if (
+      body.email === "member@gymmaster.local" ||
+      body.email === "existing@gymmaster.local"
+    ) {
+      return fail("EMAIL_EXISTS", "Email already exists", 409)
+    }
+
+    if (body.phone === "0900000000") {
+      return fail("PHONE_EXISTS", "Phone already exists", 409)
+    }
 
     return created({
       accessToken: "access-member",
@@ -138,14 +153,22 @@ export const authHandlers = [
     })
   }),
   http.post("/api/v1/auth/reset-password", async ({ request }) => {
-    await request.json()
+    const body = (await request.json()) as { resetToken?: string }
+
+    if (body.resetToken !== "mock-reset-token") {
+      return fail("INVALID_RESET_TOKEN", "Invalid reset token", 401)
+    }
 
     return ok({
       message: "Dat lai mat khau thanh cong.",
     })
   }),
   http.post("/api/v1/auth/change-password", async ({ request }) => {
-    await request.json()
+    const body = (await request.json()) as { currentPassword?: string }
+
+    if (body.currentPassword !== "Password123!") {
+      return fail("INVALID_CURRENT_PASSWORD", "Invalid current password", 401)
+    }
 
     return ok({
       message: "Doi mat khau thanh cong.",
