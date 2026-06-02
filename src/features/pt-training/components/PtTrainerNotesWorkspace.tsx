@@ -1,6 +1,7 @@
 "use client"
 
 import { useParams } from "next/navigation"
+import { MessageSquareText, NotebookPen, ShieldCheck } from "lucide-react"
 
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
@@ -37,7 +38,7 @@ export function PtTrainerNotesWorkspace() {
         role="pt"
         title="Ghi chú PT"
       >
-        <div className="space-y-5">
+        <div className="space-y-6">
           <TrainingMemberContext
             data={memberQuery.data}
             isLoading={memberQuery.isLoading}
@@ -55,11 +56,22 @@ export function PtTrainerNotesWorkspace() {
             />
           ) : null}
 
-          <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
-            <section>
-              <h2 className="mb-3 text-lg font-black tracking-tight text-zinc-950">
-                Thêm ghi chú
-              </h2>
+          <section className="grid gap-4 md:grid-cols-3">
+            <NoteMetric icon={NotebookPen} label="Ghi chú" value={String(notesQuery.data?.length ?? 0)} />
+            <NoteMetric icon={MessageSquareText} label="Cue kỹ thuật" value="3 mục" />
+            <NoteMetric icon={ShieldCheck} label="Theo dõi" value="Active" />
+          </section>
+
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)]">
+            <section className="space-y-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                  Coach Notes
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+                  Thêm ghi chú huấn luyện
+                </h2>
+              </div>
               <TrainerNoteForm
                 isPending={createNote.isPending}
                 onSubmit={handleCreateNote}
@@ -78,10 +90,8 @@ export function PtTrainerNotesWorkspace() {
               ) : null}
             </section>
 
-            <section>
-              <div className="mb-3">
-                <TrainerNoteListHeader />
-              </div>
+            <section className="space-y-3">
+              <TrainerNoteListHeader />
               <TrainerNoteList
                 error={notesQuery.error instanceof Error ? notesQuery.error : null}
                 isLoading={notesQuery.isLoading}
@@ -92,5 +102,29 @@ export function PtTrainerNotesWorkspace() {
         </div>
       </WorkspaceShell>
     </PermissionGuard>
+  )
+}
+
+function NoteMetric({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof NotebookPen
+  label: string
+  value: string
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <div className="flex items-center gap-4">
+        <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Icon aria-hidden="true" className="size-5" />
+        </span>
+        <div>
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="mt-1 text-xl font-semibold tracking-tight text-foreground">{value}</p>
+        </div>
+      </div>
+    </section>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { UserRound } from "lucide-react"
+import { CalendarDays, Dumbbell, Phone, UserRound } from "lucide-react"
 
 import { StatusPill } from "@/components/data/StatusPill"
 import type { Member360Data } from "@/features/member-360/types/member-360.types"
@@ -16,50 +16,66 @@ export function TrainingMemberContext({
 }: TrainingMemberContextProps) {
   if (isLoading) {
     return (
-      <div className="h-32 animate-pulse rounded-[1.5rem] border border-white/70 bg-white/80" />
+      <div className="h-44 animate-pulse rounded-2xl border border-border bg-card" />
     )
   }
 
   const member = data?.member
   const pt = data?.assignedPT
+  const membership = data?.currentMembership
 
   return (
-    <section className="rounded-[1.5rem] border border-white/10 bg-zinc-950 p-5 text-white shadow-xl">
-      <div className="flex flex-wrap items-center gap-4">
-        <span className="flex size-12 items-center justify-center rounded-full bg-primary text-zinc-950">
-          <UserRound aria-hidden="true" className="size-6" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-primary">
-            Hội viên phụ trách
-          </p>
-          <h2 className="mt-1 truncate text-2xl font-black tracking-tight">
-            {member?.fullName ?? "Hội viên"}
-          </h2>
-          <p className="mt-1 text-sm text-zinc-300">
-            {member?.memberCode ?? "Chưa rõ"} · {member?.phone ?? "Chưa có số điện thoại"}
-          </p>
+    <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-primary/10 blur-3xl" />
+
+      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-5">
+          <span className="flex size-20 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <UserRound aria-hidden="true" className="size-9" />
+          </span>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              Hội viên phụ trách
+            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+                {member?.fullName ?? "Hội viên"}
+              </h2>
+              {member?.status ? <StatusPill status={member.status} /> : null}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2">
+                <Dumbbell aria-hidden="true" className="size-4" />
+                {member?.memberCode ?? "Chưa rõ"}
+              </span>
+              <span className="flex items-center gap-2">
+                <Phone aria-hidden="true" className="size-4" />
+                {member?.phone ?? "Chưa có số điện thoại"}
+              </span>
+              <span className="flex items-center gap-2">
+                <CalendarDays aria-hidden="true" className="size-4" />
+                Gói: {membership?.packageName ?? "Chưa có"}
+              </span>
+            </div>
+          </div>
         </div>
-        {member?.status ? <StatusPill status={member.status} /> : null}
-      </div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-[1.25rem] border border-white/10 bg-white/10 p-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-300">
-            PT hiện tại
-          </p>
-          <p className="mt-1 font-bold text-white">
-            {pt?.fullName ?? "Chưa phân công"}
-          </p>
-        </div>
-        <div className="rounded-[1.25rem] border border-white/10 bg-white/10 p-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-300">
-            Chuyên môn
-          </p>
-          <p className="mt-1 font-bold text-white">
-            {pt?.specialty ?? "Tập luyện tổng quát"}
-          </p>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[420px]">
+          <ContextTile label="PT hiện tại" value={pt?.fullName ?? "Chưa phân công"} />
+          <ContextTile label="Chuyên môn" value={pt?.specialty ?? "Tập luyện tổng quát"} />
         </div>
       </div>
     </section>
+  )
+}
+
+function ContextTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-background p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-2 text-base font-semibold text-foreground">{value}</p>
+    </div>
   )
 }

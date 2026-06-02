@@ -1,6 +1,7 @@
 "use client"
 
 import { useParams } from "next/navigation"
+import { CalendarDays, Dumbbell, NotebookPen, Plus } from "lucide-react"
 
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
@@ -37,7 +38,7 @@ export function PtWorkoutPlanWorkspace() {
         role="pt"
         title="Trình tạo giáo án"
       >
-        <div className="space-y-5">
+        <div className="space-y-6">
           <TrainingMemberContext
             data={memberQuery.data}
             isLoading={memberQuery.isLoading}
@@ -55,11 +56,22 @@ export function PtWorkoutPlanWorkspace() {
             />
           ) : null}
 
-          <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-            <section>
-              <h2 className="mb-3 text-lg font-black tracking-tight text-zinc-950">
-                Tạo giáo án
-              </h2>
+          <section className="grid gap-4 md:grid-cols-3">
+            <CoachWorkflowCard icon={Plus} label="Bước 1" title="Tạo giáo án" />
+            <CoachWorkflowCard icon={Dumbbell} label="Bước 2" title="Thêm bài tập" />
+            <CoachWorkflowCard icon={CalendarDays} label="Bước 3" title="Theo dõi tiến độ" />
+          </section>
+
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+            <section className="space-y-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                  Plan Builder
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+                  Tạo giáo án mới
+                </h2>
+              </div>
               <WorkoutPlanForm
                 isPending={createPlan.isPending}
                 onSubmit={handleCreatePlan}
@@ -78,10 +90,8 @@ export function PtWorkoutPlanWorkspace() {
               ) : null}
             </section>
 
-            <section>
-              <div className="mb-3">
-                <WorkoutPlanListHeader />
-              </div>
+            <section className="space-y-3">
+              <WorkoutPlanListHeader />
               <WorkoutPlanList
                 error={plansQuery.error instanceof Error ? plansQuery.error : null}
                 isLoading={plansQuery.isLoading}
@@ -92,5 +102,31 @@ export function PtWorkoutPlanWorkspace() {
         </div>
       </WorkspaceShell>
     </PermissionGuard>
+  )
+}
+
+function CoachWorkflowCard({
+  icon: Icon,
+  label,
+  title,
+}: {
+  icon: typeof NotebookPen
+  label: string
+  title: string
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <div className="flex items-center gap-4">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Icon aria-hidden="true" className="size-5" />
+        </span>
+        <div>
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="mt-1 text-xl font-semibold tracking-tight text-foreground">
+            {title}
+          </p>
+        </div>
+      </div>
+    </section>
   )
 }

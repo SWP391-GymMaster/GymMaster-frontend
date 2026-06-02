@@ -31,7 +31,7 @@ export function WorkoutPlanList({
       <div className="space-y-3" data-testid="workout-plan-loading">
         {Array.from({ length: 2 }).map((_, index) => (
           <div
-            className="h-40 animate-pulse rounded-[1.5rem] border border-white/70 bg-white/80"
+            className="h-40 animate-pulse rounded-2xl border border-border bg-card"
             key={index}
           />
         ))}
@@ -60,18 +60,18 @@ export function WorkoutPlanList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {plans.map((plan) => (
         <article
-          className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-lg"
+          className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
           key={plan.id}
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-500">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 {formatDate(plan.startDate ?? plan.createdAt)}
               </p>
-              <h3 className="mt-2 text-xl font-black tracking-tight text-zinc-950">
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
                 {plan.title}
               </h3>
             </div>
@@ -80,29 +80,29 @@ export function WorkoutPlanList({
             </span>
           </div>
 
-          <div className="mt-5 space-y-2">
+          <div className="mt-5 space-y-3">
             {plan.exercises.map((exercise, index) => (
               <div
-                className="grid gap-3 rounded-[1.25rem] border border-zinc-200 bg-zinc-50 p-3 text-sm sm:grid-cols-[1fr_auto_auto]"
+                className="grid gap-3 rounded-xl border border-border bg-background p-3 text-sm sm:grid-cols-[1fr_auto_auto]"
                 key={`${plan.id}-${exercise.orderIndex}-${exercise.name}`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex size-8 items-center justify-center rounded-full bg-primary text-xs font-black text-zinc-950">
+                  <span className="flex size-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                     {index + 1}
                   </span>
                   <div>
-                    <p className="font-bold text-zinc-950">{exercise.name}</p>
+                    <p className="font-semibold text-foreground">{exercise.name}</p>
                     {exercise.note ? (
-                      <p className="mt-1 text-xs text-zinc-600">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {exercise.note}
                       </p>
                     ) : null}
                   </div>
                 </div>
-                <p className="font-semibold text-zinc-700">
+                <p className="font-semibold text-foreground">
                   {exercise.sets} hiệp
                 </p>
-                <p className="font-semibold text-zinc-700">
+                <p className="font-semibold text-foreground">
                   {exercise.reps} reps
                 </p>
               </div>
@@ -118,7 +118,7 @@ export function WorkoutPlanListHeader() {
   return (
     <div className="flex items-center gap-2">
       <ClipboardList aria-hidden="true" className="size-5 text-primary" />
-      <h2 className="text-lg font-black tracking-tight text-zinc-950">
+      <h2 className="text-2xl font-semibold tracking-tight text-foreground">
         Giáo án luyện tập
       </h2>
     </div>

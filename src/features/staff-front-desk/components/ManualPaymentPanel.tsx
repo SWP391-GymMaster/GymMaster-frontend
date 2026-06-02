@@ -40,11 +40,11 @@ export function ManualPaymentPanel({
     <PaymentRequiredBanner
       error={
         error ? (
-        <StateBlock
-          description="Xác nhận lại gói hội viên và số tiền trước khi ghi nhận lại."
-          title={error.message}
-          tone="error"
-        />
+          <StateBlock
+            description="Xác nhận lại gói hội viên và số tiền trước khi ghi nhận lại."
+            title={error.message}
+            tone="error"
+          />
         ) : null
       }
       isPending={recordPayment.isPending}

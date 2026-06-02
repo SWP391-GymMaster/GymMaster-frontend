@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
+import { CreditCard, PackagePlus, UserPlus, WalletCards } from "lucide-react"
 
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
@@ -98,18 +99,24 @@ export function SellPackageWizard() {
   }
 
   return (
-    <div className="grid gap-5">
+    <div className="space-y-5">
+      <section className="grid gap-4 md:grid-cols-3">
+        <WorkflowCard icon={PackagePlus} label="Trạng thái bán" title={saleResult ? "Đã tạo đơn" : "Chờ thanh toán"} />
+        <WorkflowCard icon={CreditCard} label="Nguồn gói" title="Mock API catalog" />
+        <WorkflowCard icon={WalletCards} label="Phương thức thanh toán" title="Xác nhận thủ công" />
+      </section>
+
       <StaffWizardStepper
         activeIndex={activeStep}
         steps={["Hội viên", "Gói tập", "Thanh toán", "Xác nhận"]}
       />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <div className="grid gap-5">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
+        <div className="space-y-5">
           <StaffSearchPanel
             error={searchErrors.query?.message}
             id="sell-member-search"
-            label="Chọn hội viên"
+            label="1. Chọn hội viên"
             onSubmit={handleSearchSubmit(onSearch)}
             placeholder="Tên, email, số điện thoại hoặc mã hội viên"
             registerInput={registerSearch("query")}
@@ -144,18 +151,19 @@ export function SellPackageWizard() {
             ))}
           </StaffSearchPanel>
 
-          <section className="rounded-[1.5rem] border border-zinc-200 bg-white/90 p-5 shadow-sm">
+          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="text-xl font-semibold text-zinc-950">
-                  Chọn gói tập
+                <h2 className="text-xl font-semibold tracking-tight text-foreground">
+                  2. Chọn gói tập
                 </h2>
-                <p className="mt-1 text-sm text-zinc-500">
-                  Thẻ gói tập dùng mẫu wizard bán gói cho lễ tân.
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Gợi ý các gói tập phù hợp với nhu cầu của hội viên.
                 </p>
               </div>
               <StatusPill status={selectedPackage ? "active" : "pending"} />
             </div>
+
             <div className="mt-5 grid gap-4 lg:grid-cols-3">
               {packages.data?.map((gymPackage, index) => (
                 <PackageCard
@@ -174,6 +182,12 @@ export function SellPackageWizard() {
                 />
               ))}
             </div>
+
+            {selectedPackage ? (
+              <div className="mt-5 rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm font-medium text-foreground">
+                Gợi ý: {selectedPackage.name} phù hợp để bắt đầu hoặc duy trì lịch tập ổn định.
+              </div>
+            ) : null}
           </section>
         </div>
 
@@ -184,14 +198,14 @@ export function SellPackageWizard() {
                 {saleErrors.memberId ||
                 saleErrors.packageId ||
                 saleErrors.startDate ? (
-                  <p className="mt-3 text-sm font-medium text-red-800">
+                  <p className="mt-3 text-sm font-medium text-destructive">
                     {saleErrors.memberId?.message ??
                       saleErrors.packageId?.message ??
                       saleErrors.startDate?.message}
                   </p>
                 ) : null}
                 <button
-                  className="mt-4 min-h-12 w-full rounded-full bg-zinc-950 px-5 text-sm font-semibold text-white transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-4 min-h-12 w-full rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                   data-testid="staff-sell-submit-button"
                   disabled={sell.isPending}
                   type="submit"
@@ -211,7 +225,7 @@ export function SellPackageWizard() {
             </>
           }
           member={selectedMember}
-          title="Tóm tắt đơn"
+          title="Tóm tắt giao dịch"
         >
           <SummaryRow
             label="Gói tập"
@@ -231,15 +245,15 @@ export function SellPackageWizard() {
 
       {saleResult ? (
         <section
-          className="rounded-[1.5rem] border border-zinc-200 bg-white/90 p-5 shadow-sm"
+          className="rounded-2xl border border-border bg-card p-5 shadow-sm"
           data-testid="staff-sell-result"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="font-semibold text-zinc-950">
+              <p className="font-semibold text-foreground">
                 Đã tạo bán gói {saleResult.packageName}
               </p>
-              <p className="mt-1 text-sm text-zinc-600">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Gói hội viên đang chờ cho đến khi ghi nhận thanh toán.
               </p>
             </div>
@@ -258,5 +272,29 @@ export function SellPackageWizard() {
         </section>
       ) : null}
     </div>
+  )
+}
+
+function WorkflowCard({
+  icon: Icon,
+  label,
+  title,
+}: {
+  icon: typeof PackagePlus
+  label: string
+  title: string
+}) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <div className="flex items-center gap-4">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <Icon aria-hidden="true" className="size-5" />
+        </span>
+        <div>
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="mt-1 text-xl font-semibold tracking-tight text-foreground">{title}</p>
+        </div>
+      </div>
+    </section>
   )
 }

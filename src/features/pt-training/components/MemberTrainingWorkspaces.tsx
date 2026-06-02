@@ -18,7 +18,6 @@ import {
   WorkoutPlanList,
   WorkoutPlanListHeader,
 } from "@/features/pt-training/components/WorkoutPlanList"
-import { gymMasterAssets } from "@/lib/gymmaster-assets"
 
 const demoMemberId = 101
 
@@ -32,9 +31,9 @@ export function MemberWorkoutWorkspace() {
         role="member"
         title="Giáo án của tôi"
       >
-        <section className="space-y-4">
+        <section className="space-y-5">
           <MemberTrainingHero
-            description="Thay đổi giáo án do PT quản lý. Liên hệ lễ tân hoặc PT nếu bài tập chưa phù hợp."
+            description="Theo dõi giáo án hiện tại, bài tập từng buổi và cue kỹ thuật do PT phụ trách cập nhật."
             eyebrow="Chế độ xem hội viên"
             icon={ShieldCheck}
             title="Theo sát giáo án hiện tại"
@@ -61,7 +60,7 @@ export function MemberTrainerNotesWorkspace() {
         role="member"
         title="Ghi chú PT"
       >
-        <section className="space-y-4">
+        <section className="space-y-5">
           <MemberTrainingHero
             description="Ghi chú được PT tạo sau đánh giá, buổi tập hoặc trao đổi phục hồi."
             eyebrow="Chế độ xem hội viên"
@@ -92,33 +91,27 @@ function MemberTrainingHero({
   title: string
 }) {
   return (
-    <div
-      className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950 p-5 text-white shadow-xl md:p-6"
-      style={{
-        backgroundImage: `linear-gradient(115deg, rgba(24,24,27,0.95), rgba(24,24,27,0.74) 58%, rgba(24,24,27,0.34)), url(${gymMasterAssets.workoutCover})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-      }}
-    >
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-primary/10 blur-3xl" />
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="flex size-11 items-center justify-center rounded-full bg-primary text-zinc-950">
+            <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Icon aria-hidden="true" className="size-5" />
             </span>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
               {eyebrow}
             </p>
             <StatusPill
-              className="border-white/10 bg-white/10 text-white"
+              className="border-primary/20 bg-primary/10 text-primary"
               label="PT phụ trách"
               status="assigned"
             />
           </div>
-          <h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight md:text-4xl">
+          <h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             {title}
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-200">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
             {description}
           </p>
         </div>
@@ -133,11 +126,11 @@ function MemberTrainingHero({
 
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[1.25rem] border border-white/10 bg-white/10 p-3 backdrop-blur">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-300">
+    <div className="rounded-xl border border-border bg-background p-3">
+      <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
         {label}
       </p>
-      <p className="mt-1 text-sm font-semibold text-white">{value}</p>
+      <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
     </div>
   )
 }
