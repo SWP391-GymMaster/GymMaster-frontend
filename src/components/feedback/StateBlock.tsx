@@ -17,14 +17,14 @@ const toneClasses: Record<StateBlockTone, string> = {
   loading: "border-zinc-200 bg-zinc-50 text-zinc-700",
   empty: "border-dashed border-zinc-300 bg-zinc-50 text-zinc-700",
   error: "border-red-200 bg-red-50 text-red-800",
-  info: "border-emerald-200 bg-emerald-50 text-emerald-900",
+  info: "border-[color:var(--status-active-border)] bg-[var(--status-active-bg)] text-[var(--status-active-text)]",
 }
 
 const iconClasses: Record<StateBlockTone, string> = {
   loading: "bg-zinc-200 text-zinc-600",
   empty: "bg-white text-zinc-500",
   error: "bg-red-100 text-red-700",
-  info: "bg-emerald-100 text-emerald-700",
+  info: "bg-[var(--status-active-border)] text-[var(--status-active-text)]",
 }
 
 const defaultIcons: Record<StateBlockTone, LucideIcon> = {

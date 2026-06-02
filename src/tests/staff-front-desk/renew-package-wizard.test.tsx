@@ -22,7 +22,7 @@ describe("RenewPackageWizard", () => {
 
     fireEvent.click(screen.getByTestId("staff-renew-submit-button"))
 
-    expect(await screen.findByText("Select a member.")).toBeInTheDocument()
+    expect(await screen.findByText("Chọn hội viên.")).toBeInTheDocument()
   })
 
   it("previews renewal period, creates pending renewal, and records payment", async () => {
@@ -31,25 +31,25 @@ describe("RenewPackageWizard", () => {
     fireEvent.change(screen.getByTestId("staff-renew-member-search"), {
       target: { value: "member@gymmaster.local" },
     })
-    fireEvent.click(screen.getByRole("button", { name: "Find" }))
+    fireEvent.click(screen.getByRole("button", { name: "Tìm" }))
     fireEvent.click(await screen.findByText("Nguyen Minh Anh"))
-    expect(await screen.findAllByText(/Premium 30 · ends/i)).not.toHaveLength(0)
+    expect(await screen.findAllByText(/Premium 30 · hết hạn/i)).not.toHaveLength(0)
 
     fireEvent.click(await screen.findByText("Strength 90"))
     expect(screen.getByTestId("staff-renew-summary")).toHaveTextContent(
-      "2026-07-01 to 2026-09-29",
+      "2026-07-01 đến 2026-09-29",
     )
 
     fireEvent.click(screen.getByTestId("staff-renew-submit-button"))
 
-    expect(await screen.findByText(/Renewal created for Strength 90/i)).toBeInTheDocument()
-    expect(screen.getAllByText("Pending").length).toBeGreaterThan(0)
+    expect(await screen.findByText(/Đã tạo gia hạn Strength 90/i)).toBeInTheDocument()
+    expect(screen.getAllByText("Đang chờ").length).toBeGreaterThan(0)
 
     fireEvent.click(screen.getByTestId("staff-record-payment-button"))
 
     expect(
-      await screen.findByText("Manual payment recorded. Membership is active."),
+      await screen.findByText("Đã ghi nhận thanh toán. Gói hội viên đang hoạt động."),
     ).toBeInTheDocument()
-    expect(screen.getAllByText("Paid").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Đã thanh toán").length).toBeGreaterThan(0)
   })
 })

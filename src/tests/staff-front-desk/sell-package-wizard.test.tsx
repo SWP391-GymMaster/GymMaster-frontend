@@ -22,7 +22,7 @@ describe("SellPackageWizard", () => {
 
     fireEvent.click(screen.getByTestId("staff-sell-submit-button"))
 
-    expect(await screen.findByText("Select a member.")).toBeInTheDocument()
+    expect(await screen.findByText("Chọn hội viên.")).toBeInTheDocument()
   })
 
   it("creates a pending package sale and records manual payment", async () => {
@@ -31,20 +31,20 @@ describe("SellPackageWizard", () => {
     fireEvent.change(screen.getByTestId("staff-sell-member-search"), {
       target: { value: "member@gymmaster.local" },
     })
-    fireEvent.click(screen.getByRole("button", { name: "Find" }))
+    fireEvent.click(screen.getByRole("button", { name: "Tìm" }))
     fireEvent.click(await screen.findByText("Nguyen Minh Anh"))
     fireEvent.click(await screen.findByText("Strength 90"))
     fireEvent.click(screen.getByTestId("staff-sell-submit-button"))
 
-    expect(await screen.findByText(/Sale created for Strength 90/i)).toBeInTheDocument()
-    expect(screen.getAllByText(/Membership is pending/i).length).toBeGreaterThan(0)
-    expect(screen.getAllByText("Pending").length).toBeGreaterThan(0)
+    expect(await screen.findByText(/Đã tạo bán gói Strength 90/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/Gói hội viên đang chờ/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Đang chờ").length).toBeGreaterThan(0)
 
     fireEvent.click(screen.getByTestId("staff-record-payment-button"))
 
     expect(
-      await screen.findByText("Manual payment recorded. Membership is active."),
+      await screen.findByText("Đã ghi nhận thanh toán. Gói hội viên đang hoạt động."),
     ).toBeInTheDocument()
-    expect(screen.getByText("Paid")).toBeInTheDocument()
+    expect(screen.getByText("Đã thanh toán")).toBeInTheDocument()
   })
 })

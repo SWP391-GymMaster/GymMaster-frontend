@@ -38,10 +38,10 @@ export function AdminDashboardContent() {
   if (summary.isLoading) {
     return (
       <div className="grid gap-4 lg:grid-cols-4">
-        <DashboardMetricCard isLoading label="Revenue" value="" />
-        <DashboardMetricCard isLoading label="Active memberships" value="" />
-        <DashboardMetricCard isLoading label="Expired memberships" value="" />
-        <DashboardMetricCard isLoading label="Today check-ins" value="" />
+        <DashboardMetricCard isLoading label="Doanh thu" value="" />
+        <DashboardMetricCard isLoading label="Gói active" value="" />
+        <DashboardMetricCard isLoading label="Gói hết hạn" value="" />
+        <DashboardMetricCard isLoading label="Check-in hôm nay" value="" />
       </div>
     )
   }
@@ -50,7 +50,7 @@ export function AdminDashboardContent() {
     const message =
       summary.error instanceof Error
         ? summary.error.message
-        : "Dashboard data is unavailable."
+        : "Không thể tải dữ liệu dashboard."
 
     return (
       <div className="rounded-[1.5rem] border border-red-200 bg-red-50 p-6">
@@ -60,7 +60,7 @@ export function AdminDashboardContent() {
           onClick={() => summary.refetch()}
           type="button"
         >
-          Retry
+          Thử lại
         </button>
       </div>
     )
@@ -83,26 +83,26 @@ export function AdminDashboardContent() {
       <div className="grid gap-4 lg:grid-cols-4">
         <DashboardMetricCard
           icon={DollarSign}
-          label="Revenue"
-          trend={{ direction: "up", label: "+8% vs last period" }}
+          label="Doanh thu"
+          trend={{ direction: "up", label: "+8% so với kỳ trước" }}
           value={formatVnd(data?.revenue ?? 0)}
         />
         <DashboardMetricCard
           icon={Users}
-          label="Active memberships"
-          trend={{ direction: "up", label: `${data?.activeCount ?? 0} total` }}
+          label="Gói active"
+          trend={{ direction: "up", label: `${data?.activeCount ?? 0} tổng` }}
           value={data?.activeCount ?? 0}
         />
         <DashboardMetricCard
           icon={UserX}
-          label="Expired memberships"
-          trend={{ direction: "neutral", label: `${data?.expiredCount ?? 0} total` }}
+          label="Gói hết hạn"
+          trend={{ direction: "neutral", label: `${data?.expiredCount ?? 0} tổng` }}
           value={data?.expiredCount ?? 0}
         />
         <DashboardMetricCard
           icon={UserCheck}
-          label="Today check-ins"
-          trend={{ direction: "up", label: `${todayCheckIns} today` }}
+          label="Check-in hôm nay"
+          trend={{ direction: "up", label: `${todayCheckIns} hôm nay` }}
           value={todayCheckIns}
         />
       </div>
@@ -114,13 +114,13 @@ export function AdminDashboardContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-zinc-500">
-                Revenue & check-in activity
+                Doanh thu và hoạt động check-in
               </p>
               <p className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950">
                 {formatVnd(data?.revenue ?? 0)}
               </p>
             </div>
-            <span className="flex size-11 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700">
+            <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
               <TrendingUp aria-hidden="true" className="size-5" />
             </span>
           </div>
@@ -151,7 +151,7 @@ export function AdminDashboardContent() {
                   />
                   <Bar
                     dataKey="revenue"
-                    fill="#10b981"
+                    fill="var(--primary)"
                     radius={[6, 6, 0, 0]}
                     maxBarSize={40}
                   />
@@ -159,7 +159,7 @@ export function AdminDashboardContent() {
               </ResponsiveContainer>
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-zinc-500">
-                No revenue data for this period.
+                Chưa có dữ liệu doanh thu trong kỳ này.
               </div>
             )}
           </div>
@@ -167,21 +167,21 @@ export function AdminDashboardContent() {
 
         {/* Quick Actions */}
         <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-          <p className="text-sm font-medium text-zinc-500">Quick actions</p>
+          <p className="text-sm font-medium text-zinc-500">Thao tác nhanh</p>
           <div className="mt-4 grid gap-2">
             {[
-              { href: adminRoutes.members, label: "Browse members", icon: Users },
-              { href: adminRoutes.staff, label: "Manage staff", icon: Users },
-              { href: adminRoutes.auditLogs, label: "View audit logs", icon: Activity },
+              { href: adminRoutes.members, label: "Duyệt hội viên", icon: Users },
+              { href: adminRoutes.staff, label: "Quản lý lễ tân", icon: Users },
+              { href: adminRoutes.auditLogs, label: "Xem nhật ký audit", icon: Activity },
             ].map((action) => {
               const Icon = action.icon
               return (
                 <Link
-                  className="flex items-center gap-3 rounded-[1.25rem] border border-zinc-200 bg-white p-3 text-sm font-medium text-zinc-900 transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md active:scale-[0.97]"
+                  className="flex items-center gap-3 rounded-[1.25rem] border border-zinc-200 bg-white p-3 text-sm font-medium text-zinc-900 transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md active:scale-[0.97]"
                   href={action.href}
                   key={action.href}
                 >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Icon aria-hidden="true" className="size-4" />
                   </span>
                   <span className="flex-1">{action.label}</span>

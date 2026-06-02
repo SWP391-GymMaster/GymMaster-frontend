@@ -1,19 +1,19 @@
 # 04 — Design System
 
-> Status: **Current** — Taste-skill audit 2026-06-01. Aligned to GymMaster Full Premium App v8.
+> Status: **Current** — updated 2026-06-02 after final `docs/init` approval and semantic gym token migration.
 
 ## 1. Design direction
 
 GymMaster follows **GymMaster Full Premium App v8**:
 
 ```text
-Apple-inspired premium fitness operations product
+Premium fitness operations product
 + Bento layout
 + Glass-like surfaces (backdrop-blur, layered borders, highlight overlays)
 + Large typography (display up to 5xl–7xl)
 + Dark metric hero
 + Role-focused workspaces
-+ Emerald single accent
++ Iron / Lime / Steel semantic color palette
 + Restrained motion
 ```
 
@@ -38,7 +38,7 @@ Không thiết kế như landing page. Đây là hệ thống quản lý, nên �
 | One primary action | Mỗi form/màn chính chỉ có một primary action nổi bật |
 | Status visible | Membership/payment/check-in status phải dễ nhìn |
 | Shape consistency | Một hệ thống radii duy nhất cho toàn app |
-| Color consistency | Một accent color duy nhất (Emerald). Không trộn accent. |
+| Color consistency | Dùng semantic gym palette: Iron base, Performance Lime primary, Steel info, Amber warning, Red danger. |
 | Role-aware | Menu và content theo đúng role |
 | Fast operation | Staff thao tác nhanh tại quầy |
 | Safe action | Action nguy hiểm phải confirm |
@@ -51,7 +51,7 @@ Không thiết kế như landing page. Đây là hệ thống quản lý, nên �
 
 | Thuộc tính | Rule |
 |---|---|
-| Background | Radial gradient từ Slate-50/White với emerald wash |
+| Background | Chalk/Mist background với lime-tinted radial wash |
 | Surface | Glass card (backdrop-blur, border trắng/bối cảnh) |
 | Border | Slate-200 cho surface nhẹ, white/10 cho dark |
 | Radius | `rounded-[2rem]` (glass shell), `rounded-[1.5rem]` (card), `rounded-2xl` (input), `rounded-full` (button/pill) |
@@ -96,7 +96,7 @@ Inner content (card):
 Dùng một app shell chung (WorkspaceShell):
 
 ```text
-Full-bleed gradient background (emerald wash radial gradient)
+Full-bleed Chalk/Mist background (subtle lime radial wash)
 Center-constrained wrapper (max-w-6xl, mx-auto)
 Glass card header (rounded-[2rem], backdrop-blur)
   → Brand tag + RoleBadge

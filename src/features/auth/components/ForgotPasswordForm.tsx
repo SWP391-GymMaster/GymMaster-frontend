@@ -43,9 +43,9 @@ export function ForgotPasswordForm() {
 
     try {
       const result = await forgotPassword(values)
-      setMessage("If the email exists, a reset request has been created.")
+      setMessage("Nếu email tồn tại, yêu cầu đặt lại mật khẩu đã được tạo.")
       setResetToken(result.resetToken ?? null)
-      toast.success("Password reset request created")
+      toast.success("Đã tạo yêu cầu đặt lại mật khẩu")
     } catch (error) {
       const mappedError = mapAuthError(error)
       setFormError(mappedError.message)
@@ -86,13 +86,13 @@ export function ForgotPasswordForm() {
 
       {message ? (
         <div
-          className="rounded-lg border border-[#adc6ff] bg-[#d8e2ff]/60 px-4 py-3 text-sm text-[#001a42]"
+          className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground"
           role="status"
         >
           {message}
           {resetToken ? (
             <span className="mt-2 block font-mono text-xs">
-              Dev reset token: {resetToken}
+              Mã reset dev: {resetToken}
             </span>
           ) : null}
         </div>
@@ -104,7 +104,7 @@ export function ForgotPasswordForm() {
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Creating request..." : "Send reset request"}
+        {isSubmitting ? "Đang tạo yêu cầu..." : "Gửi yêu cầu đặt lại"}
         {!isSubmitting ? <ArrowRight aria-hidden="true" className="size-4" /> : null}
       </Button>
     </form>

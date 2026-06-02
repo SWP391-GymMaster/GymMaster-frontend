@@ -16,7 +16,7 @@ type DashboardMetricCardProps = {
 }
 
 const trendStyles: Record<TrendDirection, string> = {
-  up: "text-emerald-700 bg-emerald-500/10",
+  up: "text-primary bg-primary/10",
   down: "text-red-700 bg-red-500/10",
   neutral: "text-zinc-600 bg-zinc-200/60",
 }
@@ -68,7 +68,7 @@ export function DashboardMetricCard({
           </p>
         </div>
         {Icon ? (
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Icon aria-hidden="true" className="size-5" />
           </span>
         ) : null}

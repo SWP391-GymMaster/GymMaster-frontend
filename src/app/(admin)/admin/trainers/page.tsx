@@ -4,8 +4,8 @@ import { ManagementWorkspace } from "@/features/member-management/components/Man
 export default function AdminTrainersPage() {
   return (
     <AdminPageFrame
-      description="Create PT profiles and review coaching specialties."
-      title="PT Management"
+      description="Tạo hồ sơ PT và xem chuyên môn huấn luyện."
+      title="Quản lý PT"
     >
       <ManagementWorkspace mode="trainers" />
     </AdminPageFrame>

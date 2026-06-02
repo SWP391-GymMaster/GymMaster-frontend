@@ -15,7 +15,7 @@ type AssignedPTCardProps = {
 function formatDate(dateStr?: string) {
   if (!dateStr) return ""
   const date = new Date(dateStr)
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("vi-VN", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -60,7 +60,7 @@ export function AssignedPTCard({
       >
         <div className="flex items-center gap-2 text-sm text-zinc-500">
           <Dumbbell aria-hidden="true" className="size-4" />
-          No PT assigned
+          Chưa phân công PT
         </div>
       </div>
     )
@@ -73,10 +73,10 @@ export function AssignedPTCard({
         className,
       )}
     >
-      <p className="text-sm font-medium text-zinc-500">Personal Trainer</p>
+      <p className="text-sm font-medium text-zinc-500">PT phụ trách</p>
 
       <div className="mt-4 flex items-center gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Dumbbell aria-hidden="true" className="size-5" />
         </span>
         <div>
@@ -89,7 +89,7 @@ export function AssignedPTCard({
 
       {assignedAt ? (
         <p className="mt-3 text-xs text-zinc-400">
-          Assigned on {formatDate(assignedAt)}
+          Phân công ngày {formatDate(assignedAt)}
         </p>
       ) : null}
     </div>

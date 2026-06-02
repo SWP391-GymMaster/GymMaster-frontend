@@ -19,10 +19,10 @@ type Member360HeroProps = {
 }
 
 const viewContextLabels: Record<ViewContext, string> = {
-  pt: "Assigned member",
-  admin: "Member detail",
-  staff: "Member detail",
-  member: "My profile",
+  pt: "Hội viên phụ trách",
+  admin: "Hồ sơ hội viên",
+  staff: "Hồ sơ hội viên",
+  member: "Hồ sơ của tôi",
 }
 
 function toStatusPillStatus(
@@ -80,7 +80,7 @@ export function Member360Hero({
       )}
     >
       <div className="flex flex-wrap items-center gap-3">
-        <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.12em] text-emerald-300">
+        <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.12em] text-primary">
           {viewContextLabels[viewContext]}
         </span>
         <StatusPill status={toStatusPillStatus(status)} />

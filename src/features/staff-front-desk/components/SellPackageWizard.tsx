@@ -94,14 +94,14 @@ export function SellPackageWizard() {
     const result = await sell.mutateAsync(values)
     setSaleResult(result)
     setPaymentResult(null)
-    toast.success("Package sale created")
+    toast.success("Đã tạo giao dịch bán gói")
   }
 
   return (
     <div className="grid gap-5">
       <StaffWizardStepper
         activeIndex={activeStep}
-        steps={["Member", "Package", "Payment", "Confirm"]}
+        steps={["Hội viên", "Gói tập", "Thanh toán", "Xác nhận"]}
       />
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
@@ -109,23 +109,23 @@ export function SellPackageWizard() {
           <StaffSearchPanel
             error={searchErrors.query?.message}
             id="sell-member-search"
-            label="Select member"
+            label="Chọn hội viên"
             onSubmit={handleSearchSubmit(onSearch)}
-            placeholder="Name, email, phone, or member code"
+            placeholder="Tên, email, số điện thoại hoặc mã hội viên"
             registerInput={registerSearch("query")}
             testId="staff-sell-member-search"
           >
             {!submittedQuery ? (
               <StateBlock
-                description="Search by member code, phone, email, or name before creating a package sale."
-                title="Search to select a member."
+                description="Tìm theo mã hội viên, số điện thoại, email hoặc tên trước khi tạo giao dịch bán gói."
+                title="Tìm để chọn hội viên."
                 tone="empty"
               />
             ) : null}
             {members.isLoading ? (
               <StateBlock
-                description="Loading eligible member records before package sale."
-                title="Loading members..."
+                description="Đang tải hồ sơ hội viên đủ điều kiện trước khi bán gói."
+                title="Đang tải hội viên..."
                 tone="loading"
               />
             ) : null}
@@ -148,10 +148,10 @@ export function SellPackageWizard() {
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold text-zinc-950">
-                  Choose Package
+                  Chọn gói tập
                 </h2>
                 <p className="mt-1 text-sm text-zinc-500">
-                  Package cards follow the Staff sell wizard template.
+                  Thẻ gói tập dùng mẫu wizard bán gói cho lễ tân.
                 </p>
               </div>
               <StatusPill status={selectedPackage ? "active" : "pending"} />
@@ -196,14 +196,14 @@ export function SellPackageWizard() {
                   disabled={sell.isPending}
                   type="submit"
                 >
-                  {sell.isPending ? "Creating..." : "Confirm package sale"}
+                  {sell.isPending ? "Đang tạo..." : "Xác nhận bán gói"}
                 </button>
               </form>
 
               {operationError ? (
                 <StateBlock
                   className="mt-3"
-                  description="Review the selected member and package, then try again."
+                  description="Kiểm tra lại hội viên và gói đã chọn, sau đó thử lại."
                   title={operationError.message}
                   tone="error"
                 />
@@ -211,19 +211,19 @@ export function SellPackageWizard() {
             </>
           }
           member={selectedMember}
-          title="Order Summary"
+          title="Tóm tắt đơn"
         >
           <SummaryRow
-            label="Package"
-            value={selectedPackage?.name ?? "Not selected"}
+            label="Gói tập"
+            value={selectedPackage?.name ?? "Chưa chọn"}
           />
-          <SummaryRow label="Start" value={today} />
+          <SummaryRow label="Ngày bắt đầu" value={today} />
           <SummaryRow
-            label="Total"
+            label="Tổng tiền"
             value={
               selectedPackage
                 ? `${selectedPackage.price.toLocaleString("vi-VN")} VND`
-                : "Pending"
+                : "Đang chờ"
             }
           />
         </OrderSummaryShell>
@@ -237,10 +237,10 @@ export function SellPackageWizard() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-semibold text-zinc-950">
-                Sale created for {saleResult.packageName}
+                Đã tạo bán gói {saleResult.packageName}
               </p>
               <p className="mt-1 text-sm text-zinc-600">
-                Membership is pending until payment is recorded.
+                Gói hội viên đang chờ cho đến khi ghi nhận thanh toán.
               </p>
             </div>
             <StatusPill status={paymentResult ? "paid" : "pending"} />

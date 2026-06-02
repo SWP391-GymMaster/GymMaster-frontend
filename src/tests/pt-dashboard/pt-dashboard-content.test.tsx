@@ -41,7 +41,7 @@ describe("PtDashboardContent", () => {
 
     render(<PtDashboardContent />)
     expect(screen.getByText("Failed to load")).toBeInTheDocument()
-    expect(screen.getByText("Retry")).toBeInTheDocument()
+    expect(screen.getByText("Thử lại")).toBeInTheDocument()
   })
 
   it("renders empty state when no assigned members", () => {
@@ -54,7 +54,7 @@ describe("PtDashboardContent", () => {
 
     render(<PtDashboardContent />)
     expect(
-      screen.getByText("No members assigned yet"),
+      screen.getByText("Chưa có hội viên được phân công"),
     ).toBeInTheDocument()
   })
 

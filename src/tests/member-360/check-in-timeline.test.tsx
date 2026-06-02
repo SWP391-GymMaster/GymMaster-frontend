@@ -14,13 +14,13 @@ describe("CheckInTimeline", () => {
       />,
     )
 
-    expect(screen.getByText("Recent check-ins")).toBeInTheDocument()
+    expect(screen.getByText("Check-in gần đây")).toBeInTheDocument()
   })
 
   it("renders empty state", () => {
     render(<CheckInTimeline entries={[]} />)
 
-    expect(screen.getByText("No check-ins recorded")).toBeInTheDocument()
+    expect(screen.getByText("Chưa có lượt check-in")).toBeInTheDocument()
   })
 
   it("renders loading skeleton", () => {
@@ -31,14 +31,14 @@ describe("CheckInTimeline", () => {
       />,
     )
 
-    expect(screen.queryByText("Recent check-ins")).not.toBeInTheDocument()
+    expect(screen.queryByText("Check-in gần đây")).not.toBeInTheDocument()
     expect(container.querySelectorAll(".animate-pulse").length).toBeGreaterThan(0)
   })
 
   it("renders without entries prop (undefined)", () => {
     render(<CheckInTimeline />)
 
-    expect(screen.getByText("No check-ins recorded")).toBeInTheDocument()
+    expect(screen.getByText("Chưa có lượt check-in")).toBeInTheDocument()
   })
 
   it("applies custom className", () => {

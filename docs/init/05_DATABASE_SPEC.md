@@ -1,6 +1,6 @@
 # 05 — DATABASE SPEC
 
-**Status:** Approved | **DBMS:** SQL Server | **ORM:** EF Core 10 (Code First)
+**Status:** Approved | **DBMS:** SQL Server | **ORM:** EF Core 8 (Code First)
 
 ## 1. Nguyên tắc
 - Quan hệ rõ, có PK/FK, map 1-1 với use cases (SG-03).

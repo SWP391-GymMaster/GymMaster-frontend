@@ -4,8 +4,8 @@ import { AdminDashboardContent } from "@/features/admin-dashboard/components/Adm
 export default function AdminDashboardPage() {
   return (
     <AdminPageFrame
-      description="Command center for revenue, membership status, check-in rhythm, and quick access to management areas."
-      title="Admin Dashboard"
+      description="Trung tâm vận hành doanh thu, trạng thái gói tập, nhịp check-in và truy cập nhanh khu quản lý."
+      title="Bảng điều khiển Admin"
     >
       <AdminDashboardContent />
     </AdminPageFrame>

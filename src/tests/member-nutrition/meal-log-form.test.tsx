@@ -15,7 +15,7 @@ describe("MealLogForm", () => {
 
     fireEvent.click(screen.getByTestId("member-add-meal-button"))
 
-    expect(await screen.findByText("Choose a food item.")).toBeInTheDocument()
+    expect(await screen.findByText("Chọn món ăn.")).toBeInTheDocument()
   })
 
   it("requires quantity greater than zero", async () => {
@@ -31,7 +31,7 @@ describe("MealLogForm", () => {
     fireEvent.click(screen.getByTestId("member-add-meal-button"))
 
     expect(
-      await screen.findByText("Quantity must be greater than zero."),
+      await screen.findByText("Khẩu phần phải lớn hơn 0."),
     ).toBeInTheDocument()
   })
 
@@ -47,6 +47,6 @@ describe("MealLogForm", () => {
     })
     fireEvent.click(screen.getByTestId("member-add-meal-button"))
 
-    expect(await screen.findByText("Meal added")).toBeInTheDocument()
+    expect(await screen.findByText("Đã thêm bữa ăn")).toBeInTheDocument()
   })
 })

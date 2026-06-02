@@ -20,8 +20,8 @@ async function loginAsMember(page: Page) {
 test("Member adds a meal and sees calorie summary update", async ({ page }) => {
   await loginAsMember(page)
 
-  await expect(page.getByRole("heading", { name: "Member Dashboard" })).toBeVisible()
-  await page.getByRole("link", { name: "Log a meal" }).click()
+  await expect(page.getByRole("heading", { name: "Bảng điều khiển hội viên" })).toBeVisible()
+  await page.getByRole("link", { name: /Ghi bữa ăn/ }).click()
   await expect(page).toHaveURL(/\/member\/nutrition\/meal-journal$/)
 
   await page.getByTestId("member-food-search-input").fill("banana")
@@ -29,11 +29,11 @@ test("Member adds a meal and sees calorie summary update", async ({ page }) => {
   await page.getByTestId("member-meal-quantity-input").fill("2")
   await page.getByTestId("member-add-meal-button").click()
 
-  await expect(page.getByText("Meal added")).toBeVisible()
+  await expect(page.getByText("Đã thêm bữa ăn")).toBeVisible()
   await expect(page.getByTestId("member-meal-log-list")).toContainText("Banana")
 
   await page.goto("/member/nutrition/summary")
-  await expect(page.getByTestId("member-calorie-summary")).toContainText("Consumed")
+  await expect(page.getByTestId("member-calorie-summary")).toContainText("Đã ăn")
   await expect(page.getByTestId("member-calorie-summary")).toContainText("kcal")
 })
 
@@ -44,7 +44,7 @@ test("Staff cannot access Member nutrition routes", async ({ page }) => {
 
   await page.goto("/member/nutrition/meal-journal")
   await expect(
-    page.getByText("You do not have access to this workspace."),
+    page.getByText("Bạn không có quyền truy cập khu vực này."),
   ).toBeVisible()
   await expect(page.getByTestId("member-food-search-input")).toHaveCount(0)
 })

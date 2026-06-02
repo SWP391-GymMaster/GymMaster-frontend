@@ -12,9 +12,9 @@ type WorkoutPlanListProps = {
 }
 
 function formatDate(value?: string) {
-  if (!value) return "No start date"
+  if (!value) return "Chưa có ngày bắt đầu"
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat("vi-VN", {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -42,7 +42,7 @@ export function WorkoutPlanList({
   if (error) {
     return (
       <StateBlock
-        description="Refresh the workspace and confirm this member is assigned to you."
+        description="Tải lại workspace và kiểm tra hội viên này có thuộc danh sách của bạn."
         title={error.message}
         tone="error"
       />
@@ -52,8 +52,8 @@ export function WorkoutPlanList({
   if (!plans?.length) {
     return (
       <StateBlock
-        description="Create a plan with at least one exercise to publish coaching guidance."
-        title="No workout plans yet"
+        description="Tạo giáo án với ít nhất một bài tập để hội viên có hướng dẫn luyện tập."
+        title="Chưa có giáo án"
         tone="empty"
       />
     )
@@ -75,7 +75,7 @@ export function WorkoutPlanList({
                 {plan.title}
               </h3>
             </div>
-            <span className="rounded-full bg-[#d8e2ff] px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-[#004395]">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-primary">
               {plan.status ?? "active"}
             </span>
           </div>
@@ -87,7 +87,7 @@ export function WorkoutPlanList({
                 key={`${plan.id}-${exercise.orderIndex}-${exercise.name}`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex size-8 items-center justify-center rounded-lg bg-[#2170e4] text-xs font-black text-white">
+                  <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-xs font-black text-white">
                     {index + 1}
                   </span>
                   <div>
@@ -100,7 +100,7 @@ export function WorkoutPlanList({
                   </div>
                 </div>
                 <p className="font-semibold text-[#424754]">
-                  {exercise.sets} sets
+                  {exercise.sets} hiệp
                 </p>
                 <p className="font-semibold text-[#424754]">
                   {exercise.reps} reps
@@ -117,9 +117,9 @@ export function WorkoutPlanList({
 export function WorkoutPlanListHeader() {
   return (
     <div className="flex items-center gap-2">
-      <ClipboardList aria-hidden="true" className="size-5 text-[#0058be]" />
+      <ClipboardList aria-hidden="true" className="size-5 text-primary" />
       <h2 className="text-lg font-black tracking-tight text-[#191b23]">
-        Workout plans
+        Giáo án luyện tập
       </h2>
     </div>
   )

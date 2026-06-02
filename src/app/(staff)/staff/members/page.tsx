@@ -4,13 +4,13 @@ import { StaffPageFrame } from "@/features/staff-front-desk/components/StaffPage
 export default function StaffMembersPage() {
   return (
     <StaffPageFrame
-      description="Search by member code, phone, email, or name, then open the member's operational status."
+      description="Tìm theo mã hội viên, số điện thoại, email hoặc tên rồi mở trạng thái vận hành."
       metrics={[
-        { label: "Lookup", value: "Code, phone, email, name", tone: "dark" },
-        { label: "Result context", value: "Membership status visible" },
-        { label: "Next action", value: "Open member detail" },
+        { label: "Tra cứu", value: "Mã, SĐT, email, tên", tone: "dark" },
+        { label: "Ngữ cảnh", value: "Hiện trạng gói tập" },
+        { label: "Bước tiếp", value: "Mở chi tiết" },
       ]}
-      title="Member Search"
+      title="Tìm hội viên"
     >
       <ManagementWorkspace detailBasePath="/staff/members" mode="members" />
     </StaffPageFrame>

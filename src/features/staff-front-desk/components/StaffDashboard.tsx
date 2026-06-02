@@ -6,26 +6,26 @@ import { staffRoutes } from "@/features/staff-front-desk/constants/staff-routes"
 const actions = [
   {
     href: staffRoutes.members,
-    title: "Find member",
-    description: "Search by name, email, phone, or member code.",
+    title: "Tìm hội viên",
+    description: "Tìm theo tên, email, số điện thoại hoặc mã hội viên.",
     icon: Search,
   },
   {
     href: staffRoutes.sellPackage,
-    title: "Sell package",
-    description: "Create a membership sale and track payment state.",
+    title: "Bán gói tập",
+    description: "Tạo đơn bán gói và theo dõi trạng thái thanh toán.",
     icon: CreditCard,
   },
   {
     href: staffRoutes.checkIn,
-    title: "Check in",
-    description: "Validate active membership before confirming entry.",
+    title: "Check-in",
+    description: "Kiểm tra gói active trước khi xác nhận vào phòng tập.",
     icon: ShieldCheck,
   },
   {
     href: staffRoutes.renewPackage,
-    title: "Renew",
-    description: "Continue an existing membership with clear payment status.",
+    title: "Gia hạn",
+    description: "Nối gói hiện có với trạng thái thanh toán rõ ràng.",
     icon: UserPlus,
   },
 ]
@@ -34,15 +34,15 @@ export function StaffDashboard() {
   return (
     <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
       <section className="rounded-[1.5rem] border border-zinc-200 bg-zinc-950 p-6 text-white shadow-xl">
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-emerald-300">
-          Front desk command center
+        <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
+          Trung tâm lễ tân
         </p>
         <h2 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight md:text-5xl">
-          Move from lookup to check-in without losing context.
+          Từ tra cứu đến check-in mà không mất ngữ cảnh.
         </h2>
         <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-300">
-          Staff can find a member, confirm status, sell or renew a package, record
-          manual payment, and validate entry from dedicated workspaces.
+          Lễ tân có thể tìm hội viên, xác nhận trạng thái, bán hoặc gia hạn gói,
+          ghi thanh toán thủ công và xác thực vào phòng tập từ các workspace riêng.
         </p>
       </section>
       <section className="grid gap-3">
@@ -55,7 +55,7 @@ export function StaffDashboard() {
               href={action.href}
               key={action.href}
             >
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-800">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <Icon aria-hidden="true" className="size-5" />
               </span>
               <span>

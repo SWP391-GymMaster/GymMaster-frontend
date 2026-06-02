@@ -419,7 +419,7 @@ Large but controlled typography
 Mist workspace surfaces with dark metric accents
 Role-focused workspaces
 Mobile-first member experience
-Electric Blue primary accent
+Iron / Lime / Steel semantic color palette
 Inter font family (primary) + optional Geist Mono for code
 Restrained motion with tactile feedback
 ```
@@ -439,12 +439,25 @@ Standardize stroke width. Keep icons consistent across all views.
 
 ### Color rule
 
-Primary accent: Electric Blue (`#0058BE` / `#3B82F6`).  
-Primary text: Graphite / near-black neutral.  
-Workspace surfaces: Mist / soft blue-gray neutrals from `docs/design/design-system`.  
-Do not use Indigo/Purple or Emerald as the primary accent unless a specific legacy screen is intentionally being migrated later.  
+Use the semantic gym palette from `src/app/globals.css`:
+
+```text
+Iron / Graphite base for text, rails, and dark metric surfaces.
+Performance Lime primary for CTAs, focus rings, active navigation, and high-value actions.
+Steel/Cyan info for check-in and assignment context.
+Amber for pending/warning states.
+Red for destructive/error/locked states.
+Chalk/Mist neutrals for app background and cards.
+```
+
+Do not use Electric Blue, Indigo, Purple, or Emerald as the primary accent in new/migrated code.  
+Prefer semantic tokens (`bg-primary`, `text-primary`, `ring-primary`, `StatusPill`) over hardcoded color utilities when possible.  
 Do not use pure `#000000` for shadows.  
 Status colors are managed centrally by `StatusPill`.
+
+### Runtime copy rule
+
+Final `docs/init/04_REQUIREMENTS.md` requires Vietnamese UI. New user-facing runtime copy should be Vietnamese unless a route is explicitly in a staged legacy migration. Existing English UI is a known partial-migration gap and should be converted through dedicated copy tasks rather than mixed ad hoc inside one workflow.
 
 ### Radii consistency
 
@@ -494,7 +507,7 @@ tactile feedback on interactive elements
 
 - Glass surface: `backdrop-blur` + `border border-white/70` + `bg-white/75` + tinted shadow.
 - Dark surface: `bg-zinc-950` + `border border-white/10` + `shadow-xl` + white text.
-- Background: radial gradient with emerald wash + soft linear gradient.
+- Background: chalk/mist surface with subtle lime-tinted radial wash and soft linear gradient.
 - Status: `StatusPill` with text + color (never color only).
 - No hardcoded status colors per page.
 

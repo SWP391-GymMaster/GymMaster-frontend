@@ -32,7 +32,7 @@ describe("ManualPaymentPanel", () => {
       />,
     )
 
-    expect(screen.getByText("Payment required")).toBeInTheDocument()
+    expect(screen.getByText("Cần ghi nhận thanh toán")).toBeInTheDocument()
     fireEvent.click(screen.getByTestId("staff-record-payment-button"))
 
     await waitFor(() => {

@@ -32,7 +32,7 @@ export function ManualPaymentPanel({
       paymentMethod: "cash",
       paidAt: new Date().toISOString(),
     })
-    toast.success("Manual payment recorded")
+    toast.success("Đã ghi nhận thanh toán thủ công")
     onRecorded?.(result)
   }
 
@@ -41,7 +41,7 @@ export function ManualPaymentPanel({
       error={
         error ? (
         <StateBlock
-          description="Confirm the membership and payment amount before recording again."
+          description="Xác nhận lại gói hội viên và số tiền trước khi ghi nhận lại."
           title={error.message}
           tone="error"
         />

@@ -15,7 +15,7 @@ describe("AssignedPTCard", () => {
 
     expect(screen.getByText("Coach Minh")).toBeInTheDocument()
     expect(screen.getByText("Strength & Conditioning")).toBeInTheDocument()
-    expect(screen.getByText(/Assigned on 28 May 2026/)).toBeInTheDocument()
+    expect(screen.getByText(/Phân công ngày/)).toBeInTheDocument()
   })
 
   it("renders PT name without specialty", () => {
@@ -27,7 +27,7 @@ describe("AssignedPTCard", () => {
   it("renders empty state when no PT", () => {
     render(<AssignedPTCard />)
 
-    expect(screen.getByText("No PT assigned")).toBeInTheDocument()
+    expect(screen.getByText("Chưa phân công PT")).toBeInTheDocument()
   })
 
   it("renders loading skeleton", () => {

@@ -19,7 +19,7 @@ describe("PermissionGuard", () => {
       </PermissionGuard>,
     )
 
-    expect(screen.getByText("Please sign in to continue.")).toBeInTheDocument()
+    expect(screen.getByText("Vui lòng đăng nhập để tiếp tục.")).toBeInTheDocument()
     expect(screen.queryByText("Admin content")).not.toBeInTheDocument()
   })
 
@@ -69,7 +69,7 @@ describe("PermissionGuard", () => {
     )
 
     expect(
-      await screen.findByText("You do not have access to this workspace."),
+      await screen.findByText("Bạn không có quyền truy cập khu vực này."),
     ).toBeInTheDocument()
     expect(screen.queryByText("Admin content")).not.toBeInTheDocument()
   })

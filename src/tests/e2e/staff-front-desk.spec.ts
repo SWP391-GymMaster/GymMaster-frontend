@@ -20,8 +20,9 @@ async function loginAsStaff(page: Page) {
 test("Staff dashboard shows route-aware shell metrics", async ({ page }) => {
   await loginAsStaff(page)
 
-  await expect(page.getByText("Today operations")).toBeVisible()
-  await expect(page.getByText("Front desk ready")).toBeVisible()
+  await expect(page.getByText("Vận hành hôm nay")).toBeVisible()
+  await expect(page.getByText("Sẵn sàng")).toBeVisible()
+  await expect(page.getByText("Trung tâm lễ tân", { exact: true })).toBeVisible()
   await expect(page.getByText("Skeleton only")).toHaveCount(0)
 })
 
@@ -38,7 +39,7 @@ test("Staff searches and opens member detail", async ({ page }) => {
     .getByRole("link", { name: "Open" })
     .click()
   await expect(page).toHaveURL(/\/staff\/members\/101$/, { timeout: 15_000 })
-  await expect(page.getByRole("heading", { name: "Member Detail" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Chi tiết hội viên" })).toBeVisible()
   await expect(page.getByText("Premium 30")).toBeVisible()
 })
 
@@ -47,17 +48,17 @@ test("Staff creates package sale and records payment", async ({ page }) => {
 
   await page.goto("/staff/sell-package")
   await page.getByTestId("staff-sell-member-search").fill("member@gymmaster.local")
-  await page.getByRole("button", { name: "Find" }).click()
+  await page.getByRole("button", { name: "Tìm" }).click()
   await page.getByText("Nguyen Minh Anh").click()
   await page.getByText("Strength 90").click()
   await page.getByTestId("staff-sell-submit-button").click()
 
   await expect(page.getByTestId("staff-sell-result")).toContainText(
-    "Membership is pending",
+    "Gói hội viên đang chờ",
   )
   await page.getByTestId("staff-record-payment-button").click()
   await expect(page.getByTestId("staff-sell-result")).toContainText(
-    "Manual payment recorded",
+    "Đã ghi nhận thanh toán",
   )
 })
 
@@ -66,21 +67,21 @@ test("Staff renews membership and records payment", async ({ page }) => {
 
   await page.goto("/staff/renew-package")
   await page.getByTestId("staff-renew-member-search").fill("member@gymmaster.local")
-  await page.getByRole("button", { name: "Find" }).click()
+  await page.getByRole("button", { name: "Tìm" }).click()
   await page.getByText("Nguyen Minh Anh").click()
-  await expect(page.getByText(/Premium 30 · ends/i).first()).toBeVisible()
+  await expect(page.getByText(/Premium 30 · hết hạn/i).first()).toBeVisible()
   await page.getByText("Strength 90").click()
   await expect(page.getByTestId("staff-renew-summary")).toContainText(
-    "2026-07-01 to 2026-09-29",
+    "2026-07-01 đến 2026-09-29",
   )
   await page.getByTestId("staff-renew-submit-button").click()
 
   await expect(page.getByTestId("staff-renew-result")).toContainText(
-    "Renewal is pending",
+    "Gia hạn đang chờ",
   )
   await page.getByTestId("staff-record-payment-button").click()
   await expect(page.getByTestId("staff-renew-result")).toContainText(
-    "Manual payment recorded",
+    "Đã ghi nhận thanh toán",
   )
 })
 
@@ -89,12 +90,12 @@ test("Staff confirms active member check-in", async ({ page }) => {
 
   await page.goto("/staff/check-in")
   await page.getByTestId("staff-checkin-search").fill("GM-101")
-  await page.getByRole("button", { name: "Find" }).click()
+  await page.getByRole("button", { name: "Tìm" }).click()
   await page.getByText("Nguyen Minh Anh").click()
   await page.getByTestId("staff-checkin-confirm").click()
 
   await expect(page.getByTestId("staff-checkin-result")).toContainText(
-    "Check-in confirmed",
+    "Đã xác nhận check-in",
   )
 })
 
@@ -103,12 +104,12 @@ test("Staff sees safe check-in denial for inactive member", async ({ page }) => 
 
   await page.goto("/staff/check-in")
   await page.getByTestId("staff-checkin-search").fill("GM-103")
-  await page.getByRole("button", { name: "Find" }).click()
+  await page.getByRole("button", { name: "Tìm" }).click()
   await page.getByText("Le Hoang My").click()
   await page.getByTestId("staff-checkin-confirm").click()
 
   await expect(page.getByTestId("staff-checkin-result")).toContainText(
-    "Check-in denied",
+    "Từ chối check-in",
   )
 })
 
@@ -118,6 +119,6 @@ test("Member cannot render Staff operational routes", async ({ page }) => {
   await expect(page).toHaveURL(/\/member\/dashboard$/)
 
   await page.goto("/staff/members")
-  await expect(page.getByText("You do not have access to this workspace.")).toBeVisible()
+  await expect(page.getByText("Bạn không có quyền truy cập khu vực này.")).toBeVisible()
   await expect(page.getByTestId("staff-member-search-input")).toHaveCount(0)
 })

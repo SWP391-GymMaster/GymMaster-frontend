@@ -4,13 +4,13 @@ import { StaffPageFrame } from "@/features/staff-front-desk/components/StaffPage
 export default function StaffSellPackagePage() {
   return (
     <StaffPageFrame
-      description="Select a member, choose an active package, confirm sale details, and keep pending payment separate from active membership."
+      description="Chọn hội viên, chọn gói active, xác nhận bán gói và tách pending payment khỏi gói active."
       metrics={[
-        { label: "Sale state", value: "Pending until paid", tone: "dark" },
-        { label: "Package source", value: "Mock API catalog" },
-        { label: "Payment action", value: "Manual confirmation" },
+        { label: "Trạng thái bán", value: "Chờ thanh toán", tone: "dark" },
+        { label: "Nguồn gói", value: "Mock API catalog" },
+        { label: "Thanh toán", value: "Xác nhận thủ công" },
       ]}
-      title="Sell Package"
+      title="Bán gói tập"
     >
       <SellPackageWizard />
     </StaffPageFrame>

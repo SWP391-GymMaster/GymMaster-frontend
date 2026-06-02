@@ -21,6 +21,5 @@
 | D-15 | 2026-05 | **Monorepo** trên GitHub | Dễ quản lý cho team nhỏ | FE + BE chung repo |
 | D-16 | 2026-05 | Áp dụng **CONSTITUTION + AGENTS + CLAUDE** | Theo playbook SDD+ADD | Thêm 3 file nền tảng |
 | D-17 | 2026-05-30 | Database **SQL Server** (CANONICAL) — thay MySQL | Team chốt dùng SQL Server (quen toolset MS, LocalDB/SSMS, tích hợp Azure SQL) | EF Core `Microsoft.EntityFrameworkCore.SqlServer`; kiểu dữ liệu IDENTITY/NVARCHAR/DATETIME2/BIT; không có ENUM → bảng lookup/CHECK |
-| D-18 | 2026-06-01 | Runtime **.NET 10** (ASP.NET Core 10 + EF Core 10) — thay .NET 8 | Code thực tế đã build trên `net10.0`; chốt đồng bộ tài liệu theo code thay vì hạ cấp | `TargetFramework=net10.0`; package `Microsoft.*` 10.0.x; cập nhật toàn bộ docs + CONSTITUTION v1.2.0; superseded version trong D-02/D-04 |
 
 > Khi đổi một quyết định: thêm dòng mới với ID mới, đánh dấu dòng cũ "Superseded by D-xx", KHÔNG xóa lịch sử.

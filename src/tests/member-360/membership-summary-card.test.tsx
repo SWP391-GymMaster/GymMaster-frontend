@@ -15,9 +15,9 @@ describe("MembershipSummaryCard", () => {
     )
 
     expect(screen.getByText("Strength 90")).toBeInTheDocument()
-    expect(screen.getByText("Active")).toBeInTheDocument()
-    expect(screen.getByText(/Start:/)).toBeInTheDocument()
-    expect(screen.getByText(/End:/)).toBeInTheDocument()
+    expect(screen.getByText("Hoạt động")).toBeInTheDocument()
+    expect(screen.getByText(/Bắt đầu:/)).toBeInTheDocument()
+    expect(screen.getByText(/Kết thúc:/)).toBeInTheDocument()
   })
 
   it("renders payment status pill", () => {
@@ -29,7 +29,7 @@ describe("MembershipSummaryCard", () => {
       />,
     )
 
-    expect(screen.getByText("Paid")).toBeInTheDocument()
+    expect(screen.getByText("Đã thanh toán")).toBeInTheDocument()
   })
 
   it("renders pending membership and payment status", () => {
@@ -41,8 +41,8 @@ describe("MembershipSummaryCard", () => {
       />,
     )
 
-    // Both the membership status and payment status show "Pending"
-    const pendingElements = screen.getAllByText("Pending")
+    // Both the membership status and payment status show the same pending label.
+    const pendingElements = screen.getAllByText("Đang chờ")
     expect(pendingElements.length).toBe(2)
   })
 
@@ -55,14 +55,14 @@ describe("MembershipSummaryCard", () => {
       />,
     )
 
-    expect(screen.getByText("Expired")).toBeInTheDocument()
-    expect(screen.getByText("Failed")).toBeInTheDocument()
+    expect(screen.getByText("Hết hạn")).toBeInTheDocument()
+    expect(screen.getByText("Thất bại")).toBeInTheDocument()
   })
 
   it("renders empty state when no membership", () => {
     render(<MembershipSummaryCard />)
 
-    expect(screen.getByText("No active membership")).toBeInTheDocument()
+    expect(screen.getByText("Chưa có gói hội viên active")).toBeInTheDocument()
   })
 
   it("renders loading skeleton", () => {

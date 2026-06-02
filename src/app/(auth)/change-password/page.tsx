@@ -9,13 +9,13 @@ export default function ChangePasswordPage() {
   return (
     <PermissionGuard allowedRoles={["admin", "staff", "pt", "member"]}>
       <AuthOSShell
-        description="Update your password using your current active session."
+        description="Cập nhật mật khẩu bằng phiên đăng nhập hiện tại."
         footer={
           <>
-            Finished? <CurrentDashboardLink />
+            Hoàn tất? <CurrentDashboardLink />
           </>
         }
-        title="Change password"
+        title="Đổi mật khẩu"
       >
         <ChangePasswordForm />
       </AuthOSShell>

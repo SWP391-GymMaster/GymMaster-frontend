@@ -44,15 +44,15 @@ export function ChangePasswordForm() {
     setMessage(null)
 
     if (!session?.accessToken) {
-      setFormError("Your session has expired. Please sign in again.")
+      setFormError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.")
       return
     }
 
     try {
       await changePassword(values, session.accessToken)
       reset()
-      setMessage("Password changed successfully.")
-      toast.success("Password changed successfully")
+      setMessage("Đã đổi mật khẩu.")
+      toast.success("Đã đổi mật khẩu")
     } catch (error) {
       const mappedError = mapAuthError(error)
       setFormError(mappedError.message)
@@ -64,7 +64,7 @@ export function ChangePasswordForm() {
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="current-password">
-          Current password
+          Mật khẩu hiện tại
         </label>
         <div className="relative">
           <Lock
@@ -87,7 +87,7 @@ export function ChangePasswordForm() {
 
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="change-new-password">
-          New password
+          Mật khẩu mới
         </label>
         <div className="relative">
           <Lock
@@ -116,7 +116,7 @@ export function ChangePasswordForm() {
 
       {message ? (
         <div
-          className="rounded-lg border border-[#adc6ff] bg-[#d8e2ff]/60 px-4 py-3 text-sm text-[#001a42]"
+          className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground"
           role="status"
         >
           {message}
@@ -129,7 +129,7 @@ export function ChangePasswordForm() {
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Changing password..." : "Change password"}
+        {isSubmitting ? "Đang đổi mật khẩu..." : "Đổi mật khẩu"}
         {!isSubmitting ? <ArrowRight aria-hidden="true" className="size-4" /> : null}
       </Button>
     </form>

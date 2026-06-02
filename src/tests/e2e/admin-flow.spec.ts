@@ -26,14 +26,14 @@ test.describe("Admin Dashboard Flow", () => {
   }) => {
     await loginAsAdmin(page)
     await expect(page).toHaveURL(/\/admin\/dashboard/)
-    await expect(page.getByText("Admin Dashboard").first()).toBeVisible()
+    await expect(page.getByText("Bảng điều khiển Admin").first()).toBeVisible()
 
-    await expect(page.getByText("Active memberships")).toBeVisible()
-    await expect(page.getByText("Expired memberships")).toBeVisible()
-    await expect(page.getByText("Today check-ins")).toBeVisible()
-    await expect(page.getByText("Revenue").first()).toBeVisible()
+    await expect(page.getByText("Gói active")).toBeVisible()
+    await expect(page.getByText("Gói hết hạn")).toBeVisible()
+    await expect(page.getByText("Check-in hôm nay")).toBeVisible()
+    await expect(page.getByText("Doanh thu").first()).toBeVisible()
     await expect(
-      page.getByText("Revenue & check-in activity").first(),
+      page.getByText("Doanh thu và hoạt động check-in").first(),
     ).toBeVisible()
   })
 
@@ -46,7 +46,7 @@ test.describe("Admin Dashboard Flow", () => {
     await page.waitForFunction(
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
-    await expect(page.getByText("Audit Logs").first()).toBeVisible()
+    await expect(page.getByText("Nhật ký audit").first()).toBeVisible()
 
     // Table rows should render actor names
     await expect(page.getByText("Admin User").first()).toBeVisible()
@@ -64,7 +64,7 @@ test.describe("Admin Dashboard Flow", () => {
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
     await expect(
-      page.getByText("You do not have access to this workspace."),
+      page.getByText("Bạn không có quyền truy cập khu vực này."),
     ).toBeVisible()
   })
 
@@ -74,7 +74,7 @@ test.describe("Admin Dashboard Flow", () => {
 
     await page.goto("/admin/assignments")
     await expect(
-      page.getByText("You do not have access to this workspace."),
+      page.getByText("Bạn không có quyền truy cập khu vực này."),
     ).toBeVisible()
     await expect(page.getByTestId("assignment-confirm-button")).toHaveCount(0)
   })
@@ -83,7 +83,7 @@ test.describe("Admin Dashboard Flow", () => {
     await loginAsAdmin(page)
     await expect(page).toHaveURL(/\/admin\/dashboard/)
 
-    await page.getByText("Browse members").click()
+    await page.getByText("Duyệt hội viên").click()
     await expect(page).toHaveURL(/\/admin\/members/)
   })
 
@@ -94,7 +94,7 @@ test.describe("Admin Dashboard Flow", () => {
     await page.waitForFunction(
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
-    await expect(page.getByText("Staff Management").first()).toBeVisible()
+    await expect(page.getByText("Quản lý lễ tân").first()).toBeVisible()
 
     await page.getByTestId("user-create-name").fill("Deadline Staff")
     await page
@@ -159,7 +159,7 @@ test.describe("Admin Dashboard Flow", () => {
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
     await expect(
-      page.getByRole("heading", { name: "PT Assignment" }).first(),
+      page.getByRole("heading", { name: "Phân công PT" }).first(),
     ).toBeVisible()
 
     await page.getByText("Tran Bao Long").click()
@@ -167,7 +167,7 @@ test.describe("Admin Dashboard Flow", () => {
     await page.getByTestId("assignment-confirm-button").click()
 
     await expect(page.getByTestId("assignment-success")).toContainText(
-      "PT assigned",
+      "Đã phân công PT",
     )
     await expect(page.getByTestId("assignment-success")).toContainText(
       "ASSIGN_PT",
@@ -181,7 +181,7 @@ test.describe("Admin Dashboard Flow", () => {
     await page.waitForFunction(
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
-    await expect(page.getByText("Member Management").first()).toBeVisible()
+    await expect(page.getByText("Quản lý hội viên").first()).toBeVisible()
 
     await page.getByTestId("member-create-name").fill("Deadline Member E2E")
     await page

@@ -19,9 +19,9 @@ export function AdminMember360Page() {
   return (
     <PermissionGuard allowedRoles={["admin"]}>
       <WorkspaceShell
-        description="Member full profile with membership, assigned PT, and check-in history."
+        description="Hồ sơ 360 gồm gói hội viên, PT phụ trách và lịch sử check-in."
         role="admin"
-        title={data?.member.fullName ?? "Member 360"}
+        title={data?.member.fullName ?? "Hội viên 360"}
       >
         <Member360Content
           data={data ?? undefined}

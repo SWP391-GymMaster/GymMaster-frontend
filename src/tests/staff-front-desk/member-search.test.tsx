@@ -20,7 +20,7 @@ describe("MemberSearchPanel", () => {
 
     expect(await screen.findByText("Nguyen Minh Anh")).toBeInTheDocument()
     expect(screen.getByText("GM-101 · 0900000101 · member@gymmaster.local")).toBeInTheDocument()
-    expect(screen.getByText("Active")).toBeInTheDocument()
+    expect(screen.getByText("Hoạt động")).toBeInTheDocument()
   })
 
   it("shows an empty state when no member matches", async () => {
@@ -32,7 +32,7 @@ describe("MemberSearchPanel", () => {
     fireEvent.click(screen.getByTestId("staff-member-search-button"))
 
     await waitFor(() => {
-      expect(screen.getByText(/No member found/i)).toBeInTheDocument()
+      expect(screen.getByText("Không tìm thấy hội viên.")).toBeInTheDocument()
     })
   })
 })

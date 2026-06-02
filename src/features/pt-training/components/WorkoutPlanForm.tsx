@@ -50,7 +50,7 @@ export function WorkoutPlanForm({
       })),
     })
     form.reset({ title: "", exercises: [defaultExercise] })
-    toast.success("Workout plan saved")
+    toast.success("Đã lưu giáo án")
   }
 
   return (
@@ -63,12 +63,12 @@ export function WorkoutPlanForm({
           className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]"
           htmlFor="workout-title"
         >
-          Plan title
+          Tên giáo án
         </label>
         <input
-          className="mt-2 min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] px-3 text-sm font-semibold text-[#191b23] outline-none transition-all focus:border-[#0058be] focus:ring-2 focus:ring-[#adc6ff]"
+          className="mt-2 min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] px-3 text-sm font-semibold text-[#191b23] outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
           id="workout-title"
-          placeholder="Advanced hypertrophy"
+          placeholder="Tăng cơ nâng cao"
           {...form.register("title")}
         />
         {form.formState.errors.title ? (
@@ -81,7 +81,7 @@ export function WorkoutPlanForm({
       <div className="mt-5 space-y-3">
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]">
-            Exercises
+            Bài tập
           </p>
           <Button
             className="min-h-10 rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd] active:scale-[0.98]"
@@ -90,7 +90,7 @@ export function WorkoutPlanForm({
             variant="outline"
           >
             <Plus aria-hidden="true" className="size-4" />
-            Add exercise
+            Thêm bài tập
           </Button>
         </div>
 
@@ -106,9 +106,9 @@ export function WorkoutPlanForm({
             key={field.id}
           >
             <div className="flex items-center justify-between gap-3">
-              <p className="font-bold text-[#191b23]">Exercise {index + 1}</p>
+              <p className="font-bold text-[#191b23]">Bài tập {index + 1}</p>
               <Button
-                aria-label={`Remove exercise ${index + 1}`}
+                aria-label={`Xóa bài tập ${index + 1}`}
                 className="size-9 rounded-lg border-red-200 text-red-700 hover:bg-red-50 active:scale-[0.98]"
                 disabled={fields.length === 1}
                 onClick={() => remove(index)}
@@ -122,12 +122,12 @@ export function WorkoutPlanForm({
             <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_96px_120px]">
               <div>
                 <label className="sr-only" htmlFor={`exercise-name-${index}`}>
-                  Exercise name
+                  Tên bài tập
                 </label>
                 <input
-                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-[#0058be] focus:ring-2 focus:ring-[#adc6ff]"
+                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                   id={`exercise-name-${index}`}
-                  placeholder="Exercise name"
+                  placeholder="Tên bài tập"
                   {...form.register(`exercises.${index}.name`)}
                 />
                 {form.formState.errors.exercises?.[index]?.name ? (
@@ -138,10 +138,10 @@ export function WorkoutPlanForm({
               </div>
               <div>
                 <label className="sr-only" htmlFor={`exercise-sets-${index}`}>
-                  Sets
+                  Số hiệp
                 </label>
                 <input
-                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-[#0058be] focus:ring-2 focus:ring-[#adc6ff]"
+                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                   id={`exercise-sets-${index}`}
                   min={1}
                   type="number"
@@ -155,7 +155,7 @@ export function WorkoutPlanForm({
                   Reps
                 </label>
                 <input
-                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-[#0058be] focus:ring-2 focus:ring-[#adc6ff]"
+                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
                   id={`exercise-reps-${index}`}
                   placeholder="8-10"
                   {...form.register(`exercises.${index}.reps`)}
@@ -163,12 +163,12 @@ export function WorkoutPlanForm({
               </div>
             </div>
             <label className="sr-only" htmlFor={`exercise-note-${index}`}>
-              Exercise note
+              Ghi chú bài tập
             </label>
             <textarea
-              className="mt-3 min-h-20 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 py-2 text-sm text-[#191b23] outline-none focus:border-[#0058be] focus:ring-2 focus:ring-[#adc6ff]"
+              className="mt-3 min-h-20 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 py-2 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
               id={`exercise-note-${index}`}
-              placeholder="Coach cue, tempo, or safety note"
+              placeholder="Cue kỹ thuật, tempo hoặc lưu ý an toàn"
               {...form.register(`exercises.${index}.note`)}
             />
           </div>
@@ -176,12 +176,12 @@ export function WorkoutPlanForm({
       </div>
 
       <Button
-        className="mt-5 min-h-12 w-full rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4] active:scale-[0.98]"
+        className="mt-5 min-h-12 w-full rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
         data-testid="workout-plan-submit-button"
         disabled={isPending}
         type="submit"
       >
-        {isPending ? "Saving plan..." : "Save workout plan"}
+        {isPending ? "Đang lưu giáo án..." : "Lưu giáo án"}
       </Button>
     </form>
   )

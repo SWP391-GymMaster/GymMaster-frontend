@@ -4,8 +4,8 @@ import { AdminUsersTemplateWorkspace } from "@/features/member-management/compon
 export default function AdminUsersPage() {
   return (
     <AdminPageFrame
-      description="Create role-bound accounts and review active user access from backend spec 002."
-      title="User Management"
+      description="Tạo tài khoản theo vai trò và kiểm tra quyền truy cập active theo backend spec 002."
+      title="Quản lý tài khoản"
     >
       <AdminUsersTemplateWorkspace />
     </AdminPageFrame>

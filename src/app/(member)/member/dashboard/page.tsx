@@ -6,14 +6,14 @@ export default function MemberDashboardPage() {
   return (
     <PermissionGuard allowedRoles={["member"]}>
       <WorkspaceShell
-        description="Your daily training, membership, and nutrition command center."
+        description="Trung tâm hằng ngày cho tập luyện, gói hội viên và dinh dưỡng."
         metrics={[
-          { label: "Today focus", value: "Nutrition log", tone: "dark" },
-          { label: "Membership", value: "Active" },
-          { label: "Coach plan", value: "Next slice" },
+          { label: "Trọng tâm hôm nay", value: "Nhật ký ăn", tone: "dark" },
+          { label: "Gói hội viên", value: "Hoạt động" },
+          { label: "Giáo án", value: "Sẵn sàng" },
         ]}
         role="member"
-        title="Member Dashboard"
+        title="Bảng điều khiển hội viên"
       >
         <MemberDashboardContent />
       </WorkspaceShell>

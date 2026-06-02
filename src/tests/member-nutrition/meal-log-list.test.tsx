@@ -8,7 +8,7 @@ describe("MealLogList", () => {
   it("shows empty state", () => {
     renderWithMemberSession(<MealLogList logs={[]} />)
 
-    expect(screen.getByText("No meals logged today.")).toBeInTheDocument()
+    expect(screen.getByText("Hôm nay chưa có bữa ăn.")).toBeInTheDocument()
   })
 
   it("renders meal entries", () => {
@@ -34,7 +34,7 @@ describe("MealLogList", () => {
       />,
     )
 
-    expect(screen.getByText("Lunch")).toBeInTheDocument()
+    expect(screen.getByText("Bữa trưa")).toBeInTheDocument()
     expect(screen.getByText(/Chicken breast/)).toBeInTheDocument()
     expect(screen.getByText("248 kcal")).toBeInTheDocument()
   })

@@ -4,8 +4,8 @@ import { AdminPtAssignmentWorkspace } from "@/features/pt-assignment/components/
 export default function AdminAssignmentsPage() {
   return (
     <AdminPageFrame
-      description="Assign or change a member's active PT while preserving ownership and audit evidence."
-      title="PT Assignment"
+      description="Phân công PT cho hội viên theo rule một PT active và giữ bằng chứng audit."
+      title="Phân công PT"
     >
       <AdminPtAssignmentWorkspace />
     </AdminPageFrame>

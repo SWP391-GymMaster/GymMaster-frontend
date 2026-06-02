@@ -8,8 +8,8 @@ describe("AdminPtAssignmentWorkspace", () => {
   it("starts with disabled confirm until member and trainer are selected", async () => {
     renderWithAdminSession(<AdminPtAssignmentWorkspace />)
 
-    expect(await screen.findByText("Unassigned Members")).toBeInTheDocument()
-    expect(screen.getByText("Available Trainers")).toBeInTheDocument()
+    expect(await screen.findByText("Hội viên cần phân công")).toBeInTheDocument()
+    expect(screen.getAllByText("PT khả dụng").length).toBeGreaterThan(0)
     expect(screen.getByTestId("assignment-confirm-button")).toBeDisabled()
   })
 
@@ -21,29 +21,27 @@ describe("AdminPtAssignmentWorkspace", () => {
     fireEvent.click(screen.getByTestId("assignment-confirm-button"))
 
     expect(await screen.findByTestId("assignment-success")).toHaveTextContent(
-      "PT assigned",
+      "Đã phân công PT",
     )
     expect(screen.getByTestId("assignment-success")).toHaveTextContent(
       /Audit Log #\d+ · ASSIGN_PT/,
     )
   })
 
-  it("reassigns an actively assigned member and ends the previous assignment", async () => {
+  it("blocks duplicate active assignment with final 422 rule", async () => {
     renderWithAdminSession(<AdminPtAssignmentWorkspace />)
 
     fireEvent.click(await screen.findByText("Nguyen Minh Anh"))
     fireEvent.click(await screen.findByText("Marcus Cole"))
-    expect(screen.getByText(/Replaces Coach PT/)).toBeInTheDocument()
+    expect(screen.getByText(/đang là PT active/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByTestId("assignment-confirm-button"))
 
     await waitFor(() => {
-      expect(screen.getByTestId("assignment-success")).toHaveTextContent(
-        "PT reassigned",
+      expect(screen.getByTestId("assignment-error")).toHaveTextContent(
+        "Hội viên này đang có PT active",
       )
     })
-    expect(screen.getByTestId("assignment-success")).toHaveTextContent(
-      /Previous assignment #\d+ ended/,
-    )
+    expect(screen.queryByTestId("assignment-success")).not.toBeInTheDocument()
   })
 })

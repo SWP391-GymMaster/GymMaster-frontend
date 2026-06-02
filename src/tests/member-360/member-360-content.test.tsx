@@ -35,16 +35,16 @@ describe("Member360Content", () => {
       />,
     )
 
-    expect(screen.getByText("Retry")).toBeInTheDocument()
+    expect(screen.getByText("Thử lại")).toBeInTheDocument()
   })
 
   it("renders empty data gracefully", () => {
     render(<Member360Content viewContext="admin" />)
 
     // The hero should show with empty props (no crash)
-    expect(screen.getByText("Member detail")).toBeInTheDocument()
-    expect(screen.getByText("No active membership")).toBeInTheDocument()
-    expect(screen.getByText("No PT assigned")).toBeInTheDocument()
-    expect(screen.getByText("No check-ins recorded")).toBeInTheDocument()
+    expect(screen.getByText("Hồ sơ hội viên")).toBeInTheDocument()
+    expect(screen.getByText("Chưa có gói hội viên active")).toBeInTheDocument()
+    expect(screen.getByText("Chưa phân công PT")).toBeInTheDocument()
+    expect(screen.getByText("Chưa có lượt check-in")).toBeInTheDocument()
   })
 })

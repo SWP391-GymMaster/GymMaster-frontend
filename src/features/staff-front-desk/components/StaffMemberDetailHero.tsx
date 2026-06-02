@@ -20,8 +20,8 @@ export function StaffMemberDetailHero() {
     return (
       <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-6 shadow-sm">
         <StateBlock
-          description="Loading membership, payment, and recent check-in context."
-          title="Loading member detail..."
+          description="Đang tải gói hội viên, thanh toán và check-in gần đây."
+          title="Đang tải chi tiết hội viên..."
           tone="loading"
         />
       </section>
@@ -32,7 +32,7 @@ export function StaffMemberDetailHero() {
     return (
       <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-6 shadow-sm">
         <StateBlock
-          description="Return to member search or retry after checking the member id."
+          description="Quay lại tìm hội viên hoặc thử lại sau khi kiểm tra mã hội viên."
           title={error.message}
           tone="error"
         />
@@ -44,8 +44,8 @@ export function StaffMemberDetailHero() {
     return (
       <section className="rounded-[1.5rem] border border-zinc-200 bg-white/85 p-6">
         <StateBlock
-          description="Return to member search and select a valid member record."
-          title="Member detail is unavailable."
+          description="Quay lại tìm hội viên và chọn một hồ sơ hợp lệ."
+          title="Không thể tải chi tiết hội viên."
           tone="empty"
         />
       </section>
@@ -71,50 +71,50 @@ export function StaffMemberDetailHero() {
         </p>
         <dl className="mt-6 grid gap-3 sm:grid-cols-3">
           <div>
-            <dt className="text-sm text-zinc-400">Package</dt>
+            <dt className="text-sm text-zinc-400">Gói tập</dt>
             <dd className="mt-1 text-lg font-semibold">
-              {currentMembership?.packageName ?? "None"}
+              {currentMembership?.packageName ?? "Chưa có"}
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-zinc-400">Ends</dt>
+            <dt className="text-sm text-zinc-400">Hết hạn</dt>
             <dd className="mt-1 text-lg font-semibold">
-              {currentMembership?.endsAt ?? "No active window"}
+              {currentMembership?.endsAt ?? "Chưa có kỳ active"}
             </dd>
           </div>
           <div>
-            <dt className="text-sm text-zinc-400">Last check-in</dt>
+            <dt className="text-sm text-zinc-400">Check-in gần nhất</dt>
             <dd className="mt-1 text-lg font-semibold">
-              {member.lastCheckInAt ?? "No recent check-in"}
+              {member.lastCheckInAt ?? "Chưa có check-in gần đây"}
             </dd>
           </div>
         </dl>
       </section>
 
       <aside className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-        <h3 className="text-lg font-semibold text-zinc-950">Next actions</h3>
+        <h3 className="text-lg font-semibold text-zinc-950">Thao tác tiếp theo</h3>
         <div className="mt-4 grid gap-3">
           <Link
             className="rounded-full bg-zinc-950 px-4 py-3 text-center text-sm font-medium text-white transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-zinc-800 active:scale-[0.97]"
             href={staffRoutes.checkIn}
           >
-            Check in member
+            Check-in hội viên
           </Link>
           <Link
-            className="rounded-full border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-900 transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-emerald-300 hover:shadow-sm active:scale-[0.97]"
+            className="rounded-full border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-900 transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-primary/40 hover:shadow-sm active:scale-[0.97]"
             href={staffRoutes.sellPackage}
           >
-            Sell package
+            Bán gói tập
           </Link>
           <Link
-            className="rounded-full border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-900 transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-emerald-300 hover:shadow-sm active:scale-[0.97]"
+            className="rounded-full border border-zinc-200 bg-white px-4 py-3 text-center text-sm font-medium text-zinc-900 transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-primary/40 hover:shadow-sm active:scale-[0.97]"
             href={staffRoutes.renewPackage}
           >
-            Renew package
+            Gia hạn gói
           </Link>
         </div>
         <div className="mt-6 rounded-[1.25rem] bg-zinc-50 p-4">
-          <p className="text-sm font-medium text-zinc-950">Recent activity</p>
+          <p className="text-sm font-medium text-zinc-950">Hoạt động gần đây</p>
           {recentCheckIns.length ? (
             <ul className="mt-3 space-y-2 text-sm text-zinc-600">
               {recentCheckIns.slice(-3).map((checkin) => (
@@ -124,8 +124,8 @@ export function StaffMemberDetailHero() {
           ) : (
             <StateBlock
               className="mt-3"
-              description="Recent Staff check-ins will appear here after entry confirmation."
-              title="No check-ins recorded."
+              description="Check-in gần đây của lễ tân sẽ hiển thị sau khi xác nhận vào phòng tập."
+              title="Chưa có lượt check-in."
               tone="empty"
             />
           )}

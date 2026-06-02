@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "GymMaster",
-  description: "Premium frontend for GymMaster fitness operations.",
+  description: "Frontend quản lý vận hành phòng gym GymMaster.",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="vi"
       className={cn("h-full", "antialiased", interSans.variable, geistMono.variable)}
     >
       <body className="min-h-full flex flex-col">

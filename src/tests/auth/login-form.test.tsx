@@ -25,11 +25,11 @@ describe("LoginForm", () => {
     render(<LoginForm />)
 
     expect(screen.getByLabelText("Email")).toBeInTheDocument()
-    expect(screen.getByLabelText("Password")).toBeInTheDocument()
-    expect(screen.queryByText("Admin")).not.toBeInTheDocument()
-    expect(screen.queryByText("Staff")).not.toBeInTheDocument()
+    expect(screen.getByLabelText("Mật khẩu")).toBeInTheDocument()
+    expect(screen.queryByText("Quản trị")).not.toBeInTheDocument()
+    expect(screen.queryByText("Lễ tân")).not.toBeInTheDocument()
     expect(screen.queryByText("PT")).not.toBeInTheDocument()
-    expect(screen.queryByText("Member")).not.toBeInTheDocument()
+    expect(screen.queryByText("Hội viên")).not.toBeInTheDocument()
   })
 
   it("redirects by authenticated backend role", async () => {
@@ -38,10 +38,10 @@ describe("LoginForm", () => {
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "staff@gymmaster.local" },
     })
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
       target: { value: "Password123!" },
     })
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }))
+    fireEvent.click(screen.getByRole("button", { name: /đăng nhập/i }))
 
     await waitFor(() => {
       expect(navigation.push).toHaveBeenCalledWith("/staff/dashboard")
@@ -56,13 +56,13 @@ describe("LoginForm", () => {
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "unknown@gymmaster.local" },
     })
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
       target: { value: "wrong" },
     })
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }))
+    fireEvent.click(screen.getByRole("button", { name: /đăng nhập/i }))
 
     expect(
-      await screen.findByText("Email or password is incorrect."),
+      await screen.findByText("Email hoặc mật khẩu không đúng."),
     ).toBeInTheDocument()
     expect(navigation.push).not.toHaveBeenCalled()
   })
@@ -73,17 +73,17 @@ describe("LoginForm", () => {
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "missing-role@gymmaster.local" },
     })
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
       target: { value: "Password123!" },
     })
-    fireEvent.click(screen.getByRole("button", { name: /sign in/i }))
+    fireEvent.click(screen.getByRole("button", { name: /đăng nhập/i }))
 
     expect(
       await screen.findByText(
-        "Your account is missing a valid role. Please contact support.",
+        "Tài khoản chưa có vai trò hợp lệ. Vui lòng liên hệ hỗ trợ.",
       ),
     ).toBeInTheDocument()
-    expect(screen.queryByText("Admin")).not.toBeInTheDocument()
+    expect(screen.queryByText("Quản trị")).not.toBeInTheDocument()
     expect(navigation.push).not.toHaveBeenCalled()
   })
 
@@ -97,6 +97,6 @@ describe("LoginForm", () => {
     })
 
     expect(useAuthSessionStore.getState().session?.role).toBe("member")
-    expect(screen.queryByText("Admin")).not.toBeInTheDocument()
+    expect(screen.queryByText("Quản trị")).not.toBeInTheDocument()
   })
 })

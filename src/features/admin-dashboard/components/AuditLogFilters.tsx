@@ -58,17 +58,17 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
           className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500"
           htmlFor="audit-action"
         >
-          Action
+          Hành động
         </label>
         <select
-          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
           id="audit-action"
           onChange={(e) => setAction(e.target.value)}
           value={action}
         >
           {AUDIT_ACTIONS.map((act) => (
             <option key={act} value={act}>
-              {act ? act.replace(/_/g, " ") : "All actions"}
+              {act ? act.replace(/_/g, " ") : "Tất cả hành động"}
             </option>
           ))}
         </select>
@@ -80,10 +80,10 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
           className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500"
           htmlFor="audit-from"
         >
-          From
+          Từ ngày
         </label>
         <input
-          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
           id="audit-from"
           onChange={(e) => setFrom(e.target.value)}
           type="date"
@@ -97,10 +97,10 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
           className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500"
           htmlFor="audit-to"
         >
-          To
+          Đến ngày
         </label>
         <input
-          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
           id="audit-to"
           onChange={(e) => setTo(e.target.value)}
           type="date"
@@ -117,7 +117,7 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
           type="submit"
         >
           <Search aria-hidden="true" className="size-4" />
-          Filter
+          Lọc
         </Button>
         <Button
           className="min-h-10 rounded-full border border-zinc-200 bg-white px-4 text-zinc-700 hover:bg-zinc-100"
@@ -126,7 +126,7 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
           type="button"
           variant="outline"
         >
-          Reset
+          Đặt lại
         </Button>
       </div>
     </form>

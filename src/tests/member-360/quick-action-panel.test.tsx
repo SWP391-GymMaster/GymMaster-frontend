@@ -25,7 +25,7 @@ describe("QuickActionPanel", () => {
   it("renders empty state when no actions", () => {
     render(<QuickActionPanel actions={[]} />)
 
-    expect(screen.getByText("No actions available")).toBeInTheDocument()
+    expect(screen.getByText("Chưa có thao tác khả dụng")).toBeInTheDocument()
   })
 
   it("applies custom className", () => {
@@ -45,8 +45,8 @@ describe("getPtActions", () => {
     const actions = getPtActions(101)
 
     expect(actions).toHaveLength(2)
-    expect(actions[0].label).toBe("Add trainer note")
-    expect(actions[1].label).toBe("Create workout plan")
+    expect(actions[0].label).toBe("Thêm ghi chú PT")
+    expect(actions[1].label).toBe("Tạo giáo án")
   })
 })
 
@@ -55,8 +55,8 @@ describe("getAdminActions", () => {
     const actions = getAdminActions(101)
 
     expect(actions).toHaveLength(2)
-    expect(actions[0].label).toBe("Assign PT")
-    expect(actions[1].label).toBe("Manage member")
+    expect(actions[0].label).toBe("Phân công PT")
+    expect(actions[1].label).toBe("Quản lý hội viên")
   })
 })
 
@@ -65,8 +65,8 @@ describe("getStaffActions", () => {
     const actions = getStaffActions()
 
     expect(actions).toHaveLength(3)
-    expect(actions[0].label).toBe("Check in")
-    expect(actions[1].label).toBe("Sell package")
-    expect(actions[2].label).toBe("Renew package")
+    expect(actions[0].label).toBe("Check-in")
+    expect(actions[1].label).toBe("Bán gói tập")
+    expect(actions[2].label).toBe("Gia hạn gói")
   })
 })

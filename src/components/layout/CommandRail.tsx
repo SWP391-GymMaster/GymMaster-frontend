@@ -32,35 +32,42 @@ type CommandRailItem = {
 
 const navByRole: Record<UserRole, CommandRailItem[]> = {
   admin: [
-    { href: "/admin/dashboard", icon: Home, label: "Dashboard" },
-    { href: "/admin/users", icon: UserCog, label: "Users" },
-    { href: "/admin/staff", icon: ShieldCheck, label: "Staff" },
+    { href: "/admin/dashboard", icon: Home, label: "Tổng quan" },
+    { href: "/admin/users", icon: UserCog, label: "Tài khoản" },
+    { href: "/admin/staff", icon: ShieldCheck, label: "Lễ tân" },
     { href: "/admin/trainers", icon: Dumbbell, label: "PTs" },
-    { href: "/admin/members", icon: Users, label: "Members" },
-    { href: "/admin/assignments", icon: Handshake, label: "Assign PT" },
-    { href: "/admin/audit-logs", icon: FileClock, label: "Audit Logs" },
+    { href: "/admin/members", icon: Users, label: "Hội viên" },
+    { href: "/admin/assignments", icon: Handshake, label: "Phân công PT" },
+    { href: "/admin/audit-logs", icon: FileClock, label: "Nhật ký" },
   ],
   staff: [
-    { href: "/staff/dashboard", icon: Home, label: "Dashboard" },
-    { href: "/staff/members", icon: Search, label: "Members" },
-    { href: "/staff/sell-package", icon: Package, label: "Sell Package" },
-    { href: "/staff/renew-package", icon: ClipboardList, label: "Renew" },
+    { href: "/staff/dashboard", icon: Home, label: "Quầy lễ tân" },
+    { href: "/staff/members", icon: Search, label: "Tìm hội viên" },
+    { href: "/staff/sell-package", icon: Package, label: "Bán gói" },
+    { href: "/staff/renew-package", icon: ClipboardList, label: "Gia hạn" },
     { href: "/staff/check-in", icon: Activity, label: "Check-in" },
-    { href: "/staff/payments", icon: CreditCard, label: "Payments" },
+    { href: "/staff/payments", icon: CreditCard, label: "Thanh toán" },
   ],
   pt: [
-    { href: "/pt/dashboard", icon: Home, label: "Dashboard" },
-    { href: "/pt/members/101", icon: Dumbbell, label: "Member 360" },
-    { href: "/pt/members/101/workout", icon: ClipboardList, label: "Workout" },
-    { href: "/pt/members/101/notes", icon: FileClock, label: "Notes" },
+    { href: "/pt/dashboard", icon: Home, label: "Coach hub" },
+    { href: "/pt/members/101", icon: Dumbbell, label: "Hội viên 360" },
+    { href: "/pt/members/101/workout", icon: ClipboardList, label: "Giáo án" },
+    { href: "/pt/members/101/notes", icon: FileClock, label: "Ghi chú" },
   ],
   member: [
-    { href: "/member/dashboard", icon: Home, label: "Today" },
-    { href: "/member/workout", icon: Dumbbell, label: "Workout" },
-    { href: "/member/notes", icon: FileClock, label: "Notes" },
-    { href: "/member/nutrition/meal-journal", icon: Salad, label: "Meal Journal" },
-    { href: "/member/nutrition/summary", icon: Activity, label: "Calories" },
+    { href: "/member/dashboard", icon: Home, label: "Hôm nay" },
+    { href: "/member/workout", icon: Dumbbell, label: "Giáo án" },
+    { href: "/member/notes", icon: FileClock, label: "Ghi chú" },
+    { href: "/member/nutrition/meal-journal", icon: Salad, label: "Nhật ký ăn" },
+    { href: "/member/nutrition/summary", icon: Activity, label: "Calo" },
   ],
+}
+
+const roleWorkspaceLabels: Record<UserRole, string> = {
+  admin: "Không gian quản trị",
+  staff: "Không gian lễ tân",
+  pt: "Không gian PT",
+  member: "Không gian hội viên",
 }
 
 function isActivePath(pathname: string, href: string) {
@@ -81,20 +88,20 @@ export function CommandRail({ role }: CommandRailProps) {
 
   return (
     <aside
-      aria-label={`${role} workspace navigation`}
-      className="fixed left-0 top-0 z-40 hidden h-dvh w-[280px] flex-col bg-[#2e3038] p-4 text-[#dee2f4] shadow-xl lg:flex"
+      aria-label={`Điều hướng ${roleWorkspaceLabels[role]}`}
+      className="fixed left-0 top-0 z-40 hidden h-dvh w-[280px] flex-col bg-sidebar p-4 text-sidebar-foreground shadow-xl lg:flex"
       data-testid="command-rail"
     >
       <div className="flex items-center gap-3 px-2 pb-8">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-[#2170e4] text-sm font-black text-white shadow-sm">
+        <div className="flex size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-black text-sidebar-primary-foreground shadow-sm">
           G
         </div>
         <div>
-          <p className="text-xl font-black tracking-tight text-[#d8e2ff]">
+          <p className="text-xl font-black tracking-tight text-sidebar-foreground">
             GymMaster OS
           </p>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#c2c6d8]">
-            Elite Performance
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/70">
+            Vận hành phòng gym
           </p>
         </div>
       </div>
@@ -114,8 +121,8 @@ export function CommandRail({ role }: CommandRailProps) {
               className={cn(
                 "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
                 active
-                  ? "translate-x-1 bg-[#2170e4] text-white shadow-inner"
-                  : "text-[#c2c6d8] hover:bg-white/10 hover:text-[#d8e2ff]",
+                  ? "translate-x-1 bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
+                  : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground",
               )}
               href={item.href}
               key={item.href}
@@ -138,11 +145,11 @@ export function MobileCommandHeader({ role }: CommandRailProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[#c2c6d6]/60 bg-white/85 px-4 py-3 backdrop-blur-xl lg:hidden">
       <div>
-        <p className="text-lg font-black tracking-tight text-[#0058be]">
+        <p className="text-lg font-black tracking-tight text-primary">
           GymMaster OS
         </p>
         <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#595e6d]">
-          {role} workspace
+          {roleWorkspaceLabels[role]}
         </p>
       </div>
       <RoleBadge role={role} />

@@ -5,7 +5,7 @@
 **Owner:** Frontend + UX/UI  
 **Mục tiêu:** Chuẩn hóa toàn bộ kiến trúc frontend, UX/UI, testing, AI workflow, context management và repo workflow cho dự án GymMaster.
 
-> Runtime UI copy decision: MVP frontend screens use English user-facing copy for implementation/demo stability. Vietnamese remains the language of this docs pack and product planning docs. See `docs/07-copy-language-decision.md`.
+> Runtime UI copy target: final `docs/init/04_REQUIREMENTS.md` requires Vietnamese user-facing UI. Existing English screens are partial migration state. See `docs/07-copy-language-decision.md`.
 
 ---
 

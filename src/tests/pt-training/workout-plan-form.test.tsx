@@ -15,32 +15,32 @@ describe("WorkoutPlanForm", () => {
 
     fireEvent.click(screen.getByTestId("workout-plan-submit-button"))
 
-    expect(await screen.findByText("Plan title is required.")).toBeInTheDocument()
-    expect(await screen.findByText("Exercise name is required.")).toBeInTheDocument()
+    expect(await screen.findByText("Vui lòng nhập tên giáo án.")).toBeInTheDocument()
+    expect(await screen.findByText("Vui lòng nhập tên bài tập.")).toBeInTheDocument()
   })
 
   it("submits normalized workout plan draft", async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     renderWithPtSession(<WorkoutPlanForm onSubmit={onSubmit} />)
 
-    fireEvent.change(screen.getByLabelText("Plan title"), {
+    fireEvent.change(screen.getByLabelText("Tên giáo án"), {
       target: { value: "Strength Block" },
     })
-    fireEvent.change(screen.getByLabelText("Exercise name"), {
+    fireEvent.change(screen.getByLabelText("Tên bài tập"), {
       target: { value: "Deadlift" },
     })
-    fireEvent.change(screen.getByLabelText("Sets"), {
+    fireEvent.change(screen.getByLabelText("Số hiệp"), {
       target: { value: "5" },
     })
     fireEvent.change(screen.getByLabelText("Reps"), {
       target: { value: "5" },
     })
-    fireEvent.change(screen.getByLabelText("Exercise note"), {
+    fireEvent.change(screen.getByLabelText("Ghi chú bài tập"), {
       target: { value: "Stop one rep before form breaks." },
     })
     fireEvent.click(screen.getByTestId("workout-plan-submit-button"))
 
-    expect(await screen.findByText("Workout plan saved")).toBeInTheDocument()
+    expect(await screen.findByText("Đã lưu giáo án")).toBeInTheDocument()
     expect(onSubmit).toHaveBeenCalledWith({
       title: "Strength Block",
       exercises: [

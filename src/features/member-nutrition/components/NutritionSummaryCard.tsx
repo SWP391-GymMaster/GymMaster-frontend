@@ -26,8 +26,8 @@ export function NutritionSummaryCard({
   if (isLoading) {
     return (
       <StateBlock
-        description="Loading today's calorie target and intake."
-        title="Loading nutrition summary..."
+        description="Đang tải mục tiêu calo và lượng đã ăn hôm nay."
+        title="Đang tải tổng kết dinh dưỡng..."
         tone="loading"
       />
     )
@@ -36,8 +36,8 @@ export function NutritionSummaryCard({
   if (isError) {
     return (
       <StateBlock
-        description="Refresh this workspace or try again after the service recovers."
-        title="Nutrition summary could not be loaded."
+        description="Tải lại workspace hoặc thử lại sau khi dịch vụ ổn định."
+        title="Không thể tải tổng kết dinh dưỡng."
         tone="error"
       />
     )
@@ -46,8 +46,8 @@ export function NutritionSummaryCard({
   if (!summary) {
     return (
       <StateBlock
-        description="Add your first meal to start tracking today's intake."
-        title="No nutrition summary yet."
+        description="Thêm bữa ăn đầu tiên để bắt đầu theo dõi hôm nay."
+        title="Chưa có tổng kết dinh dưỡng."
         tone="empty"
       />
     )
@@ -62,31 +62,31 @@ export function NutritionSummaryCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-emerald-700">
-            Today nutrition
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
+            Dinh dưỡng hôm nay
           </p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-950">
-            {hasConsumedCalories ? formatCalories(summary.consumed) : "No meals yet"}
+            {hasConsumedCalories ? formatCalories(summary.consumed) : "Chưa có bữa ăn"}
           </h2>
           <p className="mt-1 text-sm text-zinc-600">
             {getRemainingLabel(summary.remaining)}
           </p>
         </div>
-        <span className="flex size-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-800">
+        <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Activity aria-hidden="true" className="size-5" />
         </span>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <Metric label="Target" value={formatCalories(summary.target)} />
-        <Metric label="Consumed" value={formatCalories(summary.consumed)} />
-        <Metric label="Remaining" value={formatCalories(summary.remaining)} />
+        <Metric label="Mục tiêu" value={formatCalories(summary.target)} />
+        <Metric label="Đã ăn" value={formatCalories(summary.consumed)} />
+        <Metric label="Còn lại" value={formatCalories(summary.remaining)} />
       </div>
 
       {!compact ? (
         <div className="mt-4 grid gap-3 rounded-[1.25rem] border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700 sm:grid-cols-3">
           <Metric label="Protein" value={formatMacro(summary.proteinG)} />
-          <Metric label="Carbs" value={formatMacro(summary.carbsG)} />
+          <Metric label="Carb" value={formatMacro(summary.carbsG)} />
           <Metric label="Fat" value={formatMacro(summary.fatG)} />
         </div>
       ) : null}
@@ -94,12 +94,12 @@ export function NutritionSummaryCard({
       <div className="mt-5 flex flex-wrap gap-2">
         <Button asChild className="rounded-full bg-zinc-950 text-white hover:bg-zinc-800">
           <Link href="/member/nutrition/meal-journal">
-            Add meal
+            Thêm bữa ăn
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <Link href="/member/nutrition/summary">View summary</Link>
+          <Link href="/member/nutrition/summary">Xem tổng kết</Link>
         </Button>
       </div>
     </section>

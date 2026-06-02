@@ -23,21 +23,21 @@ export function MemberWorkoutWorkspace() {
   return (
     <PermissionGuard allowedRoles={["member"]}>
       <WorkspaceShell
-        description="Review the workout plan assigned by your coach."
+        description="Xem giáo án luyện tập do PT phụ trách tạo cho bạn."
         role="member"
-        title="My workout plan"
+        title="Giáo án của tôi"
       >
         <section className="space-y-4">
           <div className="rounded-xl border border-[#c2c6d6] bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#0058be]">
-              Read-only member view
+            <p className="text-xs font-bold uppercase tracking-[0.08em] text-primary">
+              Chế độ xem hội viên
             </p>
             <h2 className="mt-2 text-2xl font-black tracking-tight text-[#191b23]">
-              Follow your current coaching plan
+              Theo sát giáo án hiện tại
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#595e6d]">
-              Workout changes are managed by your PT. Message the front desk or
-              coach if something feels off.
+              Thay đổi giáo án do PT quản lý. Liên hệ lễ tân hoặc PT nếu bài tập
+              chưa phù hợp.
             </p>
           </div>
           <WorkoutPlanListHeader />
@@ -58,21 +58,20 @@ export function MemberTrainerNotesWorkspace() {
   return (
     <PermissionGuard allowedRoles={["member"]}>
       <WorkspaceShell
-        description="Review coaching feedback from your trainer."
+        description="Xem phản hồi huấn luyện từ PT phụ trách."
         role="member"
-        title="Trainer notes"
+        title="Ghi chú PT"
       >
         <section className="space-y-4">
           <div className="rounded-xl border border-[#c2c6d6] bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#0058be]">
-              Read-only member view
+            <p className="text-xs font-bold uppercase tracking-[0.08em] text-primary">
+              Chế độ xem hội viên
             </p>
             <h2 className="mt-2 text-2xl font-black tracking-tight text-[#191b23]">
-              Coaching feedback
+              Phản hồi huấn luyện
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#595e6d]">
-              Notes are written by your assigned PT after assessment, training,
-              or recovery check-ins.
+              Ghi chú được PT tạo sau đánh giá, buổi tập hoặc trao đổi phục hồi.
             </p>
           </div>
           <TrainerNoteListHeader />

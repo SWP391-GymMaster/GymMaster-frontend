@@ -16,7 +16,7 @@ export class ApiClientError extends Error {
 
 const fallbackError: ApiError = {
   code: "NETWORK_ERROR",
-  message: "Unable to reach GymMaster services. Please try again.",
+  message: "Không thể kết nối dịch vụ GymMaster. Vui lòng thử lại.",
 }
 
 function getApiUrl(path: string) {
@@ -44,7 +44,7 @@ export async function parseApiResponse<T>(response: Response): Promise<T> {
     throw new ApiClientError(
       {
         code: "INVALID_RESPONSE",
-        message: "GymMaster returned an invalid response.",
+        message: "GymMaster trả về phản hồi không hợp lệ.",
       },
       response.status,
     )
@@ -54,7 +54,7 @@ export async function parseApiResponse<T>(response: Response): Promise<T> {
     throw new ApiClientError(
       payload.error ?? {
         code: "REQUEST_FAILED",
-        message: "GymMaster could not complete this request.",
+        message: "GymMaster không thể hoàn tất yêu cầu này.",
       },
       response.status,
     )
@@ -64,7 +64,7 @@ export async function parseApiResponse<T>(response: Response): Promise<T> {
     throw new ApiClientError(
       {
         code: "EMPTY_RESPONSE",
-        message: "GymMaster returned an empty response.",
+        message: "GymMaster trả về phản hồi rỗng.",
       },
       response.status,
     )

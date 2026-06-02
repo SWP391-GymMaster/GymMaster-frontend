@@ -13,7 +13,7 @@ describe("mapStaffOperationError", () => {
     expect(mapStaffOperationError(error)).toEqual({
       code: "MEMBERSHIP_INACTIVE",
       message:
-        "Check-in is denied because this member does not have an active membership.",
+        "Check-in bị từ chối vì hội viên chưa có gói đang hoạt động.",
     })
   })
 })

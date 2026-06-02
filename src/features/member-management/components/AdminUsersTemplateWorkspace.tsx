@@ -79,7 +79,7 @@ function Field({
 }
 
 const inputClass =
-  "min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none transition-all focus:border-[#0058be] focus:ring-2 focus:ring-[#adc6ff]"
+  "min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
 
 export function AdminUsersTemplateWorkspace() {
   const [query, setQuery] = useState("")
@@ -115,7 +115,7 @@ export function AdminUsersTemplateWorkspace() {
               Directory
             </h2>
           </div>
-          <UserPlus aria-hidden="true" className="size-5 text-[#0058be]" />
+          <UserPlus aria-hidden="true" className="size-5 text-primary" />
         </div>
 
         <label className="relative border-b border-[#c2c6d6] bg-[#f2f3fd] p-3">
@@ -125,7 +125,7 @@ export function AdminUsersTemplateWorkspace() {
             className="pointer-events-none absolute left-6 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
           />
           <input
-            className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none focus:border-[#0058be] focus:ring-2 focus:ring-[#adc6ff]"
+            className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             data-testid="admin-user-search-input"
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search team..."
@@ -161,7 +161,7 @@ export function AdminUsersTemplateWorkspace() {
                 className={cn(
                   "flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
                   active
-                    ? "translate-x-1 border-[#2170e4]/30 bg-[#d8e2ff]/50"
+                    ? "translate-x-1 border-primary/30 bg-primary/10"
                     : "border-transparent hover:bg-[#f2f3fd]",
                 )}
                 data-testid="admin-user-directory-item"
@@ -176,7 +176,7 @@ export function AdminUsersTemplateWorkspace() {
                   className={cn(
                     "flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-black",
                     active
-                      ? "bg-[#0058be] text-white"
+                      ? "bg-primary text-white"
                       : "bg-[#dbdff1] text-[#5d6272]",
                   )}
                 >
@@ -186,7 +186,7 @@ export function AdminUsersTemplateWorkspace() {
                   <span
                     className={cn(
                       "block truncate text-sm font-bold",
-                      active ? "text-[#0058be]" : "text-[#191b23]",
+                      active ? "text-primary" : "text-[#191b23]",
                     )}
                   >
                     {user.fullName}
@@ -219,7 +219,7 @@ export function AdminUsersTemplateWorkspace() {
         </div>
 
         <section className="relative overflow-hidden rounded-xl border border-[#c2c6d6] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-          <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-[#0058be] to-[#adc6ff]" />
+          <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-primary to-gym-steel" />
           {selectedUser ? (
             <UserProfileCard user={selectedUser} />
           ) : (
@@ -247,7 +247,7 @@ export function AdminUsersTemplateWorkspace() {
               </strong>
             </p>
           </div>
-          <ShieldCheck aria-hidden="true" className="size-5 text-[#0058be]" />
+          <ShieldCheck aria-hidden="true" className="size-5 text-primary" />
         </div>
 
         {selectedUser ? (
@@ -275,13 +275,13 @@ function UserProfileCard({ user }: { user: ManagedUser }) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="relative">
-            <div className="flex size-20 items-center justify-center rounded-full border-2 border-[#ecedf7] bg-[#0058be] text-2xl font-black text-white">
+            <div className="flex size-20 items-center justify-center rounded-full border-2 border-[#ecedf7] bg-primary text-2xl font-black text-white">
               {initials(user.fullName)}
             </div>
             <div
               className={cn(
                 "absolute bottom-1 right-1 size-4 rounded-full border-2 border-white",
-                user.status === "active" ? "bg-emerald-500" : "bg-red-500",
+                user.status === "active" ? "bg-primary" : "bg-red-500",
               )}
             />
           </div>
@@ -331,7 +331,7 @@ function UserProfileCard({ user }: { user: ManagedUser }) {
                 Downtown Elite Performance
               </p>
             </div>
-            <span className="text-xs font-bold text-[#0058be]">Default</span>
+            <span className="text-xs font-bold text-primary">Default</span>
           </div>
           <div className="flex flex-wrap gap-2">
             <span className="rounded-md bg-[#dbdff1] px-2 py-1 text-xs font-bold text-[#5d6272]">
@@ -385,7 +385,7 @@ function CreateUserConsole() {
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="mb-4 flex items-center gap-2">
-        <UserPlus aria-hidden="true" className="size-5 text-[#0058be]" />
+        <UserPlus aria-hidden="true" className="size-5 text-primary" />
         <h2 className="text-lg font-black tracking-tight text-[#191b23]">
           Invite user
         </h2>
@@ -420,7 +420,7 @@ function CreateUserConsole() {
         />
       </Field>
       <Button
-        className="mt-4 min-h-11 rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4] active:scale-[0.98]"
+        className="mt-4 min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
         data-testid="user-create-submit"
         disabled={isSubmitting}
         type="submit"
@@ -556,7 +556,7 @@ function UserLifecycleConsole({
               "Record front desk operations",
             ].map((permission, index) => (
               <label className="flex items-start gap-3" key={permission}>
-                <span className="mt-0.5 flex size-4 items-center justify-center rounded border border-[#0058be] bg-[#0058be] text-white">
+                <span className="mt-0.5 flex size-4 items-center justify-center rounded border border-primary bg-primary text-white">
                   {index < 2 ? <Check aria-hidden="true" className="size-3" /> : null}
                 </span>
                 <span>
@@ -573,7 +573,7 @@ function UserLifecycleConsole({
         </section>
 
         <Button
-          className="min-h-11 rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4] active:scale-[0.98]"
+          className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
           data-testid="user-edit-submit"
           disabled={isSubmitting || updateUser.isPending}
           type="submit"
@@ -584,7 +584,7 @@ function UserLifecycleConsole({
 
       <div className="mt-auto grid gap-2 border-t border-[#c2c6d6] bg-[#f9f9ff] p-4">
         {temporaryPassword ? (
-          <p className="rounded-lg border border-[#adc6ff] bg-[#d8e2ff]/70 px-3 py-2 font-mono text-xs font-bold text-[#001a42]">
+          <p className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs font-bold text-foreground">
             Temporary password: {temporaryPassword}
           </p>
         ) : null}

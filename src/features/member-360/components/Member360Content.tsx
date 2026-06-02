@@ -39,7 +39,7 @@ export function Member360Content({
             onClick={onRetry}
             type="button"
           >
-            Retry
+            Thử lại
           </button>
         ) : null}
       </div>

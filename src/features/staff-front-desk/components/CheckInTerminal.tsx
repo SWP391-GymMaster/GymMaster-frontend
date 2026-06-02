@@ -62,14 +62,14 @@ export function CheckInTerminal() {
         status: "denied",
         reasonCode: "MEMBERSHIP_INACTIVE",
         safeMessage:
-          "Check-in denied. This member needs an active paid membership before entry.",
+          "Từ chối check-in. Hội viên cần có gói đang hoạt động và đã thanh toán trước khi vào phòng.",
       })
       return
     }
 
     const nextResult = await checkIn.mutateAsync(selectedMember.id)
     setResult(nextResult)
-    toast.success("Check-in confirmed")
+    toast.success("Đã xác nhận check-in")
   }
 
   return (
@@ -77,18 +77,18 @@ export function CheckInTerminal() {
       <section className="rounded-[2rem] border border-zinc-800 bg-zinc-950 p-6 text-white shadow-xl shadow-zinc-950/20">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-300">
-              Terminal lookup
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">
+              Tra cứu vào phòng
             </p>
             <h2 className="mt-3 text-3xl font-black tracking-tight">
-              Check-in Terminal
+              Terminal check-in
             </h2>
             <p className="mt-2 max-w-md text-sm text-zinc-400">
-              Verify membership status before entry. Active members can be
-              checked in immediately; inactive memberships are blocked.
+              Xác minh trạng thái gói tập trước khi cho hội viên vào phòng.
+              Gói đang hoạt động được check-in ngay; gói chưa hợp lệ sẽ bị chặn.
             </p>
           </div>
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-blue-200">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-white/10 text-primary">
             <ShieldAlert className="size-6" />
           </span>
         </div>
@@ -97,21 +97,21 @@ export function CheckInTerminal() {
           onSubmit={handleSubmit(onSearch)}
         >
           <label className="sr-only" htmlFor="check-in-search">
-            Search member to check in
+            Tìm hội viên để check-in
           </label>
           <input
-            className="min-h-14 flex-1 rounded-2xl border border-white/15 bg-white/10 px-5 text-lg text-white outline-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-zinc-500 focus:border-blue-300 focus:ring-4 focus:ring-blue-300/10"
+            className="min-h-14 flex-1 rounded-2xl border border-white/15 bg-white/10 px-5 text-lg text-white outline-none transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-zinc-500 focus:border-primary/40 focus:ring-4 focus:ring-primary/10"
             data-testid="staff-checkin-search"
             id="check-in-search"
-            placeholder="Member code, phone, email, or name"
+            placeholder="Mã hội viên, số điện thoại, email hoặc tên"
             {...register("query")}
           />
           <button
-            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-blue-500 px-6 text-sm font-bold text-white transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-blue-400 active:scale-[0.98]"
+            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-primary/100 px-6 text-sm font-bold text-white transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:brightness-95 active:scale-[0.98]"
             type="submit"
           >
             <Search className="size-4" />
-            Find
+            Tìm
           </button>
         </form>
         {errors.query ? (
@@ -121,14 +121,14 @@ export function CheckInTerminal() {
         ) : null}
         <div className="mt-6 grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-4">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm text-zinc-400">Terminal mode</span>
-            <span className="rounded-full bg-blue-400/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-blue-200">
-              Manual lookup
+            <span className="text-sm text-zinc-400">Chế độ terminal</span>
+            <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              Tra cứu thủ công
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-zinc-300">
-            <CheckCircle2 className="size-4 text-blue-300" />
-            Status, package, and payment rules are checked before entry.
+            <CheckCircle2 className="size-4 text-primary" />
+            Trạng thái gói, thanh toán và quyền vào phòng được kiểm tra trước.
           </div>
         </div>
       </section>
@@ -136,11 +136,11 @@ export function CheckInTerminal() {
       <section className="rounded-[2rem] border border-zinc-200 bg-white/90 p-5 shadow-sm">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
-              Candidate
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
+              Kết quả
             </p>
             <h2 className="mt-1 text-2xl font-semibold text-zinc-950">
-              Member access result
+              Kết quả ra vào
             </h2>
           </div>
           <StatusPill
@@ -154,24 +154,24 @@ export function CheckInTerminal() {
         {!submittedQuery ? (
           <StateBlock
             className="mt-4"
-            description="Search by member code, phone, email, or name before confirming entry."
-            title="Search to load a candidate."
+            description="Tìm theo mã hội viên, số điện thoại, email hoặc tên trước khi xác nhận vào phòng."
+            title="Tìm hội viên để tải kết quả."
             tone="empty"
           />
         ) : null}
         {members.isLoading ? (
           <StateBlock
             className="mt-4"
-            description="Checking member status before entry confirmation."
-            title="Loading candidate..."
+            description="Đang kiểm tra trạng thái hội viên trước khi xác nhận vào phòng."
+            title="Đang tải hội viên..."
             tone="loading"
           />
         ) : null}
         {members.data?.items.length === 0 ? (
           <StateBlock
             className="mt-4"
-            description="Search by another code, phone, email, or member name."
-            title="No matching member found."
+            description="Thử tìm bằng mã, số điện thoại, email hoặc tên hội viên khác."
+            title="Không tìm thấy hội viên phù hợp."
             tone="empty"
           />
         ) : null}
@@ -192,8 +192,7 @@ export function CheckInTerminal() {
         {selectedMember && selectedMember.membershipStatus !== "active" ? (
           <div className="mt-4">
             <BlockedHint>
-              This member is not eligible for entry until the membership is
-              active and paid.
+              Hội viên chưa đủ điều kiện vào phòng cho đến khi gói tập đang hoạt động và đã thanh toán.
             </BlockedHint>
           </div>
         ) : null}
@@ -205,13 +204,13 @@ export function CheckInTerminal() {
           onClick={onConfirm}
           type="button"
         >
-          {checkIn.isPending ? "Confirming..." : "Confirm check-in"}
+          {checkIn.isPending ? "Đang xác nhận..." : "Xác nhận check-in"}
         </button>
 
         {mutationError ? (
           <StateBlock
             className="mt-3"
-            description="Resolve the membership issue before confirming entry."
+            description="Xử lý vấn đề gói tập trước khi xác nhận vào phòng."
             title={mutationError.message}
             tone="error"
           />

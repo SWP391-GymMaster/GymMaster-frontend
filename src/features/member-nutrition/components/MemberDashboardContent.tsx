@@ -14,27 +14,27 @@ const today = getTodayDate()
 const actionCards = [
   {
     href: "/member/nutrition/meal-journal",
-    title: "Log a meal",
-    description: "Add food, quantity, and meal type for today's journal.",
+    title: "Ghi bữa ăn",
+    description: "Thêm món, khẩu phần và loại bữa cho nhật ký hôm nay.",
     icon: Salad,
   },
   {
     href: "/member/nutrition/summary",
-    title: "Review calories",
-    description: "Check consumed, target, remaining, and macro readiness.",
+    title: "Xem calo",
+    description: "Theo dõi đã ăn, mục tiêu, còn lại và macro.",
     icon: TrendingUp,
   },
 ]
 
 const supportCards = [
   {
-    title: "Membership",
-    description: "Premium 30 is active through Jun 30.",
+    title: "Gói hội viên",
+    description: "Premium 30 đang active đến ngày 30/06.",
     icon: CalendarCheck,
   },
   {
-    title: "Workout",
-    description: "Coach plan and trainer notes are coming in the next MVP slice.",
+    title: "Luyện tập",
+    description: "Giáo án và ghi chú PT đã sẵn sàng trong workspace hội viên.",
     icon: Dumbbell,
   },
 ]
@@ -47,32 +47,32 @@ export function MemberDashboardContent() {
       <section className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
         <div className="rounded-[1.5rem] border border-zinc-200 bg-zinc-950 p-6 text-white shadow-xl">
           <div className="flex flex-wrap items-center gap-3">
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-emerald-300">
-              Member command center
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
+              Trung tâm hội viên
             </p>
             <StatusPill
               className="border-white/10 bg-white/10 text-white"
-              label="Active membership"
+              label="Gói đang active"
               status="active"
             />
           </div>
           <h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight md:text-5xl">
-            Keep training and nutrition in one daily rhythm.
+            Giữ nhịp tập luyện và dinh dưỡng mỗi ngày.
           </h2>
           <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-300">
-            Track today&apos;s meals, watch remaining calories, and keep the next
-            workout context close without leaving the Member workspace.
+            Ghi bữa ăn hôm nay, theo dõi calo còn lại và xem nhanh ngữ cảnh
+            luyện tập ngay trong workspace hội viên.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Button asChild variant="default">
-              <Link href="/member/nutrition/meal-journal">Add meal</Link>
+              <Link href="/member/nutrition/meal-journal">Thêm bữa ăn</Link>
             </Button>
             <Button
               asChild
               
               variant="outline"
             >
-              <Link href="/member/nutrition/summary">View summary</Link>
+              <Link href="/member/nutrition/summary">Xem tổng kết</Link>
             </Button>
           </div>
         </div>
@@ -87,7 +87,7 @@ export function MemberDashboardContent() {
                 href={action.href}
                 key={action.href}
               >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-800">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Icon aria-hidden="true" className="size-5" />
                 </span>
                 <span>
@@ -119,7 +119,7 @@ export function MemberDashboardContent() {
                 className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm"
                 key={card.title}
               >
-                <Icon aria-hidden="true" className="size-5 text-emerald-700" />
+                <Icon aria-hidden="true" className="size-5 text-primary" />
                 <h2 className="mt-4 text-lg font-semibold text-zinc-950">
                   {card.title}
                 </h2>

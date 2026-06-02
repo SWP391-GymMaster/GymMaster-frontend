@@ -13,18 +13,18 @@ describe("CommandRail", () => {
     render(<CommandRail role="admin" />)
 
     expect(screen.getByText("GymMaster OS")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: /users/i })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: /audit logs/i })).toBeInTheDocument()
-    expect(screen.queryByRole("link", { name: /sell package/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole("link", { name: /meal journal/i })).not.toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /tài khoản/i })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /nhật ký/i })).toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /bán gói/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /nhật ký ăn/i })).not.toBeInTheDocument()
   })
 
   it("renders Staff navigation without Admin controls", () => {
     render(<CommandRail role="staff" />)
 
-    expect(screen.getByRole("link", { name: /members/i })).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /tìm hội viên/i })).toBeInTheDocument()
     expect(screen.getByRole("link", { name: /check-in/i })).toBeInTheDocument()
-    expect(screen.queryByRole("link", { name: /users/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole("link", { name: /audit logs/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /tài khoản/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole("link", { name: /nhật ký/i })).not.toBeInTheDocument()
   })
 })

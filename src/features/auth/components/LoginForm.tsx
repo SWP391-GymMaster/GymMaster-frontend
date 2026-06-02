@@ -45,7 +45,7 @@ export function LoginForm() {
 
     try {
       const nextPath = await login(values)
-      toast.success("Signed in to GymMaster")
+      toast.success("Đã đăng nhập GymMaster")
       router.push(nextPath)
     } catch (error) {
       const mappedError = mapAuthError(error)
@@ -82,13 +82,13 @@ export function LoginForm() {
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-3">
           <label className={authLabelClassName} htmlFor="password">
-            Password
+            Mật khẩu
           </label>
           <Link
-            className="text-sm font-semibold text-[#0058be] transition hover:text-[#004395] hover:underline"
+            className="text-sm font-semibold text-primary transition hover:text-primary hover:underline"
             href="/forgot-password"
           >
-            Forgot password?
+            Quên mật khẩu?
           </Link>
         </div>
         <div className="relative">
@@ -122,14 +122,14 @@ export function LoginForm() {
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Authenticating..." : "Sign in"}
+        {isSubmitting ? "Đang xác thực..." : "Đăng nhập"}
         {!isSubmitting ? <ArrowRight aria-hidden="true" className="size-4" /> : null}
       </Button>
 
       <div className="flex items-center gap-3">
         <span className="h-px flex-1 bg-[#e1e2ec]" />
         <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#727785]">
-          Or
+          Hoặc
         </span>
         <span className="h-px flex-1 bg-[#e1e2ec]" />
       </div>

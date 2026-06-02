@@ -120,7 +120,7 @@ export function RenewPackageWizard() {
 
   async function onSubmitRenewal(values: SellPackageInput) {
     if (!currentMembership) {
-      toast.error("Select a member with an existing membership.")
+      toast.error("Chọn hội viên đang có gói trước khi gia hạn.")
       return
     }
 
@@ -132,14 +132,14 @@ export function RenewPackageWizard() {
     })
     setRenewalResult(result)
     setPaymentResult(null)
-    toast.success("Renewal created")
+    toast.success("Đã tạo gia hạn")
   }
 
   return (
     <div className="grid gap-5">
       <StaffWizardStepper
         activeIndex={activeStep}
-        steps={["Member", "Current", "Renewal", "Payment"]}
+        steps={["Hội viên", "Gói hiện tại", "Gia hạn", "Thanh toán"]}
       />
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
@@ -147,23 +147,23 @@ export function RenewPackageWizard() {
           <StaffSearchPanel
             error={searchErrors.query?.message}
             id="renew-member-search"
-            label="Select member"
+            label="Chọn hội viên"
             onSubmit={handleSearchSubmit(onSearch)}
-            placeholder="Name, email, phone, or member code"
+            placeholder="Tên, email, số điện thoại hoặc mã hội viên"
             registerInput={registerSearch("query")}
             testId="staff-renew-member-search"
           >
             {!submittedQuery ? (
               <StateBlock
-                description="Search by member code, phone, email, or name before previewing a renewal."
-                title="Search to select a member."
+                description="Tìm theo mã hội viên, số điện thoại, email hoặc tên trước khi xem trước gia hạn."
+                title="Tìm để chọn hội viên."
                 tone="empty"
               />
             ) : null}
             {members.isLoading ? (
               <StateBlock
-                description="Loading member records and current membership context."
-                title="Loading members..."
+                description="Đang tải hồ sơ hội viên và thông tin gói hiện tại."
+                title="Đang tải hội viên..."
                 tone="loading"
               />
             ) : null}
@@ -182,7 +182,7 @@ export function RenewPackageWizard() {
                 }}
                 selected={selectedMember?.id === member.id}
                 subtitle={`${member.memberCode} · ${
-                  member.currentPackageName ?? "No package"
+                  member.currentPackageName ?? "Chưa có gói"
                 }`}
               />
             ))}
@@ -192,12 +192,12 @@ export function RenewPackageWizard() {
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.25rem] border border-zinc-200 bg-zinc-50 p-4">
               <div>
                 <p className="text-sm font-semibold text-zinc-950">
-                  Current membership
+                  Gói hiện tại
                 </p>
                 <p className="mt-1 text-sm text-zinc-600">
                   {currentMembership
-                    ? `${currentMembership.packageName} · ends ${currentMembership.endsAt}`
-                    : "Select a member with an existing membership."}
+                    ? `${currentMembership.packageName} · hết hạn ${currentMembership.endsAt}`
+                    : "Chọn hội viên đang có gói trước khi gia hạn."}
                 </p>
               </div>
               {currentMembership ? (
@@ -208,10 +208,10 @@ export function RenewPackageWizard() {
             <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
               <div>
                 <h2 className="text-xl font-semibold text-zinc-950">
-                  Renewal Package
+                  Gói gia hạn
                 </h2>
                 <p className="mt-1 text-sm text-zinc-500">
-                  Preview the next access window before confirming renewal.
+                  Xem trước thời hạn mới trước khi xác nhận gia hạn.
                 </p>
               </div>
               <StatusPill status={selectedPackage ? "active" : "pending"} />
@@ -256,14 +256,14 @@ export function RenewPackageWizard() {
                   disabled={renew.isPending}
                   type="submit"
                 >
-                  {renew.isPending ? "Creating..." : "Confirm renewal"}
+                  {renew.isPending ? "Đang tạo..." : "Xác nhận gia hạn"}
                 </button>
               </form>
 
               {operationError ? (
                 <StateBlock
                   className="mt-3"
-                  description="Review the selected member and renewal package, then try again."
+                  description="Kiểm tra lại hội viên và gói gia hạn, sau đó thử lại."
                   title={operationError.message}
                   tone="error"
                 />
@@ -271,25 +271,25 @@ export function RenewPackageWizard() {
             </>
           }
           member={selectedMember}
-          title="Renewal Impact"
+          title="Tác động gia hạn"
         >
           <div data-testid="staff-renew-summary">
             <SummaryRow
-              label="Current"
+              label="Hiện tại"
               value={
                 currentMembership
-                  ? `${currentMembership.packageName} · ends ${currentMembership.endsAt}`
-                  : "Not selected"
+                  ? `${currentMembership.packageName} · hết hạn ${currentMembership.endsAt}`
+                  : "Chưa chọn"
               }
             />
             <SummaryRow
-              label="Renewal package"
-              value={selectedPackage?.name ?? "Not selected"}
+              label="Gói gia hạn"
+              value={selectedPackage?.name ?? "Chưa chọn"}
             />
             <SummaryRow
-              label="New period"
+              label="Thời hạn mới"
               value={
-                selectedPackage ? `${renewalStart} to ${renewalEnd}` : "Pending"
+                selectedPackage ? `${renewalStart} đến ${renewalEnd}` : "Đang chờ"
               }
             />
           </div>
@@ -304,10 +304,10 @@ export function RenewPackageWizard() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-semibold text-zinc-950">
-                  Renewal created for {renewalResult.packageName}
+                  Đã tạo gia hạn {renewalResult.packageName}
                 </p>
                 <p className="mt-1 text-sm text-zinc-600">
-                  Renewal is pending until payment is recorded.
+                  Gia hạn đang chờ cho đến khi ghi nhận thanh toán.
                 </p>
               </div>
               <StatusPill status={paymentResult ? "paid" : "pending"} />

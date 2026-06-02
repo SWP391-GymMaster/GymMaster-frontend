@@ -33,9 +33,9 @@ export function PtWorkoutPlanWorkspace() {
   return (
     <PermissionGuard allowedRoles={["pt"]}>
       <WorkspaceShell
-        description="Build assigned member training plans with clear exercise guidance."
+        description="Thiết kế giáo án cho hội viên được phân công với bài tập, số hiệp và cue rõ ràng."
         role="pt"
-        title="Workout plan builder"
+        title="Trình tạo giáo án"
       >
         <div className="space-y-5">
           <TrainingMemberContext
@@ -45,11 +45,11 @@ export function PtWorkoutPlanWorkspace() {
 
           {memberQuery.error ? (
             <StateBlock
-              description="Confirm this member is assigned to your coaching workspace."
+              description="Kiểm tra hội viên này có thuộc workspace huấn luyện của bạn."
               title={
                 memberQuery.error instanceof Error
                   ? memberQuery.error.message
-                  : "Unable to load member."
+                  : "Không thể tải hội viên."
               }
               tone="error"
             />
@@ -58,7 +58,7 @@ export function PtWorkoutPlanWorkspace() {
           <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
             <section>
               <h2 className="mb-3 text-lg font-black tracking-tight text-[#191b23]">
-                Create plan
+                Tạo giáo án
               </h2>
               <WorkoutPlanForm
                 isPending={createPlan.isPending}
@@ -67,11 +67,11 @@ export function PtWorkoutPlanWorkspace() {
               {createPlan.error ? (
                 <StateBlock
                   className="mt-3"
-                  description="Check assignment ownership and exercise rows before saving again."
+                  description="Kiểm tra quyền phụ trách hội viên và các dòng bài tập trước khi lưu lại."
                   title={
                     createPlan.error instanceof Error
                       ? createPlan.error.message
-                      : "Unable to save workout plan."
+                      : "Không thể lưu giáo án."
                   }
                   tone="error"
                 />

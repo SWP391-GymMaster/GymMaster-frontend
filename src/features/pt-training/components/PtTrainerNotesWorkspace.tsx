@@ -33,9 +33,9 @@ export function PtTrainerNotesWorkspace() {
   return (
     <PermissionGuard allowedRoles={["pt"]}>
       <WorkspaceShell
-        description="Record form corrections, progression cues, and recovery notes."
+        description="Ghi lại chỉnh sửa kỹ thuật, cue tiến độ và lưu ý phục hồi cho hội viên."
         role="pt"
-        title="Trainer notes"
+        title="Ghi chú PT"
       >
         <div className="space-y-5">
           <TrainingMemberContext
@@ -45,11 +45,11 @@ export function PtTrainerNotesWorkspace() {
 
           {memberQuery.error ? (
             <StateBlock
-              description="Confirm this member is assigned to your coaching workspace."
+              description="Kiểm tra hội viên này có thuộc workspace huấn luyện của bạn."
               title={
                 memberQuery.error instanceof Error
                   ? memberQuery.error.message
-                  : "Unable to load member."
+                  : "Không thể tải hội viên."
               }
               tone="error"
             />
@@ -58,7 +58,7 @@ export function PtTrainerNotesWorkspace() {
           <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
             <section>
               <h2 className="mb-3 text-lg font-black tracking-tight text-[#191b23]">
-                Add note
+                Thêm ghi chú
               </h2>
               <TrainerNoteForm
                 isPending={createNote.isPending}
@@ -67,11 +67,11 @@ export function PtTrainerNotesWorkspace() {
               {createNote.error ? (
                 <StateBlock
                   className="mt-3"
-                  description="Check assignment ownership and note content before saving again."
+                  description="Kiểm tra quyền phụ trách hội viên và nội dung ghi chú trước khi lưu lại."
                   title={
                     createNote.error instanceof Error
                       ? createNote.error.message
-                      : "Unable to save trainer note."
+                      : "Không thể lưu ghi chú PT."
                   }
                   tone="error"
                 />

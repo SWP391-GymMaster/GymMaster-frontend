@@ -132,23 +132,26 @@ export const trainingHandlers = [
     const trainer = trainers.find((item) => item.id === body.trainerId)
 
     if (!body.memberId || !body.trainerId) {
-      return fail("VALIDATION_ERROR", "Member and trainer are required", 422)
+      return fail("VALIDATION_ERROR", "Vui lòng chọn hội viên và PT", 422)
     }
 
     if (!member || !trainer) {
-      return fail("NOT_FOUND", "Member or trainer not found", 404)
+      return fail("NOT_FOUND", "Không tìm thấy hội viên hoặc PT", 404)
     }
 
     if (trainer.status !== "active") {
-      return fail("VALIDATION_ERROR", "Trainer is not available", 422)
+      return fail("VALIDATION_ERROR", "PT không khả dụng", 422)
     }
 
     const now = new Date().toISOString()
     const previousAssignment = activeAssignmentForMember(body.memberId)
 
     if (previousAssignment) {
-      previousAssignment.status = "ended"
-      previousAssignment.endedAt = now
+      return fail(
+        "ALREADY_ASSIGNED",
+        "Hội viên này đang có PT active. Hãy kết thúc assignment cũ trước khi phân công mới.",
+        422,
+      )
     }
 
     const auditLogId = nextId(auditLogs)
@@ -176,7 +179,7 @@ export const trainingHandlers = [
       assignment,
       previousAssignment,
       auditLogId,
-      message: previousAssignment ? "PT reassigned" : "PT assigned",
+      message: "Đã phân công PT",
     })
   }),
   http.get("/api/pt/members", ({ request }) => {

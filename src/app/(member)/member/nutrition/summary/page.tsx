@@ -6,14 +6,14 @@ export default function MemberNutritionSummaryPage() {
   return (
     <PermissionGuard allowedRoles={["member"]}>
       <WorkspaceShell
-        description="Review today's consumed calories, target, remaining balance, and logged meals."
+        description="Xem calo đã ăn, mục tiêu, phần còn lại và các bữa đã ghi hôm nay."
         metrics={[
-          { label: "Summary", value: "Daily", tone: "dark" },
-          { label: "Macros", value: "Contract-ready" },
-          { label: "Tracking", value: "Manual" },
+          { label: "Tổng kết", value: "Theo ngày", tone: "dark" },
+          { label: "Macro", value: "Theo contract" },
+          { label: "Tracking", value: "Nhập tay" },
         ]}
         role="member"
-        title="Calorie Summary"
+        title="Tổng kết calo"
       >
         <CalorieSummaryWorkspace />
       </WorkspaceShell>

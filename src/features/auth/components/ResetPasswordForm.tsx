@@ -46,8 +46,8 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
 
     try {
       await resetPassword(values)
-      setMessage("Password reset successfully. You can sign in now.")
-      toast.success("Password reset successfully")
+      setMessage("Đã đặt lại mật khẩu. Bạn có thể đăng nhập ngay.")
+      toast.success("Đã đặt lại mật khẩu")
     } catch (error) {
       const mappedError = mapAuthError(error)
       setFormError(mappedError.message)
@@ -59,7 +59,7 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="reset-token">
-          Reset token
+          Mã đặt lại
         </label>
         <div className="relative">
           <KeyRound
@@ -82,7 +82,7 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
 
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="new-password">
-          New password
+          Mật khẩu mới
         </label>
         <div className="relative">
           <Lock
@@ -111,7 +111,7 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
 
       {message ? (
         <div
-          className="rounded-lg border border-[#adc6ff] bg-[#d8e2ff]/60 px-4 py-3 text-sm text-[#001a42]"
+          className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground"
           role="status"
         >
           {message}
@@ -124,7 +124,7 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Resetting password..." : "Reset password"}
+        {isSubmitting ? "Đang đặt lại..." : "Đặt lại mật khẩu"}
         {!isSubmitting ? <ArrowRight aria-hidden="true" className="size-4" /> : null}
       </Button>
     </form>

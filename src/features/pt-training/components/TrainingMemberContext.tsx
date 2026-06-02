@@ -26,18 +26,18 @@ export function TrainingMemberContext({
   return (
     <section className="rounded-xl border border-[#c2c6d6] bg-[#2e3038] p-5 text-white shadow-xl">
       <div className="flex flex-wrap items-center gap-4">
-        <span className="flex size-12 items-center justify-center rounded-xl bg-[#2170e4]">
+        <span className="flex size-12 items-center justify-center rounded-xl bg-primary">
           <UserRound aria-hidden="true" className="size-6" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#adc6ff]">
-            Assigned member
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-primary">
+            Hội viên phụ trách
           </p>
           <h2 className="mt-1 truncate text-2xl font-black tracking-tight">
-            {member?.fullName ?? "Member"}
+            {member?.fullName ?? "Hội viên"}
           </h2>
           <p className="mt-1 text-sm text-[#dee2f4]">
-            {member?.memberCode ?? "Unknown"} · {member?.phone ?? "No phone"}
+            {member?.memberCode ?? "Chưa rõ"} · {member?.phone ?? "Chưa có số điện thoại"}
           </p>
         </div>
         {member?.status ? <StatusPill status={member.status} /> : null}
@@ -45,18 +45,18 @@ export function TrainingMemberContext({
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-white/10 bg-white/10 p-3">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#c2c6d8]">
-            Current coach
+            PT hiện tại
           </p>
           <p className="mt-1 font-bold text-white">
-            {pt?.fullName ?? "Unassigned"}
+            {pt?.fullName ?? "Chưa phân công"}
           </p>
         </div>
         <div className="rounded-lg border border-white/10 bg-white/10 p-3">
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#c2c6d8]">
-            Specialty
+            Chuyên môn
           </p>
           <p className="mt-1 font-bold text-white">
-            {pt?.specialty ?? "General training"}
+            {pt?.specialty ?? "Tập luyện tổng quát"}
           </p>
         </div>
       </div>

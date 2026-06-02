@@ -4,13 +4,13 @@ import { StaffPageFrame } from "@/features/staff-front-desk/components/StaffPage
 export default function StaffDashboardPage() {
   return (
     <StaffPageFrame
-      description="Front desk command center for member lookup, package sales, renewals, check-in, and manual payment follow-up."
+      description="Trung tâm lễ tân cho tìm hội viên, bán/gia hạn gói, check-in và theo dõi thanh toán thủ công."
       metrics={[
-        { label: "Today operations", value: "Front desk ready", tone: "dark" },
-        { label: "Primary flow", value: "Search -> sell/renew -> check-in" },
-        { label: "Access", value: "Staff only" },
+        { label: "Vận hành hôm nay", value: "Sẵn sàng", tone: "dark" },
+        { label: "Luồng chính", value: "Tìm -> bán/gia hạn -> check-in" },
+        { label: "Quyền truy cập", value: "Lễ tân" },
       ]}
-      title="Staff Dashboard"
+      title="Bảng điều khiển lễ tân"
     >
       <StaffDashboard />
     </StaffPageFrame>

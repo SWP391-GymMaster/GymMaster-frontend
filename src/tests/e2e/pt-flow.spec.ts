@@ -27,8 +27,8 @@ test.describe("PT Dashboard Flow", () => {
     await loginAsPT(page)
 
     await expect(page).toHaveURL(/\/pt\/dashboard/)
-    await expect(page.getByText("PT Dashboard").first()).toBeVisible()
-    await expect(page.getByText("Assigned members").first()).toBeVisible()
+    await expect(page.getByText("Coach hub PT").first()).toBeVisible()
+    await expect(page.getByText("Hội viên được phân công").first()).toBeVisible()
   })
 
   test("PT navigates to member 360 from dashboard", async ({ page }) => {
@@ -38,7 +38,7 @@ test.describe("PT Dashboard Flow", () => {
     // Click on a member to go to 360
     await page.getByText("Nguyen Minh Anh").first().click()
     await expect(page).toHaveURL(/\/pt\/members\/101/, { timeout: 15_000 })
-    await expect(page.getByText("Assigned member").first()).toBeVisible()
+    await expect(page.getByText("Hội viên phụ trách").first()).toBeVisible()
   })
 
   test("PT creates workout plan for assigned member", async ({ page }) => {
@@ -48,17 +48,17 @@ test.describe("PT Dashboard Flow", () => {
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
 
-    await expect(page.getByText("Workout plan builder").first()).toBeVisible()
-    await page.getByLabel("Plan title").fill("Deadline Strength Block")
-    await page.getByLabel("Exercise name").fill("Deadlift")
-    await page.getByLabel("Sets").fill("5")
+    await expect(page.getByText("Trình tạo giáo án").first()).toBeVisible()
+    await page.getByLabel("Tên giáo án").fill("Deadline Strength Block")
+    await page.getByLabel("Tên bài tập").fill("Deadlift")
+    await page.getByLabel("Số hiệp").fill("5")
     await page.getByLabel("Reps").fill("5")
     await page
-      .getByLabel("Exercise note")
+      .getByLabel("Ghi chú bài tập")
       .fill("Stop one rep before form breaks.")
     await page.getByTestId("workout-plan-submit-button").click()
 
-    await expect(page.getByText("Workout plan saved")).toBeVisible()
+    await expect(page.getByText("Đã lưu giáo án")).toBeVisible()
     await expect(page.getByText("Deadline Strength Block")).toBeVisible()
     await expect(page.getByText("Deadlift")).toBeVisible()
   })
@@ -70,13 +70,13 @@ test.describe("PT Dashboard Flow", () => {
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
 
-    await expect(page.getByText("Trainer notes").first()).toBeVisible()
+    await expect(page.getByText("Ghi chú PT").first()).toBeVisible()
     await page
-      .getByLabel("Coaching note")
+      .getByLabel("Ghi chú huấn luyện")
       .fill("Keep shoulder warm-up before pressing.")
     await page.getByTestId("trainer-note-submit-button").click()
 
-    await expect(page.getByText("Trainer note saved")).toBeVisible()
+    await expect(page.getByText("Đã lưu ghi chú PT")).toBeVisible()
     await expect(
       page.getByText("Keep shoulder warm-up before pressing.").first(),
     ).toBeVisible()
@@ -90,7 +90,7 @@ test.describe("PT Dashboard Flow", () => {
     await page.waitForFunction(
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
-    await expect(page.getByText("Read-only member view").first()).toBeVisible()
+    await expect(page.getByText("Chế độ xem hội viên").first()).toBeVisible()
     await expect(page.getByText("Foundation Strength")).toBeVisible()
     await expect(page.getByTestId("workout-plan-submit-button")).toHaveCount(0)
 
@@ -98,7 +98,7 @@ test.describe("PT Dashboard Flow", () => {
     await page.waitForFunction(
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
-    await expect(page.getByText("Read-only member view").first()).toBeVisible()
+    await expect(page.getByText("Chế độ xem hội viên").first()).toBeVisible()
     await expect(
       page.getByText("Keep shoulder warm-up before pressing.").first(),
     ).toBeVisible()
@@ -114,7 +114,7 @@ test.describe("PT Dashboard Flow", () => {
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
     await expect(
-      page.getByText("You do not have access to this workspace."),
+      page.getByText("Bạn không có quyền truy cập khu vực này."),
     ).toBeVisible()
   })
 })

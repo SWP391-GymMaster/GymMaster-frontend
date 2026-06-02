@@ -25,7 +25,7 @@ export function GoogleLoginButton() {
 
   async function handleGoogleLogin() {
     if (!enabled) {
-      toast.error("Google sign-in is not configured for this environment.")
+      toast.error("Đăng nhập Google chưa được cấu hình cho môi trường này.")
       return
     }
 
@@ -35,7 +35,7 @@ export function GoogleLoginButton() {
       const nextPath = await loginWithGoogle({
         idToken: "mock-google-id-token",
       })
-      toast.success("Signed in with Google")
+      toast.success("Đã đăng nhập bằng Google")
       router.push(nextPath)
     } catch (error) {
       const mappedError = mapAuthError(error)
@@ -54,12 +54,12 @@ export function GoogleLoginButton() {
       type="button"
       variant="outline"
     >
-      <LogIn aria-hidden="true" className="size-4 text-[#0058be]" />
+      <LogIn aria-hidden="true" className="size-4 text-primary" />
       {isPending
-        ? "Connecting to Google..."
+        ? "Đang kết nối Google..."
         : enabled
-          ? "Continue with Google"
-          : "Google sign-in not configured"}
+          ? "Tiếp tục với Google"
+          : "Chưa cấu hình Google"}
     </Button>
   )
 }

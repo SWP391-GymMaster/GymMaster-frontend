@@ -79,14 +79,14 @@ export function createSessionFromLogin(data: LoginSuccess): AuthSession {
   if (!role) {
     throw new ApiClientError({
       code: "MISSING_ROLE",
-      message: "Missing authenticated role.",
+      message: "Thiếu vai trò sau khi xác thực.",
     })
   }
 
   if (!isUserRole(role) || !isUserRole(data.user.role)) {
     throw new ApiClientError({
       code: "UNKNOWN_ROLE",
-      message: "Unknown authenticated role.",
+      message: "Vai trò sau khi xác thực không hợp lệ.",
     })
   }
 

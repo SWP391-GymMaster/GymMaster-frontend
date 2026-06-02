@@ -33,7 +33,7 @@ export function AuthOSShell({
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f9f9ff] px-4 py-8 text-[#191b23]">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -right-32 -top-32 h-[34rem] w-[34rem] rounded-full bg-[#d8e2ff]/70 blur-3xl" />
+        <div className="absolute -right-32 -top-32 h-[34rem] w-[34rem] rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -bottom-40 -left-28 h-[28rem] w-[28rem] rounded-full bg-[#dee2f4]/70 blur-3xl" />
         <div className="absolute inset-0 bg-[radial-gradient(#c2c6d6_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
       </div>
@@ -46,7 +46,7 @@ export function AuthOSShell({
       >
         <div className="mb-8 flex flex-col items-center text-center">
           <Link
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c2c6d6]/60 bg-[#f2f3fd] px-3 py-1.5 text-sm font-semibold text-[#0058be] transition hover:bg-[#d8e2ff] active:scale-[0.98]"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c2c6d6]/60 bg-[#f2f3fd] px-3 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary/10 active:scale-[0.98]"
             href="/welcome"
           >
             <Dumbbell aria-hidden="true" className="size-4" />
@@ -81,7 +81,7 @@ export function AuthTextLink({
 }) {
   return (
     <Link
-      className="font-semibold text-[#0058be] transition hover:text-[#004395] hover:underline"
+      className="font-semibold text-primary transition hover:text-primary hover:underline"
       href={href}
     >
       {children}
@@ -102,7 +102,7 @@ export function AuthStateCard({
 }) {
   const icon =
     type === "loading" ? (
-      <Loader2 aria-hidden="true" className="size-8 animate-spin text-[#0058be]" />
+      <Loader2 aria-hidden="true" className="size-8 animate-spin text-primary" />
     ) : type === "session" ? (
       <LockKeyhole aria-hidden="true" className="size-8 text-[#424754]" />
     ) : (
@@ -130,8 +130,8 @@ export function AuthStateCard({
 export function AuthSecurityBadge() {
   return (
     <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#c2c6d6]/50 bg-[#f2f3fd] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#424754]">
-      <ShieldCheck aria-hidden="true" className="size-3.5 text-[#0058be]" />
-      Secure role-aware access
+      <ShieldCheck aria-hidden="true" className="size-3.5 text-primary" />
+      Truy cập an toàn theo vai trò
     </div>
   )
 }
@@ -139,11 +139,11 @@ export function AuthSecurityBadge() {
 export function BackToLoginLink() {
   return (
     <Link
-      className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-[#595e6d] transition hover:text-[#0058be]"
+      className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-[#595e6d] transition hover:text-primary"
       href="/login"
     >
       <ArrowLeft aria-hidden="true" className="size-4" />
-      Back to login
+      Quay lại đăng nhập
     </Link>
   )
 }

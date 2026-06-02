@@ -224,7 +224,7 @@ export async function recordStaffManualPayment(
     membershipId: response.payment.membershipId,
     status: "paid",
     paidAt: response.payment.paidAt ?? draft.paidAt,
-    message: "Manual payment recorded. Membership is active.",
+    message: "Đã ghi nhận thanh toán. Gói hội viên đang hoạt động.",
     membership,
   } satisfies ManualPaymentResult
 }
@@ -241,6 +241,6 @@ export async function createStaffCheckIn(accessToken: string, memberId: number) 
     memberId: response.memberId,
     status: "checked-in",
     checkedInAt: response.checkInAt,
-    safeMessage: "Check-in confirmed.",
+    safeMessage: "Đã xác nhận check-in.",
   } satisfies CheckInResult
 }

@@ -66,7 +66,7 @@ type ManagementWorkspaceProps = {
 const surfaceClass =
   "rounded-xl border border-[#e1e2ec] bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]"
 const inputClass =
-  "min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none transition focus:border-[#0058be] focus:ring-4 focus:ring-[#0058be]/15"
+  "min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
 const labelClass = "text-sm font-semibold text-[#191b23]"
 
 const modeConfig = {
@@ -213,7 +213,7 @@ export function ManagementWorkspace({
         <div className={cn(surfaceClass, "overflow-hidden")}>
           <div className="flex flex-col gap-4 border-b border-[#e1e2ec] p-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-start gap-3">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-[#d8e2ff] text-[#0058be]">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Icon aria-hidden="true" className="size-5" />
               </div>
               <div>
@@ -232,7 +232,7 @@ export function ManagementWorkspace({
                 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
               />
               <input
-                className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] pl-10 pr-3 text-sm outline-none transition focus:border-[#0058be] focus:ring-4 focus:ring-[#0058be]/15"
+                className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
                 data-testid={isMembersMode ? "staff-member-search-input" : "management-search-input"}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={config.queryPlaceholder}
@@ -330,7 +330,7 @@ function MemberDirectoryTemplate({
             <h2 className="text-3xl font-black tracking-tight text-[#191b23]">
               Member Directory
             </h2>
-            <span className="rounded-full bg-[#0058be]/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#0058be]">
+            <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-primary">
               Admin
             </span>
           </div>
@@ -346,7 +346,7 @@ function MemberDirectoryTemplate({
               className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
             />
             <input
-              className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none transition-all focus:border-[#0058be] focus:ring-4 focus:ring-[#0058be]/15"
+              className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/15"
               data-testid="staff-member-search-input"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search members..."
@@ -362,7 +362,7 @@ function MemberDirectoryTemplate({
             Filter
           </Button>
           <Button
-            className="min-h-11 rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4] active:scale-[0.98]"
+            className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
             type="button"
           >
             <UserPlus aria-hidden="true" className="size-4" />
@@ -480,7 +480,7 @@ function MemberTable({
               >
                 <td className="whitespace-nowrap px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full border border-[#c2c6d6] bg-[#d8e2ff] text-sm font-black text-[#0058be]">
+                    <div className="flex size-10 items-center justify-center rounded-full border border-[#c2c6d6] bg-primary/10 text-sm font-black text-primary">
                       {initials(member.fullName)}
                     </div>
                     <div>
@@ -550,7 +550,7 @@ function MemberTable({
           <Button className="size-8 rounded-md" disabled type="button" variant="ghost">
             <ChevronLeft aria-hidden="true" className="size-4" />
           </Button>
-          <span className="flex size-8 items-center justify-center rounded-md bg-[#0058be] text-white">
+          <span className="flex size-8 items-center justify-center rounded-md bg-primary text-white">
             1
           </span>
           <Button className="size-8 rounded-md" type="button" variant="ghost">
@@ -593,7 +593,7 @@ function StaffDirectoryTemplate({
           </p>
         </div>
         <Button
-          className="min-h-11 rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4] active:scale-[0.98]"
+          className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
           type="button"
         >
           <UserPlus aria-hidden="true" className="size-4" />
@@ -614,7 +614,7 @@ function StaffDirectoryTemplate({
                 className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
               />
               <input
-                className="min-h-9 w-full rounded-md border border-[#c2c6d6] bg-white pl-8 pr-2 text-sm outline-none focus:border-[#0058be] focus:ring-2 focus:ring-[#0058be]/15"
+                className="min-h-9 w-full rounded-md border border-[#c2c6d6] bg-white pl-8 pr-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 data-testid="management-search-input"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search staff..."
@@ -645,7 +645,7 @@ function StaffDirectoryTemplate({
                   type="button"
                 >
                   {active ? (
-                    <span className="absolute bottom-0 left-0 top-0 w-1 bg-[#0058be]" />
+                    <span className="absolute bottom-0 left-0 top-0 w-1 bg-primary" />
                   ) : null}
                   <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[#c2c6d6] bg-[#dbdff1] font-black text-[#5d6272]">
                     {initials(user.fullName)}
@@ -658,7 +658,7 @@ function StaffDirectoryTemplate({
                       Front Desk Staff
                     </span>
                     {user.initialPassword ? (
-                      <span className="mt-1 block truncate font-mono text-[11px] font-bold text-[#0058be]">
+                      <span className="mt-1 block truncate font-mono text-[11px] font-bold text-primary">
                         Initial password: {user.initialPassword}
                       </span>
                     ) : null}
@@ -704,14 +704,14 @@ function StaffProfileCard({ user }: { user: ManagedUser }) {
     <div>
       <div className="mb-5 flex items-start justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex size-16 items-center justify-center rounded-full border-2 border-[#ecedf7] bg-[#0058be] text-xl font-black text-white">
+          <div className="flex size-16 items-center justify-center rounded-full border-2 border-[#ecedf7] bg-primary text-xl font-black text-white">
             {initials(user.fullName)}
           </div>
           <div>
             <h3 className="text-2xl font-black tracking-tight text-[#191b23]">
               {user.fullName}
             </h3>
-            <p className="mt-1 text-sm font-bold text-[#0058be]">
+            <p className="mt-1 text-sm font-bold text-primary">
               Front Desk Staff
             </p>
           </div>
@@ -752,7 +752,7 @@ function StaffProfileCard({ user }: { user: ManagedUser }) {
             key={day}
           >
             <div className="flex items-center gap-3">
-              <span className="rounded-md bg-[#0058be]/10 p-2 text-[#0058be]">
+              <span className="rounded-md bg-primary/10 p-2 text-primary">
                 <CalendarDays aria-hidden="true" className="size-4" />
               </span>
               <span>
@@ -760,7 +760,7 @@ function StaffProfileCard({ user }: { user: ManagedUser }) {
                 <span className="block text-xs text-[#595e6d]">{time}</span>
               </span>
             </div>
-            <span className="rounded-md bg-[#d8e2ff] px-2 py-1 text-xs font-bold text-[#0058be]">
+            <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
               {label}
             </span>
           </div>
@@ -777,7 +777,7 @@ function StaffAccessControl({ user }: { user: ManagedUser | null }) {
         <span className="text-xs font-black uppercase tracking-[0.1em] text-[#595e6d]">
           Access Control
         </span>
-        <Button className="rounded-lg text-[#0058be]" type="button" variant="ghost">
+        <Button className="rounded-lg text-primary" type="button" variant="ghost">
           Edit
         </Button>
       </div>
@@ -799,7 +799,7 @@ function StaffAccessControl({ user }: { user: ManagedUser | null }) {
               className={cn(
                 "mt-0.5 flex size-4 items-center justify-center rounded border",
                 enabled
-                  ? "border-[#0058be] bg-[#0058be] text-white"
+                  ? "border-primary bg-primary text-white"
                   : "border-[#c2c6d6] bg-[#f2f3fd]",
               )}
             >
@@ -865,7 +865,7 @@ function TrainerRosterTemplate({
               className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
             />
             <input
-              className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none transition-all focus:border-[#0058be] focus:ring-4 focus:ring-[#0058be]/15"
+              className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/15"
               data-testid="management-search-input"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search trainers..."
@@ -873,7 +873,7 @@ function TrainerRosterTemplate({
             />
           </label>
           <Button
-            className="min-h-11 rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4] active:scale-[0.98]"
+            className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
             type="button"
           >
             <UserPlus aria-hidden="true" className="size-4" />
@@ -906,14 +906,14 @@ function TrainerRosterTemplate({
                   <button
                     className={cn(
                       "relative w-full rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:bg-[#f9f9ff] active:scale-[0.98]",
-                      active ? "border-[#0058be]/25 bg-[#f2f3fd]" : "border-transparent",
+                      active ? "border-primary/25 bg-[#f2f3fd]" : "border-transparent",
                     )}
                     key={trainer.id}
                     onClick={() => setSelectedId(trainer.id)}
                     type="button"
                   >
                     {active ? (
-                      <span className="absolute bottom-0 left-0 top-0 w-1 bg-[#0058be]" />
+                      <span className="absolute bottom-0 left-0 top-0 w-1 bg-primary" />
                     ) : null}
                     <div className="flex items-center gap-3">
                       <span className="flex size-10 items-center justify-center rounded-full border border-[#c2c6d6] bg-[#dbdff1] font-black text-[#5d6272]">
@@ -927,7 +927,7 @@ function TrainerRosterTemplate({
                           {trainer.specialty}
                         </span>
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
                         <Star aria-hidden="true" className="size-3 fill-current" />
                         {(4.9 - index / 10).toFixed(1)}
                       </span>
@@ -980,10 +980,10 @@ function TrainerProfileHero({
 
   return (
     <section className={cn(surfaceClass, "relative overflow-hidden p-6")}>
-      <div className="absolute right-0 top-0 size-64 -translate-y-1/2 translate-x-1/3 rounded-full bg-[#d8e2ff]/40 blur-3xl" />
+      <div className="absolute right-0 top-0 size-64 -translate-y-1/2 translate-x-1/3 rounded-full bg-primary/10/40 blur-3xl" />
       <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-start">
         <div className="flex gap-5">
-          <div className="flex size-24 shrink-0 items-center justify-center rounded-xl border border-[#c2c6d6] bg-[#0058be] text-2xl font-black text-white shadow-sm">
+          <div className="flex size-24 shrink-0 items-center justify-center rounded-xl border border-[#c2c6d6] bg-primary text-2xl font-black text-white shadow-sm">
             {initials(trainer.fullName)}
           </div>
           <div>
@@ -991,7 +991,7 @@ function TrainerProfileHero({
               <h2 className="text-2xl font-black tracking-tight text-[#191b23]">
                 {trainer.fullName}
               </h2>
-              <span className="rounded-md border border-[#0058be]/20 bg-[#0058be]/10 px-2 py-1 text-xs font-bold text-[#0058be]">
+              <span className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
                 Level 3
               </span>
             </div>
@@ -1057,7 +1057,7 @@ function TrainerSchedule() {
               className={cn(
                 "relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border bg-white shadow-sm",
                 state === "active"
-                  ? "border-[#0058be] bg-[#d8e2ff] text-[#0058be] ring-4 ring-[#d8e2ff]/50"
+                  ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/20"
                   : "border-[#c2c6d6] text-[#595e6d]",
               )}
             >
@@ -1067,14 +1067,14 @@ function TrainerSchedule() {
               className={cn(
                 "flex-1 rounded-lg border p-3",
                 state === "active"
-                  ? "border-[#0058be]/20 bg-[#d8e2ff]/35"
+                  ? "border-primary/20 bg-primary/5"
                   : state === "blocked"
                     ? "border-dashed border-[#c2c6d6] bg-[#f2f3fd]"
                     : "border-[#e1e2ec] bg-white",
               )}
             >
               <div className="mb-1 flex justify-between gap-3">
-                <span className="text-xs font-black text-[#0058be]">{time}</span>
+                <span className="text-xs font-black text-primary">{time}</span>
                 <span className="text-xs font-semibold text-[#595e6d]">
                   {state === "active" ? "60m · In Progress" : "60m"}
                 </span>
@@ -1183,22 +1183,22 @@ function MemberList({
             </div>
             <div className="mt-2 grid gap-1 text-sm text-[#424754] sm:grid-cols-2">
               <span className="inline-flex items-center gap-2">
-                <Badge aria-hidden="true" className="size-4 text-[#0058be]" />
+                <Badge aria-hidden="true" className="size-4 text-primary" />
                 {member.memberCode}
               </span>
               <span className="inline-flex items-center gap-2">
-                <Phone aria-hidden="true" className="size-4 text-[#0058be]" />
+                <Phone aria-hidden="true" className="size-4 text-primary" />
                 {member.phone}
               </span>
               <span className="inline-flex items-center gap-2 sm:col-span-2">
-                <Mail aria-hidden="true" className="size-4 text-[#0058be]" />
+                <Mail aria-hidden="true" className="size-4 text-primary" />
                 {member.email}
               </span>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:justify-end">
             {detailBasePath ? (
-              <Button asChild className="rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4]">
+              <Button asChild className="rounded-lg bg-primary text-white hover:brightness-95">
                 <Link href={`${detailBasePath}/${member.id}`}>Open</Link>
               </Button>
             ) : null}
@@ -1250,7 +1250,7 @@ function UserList({ users }: { users: ManagedUser[] }) {
             </div>
           </div>
           {user.initialPassword ? (
-            <p className="mt-3 rounded-lg border border-[#adc6ff] bg-[#d8e2ff]/60 px-3 py-2 font-mono text-xs text-[#001a42]">
+            <p className="mt-3 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs text-foreground">
               Initial password: {user.initialPassword}
             </p>
           ) : null}
@@ -1322,7 +1322,7 @@ function CreateMemberPanel() {
       <Field label="Address">
         <input className={inputClass} {...register("address")} />
       </Field>
-      <Button className="min-h-11 rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4]" data-testid="member-create-submit" disabled={isSubmitting} type="submit">
+      <Button className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95" data-testid="member-create-submit" disabled={isSubmitting} type="submit">
         <Plus aria-hidden="true" className="size-4" />
         Create member
       </Button>
@@ -1387,7 +1387,7 @@ function CreateUserPanel({ fixedRole }: { fixedRole?: "staff" }) {
       <Field error={errors.password?.message} label="Password">
         <input className={inputClass} data-testid="user-create-password" placeholder="Leave blank for temporary password" type="password" {...register("password")} />
       </Field>
-      <Button className="min-h-11 rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4]" data-testid="user-create-submit" disabled={isSubmitting} type="submit">
+      <Button className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95" data-testid="user-create-submit" disabled={isSubmitting} type="submit">
         <Plus aria-hidden="true" className="size-4" />
         Create account
       </Button>
@@ -1436,7 +1436,7 @@ function CreateTrainerPanel() {
       <Field label="Linked user ID">
         <input className={inputClass} type="number" {...register("userId")} />
       </Field>
-      <Button className="min-h-11 rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4]" data-testid="trainer-create-submit" disabled={isSubmitting} type="submit">
+      <Button className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95" data-testid="trainer-create-submit" disabled={isSubmitting} type="submit">
         <Plus aria-hidden="true" className="size-4" />
         Create PT profile
       </Button>
@@ -1447,7 +1447,7 @@ function CreateTrainerPanel() {
 function CreatePanelHeader({ title }: { title: string }) {
   return (
     <div>
-      <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#0058be]">
+      <p className="text-sm font-semibold uppercase tracking-[0.08em] text-primary">
         Spec 002
       </p>
       <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[#191b23]">

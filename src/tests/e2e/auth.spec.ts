@@ -4,22 +4,22 @@ const roleCases = [
   {
     email: "admin@gymmaster.local",
     dashboardPath: "/admin/dashboard",
-    dashboardTitle: "Admin Dashboard",
+    dashboardTitle: "Bảng điều khiển Admin",
   },
   {
     email: "staff@gymmaster.local",
     dashboardPath: "/staff/dashboard",
-    dashboardTitle: "Staff Dashboard",
+    dashboardTitle: "Bảng điều khiển lễ tân",
   },
   {
     email: "pt@gymmaster.local",
     dashboardPath: "/pt/dashboard",
-    dashboardTitle: "PT Dashboard",
+    dashboardTitle: "Coach hub PT",
   },
   {
     email: "member@gymmaster.local",
     dashboardPath: "/member/dashboard",
-    dashboardTitle: "Member Dashboard",
+    dashboardTitle: "Bảng điều khiển hội viên",
   },
 ] as const
 
@@ -57,7 +57,7 @@ test("google login redirects through backend role without role picker", async ({
 
   await expect(page).toHaveURL(/\/member\/dashboard$/, { timeout: 15_000 })
   await expect(
-    page.getByRole("heading", { name: "Member Dashboard" }),
+    page.getByRole("heading", { name: "Bảng điều khiển hội viên" }),
   ).toBeVisible()
   await expect(page.getByRole("button", { name: "Admin" })).toHaveCount(0)
 })
@@ -83,7 +83,7 @@ test("invalid credentials show a safe error without redirect", async ({ page }) 
   await submitLogin(page, "unknown@gymmaster.local", "wrong-password")
 
   await expect(
-    page.getByRole("main").getByText("Email or password is incorrect."),
+    page.getByRole("main").getByText("Email hoặc mật khẩu không đúng."),
   ).toBeVisible()
   await expect(page).toHaveURL(/\/login$/)
 })
@@ -101,7 +101,7 @@ test("member signup creates member session without role picker", async ({ page }
 
   await expect(page).toHaveURL(/\/member\/dashboard$/, { timeout: 15_000 })
   await expect(
-    page.getByRole("heading", { name: "Member Dashboard" }),
+    page.getByRole("heading", { name: "Bảng điều khiển hội viên" }),
   ).toBeVisible()
   await expect(page.getByRole("button", { name: "Admin" })).toHaveCount(0)
 })
@@ -123,6 +123,6 @@ test("forgot and reset password flow handles dev reset token", async ({
   await page.getByTestId("reset-submit-button").click()
 
   await expect(
-    page.getByText("Password reset successfully. You can sign in now."),
+    page.getByText("Đã đặt lại mật khẩu. Bạn có thể đăng nhập ngay."),
   ).toBeVisible()
 })

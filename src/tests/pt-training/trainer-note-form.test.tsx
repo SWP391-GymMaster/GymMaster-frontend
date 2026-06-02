@@ -15,19 +15,19 @@ describe("TrainerNoteForm", () => {
 
     fireEvent.click(screen.getByTestId("trainer-note-submit-button"))
 
-    expect(await screen.findByText("Trainer note is required.")).toBeInTheDocument()
+    expect(await screen.findByText("Vui lòng nhập ghi chú luyện tập.")).toBeInTheDocument()
   })
 
   it("submits normalized trainer note draft", async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     renderWithPtSession(<TrainerNoteForm onSubmit={onSubmit} />)
 
-    fireEvent.change(screen.getByLabelText("Coaching note"), {
+    fireEvent.change(screen.getByLabelText("Ghi chú huấn luyện"), {
       target: { value: "  Keep shoulder warm-up before pressing.  " },
     })
     fireEvent.click(screen.getByTestId("trainer-note-submit-button"))
 
-    expect(await screen.findByText("Trainer note saved")).toBeInTheDocument()
+    expect(await screen.findByText("Đã lưu ghi chú PT")).toBeInTheDocument()
     expect(onSubmit).toHaveBeenCalledWith({
       content: "Keep shoulder warm-up before pressing.",
     })

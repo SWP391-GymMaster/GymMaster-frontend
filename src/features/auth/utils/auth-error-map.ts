@@ -2,19 +2,19 @@ import { ApiClientError } from "@/lib/api/http-client"
 import type { AuthError } from "@/types/auth"
 
 const authErrorMessages: Record<string, string> = {
-  VALIDATION_ERROR: "Please check your email and password.",
-  INVALID_CREDENTIALS: "Email or password is incorrect.",
-  TOO_MANY_ATTEMPTS: "Too many attempts. Please wait before trying again.",
-  ACCOUNT_LOCKED: "This account is locked. Please contact gym staff.",
-  UNAUTHORIZED: "Your session is no longer valid. Please sign in again.",
-  INVALID_REFRESH_TOKEN: "Your session has expired. Please sign in again.",
-  MISSING_ROLE: "Your account is missing a valid role. Please contact support.",
-  UNKNOWN_ROLE: "Your account role is not supported. Please contact support.",
-  EMAIL_EXISTS: "This email is already registered.",
-  PHONE_EXISTS: "This phone number is already registered.",
-  INVALID_RESET_TOKEN: "This reset link is invalid or expired.",
-  INVALID_CURRENT_PASSWORD: "Current password is incorrect.",
-  NETWORK_ERROR: "Unable to reach GymMaster services. Please try again.",
+  VALIDATION_ERROR: "Vui lòng kiểm tra email và mật khẩu.",
+  INVALID_CREDENTIALS: "Email hoặc mật khẩu không đúng.",
+  TOO_MANY_ATTEMPTS: "Bạn thử quá nhiều lần. Vui lòng chờ trước khi thử lại.",
+  ACCOUNT_LOCKED: "Tài khoản này đã bị khóa. Vui lòng liên hệ nhân viên phòng gym.",
+  UNAUTHORIZED: "Phiên đăng nhập không còn hợp lệ. Vui lòng đăng nhập lại.",
+  INVALID_REFRESH_TOKEN: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+  MISSING_ROLE: "Tài khoản chưa có vai trò hợp lệ. Vui lòng liên hệ hỗ trợ.",
+  UNKNOWN_ROLE: "Vai trò tài khoản chưa được hỗ trợ. Vui lòng liên hệ hỗ trợ.",
+  EMAIL_EXISTS: "Email này đã được đăng ký.",
+  PHONE_EXISTS: "Số điện thoại này đã được đăng ký.",
+  INVALID_RESET_TOKEN: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+  INVALID_CURRENT_PASSWORD: "Mật khẩu hiện tại không đúng.",
+  NETWORK_ERROR: "Không thể kết nối dịch vụ GymMaster. Vui lòng thử lại.",
 }
 
 export function mapAuthError(error: unknown): AuthError {
@@ -23,13 +23,13 @@ export function mapAuthError(error: unknown): AuthError {
       code: error.code,
       message:
         authErrorMessages[error.code] ??
-        "Authentication failed. Please try again.",
+        "Xác thực thất bại. Vui lòng thử lại.",
       requestId: error.requestId,
     }
   }
 
   return {
     code: "UNKNOWN_AUTH_ERROR",
-    message: "Authentication failed. Please try again.",
+    message: "Xác thực thất bại. Vui lòng thử lại.",
   }
 }

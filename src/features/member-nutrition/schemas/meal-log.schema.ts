@@ -5,19 +5,19 @@ export const mealTypes = ["breakfast", "lunch", "dinner", "snack"] as const
 export const mealLogSchema = z.object({
   foodItemId: z.coerce
     .number({
-      message: "Choose a food item.",
+      message: "Chọn món ăn.",
     })
-    .int("Choose a food item.")
-    .positive("Choose a food item."),
-  logDate: z.string().min(1, "Choose a log date."),
+    .int("Chọn món ăn.")
+    .positive("Chọn món ăn."),
+  logDate: z.string().min(1, "Chọn ngày ghi nhận."),
   mealType: z.enum(mealTypes, {
-    message: "Choose a meal type.",
+    message: "Chọn loại bữa ăn.",
   }),
   quantity: z.coerce
     .number({
-      message: "Enter quantity.",
+      message: "Nhập khẩu phần.",
     })
-    .positive("Quantity must be greater than zero."),
+    .positive("Khẩu phần phải lớn hơn 0."),
 })
 
 export type MealLogFormInput = z.input<typeof mealLogSchema>

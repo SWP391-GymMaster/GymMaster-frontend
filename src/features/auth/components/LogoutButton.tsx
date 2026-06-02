@@ -21,7 +21,7 @@ export function LogoutButton() {
 
   return (
     <Button
-      aria-label="Log out"
+      aria-label="Đăng xuất"
       disabled={isPending}
       onClick={handleLogout}
       size="sm"
@@ -29,7 +29,7 @@ export function LogoutButton() {
       variant="destructive"
     >
       <LogOut aria-hidden="true" />
-      {isPending ? "Signing out" : "Logout"}
+      {isPending ? "Đang đăng xuất" : "Đăng xuất"}
     </Button>
   )
 }

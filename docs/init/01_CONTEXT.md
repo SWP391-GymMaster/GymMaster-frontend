@@ -142,8 +142,8 @@ Admin tạo tài khoản/hồ sơ Member
 |---|---|---|
 | OQ-01 | Hệ thống dùng 3 roles hay 4 roles? | Resolved: 4 roles — Admin, Staff, PT, Member |
 | OQ-02 | Frontend ưu tiên React/Next.js, có cần chốt chính thức không? | Resolved: Next.js |
-| OQ-03 | Backend dùng ASP.NET Core, Supabase, hay phương án khác? | Resolved: ASP.NET Core 10 Web API (.NET 10) |
-| OQ-04 | Database dùng SQL Server, PostgreSQL/Supabase hay khác? | Resolved: SQL Server + EF Core 10 Code First |
+| OQ-03 | Backend dùng ASP.NET Core, Supabase, hay phương án khác? | Resolved: ASP.NET Core 8 Web API |
+| OQ-04 | Database dùng SQL Server, PostgreSQL/Supabase hay khác? | Resolved: SQL Server + EF Core 8 Code First |
 | OQ-05 | Member có được tự gia hạn gói không, hay chỉ Admin/Staff? | Resolved: Member được gửi yêu cầu gia hạn, Admin/Staff xác nhận thanh toán |
 | OQ-06 | Check-in giới hạn 1 lần/ngày hay cho phép nhiều lần/ngày? | Resolved: MVP cho phép nhiều lần/ngày; có thể cấu hình giới hạn sau |
 | OQ-07 | Barcode lookup có nằm trong secondary scope không? | Resolved: Secondary/Optional |
@@ -156,9 +156,9 @@ Admin tạo tài khoản/hồ sơ Member
 | Layer | Công nghệ |
 |---|---|
 | Frontend | Next.js |
-| Backend | C# / ASP.NET Core 10 Web API (.NET 10) |
+| Backend | C# / ASP.NET Core 8 Web API |
 | Database | SQL Server |
-| ORM | Entity Framework Core 10 - Code First Migrations |
+| ORM | Entity Framework Core 8 - Code First Migrations |
 | Authentication | JWT Bearer Token + BCrypt |
 | Token Policy | Access Token 15 phút, Refresh Token 7 ngày |
 | AI Vision | Google Cloud Vision API |

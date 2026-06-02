@@ -23,10 +23,10 @@ describe("CheckInTerminal", () => {
     fireEvent.change(screen.getByTestId("staff-checkin-search"), {
       target: { value: "G" },
     })
-    fireEvent.click(screen.getByRole("button", { name: "Find" }))
+    fireEvent.click(screen.getByRole("button", { name: "Tìm" }))
 
     expect(
-      await screen.findByText("Enter a member code, phone, email, or name."),
+      await screen.findByText("Nhập mã hội viên, điện thoại, email hoặc tên."),
     ).toBeInTheDocument()
   })
 
@@ -36,12 +36,12 @@ describe("CheckInTerminal", () => {
     fireEvent.change(screen.getByTestId("staff-checkin-search"), {
       target: { value: "GM-101" },
     })
-    fireEvent.click(screen.getByRole("button", { name: "Find" }))
+    fireEvent.click(screen.getByRole("button", { name: "Tìm" }))
     fireEvent.click(await screen.findByText("Nguyen Minh Anh"))
     fireEvent.click(screen.getByTestId("staff-checkin-confirm"))
 
-    expect(await screen.findByText("Check-in confirmed.")).toBeInTheDocument()
-    expect(screen.getByText("Checked in")).toBeInTheDocument()
+    expect(await screen.findByText("Đã xác nhận check-in.")).toBeInTheDocument()
+    expect(screen.getByText("Đã check-in")).toBeInTheDocument()
   })
 
   it("denies check-in when membership is inactive", async () => {
@@ -50,10 +50,10 @@ describe("CheckInTerminal", () => {
     fireEvent.change(screen.getByTestId("staff-checkin-search"), {
       target: { value: "GM-103" },
     })
-    fireEvent.click(screen.getByRole("button", { name: "Find" }))
+    fireEvent.click(screen.getByRole("button", { name: "Tìm" }))
     fireEvent.click(await screen.findByText("Le Hoang My"))
     fireEvent.click(screen.getByTestId("staff-checkin-confirm"))
 
-    expect(await screen.findByText(/Check-in denied/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Từ chối check-in/i)).toBeInTheDocument()
   })
 })

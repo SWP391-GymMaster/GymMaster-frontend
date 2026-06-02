@@ -1,25 +1,25 @@
 import { z } from "zod"
 
 export const staffSearchSchema = z.object({
-  query: z.string().trim().min(2, "Enter at least 2 characters."),
+  query: z.string().trim().min(2, "Nhập ít nhất 2 ký tự."),
 })
 
 export const sellPackageSchema = z.object({
-  memberId: z.coerce.number().positive("Select a member."),
-  packageId: z.coerce.number().positive("Select a package."),
-  startDate: z.string().min(1, "Choose a start date."),
+  memberId: z.coerce.number().positive("Chọn hội viên."),
+  packageId: z.coerce.number().positive("Chọn gói tập."),
+  startDate: z.string().min(1, "Chọn ngày bắt đầu."),
   paymentMethod: z.enum(["cash", "transfer", "card", "other"]),
 })
 
 export const manualPaymentSchema = z.object({
-  membershipId: z.coerce.number().positive("Missing membership."),
-  amount: z.coerce.number().positive("Amount must be greater than 0."),
+  membershipId: z.coerce.number().positive("Thiếu gói hội viên."),
+  amount: z.coerce.number().positive("Số tiền phải lớn hơn 0."),
   paymentMethod: z.enum(["cash", "transfer", "card", "other"]),
-  paidAt: z.string().min(1, "Choose payment time."),
+  paidAt: z.string().min(1, "Chọn thời điểm thanh toán."),
 })
 
 export const checkInSchema = z.object({
-  query: z.string().trim().min(2, "Enter a member code, phone, email, or name."),
+  query: z.string().trim().min(2, "Nhập mã hội viên, điện thoại, email hoặc tên."),
 })
 
 export type StaffSearchInput = z.infer<typeof staffSearchSchema>

@@ -24,37 +24,37 @@ describe("Member360Hero", () => {
   it("renders status pill with active", () => {
     render(<Member360Hero {...defaultProps} status="active" />)
 
-    expect(screen.getByText("Active")).toBeInTheDocument()
+    expect(screen.getByText("Hoạt động")).toBeInTheDocument()
   })
 
   it("renders status pill with expired", () => {
     render(<Member360Hero {...defaultProps} status="expired" />)
 
-    expect(screen.getByText("Expired")).toBeInTheDocument()
+    expect(screen.getByText("Hết hạn")).toBeInTheDocument()
   })
 
   it("renders status pill with pending", () => {
     render(<Member360Hero {...defaultProps} status="pending" />)
 
-    expect(screen.getByText("Pending")).toBeInTheDocument()
+    expect(screen.getByText("Đang chờ")).toBeInTheDocument()
   })
 
   it("renders PT view context label", () => {
     render(<Member360Hero {...defaultProps} viewContext="pt" />)
 
-    expect(screen.getByText("Assigned member")).toBeInTheDocument()
+    expect(screen.getByText("Hội viên phụ trách")).toBeInTheDocument()
   })
 
   it("renders admin view context label", () => {
     render(<Member360Hero {...defaultProps} viewContext="admin" />)
 
-    expect(screen.getByText("Member detail")).toBeInTheDocument()
+    expect(screen.getByText("Hồ sơ hội viên")).toBeInTheDocument()
   })
 
   it("renders member self view context label", () => {
     render(<Member360Hero {...defaultProps} viewContext="member" />)
 
-    expect(screen.getByText("My profile")).toBeInTheDocument()
+    expect(screen.getByText("Hồ sơ của tôi")).toBeInTheDocument()
   })
 
   it("renders user icon", () => {

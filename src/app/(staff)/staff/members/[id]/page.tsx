@@ -4,13 +4,13 @@ import { StaffPageFrame } from "@/features/staff-front-desk/components/StaffPage
 export default function StaffMemberDetailPage() {
   return (
     <StaffPageFrame
-      description="Inspect membership, payment, and recent check-in context before choosing the next front desk action."
+      description="Xem gói tập, thanh toán và check-in gần đây trước khi chọn thao tác lễ tân tiếp theo."
       metrics={[
-        { label: "Member context", value: "Membership + payment", tone: "dark" },
-        { label: "Front desk action", value: "Sell, renew, or check in" },
-        { label: "Access boundary", value: "Staff operations only" },
+        { label: "Ngữ cảnh hội viên", value: "Gói + thanh toán", tone: "dark" },
+        { label: "Thao tác lễ tân", value: "Bán, gia hạn, check-in" },
+        { label: "Phạm vi quyền", value: "Chỉ lễ tân" },
       ]}
-      title="Member Detail"
+      title="Chi tiết hội viên"
     >
       <StaffMemberDetailHero />
     </StaffPageFrame>

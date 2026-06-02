@@ -4,8 +4,8 @@ import { ManagementWorkspace } from "@/features/member-management/components/Man
 export default function AdminStaffPage() {
   return (
     <AdminPageFrame
-      description="Create and monitor Staff accounts for front desk operations."
-      title="Staff Management"
+      description="Tạo và theo dõi tài khoản lễ tân cho vận hành quầy."
+      title="Quản lý lễ tân"
     >
       <ManagementWorkspace mode="staff" />
     </AdminPageFrame>

@@ -1,120 +1,119 @@
 # 05 — Color, Typography & Tokens
 
-> Status: **Current** — Taste-skill audit 2026-06-01. Font changed from Inter to Geist. Typography scale enlarged. Palette aligned to actual implementation.
+> Status: **Current** — updated 2026-06-02 after final `docs/init` approval. Runtime tokens now use a gym-oriented semantic palette in `src/app/globals.css`.
 
-## 1. Color palette
+## 1. Semantic Color Palette
 
-| Token | Hex (OKLCH) | Dùng cho |
+GymMaster should feel like a premium fitness operations product: strong enough for a gym floor, restrained enough for staff/admin workflows.
+
+| Semantic token | Value | Use |
 |---|---|---|
-| Primary | `oklch(0.205 0 0)` / `#18181B` | Button chính, text chính, active nav |
-| Primary Hover | `oklch(0.145 0 0)` / `#09090B` | Hover primary |
-| Accent / Emerald | `#10B981` / `oklch(0.645 0.18 158)` | Fitness/check-in/success/active status |
-| Accent Hover | `#059669` | Hover emerald elements |
-| Info | `#0EA5E9` | Check-in/info |
-| Warning | `#F59E0B` | Pending/sắp hết hạn |
-| Danger | `#E11D48` | Error/expired/failed |
-| Neutral 900 / Zinc-950 | `#09090B` | Text chính |
-| Neutral 600 | `#52525B` | Text phụ |
-| Neutral 500 | `#71717A` | Muted text |
-| Border light | `#E4E4E7` | Border/input (light mode) |
-| Border dark | `rgb(255 255 255 / 0.1)` | Border (dark mode) |
-| Background light | `radial-gradient(...)` | App background với emerald wash |
-| Surface glass | `bg-white/85` + `backdrop-blur` | Glass card |
-| Surface dark | `#09090B` | Dark metric hero / dark card |
+| Iron / Graphite | `--gym-iron` / `oklch(0.16 0.015 145)` | Primary text, dark rails, dark metric surfaces |
+| Performance Lime | `--gym-lime` / `oklch(0.66 0.19 142)` | Primary CTAs, focus rings, active nav, high-value actions |
+| Steel / Cyan | `--gym-steel` / `oklch(0.58 0.095 210)` | Info, check-in context, assignment context, secondary charts |
+| Chalk | `--gym-chalk` / `oklch(0.99 0.004 120)` | Light surfaces and page background |
+| Mat / Mist | `--gym-mat` / `oklch(0.95 0.018 150)` | Muted panels, inset areas, disabled/secondary backgrounds |
+| Amber | `oklch(0.72 0.14 80)` | Pending, warning, renewal attention |
+| Red | `oklch(0.58 0.22 28)` | Error, failed, locked, destructive |
 
-### Accent consistency
+### Accent Consistency
 
-**Một accent duy nhất: Emerald (`#10B981`)**. Dùng cho:
+Primary accent is **Performance Lime**, exposed through semantic tokens:
 
-- Check-in success
-- Active/paid status pill
-- Trạng thái "hoạt động" badges
-- Focus ring (`focus:border-emerald-500 focus:ring-emerald-500/15`)
-- Brand text (GymMaster uppercase tag)
-- Icon backgrounds (emerald-500/10)
+```text
+bg-primary
+text-primary
+ring-primary
+border-primary
+StatusPill
+```
 
-Không dùng Indigo, Sky, hoặc accent khác cho mục đích tương tự.
+Do not use Electric Blue, Indigo, Purple, or Emerald as the primary accent in new or migrated code. Existing hardcoded blue/emerald classes are a migration gap and should be converted route-by-route.
 
-## 2. Status colors
+## 2. Status Colors
 
-| Status | Color |
+Status color must be centralized through `StatusPill`. The component reads CSS variables from `src/app/globals.css`.
+
+| Status | Semantic color |
 |---|---|
-| `active` | Emerald |
-| `paid` | Emerald |
+| `active` | Performance Lime |
+| `paid` | Performance Lime |
+| `checked-in` | Steel / Cyan |
+| `assigned` | Steel / Cyan |
 | `pending` | Amber |
-| `expired` | Zinc (muted) |
-| `cancelled` | Zinc (muted) |
+| `expired` | Muted Iron |
+| `cancelled` | Muted Iron |
 | `locked` | Red |
-| `assigned` | Indigo |
-| `checked-in` | Sky |
 | `failed` | Red |
 
-## 3. shadcn CSS variables (globals.css — OKLCH)
+Status must include readable text. Do not rely on color alone.
 
-Xem `src/app/globals.css`. Hiện tại đang dùng OKLCH color space với monochrome neutral palette:
+## 3. shadcn CSS Variables
+
+`src/app/globals.css` is the runtime source for semantic color tokens:
 
 ```css
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --radius: 0.625rem;
-  ...
+  --gym-iron: oklch(0.16 0.015 145);
+  --gym-lime: oklch(0.66 0.19 142);
+  --gym-steel: oklch(0.58 0.095 210);
+  --gym-mat: oklch(0.95 0.018 150);
+  --gym-chalk: oklch(0.99 0.004 120);
+  --background: oklch(0.985 0.006 120);
+  --foreground: var(--gym-iron);
+  --primary: var(--gym-lime);
+  --ring: var(--gym-lime);
 }
 ```
 
-## 4. Typography — Geist (primary), Geist Mono (code)
+Use semantic Tailwind classes first. Add raw color utilities only when they represent a deliberate one-off visualization and are documented locally.
 
-### Font stack
+## 4. Typography — Inter + Geist Mono
+
+### Font Stack
 
 | Purpose | Font | Variable |
 |---|---|---|
-| Primary sans | **Geist** (via `next/font`) | `--font-sans` |
-| Mono/code | **Geist Mono** (via `next/font`) | `--font-mono` |
+| Primary sans | **Inter** via `next/font` | `--font-sans` |
+| Mono/code | **Geist Mono** via `next/font` | `--font-mono` |
 
-Geist is the primary font. Inter is NOT used as the default display/body font.
+Runtime code must not load external Google Font links from static templates.
 
-### Font scale
+### Font Scale
 
-| Token | Size | Line height | Weight | Dùng cho |
+| Token | Size | Line height | Weight | Use |
 |---|---:|---:|---:|---|
-| Display | 64px–80px (7xl) | 1.02 | 600 | Welcome hero H1 |
-| H0 | 48px (5xl) | 1.05 | 600 | Workspace title |
-| H1 | 36px (4xl) | 1.15 | 600 | Page title |
-| H2 | 30px (3xl) | 1.25 | 600 | Section title |
-| H3 | 24px (2xl) | 1.3 | 600 | Card title |
-| Body | 16px (base) | 1.75 (leading-7) | 400 | Nội dung chính |
-| Small | 14px (sm) | 1.5 | 400 | Badge/helper text |
-| Label | 14px (sm) | 1.25 | 500 | Form label |
-| Meta | 12px (xs) | 1.5 | 500 | Uppercase tracking tag |
+| Display | 56px–72px | 1.02 | 700–800 | Welcome hero / major command center |
+| H0 | 44px–48px | 1.05 | 700 | Workspace hero title |
+| H1 | 32px–36px | 1.15 | 700 | Page title |
+| H2 | 24px–30px | 1.25 | 650–700 | Section title |
+| H3 | 20px–24px | 1.3 | 600 | Card title |
+| Body | 16px | 1.65 | 400 | Main content |
+| Small | 14px | 1.5 | 400 | Helper text |
+| Label | 14px | 1.25 | 600 | Form labels |
+| Meta | 12px | 1.5 | 700 | Uppercase tags |
 
-### Typography rules (từ taste-skill)
+## 5. Runtime Copy
 
-- Display text dùng `tracking-tighter` + `leading-none` hoặc `leading-[1.02]`.
-- Body text tối đa `max-w-[65ch]`.
-- Button text không wrap xuống 2 dòng trên desktop.
-- Không dùng `Inter` làm display font.
-- Label/tag uppercase dùng `tracking-[0.18em]` hoặc `tracking-[0.22em]`.
+Final `docs/init/04_REQUIREMENTS.md` requires Vietnamese UI. Current English copy is a partial migration state. New user-facing strings should be Vietnamese unless the task explicitly states it is preserving legacy copy.
 
-## 5. Spacing
+## 6. Spacing
 
 | Token | Tailwind |
 |---|---|
 | Page padding desktop | `px-8 py-6` |
 | Page padding mobile | `px-5 py-6` |
-| Section gap | `gap-4` tới `gap-6` |
-| Glass card padding | `p-5` tới `p-8` |
+| Section gap | `gap-4` to `gap-6` |
+| Outer workspace card | `p-6` to `p-8` |
 | Form spacing | `space-y-5` |
-| Section vertical rhythm | `py-24` to `py-40` (macro spacing) |
 
-## 6. Shadows
+## 7. Shadows
 
 | Token | Value |
 |---|---|
-| Glass card shadow | `shadow-[0_24px_80px_rgba(15,23,42,0.08)]` |
-| Dark card shadow | `shadow-xl` (tinted) |
-| CTA button shadow | `shadow-xl shadow-zinc-950/15` |
-| Card hover | `shadow-lg` với `-translate-y-0.5` |
+| Light card shadow | `shadow-[0_24px_80px_rgba(20,35,25,0.08)]` |
+| Dark card shadow | `shadow-xl shadow-zinc-950/20` |
+| CTA button shadow | `shadow-lg shadow-primary/20` |
+| Card hover | `shadow-lg` with `-translate-y-0.5` |
+
+Do not use pure black shadows.

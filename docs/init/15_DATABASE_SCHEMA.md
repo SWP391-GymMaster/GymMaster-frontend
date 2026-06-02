@@ -1,4 +1,4 @@
-# 15 — Database Schema (SQL Server, EF Core 10 Code-First)
+# 15 — Database Schema (SQL Server, EF Core 8 Code-First)
 
 > Schema chi tiết mức cột. Canonical DB = **SQL Server** (provider `Microsoft.EntityFrameworkCore.SqlServer`). Mọi đổi schema qua EF migration. Quy ước chung: `Id BIGINT PK IDENTITY(1,1)`, `CreatedAt`/`UpdatedAt DATETIME2`, soft-delete `IsDeleted BIT DEFAULT 0`.
 >

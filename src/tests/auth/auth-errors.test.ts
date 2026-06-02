@@ -12,7 +12,7 @@ describe("auth error mapper", () => {
       }),
     )
 
-    expect(error.message).toBe("Email or password is incorrect.")
+    expect(error.message).toBe("Email hoặc mật khẩu không đúng.")
   })
 
   it("maps missing role without suggesting role selection", () => {
@@ -23,7 +23,7 @@ describe("auth error mapper", () => {
       }),
     )
 
-    expect(error.message).toContain("missing a valid role")
+    expect(error.message).toContain("vai trò hợp lệ")
     expect(error.message).not.toMatch(/choose|select|picker/i)
   })
 
@@ -35,7 +35,7 @@ describe("auth error mapper", () => {
           message: "Email already exists",
         }),
       ).message,
-    ).toBe("This email is already registered.")
+    ).toBe("Email này đã được đăng ký.")
 
     expect(
       mapAuthError(
@@ -44,7 +44,7 @@ describe("auth error mapper", () => {
           message: "Invalid reset token",
         }),
       ).message,
-    ).toBe("This reset link is invalid or expired.")
+    ).toBe("Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.")
 
     expect(
       mapAuthError(
@@ -53,6 +53,6 @@ describe("auth error mapper", () => {
           message: "Invalid current password",
         }),
       ).message,
-    ).toBe("Current password is incorrect.")
+    ).toBe("Mật khẩu hiện tại không đúng.")
   })
 })

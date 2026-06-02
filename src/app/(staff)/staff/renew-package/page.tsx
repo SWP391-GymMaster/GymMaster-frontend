@@ -4,13 +4,13 @@ import { StaffPageFrame } from "@/features/staff-front-desk/components/StaffPage
 export default function StaffRenewPackagePage() {
   return (
     <StaffPageFrame
-      description="Extend an existing membership, preview the renewal period, and keep pending payment separate from active access."
+      description="Gia hạn gói hiện có, xem trước kỳ gia hạn và tách pending payment khỏi quyền vào cửa active."
       metrics={[
-        { label: "Renewal", value: "Preview next period", tone: "dark" },
-        { label: "Membership rule", value: "Extend from current end" },
-        { label: "Payment action", value: "Manual confirmation" },
+        { label: "Gia hạn", value: "Xem trước kỳ mới", tone: "dark" },
+        { label: "Rule gói tập", value: "Nối từ ngày hết hạn" },
+        { label: "Thanh toán", value: "Xác nhận thủ công" },
       ]}
-      title="Renew Package"
+      title="Gia hạn gói"
     >
       <RenewPackageWizard />
     </StaffPageFrame>

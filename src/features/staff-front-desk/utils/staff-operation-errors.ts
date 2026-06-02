@@ -1,12 +1,12 @@
 import { ApiClientError } from "@/lib/api/http-client"
 
 const staffErrorMessages: Record<string, string> = {
-  FORBIDDEN: "You do not have access to this workspace.",
-  NOT_FOUND: "We could not find that member or operation record.",
+  FORBIDDEN: "Bạn không có quyền truy cập khu vực này.",
+  NOT_FOUND: "Không tìm thấy hội viên hoặc bản ghi thao tác.",
   MEMBERSHIP_INACTIVE:
-    "Check-in is denied because this member does not have an active membership.",
-  VALIDATION_ERROR: "Please check the details and try again.",
-  NETWORK_ERROR: "GymMaster services are not reachable. Please try again.",
+    "Check-in bị từ chối vì hội viên chưa có gói đang hoạt động.",
+  VALIDATION_ERROR: "Vui lòng kiểm tra thông tin và thử lại.",
+  NETWORK_ERROR: "Không thể kết nối dịch vụ GymMaster. Vui lòng thử lại.",
 }
 
 export function mapStaffOperationError(error: unknown) {
@@ -16,12 +16,12 @@ export function mapStaffOperationError(error: unknown) {
       message:
         staffErrorMessages[error.code] ??
         error.message ??
-        "GymMaster could not complete this Staff operation.",
+        "GymMaster không thể hoàn tất thao tác lễ tân này.",
     }
   }
 
   return {
     code: "UNKNOWN_ERROR",
-    message: "GymMaster could not complete this Staff operation.",
+    message: "GymMaster không thể hoàn tất thao tác lễ tân này.",
   }
 }

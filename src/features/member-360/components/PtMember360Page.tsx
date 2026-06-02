@@ -19,9 +19,9 @@ export function PtMember360Page() {
   return (
     <PermissionGuard allowedRoles={["pt"]}>
       <WorkspaceShell
-        description="View your assigned member's profile, membership, check-ins, and progress."
+        description="Xem hồ sơ, gói tập, check-in và tiến độ của hội viên được phân công."
         role="pt"
-        title={data?.member.fullName ?? "Member 360"}
+        title={data?.member.fullName ?? "Hội viên 360"}
       >
         <Member360Content
           data={data ?? undefined}

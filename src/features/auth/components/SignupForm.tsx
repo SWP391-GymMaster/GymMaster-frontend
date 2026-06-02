@@ -48,7 +48,7 @@ export function SignupForm() {
         ...values,
         phone: values.phone?.trim() || undefined,
       })
-      toast.success("Member account created")
+      toast.success("Đã tạo tài khoản hội viên")
       router.push(nextPath)
     } catch (error) {
       const mappedError = mapAuthError(error)
@@ -61,7 +61,7 @@ export function SignupForm() {
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="fullName">
-          Full name
+          Họ tên
         </label>
         <div className="relative">
           <User
@@ -107,7 +107,7 @@ export function SignupForm() {
 
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="phone">
-          Phone <span className="font-normal text-[#727785]">(optional)</span>
+          Số điện thoại <span className="font-normal text-[#727785]">(không bắt buộc)</span>
         </label>
         <div className="relative">
           <Phone
@@ -127,7 +127,7 @@ export function SignupForm() {
 
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="signup-password">
-          Password
+          Mật khẩu
         </label>
         <div className="relative">
           <Lock
@@ -160,7 +160,7 @@ export function SignupForm() {
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Creating account..." : "Create member account"}
+        {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản hội viên"}
         {!isSubmitting ? <ArrowRight aria-hidden="true" className="size-4" /> : null}
       </Button>
     </form>

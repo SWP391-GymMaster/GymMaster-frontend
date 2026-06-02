@@ -168,9 +168,9 @@
 | Layer | Công nghệ |
 |---|---|
 | Frontend | Next.js |
-| Backend | C# / ASP.NET Core 10 Web API (.NET 10) |
+| Backend | C# / ASP.NET Core 8 Web API |
 | Database | SQL Server |
-| ORM | Entity Framework Core 10 - Code First Migrations |
+| ORM | Entity Framework Core 8 - Code First Migrations |
 | Authentication | JWT Bearer Token + BCrypt |
 | Token Policy | Access 15 phút, Refresh 7 ngày |
 | AI Vision | Google Cloud Vision API |

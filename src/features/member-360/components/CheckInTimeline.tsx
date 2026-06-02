@@ -17,7 +17,7 @@ type CheckInTimelineProps = {
 
 function formatDateTime(dateStr: string) {
   const date = new Date(dateStr)
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("vi-VN", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -61,7 +61,7 @@ export function CheckInTimeline({
         className,
       )}
     >
-      <p className="text-sm font-medium text-zinc-500">Recent check-ins</p>
+      <p className="text-sm font-medium text-zinc-500">Check-in gần đây</p>
 
       <div className="mt-4 space-y-3">
         {hasEntries ? (
@@ -70,7 +70,7 @@ export function CheckInTimeline({
               <span
                 className={cn(
                   "size-2 shrink-0 rounded-full",
-                  i === 0 ? "bg-emerald-500" : "bg-zinc-300",
+                  i === 0 ? "bg-primary" : "bg-zinc-300",
                 )}
               />
               <span className="text-sm text-zinc-700">
@@ -81,7 +81,7 @@ export function CheckInTimeline({
         ) : (
           <div className="flex items-center gap-2 text-sm text-zinc-500">
             <Clock aria-hidden="true" className="size-4" />
-            No check-ins recorded
+            Chưa có lượt check-in
           </div>
         )}
       </div>

@@ -1,6 +1,6 @@
 # 14 — Prompt Library
 
-> Thư viện prompt mẫu cho dự án GymMaster. Luôn kèm ngữ cảnh: stack (ASP.NET Core 10 + SQL Server + EF Core 10), spec ref, và CONSTITUTION.
+> Thư viện prompt mẫu cho dự án GymMaster. Luôn kèm ngữ cảnh: stack (ASP.NET Core 8 + SQL Server + EF Core), spec ref, và CONSTITUTION.
 
 ---
 
@@ -14,7 +14,7 @@ giả định ngầm, và edge case còn thiếu. KHÔNG code cho tới khi tôi
 
 ### P-02 Plan-then-Execute
 ```
-Task: [mô tả]. Stack: ASP.NET Core 10, EF Core 10, SQL Server, layered
+Task: [mô tả]. Stack: ASP.NET Core 8, EF Core, SQL Server, layered
 (Controller→Service→Repository). Trình bày plan: file sẽ tạo/sửa, cách tiếp cận,
 ảnh hưởng migration. Đợi tôi duyệt rồi mới code.
 ```
@@ -46,7 +46,7 @@ Bảo đảm 40–60% nội dung là xử lý lỗi/edge case.
 
 ### Database
 ```
-Thiết kế bảng SQL Server cho [thực thể] dùng EF Core 10 Code-First. Nêu cột, kiểu,
+Thiết kế bảng SQL Server cho [thực thể] dùng EF Core 8 Code-First. Nêu cột, kiểu,
 khóa, index, ràng buộc, soft-delete (IsDeleted), audit (CreatedAt/UpdatedAt).
 Viết entity class C# + cấu hình Fluent API.
 ```
@@ -75,7 +75,7 @@ thứ tự khả năng, cách kiểm chứng từng giả thuyết. KHÔNG sửa
 ### Presentation / Báo cáo
 ```
 Tóm tắt module [tên] cho slide demo SWP391: vấn đề, giải pháp, luồng chính,
-công nghệ (ASP.NET Core 10 + SQL Server + Next.js), điểm nổi bật về spec-driven + AI.
+công nghệ (ASP.NET Core 8 + SQL Server + Next.js), điểm nổi bật về spec-driven + AI.
 Ngắn gọn, gạch đầu dòng.
 ```
 

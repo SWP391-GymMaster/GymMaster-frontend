@@ -7,14 +7,14 @@ import { SignupForm } from "@/features/auth/components/SignupForm"
 export default function SignupPage() {
   return (
     <AuthOSShell
-      description="Create a member account. Staff, trainer, and admin accounts are assigned by the backend system, not selected here."
+      description="Tạo tài khoản hội viên. Tài khoản lễ tân, PT và quản trị do hệ thống backend phân quyền, không chọn tại màn hình này."
       footer={
         <>
-          Already have an account?{" "}
-          <AuthTextLink href="/login">Sign in</AuthTextLink>
+          Đã có tài khoản?{" "}
+          <AuthTextLink href="/login">Đăng nhập</AuthTextLink>
         </>
       }
-      title="Create your member account"
+      title="Tạo tài khoản hội viên"
     >
       <SignupForm />
     </AuthOSShell>

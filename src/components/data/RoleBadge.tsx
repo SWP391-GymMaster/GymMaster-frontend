@@ -1,10 +1,10 @@
 import type { UserRole } from "@/types/auth"
 
 const roleLabels: Record<UserRole, string> = {
-  admin: "Admin",
-  staff: "Staff",
+  admin: "Quản trị",
+  staff: "Lễ tân",
   pt: "PT",
-  member: "Member",
+  member: "Hội viên",
 }
 
 type RoleBadgeProps = {

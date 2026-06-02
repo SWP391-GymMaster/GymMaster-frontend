@@ -25,7 +25,7 @@ export function TrainerNoteForm({ isPending, onSubmit }: TrainerNoteFormProps) {
   async function handleSubmit(values: TrainerNoteFormValues) {
     await onSubmit({ content: values.content.trim() })
     form.reset()
-    toast.success("Trainer note saved")
+    toast.success("Đã lưu ghi chú PT")
   }
 
   return (
@@ -37,12 +37,12 @@ export function TrainerNoteForm({ isPending, onSubmit }: TrainerNoteFormProps) {
         className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]"
         htmlFor="trainer-note-content"
       >
-        Coaching note
+        Ghi chú huấn luyện
       </label>
       <textarea
-        className="mt-2 min-h-40 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] px-3 py-3 text-sm leading-6 text-[#191b23] outline-none transition-all focus:border-[#0058be] focus:ring-2 focus:ring-[#adc6ff]"
+        className="mt-2 min-h-40 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] px-3 py-3 text-sm leading-6 text-[#191b23] outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
         id="trainer-note-content"
-        placeholder="Record form corrections, progression cues, or recovery advice."
+        placeholder="Ghi lỗi kỹ thuật, cue tiến độ hoặc lời khuyên phục hồi."
         {...form.register("content")}
       />
       {form.formState.errors.content ? (
@@ -52,12 +52,12 @@ export function TrainerNoteForm({ isPending, onSubmit }: TrainerNoteFormProps) {
       ) : null}
 
       <Button
-        className="mt-4 min-h-12 w-full rounded-lg bg-[#0058be] text-white hover:bg-[#2170e4] active:scale-[0.98]"
+        className="mt-4 min-h-12 w-full rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
         data-testid="trainer-note-submit-button"
         disabled={isPending}
         type="submit"
       >
-        {isPending ? "Saving note..." : "Save trainer note"}
+        {isPending ? "Đang lưu ghi chú..." : "Lưu ghi chú"}
       </Button>
     </form>
   )

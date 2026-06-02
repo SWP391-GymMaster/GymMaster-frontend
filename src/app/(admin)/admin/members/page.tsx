@@ -4,8 +4,8 @@ import { ManagementWorkspace } from "@/features/member-management/components/Man
 export default function AdminMembersPage() {
   return (
     <AdminPageFrame
-      description="Search, create, update, and soft-delete member profiles from backend spec 002."
-      title="Member Management"
+      description="Tìm kiếm, tạo, cập nhật và soft-delete hồ sơ hội viên theo backend spec 002."
+      title="Quản lý hội viên"
     >
       <ManagementWorkspace
         canDeleteMembers

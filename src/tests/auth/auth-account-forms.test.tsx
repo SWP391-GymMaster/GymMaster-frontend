@@ -27,45 +27,45 @@ describe("auth account forms", () => {
   it("creates a member account without role selection", async () => {
     render(<SignupForm />)
 
-    fireEvent.change(screen.getByLabelText("Full name"), {
+    fireEvent.change(screen.getByLabelText("Họ tên"), {
       target: { value: "New Member" },
     })
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "new-member@gymmaster.local" },
     })
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
       target: { value: "Password123!" },
     })
     fireEvent.click(
-      screen.getByRole("button", { name: /create member account/i }),
+      screen.getByRole("button", { name: /tạo tài khoản hội viên/i }),
     )
 
     await waitFor(() => {
       expect(navigation.push).toHaveBeenCalledWith("/member/dashboard")
     })
     expect(useAuthSessionStore.getState().session?.role).toBe("member")
-    expect(screen.queryByText("Admin")).not.toBeInTheDocument()
-    expect(screen.queryByText("Staff")).not.toBeInTheDocument()
+    expect(screen.queryByText("Quản trị")).not.toBeInTheDocument()
+    expect(screen.queryByText("Lễ tân")).not.toBeInTheDocument()
   })
 
   it("shows duplicate email error on signup", async () => {
     render(<SignupForm />)
 
-    fireEvent.change(screen.getByLabelText("Full name"), {
+    fireEvent.change(screen.getByLabelText("Họ tên"), {
       target: { value: "Existing Member" },
     })
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "member@gymmaster.local" },
     })
-    fireEvent.change(screen.getByLabelText("Password"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
       target: { value: "Password123!" },
     })
     fireEvent.click(
-      screen.getByRole("button", { name: /create member account/i }),
+      screen.getByRole("button", { name: /tạo tài khoản hội viên/i }),
     )
 
     expect(
-      await screen.findByText("This email is already registered."),
+      await screen.findByText("Email này đã được đăng ký."),
     ).toBeInTheDocument()
     expect(navigation.push).not.toHaveBeenCalled()
   })
@@ -76,11 +76,11 @@ describe("auth account forms", () => {
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "member@gymmaster.local" },
     })
-    fireEvent.click(screen.getByRole("button", { name: /send reset request/i }))
+    fireEvent.click(screen.getByRole("button", { name: /gửi yêu cầu đặt lại/i }))
 
     expect(
       await screen.findByText(
-        "If the email exists, a reset request has been created.",
+        "Nếu email tồn tại, yêu cầu đặt lại mật khẩu đã được tạo.",
       ),
     ).toBeInTheDocument()
     expect(screen.getByText(/mock-reset-token/)).toBeInTheDocument()
@@ -89,13 +89,13 @@ describe("auth account forms", () => {
   it("resets password with a valid reset token", async () => {
     render(<ResetPasswordForm resetToken="mock-reset-token" />)
 
-    fireEvent.change(screen.getByLabelText("New password"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.click(screen.getByRole("button", { name: /reset password/i }))
+    fireEvent.click(screen.getByRole("button", { name: /đặt lại mật khẩu/i }))
 
     expect(
-      await screen.findByText("Password reset successfully. You can sign in now."),
+      await screen.findByText("Đã đặt lại mật khẩu. Bạn có thể đăng nhập ngay."),
     ).toBeInTheDocument()
   })
 
@@ -116,16 +116,16 @@ describe("auth account forms", () => {
 
     render(<ChangePasswordForm />)
 
-    fireEvent.change(screen.getByLabelText("Current password"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu hiện tại"), {
       target: { value: "wrong" },
     })
-    fireEvent.change(screen.getByLabelText("New password"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.click(screen.getByRole("button", { name: /change password/i }))
+    fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
 
     expect(
-      await screen.findByText("Current password is incorrect."),
+      await screen.findByText("Mật khẩu hiện tại không đúng."),
     ).toBeInTheDocument()
   })
 })

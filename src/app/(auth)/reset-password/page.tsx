@@ -17,9 +17,9 @@ export default async function ResetPasswordPage({
 
   return (
     <AuthOSShell
-      description="Use the reset token from your password reset request."
+      description="Dùng mã reset từ yêu cầu đặt lại mật khẩu."
       footer={<BackToLoginLink />}
-      title="Set a new password"
+      title="Đặt mật khẩu mới"
     >
       <ResetPasswordForm resetToken={params?.token ?? ""} />
     </AuthOSShell>

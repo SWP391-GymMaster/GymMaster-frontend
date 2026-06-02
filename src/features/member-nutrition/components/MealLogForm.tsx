@@ -19,7 +19,10 @@ import {
   type MealLogInput,
 } from "@/features/member-nutrition/schemas/meal-log.schema"
 import type { FoodItem } from "@/features/member-nutrition/types/member-nutrition.types"
-import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
+import {
+  formatCalories,
+  formatMealType,
+} from "@/features/member-nutrition/utils/nutrition-formatters"
 
 type MealLogFormProps = {
   date: string
@@ -53,7 +56,7 @@ export function MealLogForm({ date }: MealLogFormProps) {
 
   async function onSubmit(values: MealLogInput) {
     if (!memberId) {
-      toast.error("Member profile is not available.")
+      toast.error("Chưa có hồ sơ hội viên.")
       return
     }
 
@@ -68,7 +71,7 @@ export function MealLogForm({ date }: MealLogFormProps) {
         },
       ],
     })
-    toast.success("Meal added")
+    toast.success("Đã thêm bữa ăn")
     reset({
       foodItemId: 0,
       logDate: date,
@@ -88,26 +91,25 @@ export function MealLogForm({ date }: MealLogFormProps) {
       />
 
       <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-zinc-950">Add meal</h2>
+        <h2 className="text-lg font-semibold text-zinc-950">Thêm bữa ăn</h2>
         <p className="mt-1 text-sm text-zinc-600">
-          Choose a food, meal type, and quantity. Calories are calculated from the
-          food database.
+          Chọn món, loại bữa và khẩu phần. Calo được tính từ cơ sở dữ liệu món ăn.
         </p>
 
         {selectedFood ? (
-          <div className="mt-4 rounded-[1.25rem] border border-emerald-200 bg-emerald-50 p-4">
-            <p className="text-sm font-semibold text-emerald-950">
+          <div className="mt-4 rounded-[1.25rem] border border-[color:var(--status-active-border)] bg-[var(--status-active-bg)] p-4">
+            <p className="text-sm font-semibold text-[var(--status-active-text)]">
               {selectedFood.name}
             </p>
-            <p className="mt-1 text-sm text-emerald-800">
-              {formatCalories(selectedFood.caloriesPerUnit)} per {selectedFood.unit}
+            <p className="mt-1 text-sm text-[var(--status-active-text)]">
+              {formatCalories(selectedFood.caloriesPerUnit)} mỗi {selectedFood.unit}
             </p>
           </div>
         ) : (
           <StateBlock
             className="mt-4"
-            description="Select a food result before submitting the meal."
-            title="No food selected."
+            description="Chọn một món ăn trước khi gửi bữa."
+            title="Chưa chọn món ăn."
             tone="empty"
           />
         )}
@@ -117,10 +119,10 @@ export function MealLogForm({ date }: MealLogFormProps) {
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="text-sm font-medium text-zinc-800" htmlFor="meal-date">
-                Date
+                Ngày
               </label>
               <input
-                className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
                 data-testid="member-meal-date-input"
                 id="meal-date"
                 type="date"
@@ -134,18 +136,17 @@ export function MealLogForm({ date }: MealLogFormProps) {
             </div>
             <div>
               <label className="text-sm font-medium text-zinc-800" htmlFor="meal-type">
-                Meal type
+                Loại bữa
               </label>
               <select
-                className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+                className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
                 data-testid="member-meal-type-select"
                 id="meal-type"
                 {...register("mealType")}
               >
                 {mealTypes.map((mealType) => (
                   <option key={mealType} value={mealType}>
-                    {mealType[0].toUpperCase()}
-                    {mealType.slice(1)}
+                    {formatMealType(mealType)}
                   </option>
                 ))}
               </select>
@@ -159,10 +160,10 @@ export function MealLogForm({ date }: MealLogFormProps) {
 
           <div>
             <label className="text-sm font-medium text-zinc-800" htmlFor="meal-quantity">
-              Quantity
+              Khẩu phần
             </label>
             <input
-              className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+              className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
               data-testid="member-meal-quantity-input"
               id="meal-quantity"
               min="0"
@@ -188,15 +189,15 @@ export function MealLogForm({ date }: MealLogFormProps) {
             disabled={createMealLog.isPending}
             type="submit"
           >
-            {createMealLog.isPending ? "Adding..." : "Add meal"}
+            {createMealLog.isPending ? "Đang thêm..." : "Thêm bữa ăn"}
           </Button>
         </form>
 
         {createMealLog.isError ? (
           <StateBlock
             className="mt-4"
-            description="Review the selected food and quantity, then try again."
-            title="Meal could not be added."
+            description="Kiểm tra món ăn và khẩu phần đã chọn, sau đó thử lại."
+            title="Không thể thêm bữa ăn."
             tone="error"
           />
         ) : null}

@@ -3,24 +3,23 @@ import { StaffPageFrame } from "@/features/staff-front-desk/components/StaffPage
 export default function StaffPaymentsPage() {
   return (
     <StaffPageFrame
-      description="Manual payment follow-up is currently handled inside package sale results for demo stability."
+      description="Theo dõi thanh toán thủ công hiện được xử lý trong kết quả bán/gia hạn gói để demo ổn định."
       metrics={[
-        { label: "Payment workspace", value: "UI prepared", tone: "dark" },
-        { label: "Current action", value: "Record after sale/renewal" },
-        { label: "Queue status", value: "Candidate follow-up" },
+        { label: "Workspace thanh toán", value: "UI prepared", tone: "dark" },
+        { label: "Thao tác hiện tại", value: "Ghi sau bán/gia hạn" },
+        { label: "Queue", value: "Follow-up" },
       ]}
-      title="Payments"
+      title="Thanh toán"
     >
       <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-6 shadow-sm">
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-emerald-700">
-          Payment workspace
+        <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
+          Workspace thanh toán
         </p>
         <h2 className="mt-3 text-2xl font-semibold text-zinc-950">
-          Manual payment actions are available after a package sale.
+          Thao tác thanh toán thủ công có sẵn sau khi bán hoặc gia hạn gói.
         </h2>
         <p className="mt-3 max-w-2xl text-base leading-7 text-zinc-600">
-          A dedicated payment queue can be added after the Staff front desk MVP
-          flow is validated.
+          Hàng đợi thanh toán riêng có thể bổ sung sau khi luồng lễ tân MVP được xác nhận ổn định.
         </p>
       </section>
     </StaffPageFrame>

@@ -18,7 +18,7 @@ Backend, database, authentication server, storage, notification, Azure, and AI V
 
 ## Current Status
 
-Current implementation includes the first GymMaster frontend auth shell: `/welcome`, `/login`, backend-role redirect normalization, protected dashboard skeletons, permission denial, logout, and focused Vitest/React Testing Library coverage. Real role workflows and live backend validation are still pending.
+Current implementation includes no-role-picker auth, backend-role redirect normalization, protected role workspaces, Admin/Staff/member/PT management surfaces, Staff sell/renew/check-in flows, Admin PT assignment, PT workout/notes, Member nutrition, MSW-backed frontend contracts, Vitest coverage, and Playwright demo flows. Live backend validation is still pending.
 
 Current scripts:
 
@@ -29,9 +29,15 @@ npm run start
 npm run typecheck
 npm run lint
 npm run test
+npm run test:e2e
+npm run test:e2e:ui
 ```
 
-Unit/component testing is configured with Vitest, React Testing Library, jest-dom, and jsdom. E2E and Storybook scripts are planned but not installed/configured yet.
+Unit/component testing is configured with Vitest, React Testing Library, jest-dom, and jsdom. Playwright E2E is configured for mock-mode demo flows. Storybook remains planned only.
+
+The external backend contract is ASP.NET Core 8 Web API + SQL Server + EF Core 8 Code First, per final `docs/init/`.
+
+Final runtime UI target is Vietnamese. Some implemented screens still contain English copy from earlier MVP work and need a dedicated copy migration before demo freeze.
 
 ## Product Summary
 

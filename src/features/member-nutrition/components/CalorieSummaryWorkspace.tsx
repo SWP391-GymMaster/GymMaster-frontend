@@ -1,6 +1,7 @@
 "use client"
 
 import { Flame, Target, Utensils } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { MealLogList } from "@/features/member-nutrition/components/MealLogList"
@@ -24,8 +25,8 @@ export function CalorieSummaryWorkspace() {
   if (summary.isLoading) {
     return (
       <StateBlock
-        description="Loading calories, target, and meal breakdown."
-        title="Loading daily summary..."
+        description="Đang tải calo, mục tiêu và phân tích bữa ăn."
+        title="Đang tải tổng kết ngày..."
         tone="loading"
       />
     )
@@ -34,8 +35,8 @@ export function CalorieSummaryWorkspace() {
   if (summary.isError) {
     return (
       <StateBlock
-        description="Refresh this page or try again after the service recovers."
-        title="Daily summary could not be loaded."
+        description="Tải lại trang hoặc thử lại sau khi dịch vụ ổn định."
+        title="Không thể tải tổng kết ngày."
         tone="error"
       />
     )
@@ -44,8 +45,8 @@ export function CalorieSummaryWorkspace() {
   if (!summary.data) {
     return (
       <StateBlock
-        description="Add a meal to begin tracking calories."
-        title="No summary available."
+        description="Thêm bữa ăn để bắt đầu theo dõi calo."
+        title="Chưa có dữ liệu tổng kết."
         tone="empty"
       />
     )
@@ -57,36 +58,36 @@ export function CalorieSummaryWorkspace() {
         className="rounded-[1.5rem] border border-zinc-200 bg-zinc-950 p-6 text-white shadow-xl"
         data-testid="member-calorie-summary"
       >
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-emerald-300">
-          Daily calorie summary
+        <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
+          Tổng kết calo ngày
         </p>
         <div className="mt-5 grid gap-4 md:grid-cols-3">
           <HeroMetric
             icon={Flame}
-            label="Consumed"
+            label="Đã ăn"
             value={formatCalories(summary.data.consumed)}
           />
           <HeroMetric
             icon={Target}
-            label="Target"
+            label="Mục tiêu"
             value={formatCalories(summary.data.target)}
           />
           <HeroMetric
             icon={Utensils}
-            label="Remaining"
+            label="Còn lại"
             value={getRemainingLabel(summary.data.remaining)}
           />
         </div>
       </section>
 
       <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-zinc-950">Macro readiness</h2>
+        <h2 className="text-lg font-semibold text-zinc-950">Macro</h2>
         <p className="mt-1 text-sm text-zinc-600">
-          Macro values will appear when the backend contract starts returning them.
+          Giá trị macro sẽ hiển thị khi contract backend trả đủ dữ liệu.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <Macro label="Protein" value={formatMacro(summary.data.proteinG)} />
-          <Macro label="Carbs" value={formatMacro(summary.data.carbsG)} />
+          <Macro label="Carb" value={formatMacro(summary.data.carbsG)} />
           <Macro label="Fat" value={formatMacro(summary.data.fatG)} />
         </div>
       </section>
@@ -105,13 +106,13 @@ function HeroMetric({
   label,
   value,
 }: {
-  icon: typeof Flame
+  icon: LucideIcon
   label: string
   value: string
 }) {
   return (
     <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
-      <Icon aria-hidden="true" className="size-5 text-emerald-300" />
+      <Icon aria-hidden="true" className="size-5 text-primary" />
       <p className="mt-4 text-sm text-zinc-400">{label}</p>
       <p className="mt-1 text-xl font-semibold">{value}</p>
     </div>

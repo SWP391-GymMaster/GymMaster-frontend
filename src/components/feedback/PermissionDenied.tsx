@@ -16,13 +16,13 @@ export function PermissionDenied({ dashboardPath }: PermissionDeniedProps) {
           <LockKeyhole aria-hidden="true" className="size-10 text-[#ba1a1a]" />
         </div>
         <div className="mb-4 inline-flex rounded-full border border-[#c2c6d6]/60 bg-[#f2f3fd] px-3 py-1 text-sm font-semibold text-[#595e6d]">
-          Access restricted
+          Quyền truy cập bị giới hạn
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-[#191b23] md:text-5xl">
-          You do not have access to this workspace.
+          Bạn không có quyền truy cập khu vực này.
         </h1>
         <p className="mx-auto mt-4 max-w-md text-base leading-7 text-[#424754]">
-          Your account is signed in, but this area belongs to another role.
+          Tài khoản của bạn đã đăng nhập, nhưng khu vực này thuộc vai trò khác.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <button
@@ -31,15 +31,15 @@ export function PermissionDenied({ dashboardPath }: PermissionDeniedProps) {
             onClick={() => window.history.back()}
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
-            Go back
+            Quay lại
           </button>
           {dashboardPath ? (
             <Link
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#0058be] px-5 text-sm font-semibold text-white transition hover:bg-[#2170e4] active:scale-[0.98]"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-white transition hover:brightness-95 active:scale-[0.98]"
               href={dashboardPath}
             >
               <LayoutDashboard aria-hidden="true" className="size-4" />
-              Back to my dashboard
+              Về dashboard của tôi
             </Link>
           ) : null}
         </div>

@@ -24,5 +24,5 @@
 | 14 | 14_PROMPT_LIBRARY.md | Approved |
 | 15 | 15_DATABASE_SCHEMA.md | Approved |
 
-**Canonical tech stack:** Next.js · ASP.NET Core 10 (.NET 10) · SQL Server · EF Core 10 · JWT+BCrypt · Azure/Vercel.
+**Canonical tech stack:** Next.js · ASP.NET Core 8 · SQL Server · EF Core 8 · JWT+BCrypt · Azure/Vercel.
 **Source of truth cho stack:** `CONSTITUTION.md` Layer 3.

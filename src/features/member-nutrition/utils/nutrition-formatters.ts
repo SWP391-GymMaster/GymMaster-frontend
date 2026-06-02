@@ -1,22 +1,22 @@
 import type { MealType } from "@/features/member-nutrition/types/member-nutrition.types"
 
 const mealTypeLabels: Record<MealType, string> = {
-  breakfast: "Breakfast",
-  lunch: "Lunch",
-  dinner: "Dinner",
-  snack: "Snack",
+  breakfast: "Bữa sáng",
+  lunch: "Bữa trưa",
+  dinner: "Bữa tối",
+  snack: "Bữa phụ",
 }
 
 export function formatCalories(value: number) {
-  return `${Math.round(value).toLocaleString("en-US")} kcal`
+  return `${Math.round(value).toLocaleString("vi-VN")} kcal`
 }
 
 export function formatMacro(value?: number) {
   if (typeof value !== "number") {
-    return "Not available"
+    return "Chưa có"
   }
 
-  return `${Math.round(value).toLocaleString("en-US")} g`
+  return `${Math.round(value).toLocaleString("vi-VN")} g`
 }
 
 export function formatMealType(value: string) {
@@ -29,8 +29,8 @@ export function getTodayDate() {
 
 export function getRemainingLabel(value: number) {
   if (value < 0) {
-    return `${formatCalories(Math.abs(value))} over target`
+    return `Vượt ${formatCalories(Math.abs(value))}`
   }
 
-  return `${formatCalories(value)} remaining`
+  return `Còn ${formatCalories(value)}`
 }

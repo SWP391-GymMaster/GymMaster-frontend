@@ -12,7 +12,7 @@ type TrainerNoteListProps = {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat("vi-VN", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value))
@@ -39,7 +39,7 @@ export function TrainerNoteList({
   if (error) {
     return (
       <StateBlock
-        description="Refresh the workspace and confirm this member is assigned to you."
+        description="Tải lại workspace và kiểm tra hội viên này có thuộc danh sách của bạn."
         title={error.message}
         tone="error"
       />
@@ -49,8 +49,8 @@ export function TrainerNoteList({
   if (!notes?.length) {
     return (
       <StateBlock
-        description="Add a short note after assessment, workout, or recovery discussion."
-        title="No trainer notes yet"
+        description="Thêm ghi chú ngắn sau buổi đánh giá, tập luyện hoặc trao đổi phục hồi."
+        title="Chưa có ghi chú PT"
         tone="empty"
       />
     )
@@ -78,9 +78,9 @@ export function TrainerNoteList({
 export function TrainerNoteListHeader() {
   return (
     <div className="flex items-center gap-2">
-      <NotebookPen aria-hidden="true" className="size-5 text-[#0058be]" />
+      <NotebookPen aria-hidden="true" className="size-5 text-primary" />
       <h2 className="text-lg font-black tracking-tight text-[#191b23]">
-        Trainer notes
+        Ghi chú PT
       </h2>
     </div>
   )

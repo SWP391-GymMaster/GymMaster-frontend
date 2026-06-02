@@ -14,10 +14,10 @@ export function CurrentDashboardLink() {
 
   return (
     <Link
-      className="font-semibold text-[#0058be] transition hover:text-[#004395] hover:underline"
+      className="font-semibold text-primary transition hover:text-primary hover:underline"
       href={getDashboardRoute(session.role)}
     >
-      Return home
+      Về trang chính
     </Link>
   )
 }

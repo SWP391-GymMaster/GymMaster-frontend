@@ -96,7 +96,7 @@ Rules:
 - Chỉ display current user role.
 - Không show tất cả roles.
 - Không phải role switcher.
-- Style: `rounded-full`, `border border-emerald-500/20`, `bg-emerald-500/10`.
+- Style: `rounded-full`, use semantic primary/status tokens rather than hardcoded role-color utilities.
 
 ## 7. Form patterns
 
@@ -105,7 +105,7 @@ Rules:
 - Error message dưới input, text-size `sm`, color `text-red-700`.
 - Input `rounded-2xl`, `min-h-12`, `border-zinc-200`.
 - Input icon bên trái (Lucide icon, absolute positioning).
-- Focus ring: `focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15`.
+- Focus ring: use semantic primary ring, e.g. `focus:border-primary focus:ring-4 focus:ring-primary/15`.
 - Submit button `min-h-12 w-full rounded-2xl`.
 - Disabled state khi submitting (`disabled={isSubmitting}`).
 

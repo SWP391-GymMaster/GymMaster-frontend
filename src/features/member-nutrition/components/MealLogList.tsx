@@ -19,8 +19,8 @@ export function MealLogList({
   if (isLoading) {
     return (
       <StateBlock
-        description="Loading meals for the selected day."
-        title="Loading meal journal..."
+        description="Đang tải các bữa ăn trong ngày đã chọn."
+        title="Đang tải nhật ký ăn..."
         tone="loading"
       />
     )
@@ -29,8 +29,8 @@ export function MealLogList({
   if (isError) {
     return (
       <StateBlock
-        description="Try again after the meal journal service recovers."
-        title="Meal journal could not be loaded."
+        description="Thử lại sau khi dịch vụ nhật ký ăn ổn định."
+        title="Không thể tải nhật ký ăn."
         tone="error"
       />
     )
@@ -39,8 +39,8 @@ export function MealLogList({
   if (!logs?.length) {
     return (
       <StateBlock
-        description="Log a meal to build today's journal."
-        title="No meals logged today."
+        description="Ghi một bữa ăn để bắt đầu nhật ký hôm nay."
+        title="Hôm nay chưa có bữa ăn."
         tone="empty"
       />
     )
@@ -48,7 +48,7 @@ export function MealLogList({
 
   return (
     <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-zinc-950">Meal journal</h2>
+      <h2 className="text-lg font-semibold text-zinc-950">Nhật ký ăn</h2>
       <div className="mt-4 grid gap-3" data-testid="member-meal-log-list">
         {logs.map((log) => (
           <article
@@ -65,7 +65,7 @@ export function MealLogList({
                   key={`${log.id}-${item.foodItemId}`}
                 >
                   <span>
-                    {item.foodName ?? `Food #${item.foodItemId}`} · {item.quantity}
+                    {item.foodName ?? `Món #${item.foodItemId}`} · {item.quantity}
                     {item.unit ? ` ${item.unit}` : ""}
                   </span>
                   <span className="font-medium text-zinc-950">

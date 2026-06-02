@@ -27,61 +27,61 @@ export function FoodSearchPanel({
   return (
     <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
       <div className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-800">
+        <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Search aria-hidden="true" className="size-4" />
         </span>
         <div>
-          <h2 className="text-lg font-semibold text-zinc-950">Food search</h2>
+          <h2 className="text-lg font-semibold text-zinc-950">Tìm món ăn</h2>
           <p className="text-sm text-zinc-600">
-            Search the food database before logging a meal.
+            Tìm trong cơ sở dữ liệu món ăn trước khi ghi bữa.
           </p>
         </div>
       </div>
 
       <label className="mt-4 block text-sm font-medium text-zinc-800" htmlFor="food-search">
-        Food name
+        Tên món
       </label>
       <input
-        className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none transition-colors focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+        className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none transition-colors focus:border-primary focus:ring-4 focus:ring-primary/10"
         data-testid="member-food-search-input"
         id="food-search"
         onChange={(event) => onQueryChange(event.target.value)}
-        placeholder="Chicken, rice, banana..."
+        placeholder="Ức gà, cơm, chuối..."
         value={query}
       />
 
       <div className="mt-4 grid gap-2">
         {!canSearch ? (
           <StateBlock
-            description="Enter at least two characters to search foods."
-            title="Start with a food name."
+            description="Nhập ít nhất hai ký tự để tìm món ăn."
+            title="Bắt đầu bằng tên món."
             tone="empty"
           />
         ) : null}
         {foods.isLoading ? (
           <StateBlock
-            description="Finding matching food items."
-            title="Searching foods..."
+            description="Đang tìm món ăn phù hợp."
+            title="Đang tìm món..."
             tone="loading"
           />
         ) : null}
         {foods.isError ? (
           <StateBlock
-            description="Food search is temporarily unavailable."
-            title="Could not search foods."
+            description="Tìm kiếm món ăn đang tạm thời gián đoạn."
+            title="Không thể tìm món ăn."
             tone="error"
           />
         ) : null}
         {canSearch && foods.data?.items.length === 0 ? (
           <StateBlock
-            description="Custom food is planned after the core meal log flow is stable."
-            title="No matching food found."
+            description="Custom food là phạm vi Secondary sau khi luồng ghi bữa ổn định."
+            title="Không tìm thấy món phù hợp."
             tone="empty"
           />
         ) : null}
         {foods.data?.items.map((food) => (
           <Button
-            className="h-auto justify-start rounded-[1.25rem] border-zinc-200 bg-white p-4 text-left text-zinc-950 hover:border-emerald-300 hover:bg-emerald-50 data-[selected=true]:border-emerald-500 data-[selected=true]:bg-emerald-50"
+            className="h-auto justify-start rounded-[1.25rem] border-zinc-200 bg-white p-4 text-left text-zinc-950 hover:border-primary/40 hover:bg-primary/10 data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
             data-selected={selectedFoodId === food.id}
             data-testid="member-food-result"
             key={food.id}
@@ -92,7 +92,7 @@ export function FoodSearchPanel({
             <span>
               <span className="block font-semibold">{food.name}</span>
               <span className="mt-1 block text-sm text-zinc-600">
-                {formatCalories(food.caloriesPerUnit)} per {food.unit}
+                {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
               </span>
             </span>
           </Button>

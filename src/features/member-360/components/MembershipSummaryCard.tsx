@@ -33,7 +33,7 @@ function toStatusPillStatus(
 function formatDate(dateStr?: string) {
   if (!dateStr) return ""
   const date = new Date(dateStr)
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("vi-VN", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -77,7 +77,7 @@ export function MembershipSummaryCard({
       >
         <div className="flex items-center gap-2 text-sm text-zinc-500">
           <CalendarDays aria-hidden="true" className="size-4" />
-          No active membership
+          Chưa có gói hội viên active
         </div>
       </div>
     )
@@ -91,7 +91,7 @@ export function MembershipSummaryCard({
       )}
     >
       <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-zinc-500">Membership</p>
+        <p className="text-sm font-medium text-zinc-500">Gói hội viên</p>
         {membershipStatus ? (
           <StatusPill status={toStatusPillStatus(membershipStatus)} />
         ) : null}
@@ -106,15 +106,15 @@ export function MembershipSummaryCard({
 
         <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm">
           <span className="text-zinc-600">
-            Start: {formatDate(startDate)}
+            Bắt đầu: {formatDate(startDate)}
           </span>
-          <span className="text-zinc-600">End: {formatDate(endDate)}</span>
+          <span className="text-zinc-600">Kết thúc: {formatDate(endDate)}</span>
         </div>
 
         {paymentStatus ? (
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500">
-              Payment
+              Thanh toán
             </span>
             <StatusPill status={paymentStatus} />
           </div>

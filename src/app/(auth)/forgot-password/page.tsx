@@ -7,9 +7,9 @@ import { ForgotPasswordForm } from "@/features/auth/components/ForgotPasswordFor
 export default function ForgotPasswordPage() {
   return (
     <AuthOSShell
-      description="Enter your email to create a password reset request."
+      description="Nhập email để tạo yêu cầu đặt lại mật khẩu."
       footer={<BackToLoginLink />}
-      title="Reset access"
+      title="Đặt lại quyền truy cập"
     >
       <ForgotPasswordForm />
     </AuthOSShell>

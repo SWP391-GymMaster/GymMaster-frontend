@@ -27,16 +27,23 @@ export function WorkspaceShell({
   metrics = [],
   children,
 }: WorkspaceShellProps) {
+  const roleLabels: Record<UserRole, string> = {
+    admin: "Không gian quản trị",
+    staff: "Không gian lễ tân",
+    pt: "Không gian PT",
+    member: "Không gian hội viên",
+  }
+
   return (
     <main className="min-h-screen bg-[#f9f9ff] text-[#191b23]">
       <CommandRail role={role} />
       <MobileCommandHeader role={role} />
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(0,88,190,0.14),transparent_32%),linear-gradient(135deg,#f9f9ff,#ffffff_48%,#ecedf7)] px-4 py-5 md:px-8 lg:ml-[280px] lg:px-10 lg:py-8">
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,color-mix(in_oklch,var(--gym-lime)_20%,transparent),transparent_32%),linear-gradient(135deg,var(--gym-chalk),#ffffff_48%,var(--gym-mat))] px-4 py-5 md:px-8 lg:ml-[280px] lg:px-10 lg:py-8">
         <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
           <header className="rounded-xl border border-[#e1e2ec] bg-white/85 p-5 shadow-[0_16px_60px_rgba(25,27,35,0.08)] backdrop-blur">
             <div className="space-y-2">
-              <div className="inline-flex rounded-full border border-[#c2c6d6]/60 bg-[#f2f3fd] px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-[#0058be]">
-                {role} workspace
+              <div className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+                {roleLabels[role]}
               </div>
               <div>
                 <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">

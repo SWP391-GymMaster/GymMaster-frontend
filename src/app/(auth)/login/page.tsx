@@ -8,14 +8,14 @@ import { LoginForm } from "@/features/auth/components/LoginForm"
 export default function LoginPage() {
   return (
     <AuthOSShell
-      description="Use your GymMaster account. Your workspace opens from your authenticated backend role."
+      description="Đăng nhập bằng tài khoản GymMaster. Hệ thống sẽ mở đúng workspace theo vai trò backend trả về."
       footer={
         <>
-          New member? <AuthTextLink href="/signup">Create an account</AuthTextLink>
+          Hội viên mới? <AuthTextLink href="/signup">Tạo tài khoản</AuthTextLink>
           <AuthSecurityBadge />
         </>
       }
-      title="Welcome back, Elite."
+      title="Chào mừng quay lại."
     >
       <LoginForm />
     </AuthOSShell>
