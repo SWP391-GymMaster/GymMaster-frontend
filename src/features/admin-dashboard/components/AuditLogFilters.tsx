@@ -1,6 +1,6 @@
 "use client"
 
-import { Search } from "lucide-react"
+import { CalendarDays, Filter, RotateCcw, Search } from "lucide-react"
 import { useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -49,86 +49,108 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
 
   return (
     <form
-      className="flex flex-wrap items-end gap-3 rounded-[1.5rem] border border-white/70 bg-white/85 p-4 shadow-sm"
+      className="rounded-2xl border border-border bg-card p-5 shadow-sm"
       onSubmit={handleSubmit}
     >
-      {/* Action filter */}
-      <div className="space-y-1">
-        <label
-          className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500"
-          htmlFor="audit-action"
-        >
-          Hành động
-        </label>
-        <select
-          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
-          id="audit-action"
-          onChange={(e) => setAction(e.target.value)}
-          value={action}
-        >
-          {AUDIT_ACTIONS.map((act) => (
-            <option key={act} value={act}>
-              {act ? act.replace(/_/g, " ") : "Tất cả hành động"}
-            </option>
-          ))}
-        </select>
+      <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]">
+        <div className="space-y-2">
+          <label
+            className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+            htmlFor="audit-action"
+          >
+            Loại thao tác
+          </label>
+          <select
+            className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+            id="audit-action"
+            onChange={(event) => setAction(event.target.value)}
+            value={action}
+          >
+            {AUDIT_ACTIONS.map((act) => (
+              <option key={act} value={act}>
+                {act ? act.replace(/_/g, " ") : "Tất cả"}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label
+            className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+            htmlFor="audit-from"
+          >
+            Từ ngày
+          </label>
+          <div className="relative">
+            <CalendarDays
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 pr-10 text-sm text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+              id="audit-from"
+              onChange={(event) => setFrom(event.target.value)}
+              type="date"
+              value={from}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label
+            className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+            htmlFor="audit-to"
+          >
+            Đến ngày
+          </label>
+          <div className="relative">
+            <CalendarDays
+              aria-hidden="true"
+              className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 pr-10 text-sm text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+              id="audit-to"
+              onChange={(event) => setTo(event.target.value)}
+              type="date"
+              value={to}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-end gap-2">
+          <Button
+            className="min-h-11 rounded-xl bg-foreground px-4 text-background hover:bg-foreground/90"
+            disabled={isLoading}
+            type="submit"
+          >
+            <Filter aria-hidden="true" className="size-4" />
+            Lọc
+          </Button>
+          <Button
+            className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted"
+            onClick={handleReset}
+            type="button"
+            variant="outline"
+          >
+            <RotateCcw aria-hidden="true" className="size-4" />
+            Đặt lại
+          </Button>
+        </div>
       </div>
 
-      {/* From date */}
-      <div className="space-y-1">
-        <label
-          className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500"
-          htmlFor="audit-from"
-        >
-          Từ ngày
-        </label>
-        <input
-          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
-          id="audit-from"
-          onChange={(e) => setFrom(e.target.value)}
-          type="date"
-          value={from}
+      <label className="relative mt-4 block">
+        <span className="sr-only">Tìm kiếm trong audit log</span>
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         />
-      </div>
-
-      {/* To date */}
-      <div className="space-y-1">
-        <label
-          className="text-xs font-medium uppercase tracking-[0.08em] text-zinc-500"
-          htmlFor="audit-to"
-        >
-          Đến ngày
-        </label>
         <input
-          className="min-h-10 rounded-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
-          id="audit-to"
-          onChange={(e) => setTo(e.target.value)}
-          type="date"
-          value={to}
+          className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+          placeholder="Tìm theo tên, hành động, đối tượng, ID..."
+          readOnly
         />
-      </div>
-
-      {/* Buttons */}
-      <div className="flex gap-2">
-        <Button
-          className="min-h-10 rounded-full bg-zinc-950 px-4 text-white hover:bg-zinc-800"
-          disabled={isLoading}
-          size="sm"
-          type="submit"
-        >
-          <Search aria-hidden="true" className="size-4" />
-          Lọc
-        </Button>
-        <Button
-          className="min-h-10 rounded-full border border-zinc-200 bg-white px-4 text-zinc-700 hover:bg-zinc-100"
-          onClick={handleReset}
-          size="sm"
-          type="button"
-          variant="outline"
-        >
-          Đặt lại
-        </Button>
-      </div>
+      </label>
     </form>
   )
 }

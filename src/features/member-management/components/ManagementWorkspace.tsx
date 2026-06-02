@@ -3,14 +3,17 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
 import { useMemo, useState } from "react"
+import type { ReactNode } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import {
   Badge,
+  BadgeCheck,
   CalendarDays,
   Check,
   ChevronLeft,
   ChevronRight,
+  Clock3,
   Dumbbell,
   Filter,
   Mail,
@@ -22,13 +25,25 @@ import {
   ShieldCheck,
   Star,
   Trash2,
+  UserCheck,
+  UserCog,
   UserPlus,
   UserRound,
+  UsersRound,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
 import { StatusPill, type Status } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import {
   useCreateManagedMember,
   useCreateManagedTrainer,
@@ -64,10 +79,11 @@ type ManagementWorkspaceProps = {
 }
 
 const surfaceClass =
-  "rounded-xl border border-zinc-200 bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]"
+  "rounded-2xl border border-border bg-card shadow-sm"
 const inputClass =
-  "min-h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
-const labelClass = "text-sm font-semibold text-zinc-950"
+  "min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+const labelClass =
+  "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
 
 const modeConfig = {
   members: {
@@ -101,7 +117,12 @@ const modeConfig = {
 } as const
 
 function toStatus(status: string): Status {
-  if (status === "active" || status === "pending" || status === "expired" || status === "locked") {
+  if (
+    status === "active" ||
+    status === "pending" ||
+    status === "expired" ||
+    status === "locked"
+  ) {
     return status
   }
 
@@ -111,7 +132,7 @@ function toStatus(status: string): Status {
 function FormError({ message }: { message?: string }) {
   if (!message) return null
 
-  return <p className="text-sm font-medium text-red-700">{message}</p>
+  return <p className="text-sm font-medium text-destructive">{message}</p>
 }
 
 export function ManagementWorkspace({
@@ -120,13 +141,14 @@ export function ManagementWorkspace({
   mode,
 }: ManagementWorkspaceProps) {
   const [query, setQuery] = useState("")
-  const config = modeConfig[mode]
-  const Icon = config.icon
   const isMembersMode = mode === "members"
   const isTrainersMode = mode === "trainers"
   const userRole = mode === "staff" ? "staff" : mode === "users" ? undefined : undefined
   const membersQuery = useManagedMembers(isMembersMode ? query : "")
-  const usersQuery = useManagedUsers(userRole, mode === "users" || mode === "staff" ? query : "")
+  const usersQuery = useManagedUsers(
+    userRole,
+    mode === "users" || mode === "staff" ? query : "",
+  )
   const trainersQuery = useManagedTrainers(isTrainersMode ? query : "")
   const activeQuery = isMembersMode
     ? membersQuery
@@ -137,15 +159,6 @@ export function ManagementWorkspace({
   const error = activeQuery.error
     ? mapMemberManagementError(activeQuery.error)
     : null
-
-  const summary = useMemo(
-    () => [
-      { label: "Records", value: String(total), tone: "dark" },
-      { label: "Contract", value: mode === "members" ? "/api/members" : mode === "trainers" ? "/api/trainers" : "/api/v1/users" },
-      { label: "Source", value: "Backend spec 002" },
-    ],
-    [mode, total],
-  )
 
   if (isMembersMode) {
     return (
@@ -189,108 +202,14 @@ export function ManagementWorkspace({
   }
 
   return (
-    <section className="grid gap-5">
-      <div className="grid gap-4 md:grid-cols-3">
-        {summary.map((item) => (
-          <div
-            className={cn(
-              "rounded-xl p-5",
-              item.tone === "dark"
-                ? "border border-white/10 bg-zinc-950 text-white"
-                : "border border-zinc-200 bg-white text-zinc-950",
-            )}
-            key={item.label}
-          >
-            <p className={cn("text-sm", item.tone === "dark" ? "text-zinc-300" : "text-zinc-600")}>
-              {item.label}
-            </p>
-            <p className="mt-2 text-2xl font-semibold">{item.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className={cn(surfaceClass, "overflow-hidden")}>
-          <div className="flex flex-col gap-4 border-b border-zinc-200 p-5 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-start gap-3">
-              <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Icon aria-hidden="true" className="size-5" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">
-                  {config.title}
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-zinc-600">
-                  {config.description}
-                </p>
-              </div>
-            </div>
-            <label className="relative w-full md:max-w-sm">
-              <span className="sr-only">Search records</span>
-              <Search
-                aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
-              />
-              <input
-                className="min-h-11 w-full rounded-lg border border-zinc-200 bg-zinc-50 pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
-                data-testid={isMembersMode ? "staff-member-search-input" : "management-search-input"}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={config.queryPlaceholder}
-                value={query}
-              />
-            </label>
-          </div>
-
-          <div className="p-5">
-            {activeQuery.isLoading ? (
-              <StateBlock
-                description="Loading records from the MSW/backend management contract."
-                title="Loading management records..."
-                tone="loading"
-              />
-            ) : null}
-
-            {error ? (
-              <StateBlock
-                description="Try again or verify your role permission."
-                title={error.message}
-                tone="error"
-              />
-            ) : null}
-
-            {!activeQuery.isLoading && !error && total === 0 ? (
-              <StateBlock
-                description="Create a record or adjust the search query."
-                title="No records found."
-                tone="empty"
-              />
-            ) : null}
-
-            {isMembersMode && membersQuery.data?.items.length ? (
-              <MemberList
-                canDelete={canDeleteMembers}
-                detailBasePath={detailBasePath}
-                members={membersQuery.data.items}
-              />
-            ) : null}
-
-            {(mode === "users" || mode === "staff") && usersQuery.data?.items.length ? (
-              <UserList users={usersQuery.data.items} />
-            ) : null}
-
-            {isTrainersMode && trainersQuery.data?.items.length ? (
-              <TrainerList trainers={trainersQuery.data.items} />
-            ) : null}
-          </div>
-        </div>
-
-        <div className={cn(surfaceClass, "p-5")}>
-          {isMembersMode ? <CreateMemberPanel /> : null}
-          {mode === "users" ? <CreateUserPanel /> : null}
-          {isTrainersMode ? <CreateTrainerPanel /> : null}
-        </div>
-      </div>
-    </section>
+    <UserRoleDirectoryTemplate
+      error={error}
+      isLoading={activeQuery.isLoading}
+      query={query}
+      setQuery={setQuery}
+      total={total}
+      users={usersQuery.data?.items ?? []}
+    />
   )
 }
 
@@ -302,6 +221,112 @@ function initials(name: string) {
     .map((part) => part[0]?.toUpperCase())
     .join("")
 }
+
+function Field({
+  children,
+  error,
+  label,
+}: {
+  children: ReactNode
+  error?: string
+  label: string
+}) {
+  return (
+    <label className="grid gap-2">
+      <span className={labelClass}>{label}</span>
+      {children}
+      <FormError message={error} />
+    </label>
+  )
+}
+
+function DirectoryMetricCard({
+  helper,
+  icon: Icon,
+  label,
+  tone = "primary",
+  value,
+}: {
+  helper: string
+  icon: LucideIcon
+  label: string
+  tone?: "primary" | "success" | "warning" | "purple"
+  value: string
+}) {
+  const toneClass = {
+    primary: "bg-primary/10 text-primary",
+    success: "bg-emerald-500/10 text-emerald-600",
+    warning: "bg-orange-500/10 text-orange-600",
+    purple: "bg-violet-500/10 text-violet-600",
+  }[tone]
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <div className="absolute -right-6 bottom-0 size-20 rounded-full bg-primary/5" />
+      <div className="relative flex items-center gap-4">
+        <span className={cn("flex size-12 shrink-0 items-center justify-center rounded-full", toneClass)}>
+          <Icon aria-hidden="true" className="size-5" />
+        </span>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          <p className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
+            {value}
+          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{helper}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SearchToolbar({
+  action,
+  filterLabel = "Bộ lọc",
+  onSearch,
+  placeholder,
+  value,
+}: {
+  action: ReactNode
+  filterLabel?: string
+  onSearch: (value: string) => void
+  placeholder: string
+  value: string
+}) {
+  return (
+    <div className="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
+      <label className="relative w-full sm:max-w-md">
+        <span className="sr-only">Search records</span>
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        />
+        <input
+          className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+          data-testid="management-search-input"
+          onChange={(event) => onSearch(event.target.value)}
+          placeholder={placeholder}
+          value={value}
+        />
+      </label>
+
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Button
+          className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+          type="button"
+          variant="outline"
+        >
+          <Filter aria-hidden="true" className="size-4" />
+          {filterLabel}
+        </Button>
+        {action}
+      </div>
+    </div>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* Members                                                                    */
+/* -------------------------------------------------------------------------- */
 
 function MemberDirectoryTemplate({
   canDeleteMembers,
@@ -322,94 +347,105 @@ function MemberDirectoryTemplate({
   setQuery: (value: string) => void
   total: number
 }) {
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const selectedMember =
+    members.find((member) => member.id === selectedId) ?? members[0] ?? null
+
+  const activeMembers = members.filter((member) => member.status === "active").length
+  const expiredMembers = members.filter((member) => member.status === "expired").length
+  const pendingMembers = members.filter((member) => member.status === "pending").length
+
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <div className="mb-1 flex items-center gap-2">
-            <h2 className="text-3xl font-black tracking-tight text-zinc-950">
-              Member Directory
-            </h2>
-            <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-primary">
-              Admin
-            </span>
-          </div>
-          <p className="text-sm font-semibold text-zinc-600">
-            Member Management · active and inactive member profiles.
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <label className="relative w-full sm:w-72">
-            <span className="sr-only">Search members</span>
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
-            />
-            <input
-              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-3 text-sm text-zinc-950 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/15"
-              data-testid="staff-member-search-input"
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search members..."
-              value={query}
-            />
-          </label>
-          <Button
-            className="min-h-11 rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50 active:scale-[0.98]"
-            type="button"
-            variant="outline"
-          >
-            <Filter aria-hidden="true" className="size-4" />
-            Filter
-          </Button>
-          <Button
-            className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
-            type="button"
-          >
-            <UserPlus aria-hidden="true" className="size-4" />
-            Add Member
-          </Button>
-        </div>
+    <section className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <DirectoryMetricCard
+          helper="Tất cả hội viên"
+          icon={UsersRound}
+          label="Tổng hội viên"
+          value={String(total)}
+        />
+        <DirectoryMetricCard
+          helper="Đang hoạt động"
+          icon={BadgeCheck}
+          label="Active"
+          tone="success"
+          value={String(activeMembers)}
+        />
+        <DirectoryMetricCard
+          helper="Cần gia hạn"
+          icon={Clock3}
+          label="Hết hạn"
+          tone="warning"
+          value={String(expiredMembers)}
+        />
+        <DirectoryMetricCard
+          helper="Chờ hoàn tất"
+          icon={UserRound}
+          label="Pending"
+          tone="purple"
+          value={String(pendingMembers)}
+        />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]">
-          {isLoading ? (
-            <StateBlock
-              className="m-5"
-              description="Loading records from the MSW/backend member contract."
-              title="Loading member directory..."
-              tone="loading"
-            />
-          ) : null}
-          {error ? (
-            <StateBlock
-              className="m-5"
-              description="Try again or verify your role permission."
-              title={error.message}
-              tone="error"
-            />
-          ) : null}
-          {!isLoading && !error && members.length === 0 ? (
-            <StateBlock
-              className="m-5"
-              description="Create a record or adjust the search query."
-              title="No members found."
-              tone="empty"
-            />
-          ) : null}
-          {members.length > 0 ? (
-            <MemberTable
-              canDelete={canDeleteMembers}
-              detailBasePath={detailBasePath}
-              members={members}
-              total={total}
-            />
-          ) : null}
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+        <section className={cn(surfaceClass, "overflow-hidden")}>
+          <div className="flex items-start justify-between gap-4 border-b border-border p-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+                Member CRM
+              </p>
+              <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+                Danh sách hội viên
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Quản lý hồ sơ, gói tập, trạng thái và thao tác nhanh của hội viên.
+              </p>
+            </div>
+          </div>
+
+          <SearchToolbar
+            action={<CreateMemberDialog />}
+            onSearch={setQuery}
+            placeholder="Tìm hội viên theo tên, email, SĐT, mã hội viên..."
+            value={query}
+          />
+
+          <div className="p-5">
+            {isLoading ? (
+              <StateBlock
+                description="Loading records from the MSW/backend member contract."
+                title="Loading member directory..."
+                tone="loading"
+              />
+            ) : null}
+            {error ? (
+              <StateBlock
+                description="Try again or verify your role permission."
+                title={error.message}
+                tone="error"
+              />
+            ) : null}
+            {!isLoading && !error && members.length === 0 ? (
+              <StateBlock
+                description="Create a record or adjust the search query."
+                title="No members found."
+                tone="empty"
+              />
+            ) : null}
+            {members.length > 0 ? (
+              <MemberTable
+                canDelete={canDeleteMembers}
+                detailBasePath={detailBasePath}
+                members={members}
+                onSelect={setSelectedId}
+                selectedId={selectedMember?.id ?? null}
+                total={total}
+              />
+            ) : null}
+          </div>
         </section>
 
-        <aside className={cn(surfaceClass, "p-5")}>
-          <CreateMemberPanel />
-        </aside>
+        <MemberPreviewPanel detailBasePath={detailBasePath} member={selectedMember} />
       </div>
     </section>
   )
@@ -419,11 +455,15 @@ function MemberTable({
   canDelete,
   detailBasePath,
   members,
+  onSelect,
+  selectedId,
   total,
 }: {
   canDelete: boolean
   detailBasePath?: string
   members: ManagedMember[]
+  onSelect: (id: number) => void
+  selectedId: number | null
   total: number
 }) {
   const updateMember = useUpdateManagedMember()
@@ -452,115 +492,272 @@ function MemberTable({
 
   return (
     <div data-testid="management-member-list">
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-left">
-          <thead className="border-b border-zinc-200 bg-zinc-50">
-            <tr>
-              {["Member Name", "Status", "Last Check-in", "Package Type", "Actions"].map(
-                (heading) => (
-                  <th
-                    className={cn(
-                      "px-5 py-3 text-xs font-black uppercase tracking-[0.1em] text-zinc-600",
-                      heading === "Actions" ? "text-right" : "",
-                    )}
-                    key={heading}
-                  >
-                    {heading}
-                  </th>
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-200 text-sm">
-            {members.map((member) => (
-              <tr
-                className="group transition-colors hover:bg-zinc-50"
-                data-testid="staff-member-result"
-                key={member.id}
-              >
-                <td className="whitespace-nowrap px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 text-sm font-black text-primary">
-                      {initials(member.fullName)}
-                    </div>
-                    <div>
-                      <div className="font-bold text-zinc-950">
-                        {member.fullName}
-                      </div>
-                      <div className="text-xs text-zinc-600">{member.email}</div>
-                      <div className="text-xs text-zinc-600">{member.memberCode}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="whitespace-nowrap px-5 py-4">
-                  <StatusPill status={toStatus(member.status)} />
-                </td>
-                <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
-                  {member.status === "active" ? "Today, 08:30 AM" : "Oct 24, 2023"}
-                </td>
-                <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
-                  {member.status === "expired" ? "Standard Monthly" : "Premium 30"}
-                </td>
-                <td className="whitespace-nowrap px-5 py-4 text-right">
-                  <div className="flex flex-wrap justify-end gap-2">
-                    {detailBasePath ? (
-                      <Button
-                        asChild
-                        className="rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50"
-                        variant="outline"
-                      >
-                        <Link href={`${detailBasePath}/${member.id}`}>
-                          Open
-                        </Link>
-                      </Button>
-                    ) : null}
-                    <Button
-                      className="rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50"
-                      disabled={updateMember.isPending}
-                      onClick={() => markExpired(member)}
-                      type="button"
-                      variant="outline"
+      <div className="overflow-hidden rounded-xl border border-border">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left">
+            <thead className="border-b border-border bg-muted/40">
+              <tr>
+                {["Hội viên", "Mã", "Trạng thái", "Gói tập", "Check-in", "Thao tác"].map(
+                  (heading) => (
+                    <th
+                      className={cn(
+                        "px-4 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground",
+                        heading === "Thao tác" ? "text-right" : "",
+                      )}
+                      key={heading}
                     >
-                      Mark expired
-                    </Button>
-                    {canDelete ? (
-                      <Button
-                        className="rounded-lg"
-                        disabled={deleteMember.isPending}
-                        onClick={() => removeMember(member)}
-                        type="button"
-                        variant="destructive"
-                      >
-                        <Trash2 aria-hidden="true" className="size-4" />
-                        Delete
-                      </Button>
-                    ) : null}
-                  </div>
-                </td>
+                      {heading}
+                    </th>
+                  ),
+                )}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex items-center justify-between border-t border-zinc-200 bg-white px-5 py-3 text-xs font-semibold text-zinc-600">
-        <span>
-          Showing 1 to {members.length} of {total} entries
-        </span>
-        <div className="flex items-center gap-1">
-          <Button className="size-8 rounded-md" disabled type="button" variant="ghost">
-            <ChevronLeft aria-hidden="true" className="size-4" />
-          </Button>
-          <span className="flex size-8 items-center justify-center rounded-md bg-primary text-white">
-            1
+            </thead>
+            <tbody className="divide-y divide-border text-sm">
+              {members.map((member) => {
+                const selected = selectedId === member.id
+
+                return (
+                  <tr
+                    className={cn(
+                      "cursor-pointer transition-colors hover:bg-muted/40",
+                      selected ? "bg-primary/5" : "",
+                    )}
+                    data-testid="staff-member-result"
+                    key={member.id}
+                    onClick={() => onSelect(member.id)}
+                  >
+                    <td className="whitespace-nowrap px-4 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex size-10 items-center justify-center rounded-full border border-border bg-primary/10 text-sm font-semibold text-primary">
+                          {initials(member.fullName)}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-foreground">
+                            {member.fullName}
+                          </div>
+                          <div className="text-xs text-muted-foreground">{member.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
+                      {member.memberCode}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-4">
+                      <StatusPill status={toStatus(member.status)} />
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
+                      {member.status === "expired" ? "Standard Monthly" : "Premium 30"}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
+                      {member.status === "active" ? "Đã check-in" : "Chưa check-in"}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-4 text-right">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        {detailBasePath ? (
+                          <Button
+                            asChild
+                            className="rounded-lg border-border bg-card text-foreground hover:bg-muted"
+                            onClick={(event) => event.stopPropagation()}
+                            variant="outline"
+                          >
+                            <Link href={`${detailBasePath}/${member.id}`}>
+                              Open
+                            </Link>
+                          </Button>
+                        ) : null}
+                        <Button
+                          className="rounded-lg border-border bg-card text-foreground hover:bg-muted"
+                          disabled={updateMember.isPending}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            markExpired(member)
+                          }}
+                          type="button"
+                          variant="outline"
+                        >
+                          Mark expired
+                        </Button>
+                        {canDelete ? (
+                          <Button
+                            className="rounded-lg"
+                            disabled={deleteMember.isPending}
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              removeMember(member)
+                            }}
+                            type="button"
+                            variant="destructive"
+                          >
+                            <Trash2 aria-hidden="true" className="size-4" />
+                            Delete
+                          </Button>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex items-center justify-between border-t border-border bg-card px-4 py-3 text-xs font-medium text-muted-foreground">
+          <span>
+            Hiển thị 1 đến {members.length} của {total} hội viên
           </span>
-          <Button className="size-8 rounded-md" type="button" variant="ghost">
-            <ChevronRight aria-hidden="true" className="size-4" />
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button className="size-8 rounded-md" disabled type="button" variant="ghost">
+              <ChevronLeft aria-hidden="true" className="size-4" />
+            </Button>
+            <span className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              1
+            </span>
+            <Button className="size-8 rounded-md" type="button" variant="ghost">
+              <ChevronRight aria-hidden="true" className="size-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   )
 }
+
+function MemberPreviewPanel({
+  detailBasePath,
+  member,
+}: {
+  detailBasePath?: string
+  member: ManagedMember | null
+}) {
+  if (!member) {
+    return (
+      <section className={cn(surfaceClass, "p-6")}>
+        <StateBlock
+          description="Create a record or select a member from the directory."
+          title="No member selected"
+          tone="empty"
+        />
+      </section>
+    )
+  }
+
+  return (
+    <aside className={cn(surfaceClass, "overflow-hidden")}>
+      <div className="flex items-start justify-between gap-3 border-b border-border p-5">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+            Member 360°
+          </p>
+          <h3 className="mt-1 text-xl font-semibold text-foreground">
+            Thông tin hội viên
+          </h3>
+        </div>
+        <Button
+          className="size-9 rounded-full text-muted-foreground"
+          type="button"
+          variant="ghost"
+        >
+          <MoreHorizontal aria-hidden="true" className="size-4" />
+        </Button>
+      </div>
+
+      <div className="p-5">
+        <div className="flex items-center gap-4">
+          <span className="relative flex size-20 items-center justify-center rounded-full bg-primary/10 text-2xl font-semibold text-primary">
+            {initials(member.fullName)}
+            <span
+              className={cn(
+                "absolute bottom-1 right-1 size-4 rounded-full border-2 border-card",
+                member.status === "active" ? "bg-primary" : "bg-destructive",
+              )}
+            />
+          </span>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-2xl font-semibold tracking-tight text-foreground">
+                {member.fullName}
+              </h3>
+              <StatusPill status={toStatus(member.status)} />
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">{member.memberCode}</p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3">
+          <PreviewInfo icon={Mail} label="Email" value={member.email} />
+          <PreviewInfo icon={Phone} label="Số điện thoại" value={member.phone} />
+          <PreviewInfo icon={Badge} label="Gói tập" value={member.status === "expired" ? "Standard Monthly" : "Premium 30"} />
+          <PreviewInfo icon={CalendarDays} label="Check-in gần nhất" value={member.status === "active" ? "Hôm nay · 08:30" : "Oct 24, 2023"} />
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95">
+            Check-in
+          </Button>
+          {detailBasePath ? (
+            <Button asChild className="min-h-11 rounded-xl" variant="outline">
+              <Link href={`${detailBasePath}/${member.id}`}>Xem chi tiết</Link>
+            </Button>
+          ) : (
+            <Button className="min-h-11 rounded-xl" variant="outline">
+              Gia hạn gói
+            </Button>
+          )}
+        </div>
+
+        <section className="mt-5 rounded-xl border border-border bg-muted/25 p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-semibold text-foreground">Lịch sử hoạt động</p>
+            <span className="text-xs font-medium text-primary">Gần đây</span>
+          </div>
+          <div className="space-y-3">
+            {[
+              ["Check-in thành công", "07:24 · hôm nay"],
+              ["Gia hạn gói Premium", "10:15 · 21/05"],
+              ["Cập nhật hồ sơ", "16:45 · 20/05"],
+            ].map(([title, time]) => (
+              <div className="flex items-center gap-3 text-sm" key={title}>
+                <span className="size-2 rounded-full bg-primary" />
+                <span className="flex-1 font-medium text-foreground">{title}</span>
+                <span className="text-xs text-muted-foreground">{time}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </aside>
+  )
+}
+
+function PreviewInfo({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon
+  label: string
+  value?: string
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <Icon aria-hidden="true" className="size-4" />
+      </span>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          {label}
+        </p>
+        <p className="truncate text-sm font-semibold text-foreground">
+          {value || "Chưa cập nhật"}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* Staff                                                                      */
+/* -------------------------------------------------------------------------- */
 
 function StaffDirectoryTemplate({
   error,
@@ -581,48 +778,63 @@ function StaffDirectoryTemplate({
   const selectedStaff =
     users.find((user) => user.userId === selectedId) ?? users[0] ?? null
 
+  const activeStaff = users.filter((user) => user.status === "active").length
+  const lockedStaff = users.filter((user) => user.status === "locked").length
+
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h2 className="text-3xl font-black tracking-tight text-zinc-950">
-            Staff Directory
-          </h2>
-          <p className="mt-1 text-sm font-semibold text-zinc-600">
-            Staff Management · manage team members and access defaults.
-          </p>
-        </div>
-        <Button
-          className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
-          type="button"
-        >
-          <UserPlus aria-hidden="true" className="size-4" />
-          Add Staff
-        </Button>
+    <section className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <DirectoryMetricCard
+          helper="Tất cả nhân sự"
+          icon={UsersRound}
+          label="Tổng nhân sự"
+          value={String(total)}
+        />
+        <DirectoryMetricCard
+          helper="Sẵn sàng vận hành"
+          icon={UserCheck}
+          label="Active"
+          tone="success"
+          value={String(activeStaff)}
+        />
+        <DirectoryMetricCard
+          helper="Tài khoản bị khóa"
+          icon={ShieldCheck}
+          label="Locked"
+          tone="warning"
+          value={String(lockedStaff)}
+        />
+        <DirectoryMetricCard
+          helper="Lịch trực giả lập"
+          icon={Clock3}
+          label="Ca hôm nay"
+          tone="purple"
+          value={String(Math.max(activeStaff - 1, 0))}
+        />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-12">
-        <aside className="flex min-h-[580px] flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)] lg:col-span-4">
-          <div className="flex items-center justify-between gap-3 border-b border-zinc-200 bg-zinc-50 p-4">
-            <span className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
-              Active Roster
-            </span>
-            <label className="relative max-w-44">
-              <span className="sr-only">Search staff</span>
-              <Search
-                aria-hidden="true"
-                className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
-              />
-              <input
-                className="min-h-9 w-full rounded-md border border-zinc-200 bg-white pl-8 pr-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
-                data-testid="management-search-input"
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search staff..."
-                value={query}
-              />
-            </label>
+      <div className="grid gap-6 lg:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.08fr)]">
+        <section className={cn(surfaceClass, "overflow-hidden")}>
+          <div className="border-b border-border p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+              Front Desk Team
+            </p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+              Quản lý nhân sự
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Theo dõi ca làm, quyền thao tác và trạng thái vận hành của nhân sự.
+            </p>
           </div>
-          <div className="flex-1 space-y-2 overflow-y-auto p-3">
+
+          <SearchToolbar
+            action={<CreateUserDialog fixedRole="staff" label="Thêm nhân sự" title="Tạo tài khoản nhân sự" />}
+            onSearch={setQuery}
+            placeholder="Tìm nhân sự theo tên, email, SĐT..."
+            value={query}
+          />
+
+          <div className="space-y-2 p-3">
             <ManagementStateBlock
               emptyTitle="No staff found."
               error={error}
@@ -632,200 +844,173 @@ function StaffDirectoryTemplate({
             />
             {users.map((user) => {
               const active = selectedStaff?.userId === user.userId
+
               return (
                 <button
                   className={cn(
-                    "relative flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
+                    "relative flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 active:scale-[0.99]",
                     active
-                      ? "border-zinc-200 bg-zinc-50"
-                      : "border-transparent hover:bg-zinc-50",
+                      ? "border-primary/30 bg-primary/5 shadow-sm"
+                      : "border-transparent hover:border-border hover:bg-muted/40",
                   )}
                   key={user.userId}
                   onClick={() => setSelectedId(user.userId)}
                   type="button"
                 >
-                  {active ? (
-                    <span className="absolute bottom-0 left-0 top-0 w-1 bg-primary" />
-                  ) : null}
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 font-black text-primary">
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
                     {initials(user.fullName)}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-bold text-zinc-950">
+                    <span className="block truncate text-sm font-semibold text-foreground">
                       {user.fullName}
                     </span>
-                    <span className="block truncate text-xs text-zinc-600">
+                    <span className="block truncate text-xs text-muted-foreground">
                       Front Desk Staff
                     </span>
                     {user.initialPassword ? (
-                      <span className="mt-1 block truncate font-mono text-[11px] font-bold text-primary">
+                      <span className="mt-1 block truncate font-mono text-[11px] font-semibold text-primary">
                         Initial password: {user.initialPassword}
                       </span>
                     ) : null}
                   </span>
-                  <span className="text-xs font-semibold text-zinc-600">
-                    {user.status === "active" ? "Active" : "Locked"}
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-xs font-medium",
+                      user.status === "active"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-destructive/10 text-destructive",
+                    )}
+                  >
+                    {user.status === "active" ? "Đang trực" : "Đã khóa"}
                   </span>
                 </button>
               )
             })}
           </div>
-        </aside>
+        </section>
 
-        <div className="grid gap-4 lg:col-span-8 md:grid-cols-2">
-          <section className={cn(surfaceClass, "p-5")}>
-            {selectedStaff ? <StaffProfileCard user={selectedStaff} /> : null}
-          </section>
-          <section className={cn(surfaceClass, "flex flex-col bg-white p-5")}>
-            <StaffAccessControl user={selectedStaff} />
-          </section>
-          <section className={cn(surfaceClass, "p-5 md:col-span-2")}>
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
-                  Team Stats
-                </p>
-                <h3 className="mt-1 text-xl font-black text-zinc-950">
-                  {total} staff accounts
-                </h3>
-              </div>
-              <MoreHorizontal aria-hidden="true" className="size-5 text-zinc-500" />
-            </div>
-            <CreateUserPanel fixedRole="staff" />
-          </section>
-        </div>
+        <StaffProfilePanel user={selectedStaff} />
       </div>
     </section>
   )
 }
 
-function StaffProfileCard({ user }: { user: ManagedUser }) {
+function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
+  if (!user) {
+    return (
+      <section className={cn(surfaceClass, "p-6")}>
+        <StateBlock
+          description="Create a staff account or adjust your search."
+          title="No staff selected"
+          tone="empty"
+        />
+      </section>
+    )
+  }
+
   return (
-    <div>
-      <div className="mb-5 flex items-start justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex size-16 items-center justify-center rounded-full border-2 border-[#ecedf7] bg-primary text-xl font-black text-white">
+    <section className={cn(surfaceClass, "overflow-hidden")}>
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border bg-muted/25 p-6">
+        <div className="flex items-center gap-5">
+          <span className="flex size-20 items-center justify-center rounded-full bg-primary/10 text-2xl font-semibold text-primary">
             {initials(user.fullName)}
-          </div>
+          </span>
           <div>
-            <h3 className="text-2xl font-black tracking-tight text-zinc-950">
-              {user.fullName}
-            </h3>
-            <p className="mt-1 text-sm font-bold text-primary">
-              Front Desk Staff
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+                {user.fullName}
+              </h2>
+              <StatusPill status={toStatus(user.status)} />
+            </div>
+            <p className="mt-1 text-sm font-medium text-primary">
+              Lễ tân · #{user.userId}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {user.email} · {user.phone ?? "Chưa có SĐT"}
             </p>
           </div>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
-          <ShieldCheck aria-hidden="true" className="size-3.5" />
-          Staff
-        </span>
+        <Button className="rounded-xl" variant="outline">
+          Chỉnh sửa
+        </Button>
       </div>
-      <div className="mb-5 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-          <span className="mb-1 block text-xs font-black uppercase tracking-[0.08em] text-zinc-600">
-            Contact
-          </span>
-          <p className="truncate text-sm font-semibold text-zinc-950">
-            {user.email}
-          </p>
-          <p className="mt-1 text-sm text-zinc-600">{user.phone ?? "No phone"}</p>
-        </div>
-        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-          <span className="mb-1 block text-xs font-black uppercase tracking-[0.08em] text-zinc-600">
-            Employment
-          </span>
-          <p className="text-sm font-semibold text-zinc-950">Started: Oct 12, 2021</p>
-          <p className="mt-1 text-sm text-zinc-600">Type: Full-Time</p>
-        </div>
-      </div>
-      <span className="mb-3 block text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
-        Upcoming Shifts
-      </span>
-      <div className="space-y-2">
-        {[
-          ["Today", "08:00 AM - 04:00 PM", "Floor Duty"],
-          ["Tomorrow", "10:00 AM - 06:00 PM", "PT Sessions"],
-        ].map(([day, time, label]) => (
-          <div
-            className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-3"
-            key={day}
-          >
-            <div className="flex items-center gap-3">
-              <span className="rounded-md bg-primary/10 p-2 text-primary">
-                <CalendarDays aria-hidden="true" className="size-4" />
-              </span>
-              <span>
-                <span className="block text-sm font-bold text-zinc-950">{day}</span>
-                <span className="block text-xs text-zinc-600">{time}</span>
-              </span>
-            </div>
-            <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
-              {label}
-            </span>
+
+      <div className="grid gap-5 p-6 xl:grid-cols-2">
+        <section className="rounded-xl border border-border bg-background p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm font-semibold text-foreground">Ca làm hôm nay</p>
+            <StatusPill label="Đang trực" status="active" />
           </div>
-        ))}
+          <p className="text-3xl font-semibold tracking-tight text-foreground">
+            07:00 - 15:00
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            GymMaster Q1 · Quầy lễ tân
+          </p>
+          <div className="mt-5 h-2 rounded-full bg-muted">
+            <div className="h-2 w-[72%] rounded-full bg-primary" />
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Đã làm 5h 20m · 72%</p>
+        </section>
+
+        <section className="rounded-xl border border-border bg-background p-5">
+          <p className="mb-4 text-sm font-semibold text-foreground">
+            Quyền truy cập & thao tác
+          </p>
+          <div className="space-y-3">
+            {[
+              ["Quản lý hội viên", true],
+              ["Check-in / Check-out", true],
+              ["Bán gói & dịch vụ", true],
+              ["Xem báo cáo doanh thu", false],
+            ].map(([permission, enabled]) => (
+              <div
+                className="flex items-center justify-between gap-3"
+                key={permission as string}
+              >
+                <span className="text-sm font-medium text-foreground">{permission}</span>
+                <span
+                  className={cn(
+                    "rounded-full px-2.5 py-1 text-xs font-medium",
+                    enabled
+                      ? "bg-primary/10 text-primary"
+                      : "bg-destructive/10 text-destructive",
+                  )}
+                >
+                  {enabled ? "Cho phép" : "Hạn chế"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-border bg-background p-5 xl:col-span-2">
+          <div className="mb-4 flex items-center justify-between">
+            <p className="text-sm font-semibold text-foreground">Hoạt động gần đây</p>
+            <span className="text-xs font-medium text-primary">Xem tất cả</span>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {[
+              ["Check-in hội viên", "07:06 · hôm nay"],
+              ["Gia hạn gói Premium", "09:32 · hôm nay"],
+              ["Đăng ký hội viên mới", "11:15 · hôm nay"],
+              ["Cập nhật thông tin hội viên", "16:45 · hôm qua"],
+            ].map(([title, time]) => (
+              <div className="rounded-xl border border-border bg-card p-3" key={title}>
+                <p className="text-sm font-semibold text-foreground">{title}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{time}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
-    </div>
+    </section>
   )
 }
 
-function StaffAccessControl({ user }: { user: ManagedUser | null }) {
-  return (
-    <>
-      <div className="mb-4 flex items-center justify-between border-b border-zinc-200 pb-3">
-        <span className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
-          Access Control
-        </span>
-        <Button className="rounded-lg text-primary" type="button" variant="ghost">
-          Edit
-        </Button>
-      </div>
-      <div className="flex-1 space-y-2">
-        {[
-          ["Member lookup", "Search and open member profiles.", true],
-          ["Package sales", "Sell and renew memberships.", true],
-          ["Check-in terminal", "Confirm front desk check-ins.", true],
-          ["Financial reports", "View revenue exports.", false],
-        ].map(([title, description, enabled]) => (
-          <label
-            className={cn(
-              "flex items-start gap-3 rounded-lg p-3 transition hover:bg-zinc-50",
-              enabled ? "" : "opacity-60",
-            )}
-            key={title as string}
-          >
-            <span
-              className={cn(
-                "mt-0.5 flex size-4 items-center justify-center rounded border",
-                enabled
-                  ? "border-primary bg-primary text-white"
-                  : "border-zinc-200 bg-zinc-50",
-              )}
-            >
-              {enabled ? <Check aria-hidden="true" className="size-3" /> : null}
-            </span>
-            <span>
-              <span className="block text-sm font-bold text-zinc-950">
-                {title}
-              </span>
-              <span className="block text-xs text-zinc-600">
-                {description}
-              </span>
-            </span>
-          </label>
-        ))}
-      </div>
-      <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
-        <p className="text-sm font-bold text-red-700">Operational account</p>
-        <p className="mt-1 text-xs leading-5 text-zinc-600">
-          {user ? user.fullName : "Selected staff"} can access front desk tools.
-          Keep credentials current before demo sessions.
-        </p>
-      </div>
-    </>
-  )
-}
+/* -------------------------------------------------------------------------- */
+/* Trainers                                                                   */
+/* -------------------------------------------------------------------------- */
 
 function TrainerRosterTemplate({
   error,
@@ -845,52 +1030,63 @@ function TrainerRosterTemplate({
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const selectedTrainer =
     trainers.find((trainer) => trainer.id === selectedId) ?? trainers[0] ?? null
+  const activeTrainers = trainers.filter((trainer) => trainer.status === "active").length
+  const lockedTrainers = trainers.filter((trainer) => trainer.status === "locked").length
 
   return (
-    <section className="grid gap-4">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h2 className="text-3xl font-black tracking-tight text-zinc-950">
-            PT Management
-          </h2>
-          <p className="mt-1 text-sm font-semibold text-zinc-600">
-            Trainer roster, capacity, and daily schedule.
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <label className="relative w-full sm:w-72">
-            <span className="sr-only">Search trainers</span>
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
-            />
-            <input
-              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-3 text-sm text-zinc-950 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/15"
-              data-testid="management-search-input"
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search trainers..."
-              value={query}
-            />
-          </label>
-          <Button
-            className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
-            type="button"
-          >
-            <UserPlus aria-hidden="true" className="size-4" />
-            Add Trainer
-          </Button>
-        </div>
+    <section className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-4">
+        <DirectoryMetricCard
+          helper="Tất cả PT"
+          icon={Dumbbell}
+          label="Tổng PT"
+          tone="purple"
+          value={String(total)}
+        />
+        <DirectoryMetricCard
+          helper="Sẵn sàng nhận lịch"
+          icon={BadgeCheck}
+          label="Active"
+          tone="success"
+          value={String(activeTrainers)}
+        />
+        <DirectoryMetricCard
+          helper="Tài khoản bị khóa"
+          icon={ShieldCheck}
+          label="Locked"
+          tone="warning"
+          value={String(lockedTrainers)}
+        />
+        <DirectoryMetricCard
+          helper="Lịch dạy hôm nay"
+          icon={CalendarDays}
+          label="Buổi PT"
+          value={String(Math.max(activeTrainers * 3, 0))}
+        />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-12">
-        <aside className="grid gap-4 lg:col-span-4">
-          <section className={cn(surfaceClass, "p-5")}>
-            <div className="mb-4 flex items-center justify-between border-b border-zinc-200 pb-3">
-              <h3 className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
-                Active Roster
-              </h3>
-              <Filter aria-hidden="true" className="size-5 text-zinc-500" />
-            </div>
+      <div className="grid gap-6 lg:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.08fr)]">
+        <section className={cn(surfaceClass, "overflow-hidden")}>
+          <div className="border-b border-border p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+              Coach Roster
+            </p>
+            <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+              Quản lý huấn luyện viên
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Theo dõi chuyên môn, công suất và lịch dạy của đội ngũ PT.
+            </p>
+          </div>
+
+          <SearchToolbar
+            action={<CreateTrainerDialog />}
+            onSearch={setQuery}
+            placeholder="Tìm PT theo tên hoặc chuyên môn..."
+            value={query}
+          />
+
+          <div className="space-y-2 p-3">
             <ManagementStateBlock
               emptyTitle="No trainers found."
               error={error}
@@ -898,68 +1094,65 @@ function TrainerRosterTemplate({
               itemCount={trainers.length}
               loadingTitle="Loading trainer roster..."
             />
-            <div className="space-y-2" data-testid="management-trainer-list">
-              {trainers.map((trainer, index) => {
-                const active = selectedTrainer?.id === trainer.id
-                const assigned = index === 0 ? "14/15" : index === 1 ? "8/10" : "18/15"
-                return (
-                  <button
-                    className={cn(
-                      "relative w-full rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:bg-zinc-50 active:scale-[0.98]",
-                      active ? "border-primary/25 bg-zinc-50" : "border-transparent",
-                    )}
-                    key={trainer.id}
-                    onClick={() => setSelectedId(trainer.id)}
-                    type="button"
-                  >
-                    {active ? (
-                      <span className="absolute bottom-0 left-0 top-0 w-1 bg-primary" />
-                    ) : null}
-                    <div className="flex items-center gap-3">
-                      <span className="flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 font-black text-primary">
-                        {initials(trainer.fullName)}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-bold text-zinc-950">
-                          {trainer.fullName}
-                        </span>
-                        <span className="block truncate text-xs text-zinc-600">
-                          {trainer.specialty}
-                        </span>
-                      </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
-                        <Star aria-hidden="true" className="size-3 fill-current" />
-                        {(4.9 - index / 10).toFixed(1)}
-                      </span>
-                    </div>
-                    <div className="mt-3 flex justify-between border-t border-zinc-200 pt-2 text-xs font-semibold text-zinc-600">
-                      <span>
-                        Capacity: <strong className="text-zinc-950">{assigned}</strong>
-                      </span>
-                      <span>
-                        Sessions: <strong className="text-zinc-950">{24 + index * 4}</strong>
-                      </span>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </section>
-          <section className={cn(surfaceClass, "p-5")}>
-            <CreateTrainerPanel />
-          </section>
-        </aside>
+            {trainers.map((trainer, index) => {
+              const active = selectedTrainer?.id === trainer.id
+              const capacity = index === 0 ? 80 : index === 1 ? 70 : index === 2 ? 55 : 88
 
-        <div className="grid gap-4 lg:col-span-8">
-          <TrainerProfileHero total={total} trainer={selectedTrainer} />
-          <TrainerSchedule />
-        </div>
+              return (
+                <button
+                  className={cn(
+                    "w-full rounded-xl border p-3 text-left transition-all duration-200 hover:bg-muted/40 active:scale-[0.99]",
+                    active ? "border-primary/30 bg-primary/5 shadow-sm" : "border-transparent",
+                  )}
+                  key={trainer.id}
+                  onClick={() => setSelectedId(trainer.id)}
+                  type="button"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                      {initials(trainer.fullName)}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-foreground">
+                        {trainer.fullName}
+                      </span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {trainer.specialty}
+                      </span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                      <Star aria-hidden="true" className="size-3 fill-current" />
+                      {(4.9 - index / 10).toFixed(1)}
+                    </span>
+                  </div>
+                  <div className="mt-3 grid gap-2">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Công suất</span>
+                      <span className="font-semibold text-foreground">{capacity}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted">
+                      <div
+                        className={cn(
+                          "h-2 rounded-full",
+                          capacity > 85 ? "bg-orange-500" : "bg-primary",
+                        )}
+                        style={{ width: `${capacity}%` }}
+                      />
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+
+        <TrainerProfilePanel total={total} trainer={selectedTrainer} />
       </div>
     </section>
   )
 }
 
-function TrainerProfileHero({
+function TrainerProfilePanel({
   total,
   trainer,
 }: {
@@ -968,7 +1161,7 @@ function TrainerProfileHero({
 }) {
   if (!trainer) {
     return (
-      <section className={cn(surfaceClass, "p-5")}>
+      <section className={cn(surfaceClass, "p-6")}>
         <StateBlock
           description="Create a trainer profile or adjust your search."
           title="No trainer selected"
@@ -979,113 +1172,281 @@ function TrainerProfileHero({
   }
 
   return (
-    <section className={cn(surfaceClass, "relative overflow-hidden p-6")}>
-      <div className="absolute right-0 top-0 size-64 -translate-y-1/2 translate-x-1/3 rounded-full bg-primary/10/40 blur-3xl" />
-      <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-start">
+    <section className={cn(surfaceClass, "overflow-hidden")}>
+      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border bg-muted/25 p-6">
         <div className="flex gap-5">
-          <div className="flex size-24 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-primary text-2xl font-black text-white shadow-sm">
+          <span className="flex size-24 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl font-semibold text-primary-foreground shadow-sm">
             {initials(trainer.fullName)}
-          </div>
+          </span>
           <div>
-            <div className="mb-1 flex flex-wrap items-center gap-2">
-              <h2 className="text-2xl font-black tracking-tight text-zinc-950">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground">
                 {trainer.fullName}
               </h2>
-              <span className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
-                Level 3
-              </span>
+              <StatusPill status={toStatus(trainer.status)} />
             </div>
-            <p className="mb-5 text-sm font-semibold text-zinc-600">
-              {trainer.specialty}
-            </p>
-            <div className="flex flex-wrap gap-6">
-              <Metric label="Assigned" value={`${Math.min(total + 9, 14)}/15`} />
-              <Metric label="Sessions (Wk)" value="24" />
-              <Metric label="Rating" value="4.9" />
+            <p className="mt-1 text-sm font-medium text-primary">{trainer.specialty}</p>
+            <div className="mt-4 flex flex-wrap gap-6">
+              <CoachMetric label="Học viên" value={`${Math.min(total + 9, 32)}`} />
+              <CoachMetric label="Công suất" value="80%" />
+              <CoachMetric label="Đánh giá" value="4.9/5" />
             </div>
           </div>
         </div>
-        <div className="grid gap-2">
-          <Button className="rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50" type="button" variant="outline">
-            <MessageSquare aria-hidden="true" className="size-4" />
-            Message
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Button className="rounded-xl bg-primary text-primary-foreground">
+            Xem lịch
           </Button>
-          <Button className="rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50" type="button" variant="outline">
-            Edit Profile
+          <Button className="rounded-xl" variant="outline">
+            Phân công
           </Button>
         </div>
+      </div>
+
+      <div className="grid gap-5 p-6 xl:grid-cols-2">
+        <section className="rounded-xl border border-border bg-background p-5">
+          <p className="mb-5 text-sm font-semibold text-foreground">
+            Tổng quan công suất
+          </p>
+          <div className="flex items-center gap-5">
+            <div
+              className="flex size-32 items-center justify-center rounded-full"
+              style={{
+                background:
+                  "conic-gradient(hsl(var(--primary)) 0deg 288deg, hsl(var(--muted)) 288deg 360deg)",
+              }}
+            >
+              <div className="flex size-24 flex-col items-center justify-center rounded-full bg-card">
+                <p className="text-2xl font-semibold text-foreground">80%</p>
+                <p className="text-xs text-muted-foreground">32/40</p>
+              </div>
+            </div>
+            <div className="grid gap-2 text-sm">
+              <span className="flex justify-between gap-8">
+                <span className="text-muted-foreground">Tối đa</span>
+                <strong>40 suất</strong>
+              </span>
+              <span className="flex justify-between gap-8">
+                <span className="text-muted-foreground">Đang phụ trách</span>
+                <strong>32 suất</strong>
+              </span>
+              <span className="flex justify-between gap-8">
+                <span className="text-muted-foreground">Còn trống</span>
+                <strong>8 suất</strong>
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-border bg-background p-5">
+          <p className="mb-5 text-sm font-semibold text-foreground">Thống kê nhanh</p>
+          <div className="grid gap-3">
+            {[
+              ["Buổi PT đã dạy", "56 buổi", "+16%"],
+              ["Học viên mới", "6", "+20%"],
+              ["Buổi đã hủy", "2 buổi", "-50%"],
+              ["Doanh thu PT", "18.240.000đ", "+11%"],
+            ].map(([label, value, change]) => (
+              <div className="flex items-center justify-between gap-3" key={label}>
+                <span className="text-sm text-muted-foreground">{label}</span>
+                <span className="font-semibold text-foreground">{value}</span>
+                <span
+                  className={cn(
+                    "text-xs font-semibold",
+                    change.startsWith("-") ? "text-destructive" : "text-primary",
+                  )}
+                >
+                  {change}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <TrainerSchedule />
+        <AssignedMemberList />
       </div>
     </section>
   )
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function CoachMetric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-black uppercase tracking-[0.08em] text-zinc-600">
+      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </p>
-      <p className="mt-1 text-2xl font-black text-zinc-950">{value}</p>
+      <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
     </div>
   )
 }
 
 function TrainerSchedule() {
   const items = [
-    ["08:00 AM", "1:1 with John D.", "Strength", "done"],
-    ["10:00 AM", "Small Group (Max 4)", "HIIT Studio", "active"],
-    ["01:00 PM", "Consultation: Emma W.", "Office B", "future"],
-    ["02:00 PM", "Blocked", "Break", "blocked"],
+    ["06:00 - 07:00", "Nguyễn Văn Hùng", "Đã check-in"],
+    ["07:15 - 08:15", "Lê Minh Tuấn", "Đang diễn ra"],
+    ["10:00 - 11:00", "Phạm Anh Khoa", "Sắp tới"],
+    ["16:00 - 17:00", "Trịnh Gia Bảo", "Sắp tới"],
   ] as const
 
   return (
-    <section className={cn(surfaceClass, "p-6")}>
-      <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
-          Today&apos;s Schedule
-        </h3>
-        <div className="flex items-center gap-2">
-          <ChevronLeft aria-hidden="true" className="size-4 text-zinc-500" />
-          <span className="text-sm font-bold text-zinc-950">Tue, Jun 2</span>
-          <ChevronRight aria-hidden="true" className="size-4 text-zinc-500" />
-        </div>
-      </div>
-      <div className="relative space-y-4 before:absolute before:bottom-0 before:left-4 before:top-0 before:w-px before:bg-gradient-to-b before:from-transparent before:via-zinc-200 before:to-transparent">
-        {items.map(([time, title, meta, state]) => (
+    <section className="rounded-xl border border-border bg-background p-5">
+      <p className="mb-5 text-sm font-semibold text-foreground">Lịch dạy hôm nay</p>
+      <div className="relative space-y-4 before:absolute before:bottom-0 before:left-4 before:top-0 before:w-px before:bg-border">
+        {items.map(([time, title, state]) => (
           <div className="relative flex gap-4 pl-1" key={`${time}-${title}`}>
-            <span
-              className={cn(
-                "relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border bg-white shadow-sm",
-                state === "active"
-                  ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/20"
-                  : "border-zinc-200 text-zinc-600",
-              )}
-            >
-              {state === "done" ? <Check aria-hidden="true" className="size-4" /> : <CalendarDays aria-hidden="true" className="size-4" />}
+            <span className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-card text-primary">
+              <CalendarDays aria-hidden="true" className="size-4" />
             </span>
-            <div
-              className={cn(
-                "flex-1 rounded-lg border p-3",
-                state === "active"
-                  ? "border-primary/20 bg-primary/5"
-                  : state === "blocked"
-                    ? "border-dashed border-zinc-200 bg-zinc-50"
-                    : "border-zinc-200 bg-white",
-              )}
-            >
+            <div className="flex-1 rounded-xl border border-border bg-card p-3">
               <div className="mb-1 flex justify-between gap-3">
-                <span className="text-xs font-black text-primary">{time}</span>
-                <span className="text-xs font-semibold text-zinc-600">
-                  {state === "active" ? "60m · In Progress" : "60m"}
-                </span>
+                <span className="text-xs font-semibold text-primary">{time}</span>
+                <span className="text-xs text-muted-foreground">{state}</span>
               </div>
-              <p className="font-bold text-zinc-950">{title}</p>
-              <p className="mt-1 text-xs font-semibold text-zinc-600">{meta}</p>
+              <p className="font-semibold text-foreground">{title}</p>
+              <p className="mt-1 text-xs text-muted-foreground">1:1 PT</p>
             </div>
           </div>
         ))}
       </div>
     </section>
+  )
+}
+
+function AssignedMemberList() {
+  return (
+    <section className="rounded-xl border border-border bg-background p-5">
+      <div className="mb-5 flex items-center justify-between">
+        <p className="text-sm font-semibold text-foreground">
+          Học viên đang phụ trách
+        </p>
+        <span className="text-xs font-medium text-primary">Xem tất cả</span>
+      </div>
+      <div className="space-y-3">
+        {[
+          ["Nguyễn Văn Hùng", "Còn 18 buổi"],
+          ["Lê Minh Tuấn", "Còn 7 buổi"],
+          ["Phạm Anh Khoa", "Còn 21 buổi"],
+          ["Trịnh Gia Bảo", "Còn 12 buổi"],
+        ].map(([name, remain]) => (
+          <div className="flex items-center gap-3" key={name}>
+            <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+              {initials(name)}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold text-foreground">
+                {name}
+              </span>
+              <span className="text-xs text-muted-foreground">Gói Premium 12 Tháng</span>
+            </span>
+            <span className="text-xs text-muted-foreground">{remain}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* Generic Users                                                               */
+/* -------------------------------------------------------------------------- */
+
+function UserRoleDirectoryTemplate({
+  error,
+  isLoading,
+  query,
+  setQuery,
+  total,
+  users,
+}: {
+  error: ReturnType<typeof mapMemberManagementError> | null
+  isLoading: boolean
+  query: string
+  setQuery: (value: string) => void
+  total: number
+  users: ManagedUser[]
+}) {
+  return (
+    <section className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        <DirectoryMetricCard
+          helper="Tất cả tài khoản"
+          icon={UsersRound}
+          label="Records"
+          value={String(total)}
+        />
+        <DirectoryMetricCard
+          helper="/api/v1/users"
+          icon={ShieldCheck}
+          label="Contract"
+          tone="purple"
+          value="Users"
+        />
+        <DirectoryMetricCard
+          helper="Backend spec 002"
+          icon={BadgeCheck}
+          label="Source"
+          tone="success"
+          value="Ready"
+        />
+      </div>
+
+      <div className={cn(surfaceClass, "overflow-hidden")}>
+        <SearchToolbar
+          action={<CreateUserDialog label="Tạo tài khoản" title="Tạo tài khoản hệ thống" />}
+          onSearch={setQuery}
+          placeholder="Search users by name, email, phone, or role"
+          value={query}
+        />
+        <div className="p-5">
+          <ManagementStateBlock
+            emptyTitle="No records found."
+            error={error}
+            isLoading={isLoading}
+            itemCount={users.length}
+            loadingTitle="Loading management records..."
+          />
+          {users.length > 0 ? <UserList users={users} /> : null}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function UserList({ users }: { users: ManagedUser[] }) {
+  return (
+    <div className="grid gap-3" data-testid="management-user-list">
+      {users.map((user) => (
+        <article
+          className="rounded-xl border border-border bg-muted/25 p-4"
+          key={user.userId}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                {initials(user.fullName)}
+              </span>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">{user.fullName}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
+                {user.phone ? (
+                  <p className="mt-1 text-sm text-muted-foreground">{user.phone}</p>
+                ) : null}
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-end gap-2">
+              <StatusPill label={user.role.toUpperCase()} status="assigned" />
+              <StatusPill status={toStatus(user.status)} />
+            </div>
+          </div>
+          {user.initialPassword ? (
+            <p className="mt-3 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs text-foreground">
+              Initial password: {user.initialPassword}
+            </p>
+          ) : null}
+        </article>
+      ))}
+    </div>
   )
 }
 
@@ -1135,153 +1496,97 @@ function ManagementStateBlock({
   return null
 }
 
-function MemberList({
-  canDelete,
-  detailBasePath,
-  members,
+/* -------------------------------------------------------------------------- */
+/* Create Dialogs & Forms                                                     */
+/* -------------------------------------------------------------------------- */
+
+function CreateMemberDialog() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger asChild>
+        <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]">
+          <UserPlus aria-hidden="true" className="size-4" />
+          Thêm hội viên
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-xl rounded-2xl p-0">
+        <DialogHeader className="border-b border-border p-6">
+          <DialogTitle>Tạo hồ sơ hội viên</DialogTitle>
+          <DialogDescription>
+            Thêm hội viên mới vào hệ thống quản lý.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="p-6">
+          <CreateMemberPanel onCreated={() => setOpen(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function CreateUserDialog({
+  fixedRole,
+  label = "Thêm người dùng",
+  title = "Tạo tài khoản",
 }: {
-  canDelete: boolean
-  detailBasePath?: string
-  members: ManagedMember[]
+  fixedRole?: "staff"
+  label?: string
+  title?: string
 }) {
-  const updateMember = useUpdateManagedMember()
-  const deleteMember = useDeleteManagedMember()
-
-  async function markExpired(member: ManagedMember) {
-    try {
-      await updateMember.mutateAsync({
-        memberId: member.id,
-        input: { status: "expired" },
-      })
-      toast.success("Member status updated")
-    } catch (error) {
-      toast.error(mapMemberManagementError(error).message)
-    }
-  }
-
-  async function removeMember(member: ManagedMember) {
-    try {
-      await deleteMember.mutateAsync(member.id)
-      toast.success("Member soft-deleted")
-    } catch (error) {
-      toast.error(mapMemberManagementError(error).message)
-    }
-  }
+  const [open, setOpen] = useState(false)
 
   return (
-    <div className="grid gap-3" data-testid="management-member-list">
-      {members.map((member) => (
-        <article
-          className="grid gap-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 transition hover:-translate-y-0.5 hover:shadow-md md:grid-cols-[minmax(0,1fr)_auto]"
-          data-testid="staff-member-result"
-          key={member.id}
-        >
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-semibold text-zinc-950">{member.fullName}</h3>
-              <StatusPill status={toStatus(member.status)} />
-            </div>
-            <div className="mt-2 grid gap-1 text-sm text-zinc-600 sm:grid-cols-2">
-              <span className="inline-flex items-center gap-2">
-                <Badge aria-hidden="true" className="size-4 text-primary" />
-                {member.memberCode}
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Phone aria-hidden="true" className="size-4 text-primary" />
-                {member.phone}
-              </span>
-              <span className="inline-flex items-center gap-2 sm:col-span-2">
-                <Mail aria-hidden="true" className="size-4 text-primary" />
-                {member.email}
-              </span>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 md:justify-end">
-            {detailBasePath ? (
-              <Button asChild className="rounded-lg bg-primary text-white hover:brightness-95">
-                <Link href={`${detailBasePath}/${member.id}`}>Open</Link>
-              </Button>
-            ) : null}
-            <Button
-              className="rounded-lg border-zinc-200"
-              disabled={updateMember.isPending}
-              onClick={() => markExpired(member)}
-              type="button"
-              variant="outline"
-            >
-              Mark expired
-            </Button>
-            {canDelete ? (
-              <Button
-                className="rounded-lg"
-                disabled={deleteMember.isPending}
-                onClick={() => removeMember(member)}
-                type="button"
-                variant="destructive"
-              >
-                <Trash2 aria-hidden="true" className="size-4" />
-                Delete
-              </Button>
-            ) : null}
-          </div>
-        </article>
-      ))}
-    </div>
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger asChild>
+        <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]">
+          <UserPlus aria-hidden="true" className="size-4" />
+          {label}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-xl rounded-2xl p-0">
+        <DialogHeader className="border-b border-border p-6">
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
+            Vai trò được lưu vào hồ sơ tài khoản. Người dùng không chọn role ở màn đăng nhập.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="p-6">
+          <CreateUserPanel fixedRole={fixedRole} onCreated={() => setOpen(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-function UserList({ users }: { users: ManagedUser[] }) {
+function CreateTrainerDialog() {
+  const [open, setOpen] = useState(false)
+
   return (
-    <div className="grid gap-3" data-testid="management-user-list">
-      {users.map((user) => (
-        <article
-          className="rounded-xl border border-zinc-200 bg-zinc-50 p-4"
-          key={user.userId}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-semibold text-zinc-950">{user.fullName}</h3>
-              <p className="mt-1 text-sm text-zinc-600">{user.email}</p>
-              {user.phone ? <p className="mt-1 text-sm text-zinc-600">{user.phone}</p> : null}
-            </div>
-            <div className="flex flex-wrap justify-end gap-2">
-              <StatusPill label={user.role.toUpperCase()} status="assigned" />
-              <StatusPill status={toStatus(user.status)} />
-            </div>
-          </div>
-          {user.initialPassword ? (
-            <p className="mt-3 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs text-foreground">
-              Initial password: {user.initialPassword}
-            </p>
-          ) : null}
-        </article>
-      ))}
-    </div>
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger asChild>
+        <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]">
+          <UserPlus aria-hidden="true" className="size-4" />
+          Thêm PT
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-xl rounded-2xl p-0">
+        <DialogHeader className="border-b border-border p-6">
+          <DialogTitle>Tạo hồ sơ PT</DialogTitle>
+          <DialogDescription>
+            Thêm hồ sơ huấn luyện viên và chuyên môn chính.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="p-6">
+          <CreateTrainerPanel onCreated={() => setOpen(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-function TrainerList({ trainers }: { trainers: ManagedTrainer[] }) {
-  return (
-    <div className="grid gap-3" data-testid="management-trainer-list">
-      {trainers.map((trainer) => (
-        <article
-          className="rounded-xl border border-zinc-200 bg-zinc-50 p-4"
-          key={trainer.id}
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h3 className="text-lg font-semibold text-zinc-950">{trainer.fullName}</h3>
-              <p className="mt-1 text-sm text-zinc-600">{trainer.specialty}</p>
-            </div>
-            <StatusPill status={toStatus(trainer.status)} />
-          </div>
-        </article>
-      ))}
-    </div>
-  )
-}
-
-function CreateMemberPanel() {
+function CreateMemberPanel({ onCreated }: { onCreated?: () => void }) {
   const createMember = useCreateManagedMember()
   const {
     formState: { errors, isSubmitting },
@@ -1302,6 +1607,7 @@ function CreateMemberPanel() {
       await createMember.mutateAsync(values)
       reset()
       toast.success("Member profile created")
+      onCreated?.()
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -1309,7 +1615,6 @@ function CreateMemberPanel() {
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <CreatePanelHeader title="Add Member" />
       <Field error={errors.fullName?.message} label="Full name">
         <input className={inputClass} data-testid="member-create-name" {...register("fullName")} />
       </Field>
@@ -1322,7 +1627,7 @@ function CreateMemberPanel() {
       <Field label="Address">
         <input className={inputClass} {...register("address")} />
       </Field>
-      <Button className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95" data-testid="member-create-submit" disabled={isSubmitting} type="submit">
+      <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="member-create-submit" disabled={isSubmitting || createMember.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
         Create member
       </Button>
@@ -1330,7 +1635,13 @@ function CreateMemberPanel() {
   )
 }
 
-function CreateUserPanel({ fixedRole }: { fixedRole?: "staff" }) {
+function CreateUserPanel({
+  fixedRole,
+  onCreated,
+}: {
+  fixedRole?: "staff"
+  onCreated?: () => void
+}) {
   const createUser = useCreateManagedUser()
   const {
     formState: { errors, isSubmitting },
@@ -1358,6 +1669,7 @@ function CreateUserPanel({ fixedRole }: { fixedRole?: "staff" }) {
       })
       reset({ email: "", fullName: "", password: "", phone: "", role: fixedRole ?? "staff" })
       toast.success("User account created")
+      onCreated?.()
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -1365,7 +1677,6 @@ function CreateUserPanel({ fixedRole }: { fixedRole?: "staff" }) {
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <CreatePanelHeader title={fixedRole ? "Create Staff" : "Create User"} />
       <Field error={errors.fullName?.message} label="Full name">
         <input className={inputClass} data-testid="user-create-name" {...register("fullName")} />
       </Field>
@@ -1387,7 +1698,7 @@ function CreateUserPanel({ fixedRole }: { fixedRole?: "staff" }) {
       <Field error={errors.password?.message} label="Password">
         <input className={inputClass} data-testid="user-create-password" placeholder="Leave blank for temporary password" type="password" {...register("password")} />
       </Field>
-      <Button className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95" data-testid="user-create-submit" disabled={isSubmitting} type="submit">
+      <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="user-create-submit" disabled={isSubmitting || createUser.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
         Create account
       </Button>
@@ -1395,7 +1706,7 @@ function CreateUserPanel({ fixedRole }: { fixedRole?: "staff" }) {
   )
 }
 
-function CreateTrainerPanel() {
+function CreateTrainerPanel({ onCreated }: { onCreated?: () => void }) {
   const createTrainer = useCreateManagedTrainer()
   const {
     formState: { errors, isSubmitting },
@@ -1419,6 +1730,7 @@ function CreateTrainerPanel() {
       })
       reset()
       toast.success("Trainer profile created")
+      onCreated?.()
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -1426,7 +1738,6 @@ function CreateTrainerPanel() {
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <CreatePanelHeader title="Create PT Profile" />
       <Field error={errors.fullName?.message} label="Full name">
         <input className={inputClass} data-testid="trainer-create-name" {...register("fullName")} />
       </Field>
@@ -1436,44 +1747,10 @@ function CreateTrainerPanel() {
       <Field label="Linked user ID">
         <input className={inputClass} type="number" {...register("userId")} />
       </Field>
-      <Button className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95" data-testid="trainer-create-submit" disabled={isSubmitting} type="submit">
+      <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="trainer-create-submit" disabled={isSubmitting || createTrainer.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
         Create PT profile
       </Button>
     </form>
-  )
-}
-
-function CreatePanelHeader({ title }: { title: string }) {
-  return (
-    <div>
-      <p className="text-sm font-semibold uppercase tracking-[0.08em] text-primary">
-        Spec 002
-      </p>
-      <h2 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950">
-        {title}
-      </h2>
-      <p className="mt-2 text-sm leading-6 text-zinc-600">
-        Mutations use MSW/backend contracts and preserve role permissions.
-      </p>
-    </div>
-  )
-}
-
-function Field({
-  children,
-  error,
-  label,
-}: {
-  children: React.ReactNode
-  error?: string
-  label: string
-}) {
-  return (
-    <label className="grid gap-2">
-      <span className={labelClass}>{label}</span>
-      {children}
-      <FormError message={error} />
-    </label>
   )
 }

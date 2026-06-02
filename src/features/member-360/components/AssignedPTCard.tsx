@@ -1,7 +1,8 @@
 "use client"
 
-import { Dumbbell } from "lucide-react"
+import { CalendarDays, Dumbbell, MessageSquare, Phone, UserRound } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 type AssignedPTCardProps = {
@@ -33,19 +34,18 @@ export function AssignedPTCard({
     return (
       <div
         className={cn(
-          "rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm",
+          "rounded-2xl border border-border bg-card p-5 shadow-sm",
           className,
         )}
       >
-        <div className="h-4 w-16 animate-pulse rounded bg-zinc-200" />
+        <div className="h-4 w-16 animate-pulse rounded bg-muted" />
         <div className="mt-4 flex items-center gap-3">
-          <div className="size-11 animate-pulse rounded-full bg-zinc-200" />
+          <div className="size-14 animate-pulse rounded-full bg-muted" />
           <div className="space-y-2">
-            <div className="h-5 w-28 animate-pulse rounded bg-zinc-200" />
-            <div className="h-4 w-20 animate-pulse rounded bg-zinc-200" />
+            <div className="h-5 w-28 animate-pulse rounded bg-muted" />
+            <div className="h-4 w-20 animate-pulse rounded bg-muted" />
           </div>
         </div>
-        <div className="mt-3 h-3 w-36 animate-pulse rounded bg-zinc-200" />
       </div>
     )
   }
@@ -54,11 +54,11 @@ export function AssignedPTCard({
     return (
       <div
         className={cn(
-          "rounded-[1.5rem] border border-dashed border-zinc-300 bg-zinc-50 p-5",
+          "rounded-2xl border border-dashed border-border bg-muted/40 p-5",
           className,
         )}
       >
-        <div className="flex items-center gap-2 text-sm text-zinc-500">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Dumbbell aria-hidden="true" className="size-4" />
           Chưa phân công PT
         </div>
@@ -67,31 +67,54 @@ export function AssignedPTCard({
   }
 
   return (
-    <div
+    <section
       className={cn(
-        "rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm",
+        "rounded-2xl border border-border bg-card p-5 shadow-sm",
         className,
       )}
     >
-      <p className="text-sm font-medium text-zinc-500">PT phụ trách</p>
+      <p className="text-sm font-semibold text-foreground">PT phụ trách</p>
 
-      <div className="mt-4 flex items-center gap-3">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Dumbbell aria-hidden="true" className="size-5" />
+      <div className="mt-4 flex items-center gap-4">
+        <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Dumbbell aria-hidden="true" className="size-7" />
         </span>
         <div>
-          <p className="text-base font-semibold text-zinc-950">{fullName}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-base font-semibold text-foreground">{fullName}</p>
+            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+              Đang phụ trách
+            </span>
+          </div>
           {specialty ? (
-            <p className="text-sm text-zinc-500">{specialty}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{specialty}</p>
           ) : null}
+          <p className="mt-1 text-xs text-muted-foreground">
+            Chuyên môn: Tăng cơ, Giảm mỡ, HIIT
+          </p>
         </div>
       </div>
 
       {assignedAt ? (
-        <p className="mt-3 text-xs text-zinc-400">
+        <p className="mt-4 text-xs text-muted-foreground">
           Phân công ngày {formatDate(assignedAt)}
         </p>
       ) : null}
-    </div>
+
+      <div className="mt-4 grid grid-cols-4 gap-2">
+        <Button className="rounded-xl" size="sm" type="button" variant="outline">
+          <MessageSquare aria-hidden="true" className="size-4" />
+        </Button>
+        <Button className="rounded-xl" size="sm" type="button" variant="outline">
+          <CalendarDays aria-hidden="true" className="size-4" />
+        </Button>
+        <Button className="rounded-xl" size="sm" type="button" variant="outline">
+          <Phone aria-hidden="true" className="size-4" />
+        </Button>
+        <Button className="rounded-xl" size="sm" type="button" variant="outline">
+          <UserRound aria-hidden="true" className="size-4" />
+        </Button>
+      </div>
+    </section>
   )
 }

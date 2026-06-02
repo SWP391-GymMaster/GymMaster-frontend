@@ -2,10 +2,10 @@
 
 import { useParams } from "next/navigation"
 
-import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
-import { Member360Content } from "@/features/member-360/components/Member360Content"
+import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { useMember360Data } from "@/features/member-360/api/member-360.queries"
+import { Member360Content } from "@/features/member-360/components/Member360Content"
 
 export function AdminMember360Page() {
   const params = useParams<{ id: string }>()
@@ -19,9 +19,9 @@ export function AdminMember360Page() {
   return (
     <PermissionGuard allowedRoles={["admin"]}>
       <WorkspaceShell
-        description="Hồ sơ 360 gồm gói hội viên, PT phụ trách và lịch sử check-in."
+        description="Theo dõi gói hội viên, PT phụ trách, lịch sử check-in và thao tác nhanh."
         role="admin"
-        title={data?.member.fullName ?? "Hội viên 360"}
+        title={data?.member.fullName ?? "Member 360°"}
       >
         <Member360Content
           data={data ?? undefined}

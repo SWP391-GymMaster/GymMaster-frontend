@@ -37,8 +37,7 @@ function initials(name: string) {
     .join("")
 }
 
-const cardClass =
-  "rounded-xl border border-zinc-200 bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]"
+const cardClass = "rounded-2xl border border-border bg-card shadow-sm"
 
 export function AdminPtAssignmentWorkspace() {
   const [memberQuery, setMemberQuery] = useState("")
@@ -71,6 +70,17 @@ export function AdminPtAssignmentWorkspace() {
     [members],
   )
 
+  const averageLoad = useMemo(() => {
+    if (trainers.length === 0) return 0
+
+    const totalRatio = trainers.reduce((sum, trainer) => {
+      if (!trainer.capacity) return sum
+      return sum + trainer.assignedCount / trainer.capacity
+    }, 0)
+
+    return Math.round((totalRatio / trainers.length) * 100)
+  }, [trainers])
+
   async function onConfirm() {
     if (!selectedMember || !selectedTrainer) {
       toast.error("Chọn một hội viên và một PT trước khi xác nhận.")
@@ -94,44 +104,75 @@ export function AdminPtAssignmentWorkspace() {
   }
 
   return (
-    <section className="grid gap-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <section className="space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
-          <h2 className="text-3xl font-black tracking-tight text-zinc-950">
-            Phân công PT
-          </h2>
-          <p className="mt-1 text-sm font-semibold text-zinc-600">
-            Ghép hội viên với PT, kiểm soát mỗi hội viên chỉ có một PT active và ghi audit.
-          </p>
+          <div className="flex items-center gap-3">
+            <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Handshake aria-hidden="true" className="size-6" />
+            </span>
+            <div>
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+                Phân công PT
+              </h2>
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+                Ghép hội viên với PT phù hợp theo mục tiêu, chuyên môn và tải hiện tại.
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
-          <MetricPill label="Cần PT" value={String(needsPtCount)} tone="danger" />
-          <MetricPill label="PT khả dụng" value={String(trainers.length)} />
-        </div>
+
+        <Button
+          className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted"
+          type="button"
+          variant="outline"
+        >
+          Hướng dẫn phân công
+        </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-12">
-        <section className={cn(cardClass, "flex min-h-[620px] flex-col p-5 lg:col-span-4")}>
+      <div className="grid gap-4 md:grid-cols-3">
+        <MetricCard
+          helper="+3 so với hôm qua"
+          icon={<Users aria-hidden="true" className="size-5" />}
+          label="Hội viên cần phân công"
+          tone="primary"
+          value={String(needsPtCount)}
+        />
+        <MetricCard
+          helper="Đang rảnh để nhận mới"
+          icon={<Dumbbell aria-hidden="true" className="size-5" />}
+          label="PT khả dụng"
+          tone="success"
+          value={String(trainers.length)}
+        />
+        <MetricCard
+          helper="+6% so với tuần trước"
+          icon={<Star aria-hidden="true" className="size-5" />}
+          label="Công suất trung bình"
+          tone="neutral"
+          value={`${averageLoad}%`}
+        />
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.88fr)_minmax(360px,1.08fr)_minmax(340px,0.74fr)]">
+        <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
           <PanelHeader
             badge={`${needsPtCount} cần PT`}
             icon={<Users aria-hidden="true" className="size-4" />}
-            title="Hội viên cần phân công"
+            title="Hội viên chờ phân công"
           />
-          <label className="relative mb-4">
-            <span className="sr-only">Lọc hội viên</span>
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
-            />
-            <input
-              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-zinc-50 pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
-              data-testid="assignment-member-search"
-              onChange={(event) => setMemberQuery(event.target.value)}
+
+          <div className="space-y-3 border-b border-border p-4">
+            <SearchInput
+              dataTestId="assignment-member-search"
+              onChange={setMemberQuery}
               placeholder="Tìm hội viên..."
               value={memberQuery}
             />
-          </label>
-          <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+          </div>
+
+          <div className="flex-1 space-y-3 overflow-y-auto p-4">
             <AssignmentQueryState
               emptyTitle="Chưa có hội viên phù hợp"
               error={membersQuery.error}
@@ -154,49 +195,51 @@ export function AdminPtAssignmentWorkspace() {
           </div>
         </section>
 
-        <section className={cn(cardClass, "flex min-h-[620px] flex-col p-5 lg:col-span-5")}>
+        <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
           <PanelHeader
             action={
-              <Button className="rounded-lg text-primary" type="button" variant="ghost">
+              <Button
+                className="rounded-xl text-primary hover:bg-primary/10"
+                type="button"
+                variant="ghost"
+              >
                 <Filter aria-hidden="true" className="size-4" />
                 Lọc
               </Button>
             }
+            badge={`${trainers.length} PT`}
             icon={<Dumbbell aria-hidden="true" className="size-4" />}
             title="PT khả dụng"
           />
-          <label className="relative mb-3">
-            <span className="sr-only">Lọc PT</span>
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
-            />
-            <input
-              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-zinc-50 pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
-              data-testid="assignment-trainer-search"
-              onChange={(event) => setTrainerQuery(event.target.value)}
+
+          <div className="space-y-3 border-b border-border p-4">
+            <SearchInput
+              dataTestId="assignment-trainer-search"
+              onChange={setTrainerQuery}
               placeholder="Tìm PT..."
               value={trainerQuery}
             />
-          </label>
-          <div className="mb-4 grid grid-cols-2 gap-2">
-            {["all", "Weight Loss", "Strength"].map((item) => (
-              <button
-                className={cn(
-                  "min-h-9 rounded-full border px-3 text-sm font-bold transition active:scale-[0.98]",
-                  specialty === item
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50",
-                )}
-                key={item}
-                onClick={() => setSpecialty(item)}
-                type="button"
-              >
-                {item === "all" ? "Tất cả chuyên môn" : displaySpecialty(item)}
-              </button>
-            ))}
+
+            <div className="flex flex-wrap gap-2">
+              {["all", "Weight Loss", "Strength", "Cardio", "Mobility"].map((item) => (
+                <button
+                  className={cn(
+                    "min-h-9 rounded-full border px-4 text-sm font-semibold transition active:scale-[0.98]",
+                    specialty === item
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                  key={item}
+                  onClick={() => setSpecialty(item)}
+                  type="button"
+                >
+                  {item === "all" ? "Tất cả" : displaySpecialty(item)}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+
+          <div className="flex-1 space-y-3 overflow-y-auto p-4">
             <AssignmentQueryState
               emptyTitle="Chưa có PT phù hợp"
               error={trainersQuery.error}
@@ -219,11 +262,12 @@ export function AdminPtAssignmentWorkspace() {
           </div>
         </section>
 
-        <section className={cn(cardClass, "flex min-h-[620px] flex-col bg-zinc-50 p-5 lg:col-span-3")}>
+        <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
           <PanelHeader
             icon={<Handshake aria-hidden="true" className="size-4" />}
-            title="Xem trước"
+            title="Xem trước phân công"
           />
+
           <AssignmentPreview
             assignmentError={assignmentError}
             mode={mode}
@@ -231,43 +275,89 @@ export function AdminPtAssignmentWorkspace() {
             selectedMember={selectedMember}
             selectedTrainer={selectedTrainer}
           />
-          <Button
-            className="mt-auto min-h-14 rounded-xl bg-primary text-white hover:brightness-95 active:scale-[0.98]"
-            data-testid="assignment-confirm-button"
-            disabled={!canConfirm || assignTrainer.isPending}
-            onClick={onConfirm}
-            type="button"
-          >
-            <CheckCircle2 aria-hidden="true" className="size-5" />
-            {mode === "reassign" ? "Gửi yêu cầu phân công" : "Xác nhận phân công"}
-          </Button>
+
+          <div className="border-t border-border p-4">
+            <Button
+              className="min-h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+              data-testid="assignment-confirm-button"
+              disabled={!canConfirm || assignTrainer.isPending}
+              onClick={onConfirm}
+              type="button"
+            >
+              <CheckCircle2 aria-hidden="true" className="size-5" />
+              {mode === "reassign" ? "Gửi yêu cầu phân công" : "Xác nhận phân công"}
+            </Button>
+          </div>
         </section>
       </div>
     </section>
   )
 }
 
-function MetricPill({
+function MetricCard({
+  helper,
+  icon,
   label,
-  tone = "default",
+  tone,
   value,
 }: {
+  helper: string
+  icon: React.ReactNode
   label: string
-  tone?: "default" | "danger"
+  tone: "primary" | "success" | "neutral"
+  value: string
+}) {
+  const toneClass = {
+    primary: "bg-primary/10 text-primary",
+    success: "bg-emerald-500/10 text-emerald-600",
+    neutral: "bg-violet-500/10 text-violet-600",
+  }[tone]
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <div className="absolute -right-8 -top-8 size-24 rounded-full bg-primary/5" />
+      <div className="relative flex items-center gap-4">
+        <span className={cn("flex size-14 shrink-0 items-center justify-center rounded-full", toneClass)}>
+          {icon}
+        </span>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          <p className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
+            {value}
+          </p>
+          <p className="mt-1 text-xs font-medium text-primary">{helper}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SearchInput({
+  dataTestId,
+  onChange,
+  placeholder,
+  value,
+}: {
+  dataTestId: string
+  onChange: (value: string) => void
+  placeholder: string
   value: string
 }) {
   return (
-    <div
-      className={cn(
-        "rounded-xl border px-4 py-3",
-        tone === "danger"
-          ? "border-red-200 bg-red-50 text-red-700"
-          : "border-zinc-200 bg-white text-zinc-950",
-      )}
-    >
-      <p className="text-xs font-black uppercase tracking-[0.08em]">{label}</p>
-      <p className="mt-1 text-2xl font-black">{value}</p>
-    </div>
+    <label className="relative block">
+      <span className="sr-only">{placeholder}</span>
+      <Search
+        aria-hidden="true"
+        className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+      />
+      <input
+        className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+        data-testid={dataTestId}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        value={value}
+      />
+    </label>
   )
 }
 
@@ -283,21 +373,23 @@ function PanelHeader({
   title: string
 }) {
   return (
-    <header className="mb-4 flex items-center justify-between gap-3 border-b border-zinc-200 pb-4">
-      <div className="flex items-center gap-2">
-        <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+    <header className="flex min-h-16 items-center justify-between gap-3 border-b border-border px-5 py-4">
+      <div className="flex items-center gap-3">
+        <span className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
           {icon}
         </span>
-        <h3 className="text-xs font-black uppercase tracking-[0.1em] text-zinc-950">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
           {title}
         </h3>
       </div>
-      {badge ? (
-        <span className="rounded-full bg-red-50 px-2 py-1 text-xs font-bold text-red-700">
-          {badge}
-        </span>
-      ) : null}
-      {action}
+      <div className="flex items-center gap-2">
+        {badge ? (
+          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+            {badge}
+          </span>
+        ) : null}
+        {action}
+      </div>
     </header>
   )
 }
@@ -314,44 +406,47 @@ function MemberCard({
   return (
     <button
       className={cn(
-        "flex w-full items-start gap-3 rounded-lg border p-4 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
+        "group flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200 active:scale-[0.99]",
         selected
-          ? "border-primary bg-primary/5"
-          : "border-zinc-200 bg-white hover:bg-zinc-50",
+          ? "border-primary/40 bg-primary/5 shadow-sm ring-1 ring-primary/20"
+          : "border-border bg-background hover:bg-muted/35",
       )}
       data-testid="assignment-member-card"
       onClick={onSelect}
       type="button"
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 font-black text-primary">
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
         {initials(member.fullName)}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-bold text-zinc-950">
+        <span className="block truncate text-sm font-semibold text-foreground">
           {member.fullName}
         </span>
-        <span className="mt-1 block text-xs text-zinc-600">
+        <span className="mt-1 block truncate text-xs text-muted-foreground">
           Mục tiêu: {member.goal ?? "Thể lực tổng quát"}
         </span>
-        <span className="mt-2 flex flex-wrap gap-2">
-          <span className="rounded-sm bg-zinc-50 px-2 py-1 text-[10px] font-bold text-zinc-600">
+        <span className="mt-3 flex flex-wrap gap-2">
+          <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
             {member.memberCode}
           </span>
           {member.currentTrainerName ? (
-            <span className="rounded-sm bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary">
+            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-primary">
               PT hiện tại: {member.currentTrainerName}
             </span>
           ) : (
-            <span className="rounded-sm bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">
+            <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive">
               Cần PT
             </span>
           )}
           {member.priority === "high" ? (
-            <span className="rounded-sm bg-amber-50 px-2 py-1 text-[10px] font-bold text-amber-700">
+            <span className="rounded-full bg-orange-500/10 px-2.5 py-1 text-[11px] font-semibold text-orange-600">
               Ưu tiên cao
             </span>
           ) : null}
         </span>
+      </span>
+      <span className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary">
+        ›
       </span>
     </button>
   )
@@ -372,63 +467,65 @@ function TrainerCard({
   return (
     <button
       className={cn(
-        "relative w-full rounded-lg border p-4 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
+        "relative w-full rounded-xl border p-4 text-left transition-all duration-200 active:scale-[0.99]",
         selected
-          ? "border-2 border-primary bg-primary/5"
-          : "border-zinc-200 bg-white hover:bg-zinc-50",
+          ? "border-primary/40 bg-primary/5 shadow-sm ring-1 ring-primary/20"
+          : "border-border bg-background hover:bg-muted/35",
       )}
       data-testid="assignment-trainer-card"
       onClick={onSelect}
       type="button"
     >
       {selected ? (
-        <span className="absolute right-0 top-0 rounded-bl-lg bg-primary px-2 py-1 text-[10px] font-bold text-white">
+        <span className="absolute right-0 top-0 rounded-bl-xl rounded-tr-xl bg-primary px-2 py-1 text-[10px] font-semibold text-primary-foreground">
           Đang chọn
         </span>
       ) : null}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex size-12 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 font-black text-primary">
+          <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
             {initials(trainer.fullName)}
           </span>
           <span>
-            <span className="block text-sm font-bold text-zinc-950">
+            <span className="block text-sm font-semibold text-foreground">
               {trainer.fullName}
             </span>
-            <span className="block text-xs text-zinc-600">
+            <span className="block text-xs text-muted-foreground">
               Chuyên môn: {displaySpecialty(trainer.specialty)}
             </span>
           </span>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-sm bg-amber-50 px-2 py-1 text-xs font-bold text-amber-700">
+        <span className="inline-flex items-center gap-1 rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-semibold text-orange-600">
           <Star aria-hidden="true" className="size-3 fill-current" />
           {trainer.rating?.toFixed(1) ?? "4.8"}
         </span>
       </div>
-      <div className="mt-4 flex items-end justify-between gap-4">
-        <div className="flex-1">
-          <div className="mb-1 flex justify-between text-xs font-semibold">
-            <span className="text-zinc-600">Tải hiện tại</span>
-            <span className={percent >= 90 ? "text-red-700" : "text-primary"}>
-              {nextCapacity}/{trainer.capacity} suất
-            </span>
-          </div>
-          <div className="h-1.5 rounded-full bg-primary/10">
-            <div
-              className={cn(
-                "h-1.5 rounded-full",
-                percent >= 90 ? "bg-red-700" : "bg-primary",
-              )}
-              style={{ width: `${percent}%` }}
-            />
-          </div>
+
+      <div className="mt-4">
+        <div className="mb-1 flex justify-between text-xs font-medium">
+          <span className="text-muted-foreground">Tải hiện tại</span>
+          <span className={percent >= 90 ? "text-destructive" : "text-primary"}>
+            {nextCapacity}/{trainer.capacity} suất
+          </span>
         </div>
+        <div className="h-2 rounded-full bg-muted">
+          <div
+            className={cn(
+              "h-2 rounded-full",
+              percent >= 90 ? "bg-destructive" : "bg-primary",
+            )}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 flex justify-end">
         <span
           className={cn(
-            "rounded-lg px-4 py-2 text-sm font-bold",
+            "rounded-xl px-4 py-2 text-sm font-semibold",
             selected
-              ? "bg-primary text-white"
-              : "border border-zinc-200 text-zinc-950",
+              ? "bg-primary text-primary-foreground"
+              : "border border-border bg-card text-foreground",
           )}
         >
           {selected ? "Đã chọn" : "Chọn"}
@@ -451,22 +548,29 @@ function AssignmentPreview({
   selectedMember: AssignmentCandidateMember | null
   selectedTrainer: AssignmentCandidateTrainer | null
 }) {
+  const matchScore = selectedMember && selectedTrainer ? 92 : null
+
   return (
-    <div className="flex flex-1 flex-col justify-center py-5">
-      <PreviewIdentity
-        empty="Chọn hội viên"
-        label={selectedMember?.goal ? `Mục tiêu: ${selectedMember.goal}` : undefined}
-        name={selectedMember?.fullName}
-      />
-      <div className="flex flex-col items-center py-5 text-primary">
-        <div className="h-8 border-l-2 border-dashed border-primary/40" />
-        <span className="rounded-full bg-primary/10 p-3">
-          <Handshake aria-hidden="true" className="size-5" />
-        </span>
-        <div className="h-8 border-l-2 border-dashed border-primary/40" />
-      </div>
-      <div className="rounded-xl border border-zinc-200 bg-white p-4">
-        <PreviewIdentity
+    <div className="flex flex-1 flex-col overflow-y-auto p-5">
+      <div className="space-y-4">
+        <PreviewBlock
+          empty="Chọn hội viên"
+          label={selectedMember?.goal ? `Mục tiêu: ${selectedMember.goal}` : undefined}
+          name={selectedMember?.fullName}
+          subline={selectedMember ? `${selectedMember.memberCode} · ${selectedMember.currentTrainerName ? "Đã có PT" : "Chưa có PT"}` : undefined}
+        />
+
+        <div className="flex justify-center text-primary">
+          <div className="flex flex-col items-center">
+            <div className="h-8 border-l-2 border-dashed border-primary/30" />
+            <span className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+              <CheckCircle2 aria-hidden="true" className="size-5" />
+            </span>
+            <div className="h-8 border-l-2 border-dashed border-primary/30" />
+          </div>
+        </div>
+
+        <PreviewBlock
           empty="Chọn PT"
           label={
             selectedTrainer
@@ -474,49 +578,79 @@ function AssignmentPreview({
               : undefined
           }
           name={selectedTrainer?.fullName}
+          subline={
+            selectedTrainer
+              ? `${selectedTrainer.assignedCount + 1}/${selectedTrainer.capacity} ca sau phân công`
+              : undefined
+          }
         />
-        {selectedMember && selectedTrainer ? (
-          <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-3">
-            <p className="mb-2 text-xs font-bold text-zinc-600">
-              {mode === "reassign" ? "Không thể phân công mới" : "Phân công mới"}
-            </p>
-            <div className="flex items-center justify-between text-sm font-bold text-zinc-950">
-              <span>Số suất sau phân công</span>
-              <span className="text-primary">
-                {selectedTrainer.assignedCount + 1} / {selectedTrainer.capacity}
+
+        {selectedMember && selectedTrainer && matchScore ? (
+          <section className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground">Độ phù hợp</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Phù hợp theo mục tiêu, chuyên môn và tải công việc.
+                </p>
+              </div>
+              <span className="text-2xl font-semibold text-primary">
+                {matchScore}%
               </span>
             </div>
+            <div className="mt-3 h-2 rounded-full bg-primary/10">
+              <div className="h-2 rounded-full bg-primary" style={{ width: `${matchScore}%` }} />
+            </div>
+          </section>
+        ) : null}
+
+        {selectedMember && selectedTrainer ? (
+          <section className="rounded-xl border border-border bg-background p-4">
+            <p className="text-sm font-semibold text-foreground">Tóm tắt phân công</p>
+            <div className="mt-3 space-y-2 text-sm">
+              <PreviewRow label="Hình thức" value={mode === "reassign" ? "Phân công lại" : "Phân công mới"} />
+              <PreviewRow label="Số buổi / tuần" value="3 buổi" />
+              <PreviewRow label="Gói hiện tại" value="Premium 3T" />
+              <PreviewRow
+                label="Tải PT sau phân công"
+                value={`${selectedTrainer.assignedCount + 1}/${selectedTrainer.capacity}`}
+              />
+            </div>
+
             {mode === "reassign" && selectedMember.currentTrainerName ? (
-              <p className="mt-2 text-xs text-zinc-600">
-                {selectedMember.currentTrainerName} đang là PT active. Theo tài liệu final, backend trả 422 cho đến khi assignment cũ kết thúc.
+              <p className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-3 text-xs leading-5 text-orange-800">
+                {selectedMember.currentTrainerName} đang là PT active. Theo tài liệu final,
+                backend trả 422 cho đến khi assignment cũ kết thúc.
               </p>
             ) : null}
-          </div>
+          </section>
         ) : null}
       </div>
+
       {assignmentError ? (
         <div
-          className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-red-700"
+          className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-destructive"
           data-testid="assignment-error"
         >
-          <p className="text-sm font-black">Không thể phân công PT</p>
-          <p className="mt-1 text-xs font-semibold">{assignmentError}</p>
+          <p className="text-sm font-semibold">Không thể phân công PT</p>
+          <p className="mt-1 text-xs font-medium">{assignmentError}</p>
         </div>
       ) : null}
+
       {result ? (
         <div
-          className="mt-4 rounded-xl border border-[color:var(--status-active-border)] bg-[var(--status-active-bg)] p-3"
+          className="mt-4 rounded-xl border border-primary/20 bg-primary/10 p-3"
           data-testid="assignment-success"
         >
-          <div className="flex items-center gap-2 text-sm font-black text-[var(--status-active-text)]">
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
             <CheckCircle2 aria-hidden="true" className="size-4" />
             {result.message}
           </div>
-          <p className="mt-1 text-xs font-semibold text-[var(--status-active-text)]">
+          <p className="mt-1 text-xs font-medium text-primary">
             Audit Log #{result.auditLogId} · ASSIGN_PT
           </p>
           {result.previousAssignment ? (
-            <p className="mt-1 text-xs text-[var(--status-active-text)]">
+            <p className="mt-1 text-xs text-primary">
               Phân công cũ #{result.previousAssignment.id} đã kết thúc.
             </p>
           ) : null}
@@ -526,26 +660,40 @@ function AssignmentPreview({
   )
 }
 
-function PreviewIdentity({
+function PreviewBlock({
   empty,
   label,
   name,
+  subline,
 }: {
   empty: string
   label?: string
   name?: string
+  subline?: string
 }) {
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="mb-2 flex size-16 items-center justify-center rounded-full border-4 border-white bg-primary text-lg font-black text-white shadow-sm">
+    <div className="rounded-xl border border-border bg-background p-4 text-center">
+      <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
         {name ? initials(name) : <UserRound aria-hidden="true" className="size-6" />}
       </div>
-      <h4 className="font-bold text-zinc-950">{name ?? empty}</h4>
+      <h4 className="font-semibold text-foreground">{name ?? empty}</h4>
+      {subline ? (
+        <p className="mt-1 text-xs text-muted-foreground">{subline}</p>
+      ) : null}
       {label ? (
-        <span className="mt-1 rounded-sm bg-zinc-50 px-2 py-1 text-[10px] font-bold text-zinc-600">
+        <span className="mt-3 inline-flex rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
           {label}
         </span>
       ) : null}
+    </div>
+  )
+}
+
+function PreviewRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-semibold text-foreground">{value}</span>
     </div>
   )
 }

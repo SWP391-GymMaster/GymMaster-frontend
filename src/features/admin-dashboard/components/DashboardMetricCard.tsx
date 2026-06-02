@@ -7,6 +7,7 @@ type DashboardMetricCardProps = {
   label: string
   value: string | number
   icon?: LucideIcon
+  iconColor?: "primary" | "warning" | "danger" | "success"
   trend?: {
     direction: TrendDirection
     label: string
@@ -21,10 +22,21 @@ const trendStyles: Record<TrendDirection, string> = {
   neutral: "text-zinc-600 bg-zinc-200/60",
 }
 
+const iconColorStyles: Record<
+  "primary" | "warning" | "danger" | "success",
+  { bg: string; text: string }
+> = {
+  primary: { bg: "bg-primary/10", text: "text-primary" },
+  warning: { bg: "bg-amber-500/10", text: "text-amber-500" },
+  danger: { bg: "bg-red-500/10", text: "text-red-500" },
+  success: { bg: "bg-green-500/10", text: "text-green-500" },
+}
+
 export function DashboardMetricCard({
   label,
   value,
   icon: Icon,
+  iconColor,
   trend,
   isLoading,
   className,
@@ -68,7 +80,13 @@ export function DashboardMetricCard({
           </p>
         </div>
         {Icon ? (
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <span
+            className={cn(
+              "flex size-11 shrink-0 items-center justify-center rounded-full",
+              iconColorStyles[iconColor ?? "primary"].bg,
+              iconColorStyles[iconColor ?? "primary"].text,
+            )}
+          >
             <Icon aria-hidden="true" className="size-5" />
           </span>
         ) : null}

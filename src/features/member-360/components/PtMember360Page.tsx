@@ -2,10 +2,10 @@
 
 import { useParams } from "next/navigation"
 
-import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
-import { Member360Content } from "@/features/member-360/components/Member360Content"
+import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { useMember360Data } from "@/features/member-360/api/member-360.queries"
+import { Member360Content } from "@/features/member-360/components/Member360Content"
 
 export function PtMember360Page() {
   const params = useParams<{ id: string }>()
@@ -19,9 +19,9 @@ export function PtMember360Page() {
   return (
     <PermissionGuard allowedRoles={["pt"]}>
       <WorkspaceShell
-        description="Xem hồ sơ, gói tập, check-in và tiến độ của hội viên được phân công."
+        description="Hồ sơ tập luyện, gói hội viên, check-in và ghi chú dành cho PT phụ trách."
         role="pt"
-        title={data?.member.fullName ?? "Hội viên 360"}
+        title={data?.member.fullName ?? "Member 360°"}
       >
         <Member360Content
           data={data ?? undefined}

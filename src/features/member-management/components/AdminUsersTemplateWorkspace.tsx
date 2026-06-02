@@ -3,14 +3,22 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Check,
+  ChevronRight,
   KeyRound,
   Lock,
+  Mail,
+  MoreVertical,
+  Phone,
   Search,
   ShieldCheck,
   Trash2,
   Unlock,
+  UserCheck,
+  UserCog,
   UserPlus,
+  UsersRound,
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import type { ReactNode } from "react"
 import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -20,6 +28,20 @@ import { RoleBadge } from "@/components/data/RoleBadge"
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
 import {
   useCreateManagedUser,
   useDeleteManagedUser,
@@ -69,17 +91,19 @@ function Field({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
+      <span className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </span>
       {children}
-      {error ? <span className="text-sm font-semibold text-red-700">{error}</span> : null}
+      {error ? (
+        <span className="text-sm font-medium text-destructive">{error}</span>
+      ) : null}
     </label>
   )
 }
 
 const inputClass =
-  "min-h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+  "min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
 
 export function AdminUsersTemplateWorkspace() {
   const [query, setQuery] = useState("")
@@ -96,258 +120,253 @@ export function AdminUsersTemplateWorkspace() {
     const trainers = users.filter((user) => user.role === "pt").length
 
     return [
-      { label: "Visible users", value: String(usersQuery.data?.total ?? 0) },
-      { label: "Active", value: String(active) },
-      { label: "Locked", value: String(locked) },
-      { label: "Trainers", value: String(trainers) },
+      {
+        icon: UsersRound,
+        label: "Tổng người dùng",
+        helper: "Tất cả tài khoản",
+        value: String(usersQuery.data?.total ?? 0),
+      },
+      {
+        icon: UserCheck,
+        label: "Đang hoạt động",
+        helper: "Sẵn sàng truy cập",
+        value: String(active),
+      },
+      {
+        icon: Lock,
+        label: "Đã khóa",
+        helper: "Cần kiểm tra",
+        value: String(locked),
+      },
+      {
+        icon: UserCog,
+        label: "Huấn luyện viên",
+        helper: "Tài khoản PT",
+        value: String(trainers),
+      },
     ]
   }, [users, usersQuery.data?.total])
 
   return (
-    <section className="grid min-h-[calc(100dvh-220px)] gap-4 lg:grid-cols-12">
-      <aside className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm lg:col-span-3">
-        <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-50 p-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
-              Team
-            </p>
-            <h2 className="mt-1 text-2xl font-black tracking-tight text-zinc-950">
-              Directory
-            </h2>
+    <section className="space-y-6">
+      <div
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        aria-label="User management metrics"
+      >
+        {metrics.map((metric) => (
+          <UserMetricCard
+            helper={metric.helper}
+            icon={metric.icon}
+            key={metric.label}
+            label={metric.label}
+            value={metric.value}
+          />
+        ))}
+      </div>
+
+      <div className="grid min-h-[calc(100dvh-320px)] gap-6 xl:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.28fr)]">
+        <aside className="flex min-h-[720px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+          <div className="border-b border-border p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                  Danh sách người dùng
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+                  Tài khoản hệ thống
+                </h2>
+              </div>
+              <CreateUserDialog />
+            </div>
+
+            <label className="relative mt-5 block">
+              <span className="sr-only">Tìm kiếm người dùng</span>
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              />
+              <input
+                className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                data-testid="admin-user-search-input"
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Tìm theo tên, email..."
+                value={query}
+              />
+            </label>
           </div>
-          <UserPlus aria-hidden="true" className="size-5 text-primary" />
-        </div>
 
-        <label className="relative border-b border-zinc-200 bg-zinc-50 p-3">
-          <span className="sr-only">Search team</span>
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute left-6 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
-          />
-          <input
-            className="min-h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-3 text-sm text-zinc-950 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-            data-testid="admin-user-search-input"
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search team..."
-            value={query}
-          />
-        </label>
+          <div className="flex-1 space-y-2 overflow-y-auto p-3">
+            {usersQuery.isLoading ? (
+              <StateBlock title="Đang tải người dùng..." tone="loading" />
+            ) : null}
+            {usersQuery.error ? (
+              <StateBlock
+                title={
+                  usersQuery.error instanceof Error
+                    ? usersQuery.error.message
+                    : "Không thể tải danh sách người dùng."
+                }
+                tone="error"
+              />
+            ) : null}
+            {!usersQuery.isLoading && users.length === 0 ? (
+              <StateBlock
+                description="Tạo tài khoản mới hoặc điều chỉnh từ khóa tìm kiếm."
+                title="Không tìm thấy người dùng"
+                tone="empty"
+              />
+            ) : null}
+            {users.map((user) => {
+              const active = selectedUser?.userId === user.userId
 
-        <div className="flex-1 space-y-1 overflow-y-auto p-2">
-          {usersQuery.isLoading ? (
-            <StateBlock title="Loading users..." tone="loading" />
-          ) : null}
-          {usersQuery.error ? (
-            <StateBlock
-              title={
-                usersQuery.error instanceof Error
-                  ? usersQuery.error.message
-                  : "Unable to load users."
-              }
-              tone="error"
-            />
-          ) : null}
-          {!usersQuery.isLoading && users.length === 0 ? (
-            <StateBlock
-              description="Create an account or adjust your search."
-              title="No users found"
-              tone="empty"
-            />
-          ) : null}
-          {users.map((user) => {
-            const active = selectedUser?.userId === user.userId
-            return (
-              <button
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
-                  active
-                    ? "translate-x-1 border-primary/30 bg-primary/10"
-                    : "border-transparent hover:bg-zinc-50",
-                )}
-                data-testid="admin-user-directory-item"
-                key={user.userId}
-                onClick={() => {
-                  setSelectedId(user.userId)
-                  setTemporaryPassword(null)
-                }}
-                type="button"
-              >
-                <span
+              return (
+                <button
                   className={cn(
-                    "flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-black",
+                    "group flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.99]",
                     active
-                      ? "bg-primary text-white"
-                      : "bg-primary/10 text-primary",
+                      ? "border-primary/30 bg-primary/5 shadow-sm"
+                      : "border-transparent hover:border-border hover:bg-muted/40",
                   )}
+                  data-testid="admin-user-directory-item"
+                  key={user.userId}
+                  onClick={() => {
+                    setSelectedId(user.userId)
+                    setTemporaryPassword(null)
+                  }}
+                  type="button"
                 >
-                  {initials(user.fullName)}
-                </span>
-                <span className="min-w-0 flex-1">
                   <span
                     className={cn(
-                      "block truncate text-sm font-bold",
-                      active ? "text-primary" : "text-zinc-950",
+                      "flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold",
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-primary/10 text-primary",
                     )}
                   >
-                    {user.fullName}
+                    {initials(user.fullName)}
                   </span>
-                  <span className="block truncate text-xs text-zinc-600">
-                    {roleLabel(user.role)}
+
+                  <span className="min-w-0 flex-1">
+                    <span
+                      className={cn(
+                        "block truncate text-sm font-semibold",
+                        active ? "text-primary" : "text-foreground",
+                      )}
+                    >
+                      {user.fullName}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                      {roleLabel(user.role)}
+                    </span>
                   </span>
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </aside>
 
-      <main className="grid gap-4 lg:col-span-5">
-        <div className="grid gap-3 sm:grid-cols-4">
-          {metrics.map((metric) => (
-            <div
-              className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
-              key={metric.label}
-            >
-              <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
-                {metric.label}
-              </p>
-              <p className="mt-2 text-2xl font-black text-zinc-950">
-                {metric.value}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <section className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-primary to-gym-steel" />
-          {selectedUser ? (
-            <UserProfileCard user={selectedUser} />
-          ) : (
-            <StateBlock
-              description="Select an account from the directory."
-              title="No user selected"
-              tone="empty"
-            />
-          )}
-        </section>
-
-        <CreateUserConsole />
-      </main>
-
-      <aside className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm lg:col-span-4">
-        <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-50 p-4">
-          <div>
-            <h2 className="text-2xl font-black tracking-tight text-zinc-950">
-              Role Editor
-            </h2>
-            <p className="mt-1 text-xs font-medium text-zinc-600">
-              Inheriting defaults for{" "}
-              <strong className="text-zinc-950">
-                {selectedUser ? roleLabel(selectedUser.role) : "selected user"}
-              </strong>
-            </p>
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-xs font-medium",
+                      user.status === "active"
+                        ? "bg-primary/10 text-primary"
+                        : "bg-destructive/10 text-destructive",
+                    )}
+                  >
+                    {user.status === "active" ? "Đang hoạt động" : "Đã khóa"}
+                  </span>
+                  <ChevronRight
+                    aria-hidden="true"
+                    className={cn(
+                      "size-4 shrink-0 text-muted-foreground transition",
+                      active ? "translate-x-0.5 text-primary" : "group-hover:translate-x-0.5",
+                    )}
+                  />
+                </button>
+              )
+            })}
           </div>
-          <ShieldCheck aria-hidden="true" className="size-5 text-primary" />
-        </div>
+        </aside>
 
-        {selectedUser ? (
-          <UserLifecycleConsole
-            onTemporaryPassword={setTemporaryPassword}
-            temporaryPassword={temporaryPassword}
-            user={selectedUser}
-          />
-        ) : (
-          <StateBlock
-            className="m-4"
-            description="Pick a user to edit role and lifecycle settings."
-            title="No role selected"
-            tone="empty"
-          />
-        )}
-      </aside>
+        <main className="min-w-0">
+          <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm h-full">
+            {selectedUser ? (
+              <UserDetailPanel
+                onTemporaryPassword={setTemporaryPassword}
+                temporaryPassword={temporaryPassword}
+                user={selectedUser}
+              />
+            ) : (
+              <StateBlock
+                className="m-6"
+                description="Chọn một tài khoản từ danh sách để xem hồ sơ."
+                title="Chưa chọn người dùng"
+                tone="empty"
+              />
+            )}
+          </section>
+        </main>
+      </div>
     </section>
   )
 }
 
-function UserProfileCard({ user }: { user: ManagedUser }) {
+function UserMetricCard({
+  helper,
+  icon: Icon,
+  label,
+  value,
+}: {
+  helper: string
+  icon: LucideIcon
+  label: string
+  value: string
+}) {
   return (
-    <div className="pt-2">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <div className="flex size-20 items-center justify-center rounded-full border-2 border-[#ecedf7] bg-primary text-2xl font-black text-white">
-              {initials(user.fullName)}
-            </div>
-            <div
-              className={cn(
-                "absolute bottom-1 right-1 size-4 rounded-full border-2 border-white",
-                user.status === "active" ? "bg-primary" : "bg-red-500",
-              )}
-            />
-          </div>
-          <div>
-            <h2 className="text-3xl font-black tracking-tight text-zinc-950">
-              {user.fullName}
-            </h2>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <RoleBadge role={user.role} />
-              <span className="text-xs font-semibold text-zinc-600">
-                ID: USR-{user.userId}
-              </span>
-            </div>
-          </div>
-        </div>
-        <StatusPill status={toStatus(user.status)} />
-      </div>
-
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg bg-zinc-50 p-3">
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
-            Email
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <div className="absolute -right-5 bottom-0 size-20 rounded-full bg-primary/5" />
+      <div className="flex items-center gap-4">
+        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Icon aria-hidden="true" className="size-5" />
+        </span>
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          <p className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
+            {value}
           </p>
-          <p className="mt-1 truncate text-sm font-semibold text-zinc-950">
-            {user.email}
-          </p>
-        </div>
-        <div className="rounded-lg bg-zinc-50 p-3">
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
-            Phone
-          </p>
-          <p className="mt-1 truncate text-sm font-semibold text-zinc-950">
-            {user.phone ?? "No phone"}
-          </p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{helper}</p>
         </div>
       </div>
-
-      <section className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
-        <h3 className="font-bold text-zinc-950">Workspace & assignments</h3>
-        <div className="mt-4 space-y-3">
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-3">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
-                Primary location
-              </p>
-              <p className="mt-1 text-sm font-semibold text-zinc-950">
-                Downtown Elite Performance
-              </p>
-            </div>
-            <span className="text-xs font-bold text-primary">Default</span>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
-              {roleLabel(user.role)}
-            </span>
-            <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-bold text-zinc-600">
-              GymMaster OS
-            </span>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }
 
-function CreateUserConsole() {
+
+function CreateUserDialog() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Dialog onOpenChange={setOpen} open={open}>
+      <DialogTrigger asChild>
+        <Button className="min-h-10 rounded-xl bg-primary px-4 text-primary-foreground hover:brightness-95 active:scale-[0.98]">
+          <UserPlus aria-hidden="true" className="size-4" />
+          Thêm người dùng
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl rounded-2xl border-border p-0">
+        <DialogHeader className="border-b border-border p-6">
+          <DialogTitle className="text-2xl font-semibold tracking-tight">
+            Tạo tài khoản hệ thống
+          </DialogTitle>
+          <DialogDescription>
+            Thêm nhân sự, PT hoặc hội viên. Vai trò được lưu vào hồ sơ tài khoản,
+            không chọn ở màn đăng nhập.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="p-6">
+          <CreateUserForm onCreated={() => setOpen(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
   const createUser = useCreateManagedUser()
   const {
     formState: { errors, isSubmitting },
@@ -374,34 +393,43 @@ function CreateUserConsole() {
       })
       reset({ email: "", fullName: "", password: "", phone: "", role: "staff" })
       toast.success(`User created: ${user.fullName}`)
+      onCreated?.()
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
   }
 
   return (
-    <form
-      className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm"
-      onSubmit={handleSubmit(onSubmit)}
-    >
-      <div className="mb-4 flex items-center gap-2">
-        <UserPlus aria-hidden="true" className="size-5 text-primary" />
-        <h2 className="text-lg font-black tracking-tight text-zinc-950">
-          Invite user
-        </h2>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field error={errors.fullName?.message} label="Full name">
-          <input className={inputClass} data-testid="user-create-name" {...register("fullName")} />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field error={errors.fullName?.message} label="Họ và tên">
+          <input
+            className={inputClass}
+            data-testid="user-create-name"
+            {...register("fullName")}
+          />
         </Field>
         <Field error={errors.email?.message} label="Email">
-          <input className={inputClass} data-testid="user-create-email" type="email" {...register("email")} />
+          <input
+            className={inputClass}
+            data-testid="user-create-email"
+            type="email"
+            {...register("email")}
+          />
         </Field>
-        <Field label="Phone">
-          <input className={inputClass} data-testid="user-create-phone" {...register("phone")} />
+        <Field label="Số điện thoại">
+          <input
+            className={inputClass}
+            data-testid="user-create-phone"
+            {...register("phone")}
+          />
         </Field>
-        <Field error={errors.role?.message} label="Role">
-          <select className={inputClass} data-testid="user-create-role" {...register("role")}>
+        <Field error={errors.role?.message} label="Vai trò">
+          <select
+            className={inputClass}
+            data-testid="user-create-role"
+            {...register("role")}
+          >
             {roles.map((role) => (
               <option key={role} value={role}>
                 {roleLabel(role)}
@@ -410,29 +438,45 @@ function CreateUserConsole() {
           </select>
         </Field>
       </div>
-      <Field error={errors.password?.message} label="Password">
-        <input
-          className={inputClass}
-          data-testid="user-create-password"
-          placeholder="Leave blank for temporary password"
-          type="password"
-          {...register("password")}
-        />
-      </Field>
-      <Button
-        className="mt-4 min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
-        data-testid="user-create-submit"
-        disabled={isSubmitting}
-        type="submit"
-      >
-        <UserPlus aria-hidden="true" className="size-4" />
-        Invite User
-      </Button>
+
+      <div className="mt-4">
+        <Field error={errors.password?.message} label="Mật khẩu">
+          <input
+            className={inputClass}
+            data-testid="user-create-password"
+            placeholder="Để trống để tạo mật khẩu tạm"
+            type="password"
+            {...register("password")}
+          />
+        </Field>
+      </div>
+
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <DialogTrigger asChild>
+          <Button
+            className="rounded-xl"
+            type="button"
+            variant="outline"
+          >
+            Hủy
+          </Button>
+        </DialogTrigger>
+        <Button
+          className="min-h-11 rounded-xl bg-primary px-5 text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+          data-testid="user-create-submit"
+          disabled={isSubmitting || createUser.isPending}
+          type="submit"
+        >
+          <UserPlus aria-hidden="true" className="size-4" />
+          Tạo tài khoản
+        </Button>
+      </div>
     </form>
   )
 }
 
-function UserLifecycleConsole({
+
+function UserSecurityPanel({
   onTemporaryPassword,
   temporaryPassword,
   user,
@@ -441,10 +485,227 @@ function UserLifecycleConsole({
   temporaryPassword: string | null
   user: ManagedUser
 }) {
-  const updateUser = useUpdateManagedUser()
   const updateStatus = useUpdateManagedUserStatus()
   const resetPassword = useResetManagedUserPassword()
   const deleteUser = useDeleteManagedUser()
+
+  async function toggleLock() {
+    try {
+      await updateStatus.mutateAsync({
+        userId: user.userId,
+        input: { status: user.status === "locked" ? "active" : "locked" },
+      })
+      toast.success(user.status === "locked" ? "User unlocked" : "User locked")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  async function onResetPassword() {
+    try {
+      const result = await resetPassword.mutateAsync(user.userId)
+      onTemporaryPassword(result.temporaryPassword)
+      toast.success("Temporary password generated")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  async function onDelete() {
+    try {
+      await deleteUser.mutateAsync(user.userId)
+      onTemporaryPassword(null)
+      toast.success("User deactivated")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <section className="rounded-xl border border-border bg-background p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <ShieldCheck aria-hidden="true" className="size-5" />
+          </span>
+          <div>
+            <h3 className="text-base font-semibold text-foreground">
+              Bảo mật tài khoản
+            </h3>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Khóa tài khoản khi cần tạm dừng truy cập, hoặc tạo mật khẩu tạm
+              để hỗ trợ người dùng đăng nhập lại.
+            </p>
+          </div>
+        </div>
+
+        {temporaryPassword ? (
+          <p className="mt-5 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs font-semibold text-foreground">
+            Temporary password: {temporaryPassword}
+          </p>
+        ) : null}
+      </section>
+
+      <aside className="grid gap-2">
+        <Button
+          className="min-h-11 justify-start rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+          data-testid="user-toggle-lock-button"
+          disabled={updateStatus.isPending || user.role === "admin"}
+          onClick={toggleLock}
+          type="button"
+          variant="outline"
+        >
+          {user.status === "locked" ? (
+            <Unlock aria-hidden="true" className="size-4" />
+          ) : (
+            <Lock aria-hidden="true" className="size-4" />
+          )}
+          {user.status === "locked" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+        </Button>
+
+        <Button
+          className="min-h-11 justify-start rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+          data-testid="user-reset-password-button"
+          disabled={resetPassword.isPending || user.role === "admin"}
+          onClick={onResetPassword}
+          type="button"
+          variant="outline"
+        >
+          <KeyRound aria-hidden="true" className="size-4" />
+          Đặt lại mật khẩu
+        </Button>
+
+        <Button
+          className="min-h-11 justify-start rounded-xl"
+          data-testid="user-delete-button"
+          disabled={deleteUser.isPending || user.role === "admin"}
+          onClick={onDelete}
+          type="button"
+          variant="destructive"
+        >
+          <Trash2 aria-hidden="true" className="size-4" />
+          Xóa tài khoản
+        </Button>
+      </aside>
+    </div>
+  )
+}
+
+
+function UserDetailPanel({
+  onTemporaryPassword,
+  temporaryPassword,
+  user,
+}: {
+  onTemporaryPassword: (value: string | null) => void
+  temporaryPassword: string | null
+  user: ManagedUser
+}) {
+  return (
+    <div className="flex h-full flex-col">
+      <UserDetailHeader user={user} />
+
+      <Tabs className="h-full" defaultValue="profile">
+        <div className="border-b border-border px-6 pt-5">
+          <TabsList className="h-auto gap-7 rounded-none bg-transparent p-0">
+            <TabsTrigger
+              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              value="profile"
+            >
+              Thông tin chung
+            </TabsTrigger>
+            <TabsTrigger
+              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              value="access"
+            >
+              Quyền hạn
+            </TabsTrigger>
+            <TabsTrigger
+              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              value="security"
+            >
+              Bảo mật
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent className="m-0" value="profile">
+          <UserProfileForm user={user} />
+        </TabsContent>
+
+        <TabsContent className="m-0 p-6" value="access">
+          <UserAccessPanel user={user} />
+        </TabsContent>
+
+        <TabsContent className="m-0 p-6" value="security">
+          <UserSecurityPanel
+            onTemporaryPassword={onTemporaryPassword}
+            temporaryPassword={temporaryPassword}
+            user={user}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
+
+function UserDetailHeader({ user }: { user: ManagedUser }) {
+  return (
+    <div className="relative overflow-hidden border-b border-border bg-card p-6">
+      <div className="pointer-events-none absolute -right-20 -top-24 size-52 rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -left-16 bottom-0 size-40 rounded-full bg-primary/5 blur-3xl" />
+
+      <div className="relative flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-5">
+          <div className="relative">
+            <div className="flex size-20 items-center justify-center overflow-hidden rounded-full border border-border bg-primary/10 text-2xl font-semibold text-primary shadow-sm">
+              {initials(user.fullName)}
+            </div>
+            <div
+              className={cn(
+                "absolute bottom-1 right-1 size-4 rounded-full border-2 border-card",
+                user.status === "active" ? "bg-primary" : "bg-destructive",
+              )}
+            />
+          </div>
+
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+                {user.fullName}
+              </h2>
+              <StatusPill status={toStatus(user.status)} />
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <RoleBadge role={user.role} />
+              <span className="text-sm font-medium text-muted-foreground">
+                {roleLabel(user.role)}
+              </span>
+            </div>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              ID: USR-{user.userId} · Hồ sơ tài khoản hệ thống
+            </p>
+          </div>
+        </div>
+
+        <button
+          className="inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          type="button"
+        >
+          <MoreVertical aria-hidden="true" className="size-4" />
+          <span className="sr-only">Tùy chọn người dùng</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function UserProfileForm({ user }: { user: ManagedUser }) {
+  const updateUser = useUpdateManagedUser()
+  const updateStatus = useUpdateManagedUserStatus()
+
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -498,39 +759,18 @@ function UserLifecycleConsole({
     }
   }
 
-  async function onResetPassword() {
-    try {
-      const result = await resetPassword.mutateAsync(user.userId)
-      onTemporaryPassword(result.temporaryPassword)
-      toast.success("Temporary password generated")
-    } catch (error) {
-      toast.error(mapMemberManagementError(error).message)
-    }
-  }
-
-  async function onDelete() {
-    try {
-      await deleteUser.mutateAsync(user.userId)
-      onTemporaryPassword(null)
-      toast.success("User deactivated")
-    } catch (error) {
-      toast.error(mapMemberManagementError(error).message)
-    }
-  }
-
   return (
-    <div className="flex flex-1 flex-col">
-      <form className="grid gap-3 p-4" onSubmit={handleSubmit(onSubmit)}>
-        <Field error={errors.fullName?.message} label="Full name">
-          <input className={inputClass} data-testid="user-edit-name" {...register("fullName")} />
+    <form className="flex h-full flex-col p-6" onSubmit={handleSubmit(onSubmit)}>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Field error={errors.fullName?.message} label="Họ và tên">
+          <input
+            className={inputClass}
+            data-testid="user-edit-name"
+            {...register("fullName")}
+          />
         </Field>
-        <Field error={errors.email?.message} label="Email">
-          <input className={inputClass} data-testid="user-edit-email" type="email" {...register("email")} />
-        </Field>
-        <Field label="Phone">
-          <input className={inputClass} data-testid="user-edit-phone" {...register("phone")} />
-        </Field>
-        <Field error={errors.role?.message} label="Role">
+
+        <Field error={errors.role?.message} label="Vai trò">
           <select
             className={inputClass}
             data-testid="user-edit-role"
@@ -545,89 +785,150 @@ function UserLifecycleConsole({
           </select>
         </Field>
 
-        <section className="mt-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
-          <h3 className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
-            Client management
-          </h3>
-          <div className="mt-3 grid gap-2">
-            {[
-              "View member profiles",
-              "Edit workout plans",
-              "Record front desk operations",
-            ].map((permission, index) => (
-              <label className="flex items-start gap-3" key={permission}>
-                <span className="mt-0.5 flex size-4 items-center justify-center rounded border border-primary bg-primary text-white">
-                  {index < 2 ? <Check aria-hidden="true" className="size-3" /> : null}
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-zinc-950">
-                    {permission}
-                  </span>
-                  <span className="block text-xs text-zinc-600">
-                    Derived from {roleLabel(user.role)} role defaults.
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
-        </section>
+        <Field error={errors.email?.message} label="Email">
+          <input
+            className={inputClass}
+            data-testid="user-edit-email"
+            type="email"
+            {...register("email")}
+          />
+        </Field>
 
+        <Field label="Số điện thoại">
+          <input
+            className={inputClass}
+            data-testid="user-edit-phone"
+            {...register("phone")}
+          />
+        </Field>
+
+        <Field label="Trạng thái">
+          <input
+            className={inputClass}
+            readOnly
+            value={user.status === "active" ? "Đang hoạt động" : "Đã khóa"}
+          />
+        </Field>
+
+        <Field label="Mã tài khoản">
+          <input
+            className={inputClass}
+            readOnly
+            value={`USR-${user.userId}`}
+          />
+        </Field>
+      </div>
+
+      <div className="mt-auto flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
         <Button
-          className="min-h-11 rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
-          data-testid="user-edit-submit"
-          disabled={isSubmitting || updateUser.isPending}
-          type="submit"
+          className={cn(
+            "min-h-11 rounded-xl px-5 active:scale-[0.98]",
+            user.status === "locked"
+              ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+              : "border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/15",
+          )}
+          data-testid="user-toggle-lock-button"
+          disabled={updateStatus.isPending || user.role === "admin"}
+          onClick={toggleLock}
+          type="button"
+          variant="outline"
         >
-          Save Changes
+          {user.status === "locked" ? (
+            <Unlock aria-hidden="true" className="size-4" />
+          ) : (
+            <Lock aria-hidden="true" className="size-4" />
+          )}
+          {user.status === "locked" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
         </Button>
-      </form>
 
-      <div className="mt-auto grid gap-2 border-t border-zinc-200 bg-zinc-50 p-4">
-        {temporaryPassword ? (
-          <p className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs font-bold text-foreground">
-            Temporary password: {temporaryPassword}
-          </p>
-        ) : null}
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row">
           <Button
-            className="min-h-10 rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50 active:scale-[0.98]"
-            data-testid="user-toggle-lock-button"
-            disabled={updateStatus.isPending || user.role === "admin"}
-            onClick={toggleLock}
+            className="min-h-11 rounded-xl px-6"
+            onClick={() =>
+              reset({
+                email: user.email,
+                fullName: user.fullName,
+                phone: user.phone ?? "",
+                role: user.role === "admin" ? "staff" : user.role,
+              })
+            }
             type="button"
             variant="outline"
           >
-            {user.status === "locked" ? (
-              <Unlock aria-hidden="true" className="size-4" />
-            ) : (
-              <Lock aria-hidden="true" className="size-4" />
-            )}
-            {user.status === "locked" ? "Unlock" : "Lock"}
+            Hủy
           </Button>
+
           <Button
-            className="min-h-10 rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50 active:scale-[0.98]"
-            data-testid="user-reset-password-button"
-            disabled={resetPassword.isPending || user.role === "admin"}
-            onClick={onResetPassword}
-            type="button"
-            variant="outline"
+            className="min-h-11 rounded-xl bg-primary px-6 text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+            data-testid="user-edit-submit"
+            disabled={isSubmitting || updateUser.isPending}
+            type="submit"
           >
-            <KeyRound aria-hidden="true" className="size-4" />
-            Reset
-          </Button>
-          <Button
-            className="min-h-10 rounded-lg"
-            data-testid="user-delete-button"
-            disabled={deleteUser.isPending || user.role === "admin"}
-            onClick={onDelete}
-            type="button"
-            variant="destructive"
-          >
-            <Trash2 aria-hidden="true" className="size-4" />
-            Delete
+            Lưu thay đổi
           </Button>
         </div>
       </div>
+    </form>
+  )
+}
+
+function UserAccessPanel({ user }: { user: ManagedUser }) {
+  return (
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <section className="rounded-xl border border-border bg-background p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <ShieldCheck aria-hidden="true" className="size-5" />
+          </span>
+          <div>
+            <h3 className="text-base font-semibold text-foreground">
+              Quyền theo vai trò {roleLabel(user.role)}
+            </h3>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Các quyền bên dưới được kế thừa từ vai trò tài khoản. Người dùng
+              sẽ được điều hướng vào workspace tương ứng sau khi đăng nhập.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-3">
+          {[
+            "Xem hồ sơ hội viên",
+            "Cập nhật workout plan",
+            "Ghi nhận thao tác vận hành",
+          ].map((permission, index) => (
+            <label
+              className="flex items-start gap-3 rounded-xl border border-border bg-card p-4"
+              key={permission}
+            >
+              <span className="mt-0.5 flex size-5 items-center justify-center rounded-md border border-primary bg-primary text-primary-foreground">
+                {index < 2 ? <Check aria-hidden="true" className="size-3.5" /> : null}
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-foreground">
+                  {permission}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  Theo quyền mặc định của {roleLabel(user.role)}.
+                </span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </section>
+
+      <aside className="rounded-xl border border-border bg-muted/25 p-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+          Workspace
+        </p>
+        <p className="mt-2 text-lg font-semibold text-foreground">
+          {roleLabel(user.role)}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          Role được lưu trong hồ sơ tài khoản. Màn đăng nhập không cho người dùng
+          tự chọn vai trò.
+        </p>
+      </aside>
     </div>
   )
 }
