@@ -68,6 +68,17 @@ test.describe("Admin Dashboard Flow", () => {
     ).toBeVisible()
   })
 
+  test("Member cannot render Admin PT assignment controls", async ({ page }) => {
+    await openLogin(page)
+    await submitLogin(page, "member@gymmaster.local")
+
+    await page.goto("/admin/assignments")
+    await expect(
+      page.getByText("You do not have access to this workspace."),
+    ).toBeVisible()
+    await expect(page.getByTestId("assignment-confirm-button")).toHaveCount(0)
+  })
+
   test("Admin dashboard quick action links work", async ({ page }) => {
     await loginAsAdmin(page)
     await expect(page).toHaveURL(/\/admin\/dashboard/)
@@ -96,6 +107,73 @@ test.describe("Admin Dashboard Flow", () => {
     await expect(page.getByText(/Initial password:/)).toBeVisible()
   })
 
+  test("Admin manages full user lifecycle from template workspace", async ({
+    page,
+  }) => {
+    await loginAsAdmin(page)
+
+    await page.goto("/admin/users")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+
+    await expect(page.getByRole("heading", { name: "Directory" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: "Role Editor" })).toBeVisible()
+
+    const unique = Date.now()
+    await page.getByTestId("user-create-name").fill("Template Staff E2E")
+    await page
+      .getByTestId("user-create-email")
+      .fill(`template-staff-${unique}@gymmaster.local`)
+    await page.getByTestId("user-create-phone").fill("0900000555")
+    await page.getByTestId("user-create-submit").click()
+
+    await page
+      .getByTestId("admin-user-directory-item")
+      .filter({ hasText: "Template Staff E2E" })
+      .click()
+    await page.getByTestId("user-edit-name").fill("Template Staff Lead E2E")
+    await page.getByTestId("user-edit-submit").click()
+
+    await expect(page.getByText("User profile updated")).toBeVisible()
+    await expect(page.getByText("Template Staff Lead E2E").first()).toBeVisible()
+
+    await page.getByTestId("user-toggle-lock-button").click()
+    await expect(page.getByText("User locked")).toBeVisible()
+    await expect(page.getByText("Locked").first()).toBeVisible()
+
+    await page.getByTestId("user-reset-password-button").click()
+    await expect(page.getByText("Temporary password generated")).toBeVisible()
+    await expect(page.getByText(/Temporary password:/)).toBeVisible()
+
+    await page.getByTestId("user-delete-button").click()
+    await expect(page.getByText("User deactivated")).toBeVisible()
+    await expect(page.getByText("Template Staff Lead E2E")).toHaveCount(0)
+  })
+
+  test("Admin assigns PT and sees audit reference", async ({ page }) => {
+    await loginAsAdmin(page)
+
+    await page.goto("/admin/assignments")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+    await expect(
+      page.getByRole("heading", { name: "PT Assignment" }).first(),
+    ).toBeVisible()
+
+    await page.getByText("Tran Bao Long").click()
+    await page.getByText("Jessica Vance").click()
+    await page.getByTestId("assignment-confirm-button").click()
+
+    await expect(page.getByTestId("assignment-success")).toContainText(
+      "PT assigned",
+    )
+    await expect(page.getByTestId("assignment-success")).toContainText(
+      "ASSIGN_PT",
+    )
+  })
+
   test("Admin creates and soft-deletes Member profile", async ({ page }) => {
     await loginAsAdmin(page)
 
@@ -114,7 +192,7 @@ test.describe("Admin Dashboard Flow", () => {
 
     await expect(page.getByText("Deadline Member E2E")).toBeVisible()
     await page
-      .locator("article")
+      .locator("tr")
       .filter({ hasText: "Deadline Member E2E" })
       .getByRole("button", { name: /delete/i })
       .click()

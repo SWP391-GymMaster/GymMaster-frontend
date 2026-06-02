@@ -13,7 +13,7 @@ type RoleBadgeProps = {
 
 export function RoleBadge({ role }: RoleBadgeProps) {
   return (
-    <span className="inline-flex min-h-8 items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 text-sm font-medium text-emerald-950">
+    <span className="inline-flex min-h-8 items-center rounded-full border border-border bg-secondary px-3 text-sm font-medium text-secondary-foreground">
       {roleLabels[role]}
     </span>
   )

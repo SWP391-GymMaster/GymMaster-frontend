@@ -33,7 +33,7 @@ describe("RenewPackageWizard", () => {
     })
     fireEvent.click(screen.getByRole("button", { name: "Find" }))
     fireEvent.click(await screen.findByText("Nguyen Minh Anh"))
-    expect(await screen.findByText(/Premium 30 · ends/i)).toBeInTheDocument()
+    expect(await screen.findAllByText(/Premium 30 · ends/i)).not.toHaveLength(0)
 
     fireEvent.click(await screen.findByText("Strength 90"))
     expect(screen.getByTestId("staff-renew-summary")).toHaveTextContent(

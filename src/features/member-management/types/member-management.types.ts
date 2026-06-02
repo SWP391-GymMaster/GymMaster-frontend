@@ -61,6 +61,22 @@ export type CreateUserInput = {
   password?: string
 }
 
+export type UpdateUserInput = Partial<{
+  fullName: string
+  email: string
+  phone: string
+  role: "staff" | "pt" | "member"
+}>
+
+export type UpdateUserStatusInput = {
+  status: "active" | "locked"
+}
+
+export type ResetUserPasswordResult = {
+  userId: number
+  temporaryPassword: string
+}
+
 export type CreateTrainerInput = {
   fullName: string
   specialty: string

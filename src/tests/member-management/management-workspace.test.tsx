@@ -8,7 +8,10 @@ import {
   useAuthSessionStore,
 } from "@/features/auth/session/auth-session"
 
-function renderWithRole(role: "admin" | "staff") {
+function renderWithRole(
+  role: "admin" | "staff",
+  mode: "members" | "staff" | "trainers" = "members",
+) {
   resetAuthSessionForTest()
   useAuthSessionStore.getState().setSession({
     accessToken: `access-${role}`,
@@ -29,7 +32,7 @@ function renderWithRole(role: "admin" | "staff") {
       <ManagementWorkspace
         canDeleteMembers={role === "admin"}
         detailBasePath={`/${role}/members`}
-        mode="members"
+        mode={mode}
       />
     </AppProviders>,
   )
@@ -71,5 +74,43 @@ describe("ManagementWorkspace", () => {
     await waitFor(() => {
       expect(screen.queryByText("Tran Bao Long")).not.toBeInTheDocument()
     })
+  })
+
+  it("renders the staff template with access control and create feedback", async () => {
+    renderWithRole("admin", "staff")
+
+    expect(await screen.findByText("Staff Directory")).toBeInTheDocument()
+    expect(screen.getByText("Access Control")).toBeInTheDocument()
+
+    fireEvent.change(screen.getByTestId("user-create-name"), {
+      target: { value: "Template Staff Component" },
+    })
+    fireEvent.change(screen.getByTestId("user-create-email"), {
+      target: { value: "template-staff-component@gymmaster.local" },
+    })
+    fireEvent.change(screen.getByTestId("user-create-phone"), {
+      target: { value: "0900000991" },
+    })
+    fireEvent.click(screen.getByTestId("user-create-submit"))
+
+    expect(await screen.findByText("Template Staff Component")).toBeInTheDocument()
+    expect(await screen.findByText(/Initial password:/)).toBeInTheDocument()
+  })
+
+  it("renders the trainer roster template and creates a PT profile", async () => {
+    renderWithRole("admin", "trainers")
+
+    expect(await screen.findByText("PT Management")).toBeInTheDocument()
+    expect(screen.getByText("Today's Schedule")).toBeInTheDocument()
+
+    fireEvent.change(screen.getByTestId("trainer-create-name"), {
+      target: { value: "Template Trainer Component" },
+    })
+    fireEvent.change(screen.getByTestId("trainer-create-specialty"), {
+      target: { value: "Corrective Strength" },
+    })
+    fireEvent.click(screen.getByTestId("trainer-create-submit"))
+
+    expect(await screen.findByText("Template Trainer Component")).toBeInTheDocument()
   })
 })

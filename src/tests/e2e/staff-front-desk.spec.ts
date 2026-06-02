@@ -68,7 +68,7 @@ test("Staff renews membership and records payment", async ({ page }) => {
   await page.getByTestId("staff-renew-member-search").fill("member@gymmaster.local")
   await page.getByRole("button", { name: "Find" }).click()
   await page.getByText("Nguyen Minh Anh").click()
-  await expect(page.getByText(/Premium 30 · ends/i)).toBeVisible()
+  await expect(page.getByText(/Premium 30 · ends/i).first()).toBeVisible()
   await page.getByText("Strength 90").click()
   await expect(page.getByTestId("staff-renew-summary")).toContainText(
     "2026-07-01 to 2026-09-29",

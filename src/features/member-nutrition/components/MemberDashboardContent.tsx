@@ -64,12 +64,12 @@ export function MemberDashboardContent() {
             workout context close without leaving the Member workspace.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <Button asChild className="rounded-full bg-white text-zinc-950 hover:bg-zinc-100">
+            <Button asChild variant="default">
               <Link href="/member/nutrition/meal-journal">Add meal</Link>
             </Button>
             <Button
               asChild
-              className="rounded-full border-white/20 text-white hover:bg-white/10"
+              
               variant="outline"
             >
               <Link href="/member/nutrition/summary">View summary</Link>

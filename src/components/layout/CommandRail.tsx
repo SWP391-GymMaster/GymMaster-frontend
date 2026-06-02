@@ -8,6 +8,7 @@ import {
   CreditCard,
   Dumbbell,
   FileClock,
+  Handshake,
   Home,
   Package,
   Salad,
@@ -36,6 +37,7 @@ const navByRole: Record<UserRole, CommandRailItem[]> = {
     { href: "/admin/staff", icon: ShieldCheck, label: "Staff" },
     { href: "/admin/trainers", icon: Dumbbell, label: "PTs" },
     { href: "/admin/members", icon: Users, label: "Members" },
+    { href: "/admin/assignments", icon: Handshake, label: "Assign PT" },
     { href: "/admin/audit-logs", icon: FileClock, label: "Audit Logs" },
   ],
   staff: [

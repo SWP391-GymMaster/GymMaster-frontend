@@ -7,7 +7,10 @@ import type {
   ManagedTrainer,
   ManagedUser,
   PagedResult,
+  ResetUserPasswordResult,
   UpdateMemberInput,
+  UpdateUserInput,
+  UpdateUserStatusInput,
 } from "@/features/member-management/types/member-management.types"
 
 function authHeaders(accessToken: string) {
@@ -80,6 +83,47 @@ export function createManagedUser(accessToken: string, input: CreateUserInput) {
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify(input),
+  })
+}
+
+export function updateManagedUser(
+  accessToken: string,
+  userId: number,
+  input: UpdateUserInput,
+) {
+  return apiRequest<ManagedUser>(`/api/v1/users/${userId}`, {
+    method: "PUT",
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(input),
+  })
+}
+
+export function updateManagedUserStatus(
+  accessToken: string,
+  userId: number,
+  input: UpdateUserStatusInput,
+) {
+  return apiRequest<ManagedUser>(`/api/v1/users/${userId}/status`, {
+    method: "PATCH",
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(input),
+  })
+}
+
+export function resetManagedUserPassword(accessToken: string, userId: number) {
+  return apiRequest<ResetUserPasswordResult>(
+    `/api/v1/users/${userId}/reset-password`,
+    {
+      method: "POST",
+      headers: authHeaders(accessToken),
+    },
+  )
+}
+
+export function deleteManagedUser(accessToken: string, userId: number) {
+  return apiRequest<void>(`/api/v1/users/${userId}`, {
+    method: "DELETE",
+    headers: authHeaders(accessToken),
   })
 }
 

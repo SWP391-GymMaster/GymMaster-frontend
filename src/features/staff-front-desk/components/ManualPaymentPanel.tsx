@@ -2,10 +2,9 @@
 
 import { toast } from "sonner"
 
-import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
-import { Button } from "@/components/ui/button"
 import { useRecordStaffManualPayment } from "@/features/staff-front-desk/api/staff-front-desk.queries"
+import { PaymentRequiredBanner } from "@/features/staff-front-desk/components/StaffTemplateParts"
 import type {
   ManualPaymentResult,
   MembershipSnapshot,
@@ -38,35 +37,18 @@ export function ManualPaymentPanel({
   }
 
   return (
-    <section className="rounded-[1.25rem] border border-amber-200 bg-amber-50 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-amber-950">
-            Payment required
-          </p>
-          <p className="mt-1 text-sm text-amber-900">
-            Membership is pending until manual payment is recorded.
-          </p>
-        </div>
-        <StatusPill status="pending" />
-      </div>
-      <Button
-        className="mt-4 min-h-11 rounded-full bg-zinc-950 px-5 text-white hover:bg-zinc-800"
-        data-testid="staff-record-payment-button"
-        disabled={recordPayment.isPending}
-        onClick={onRecordPayment}
-        type="button"
-      >
-        {recordPayment.isPending ? "Recording..." : "Record cash payment"}
-      </Button>
-      {error ? (
+    <PaymentRequiredBanner
+      error={
+        error ? (
         <StateBlock
-          className="mt-3"
           description="Confirm the membership and payment amount before recording again."
           title={error.message}
           tone="error"
         />
-      ) : null}
-    </section>
+        ) : null
+      }
+      isPending={recordPayment.isPending}
+      onRecordPayment={onRecordPayment}
+    />
   )
 }

@@ -7,7 +7,6 @@ import { toast } from "sonner"
 
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
-import { Button } from "@/components/ui/button"
 import {
   useRenewStaffMembership,
   useStaffMemberDetail,
@@ -15,6 +14,15 @@ import {
   useStaffPackages,
 } from "@/features/staff-front-desk/api/staff-front-desk.queries"
 import { ManualPaymentPanel } from "@/features/staff-front-desk/components/ManualPaymentPanel"
+import {
+  OrderSummaryShell,
+  PackageCard,
+  PaymentCompleteBanner,
+  StaffMemberCard,
+  StaffSearchPanel,
+  StaffWizardStepper,
+  SummaryRow,
+} from "@/features/staff-front-desk/components/StaffTemplateParts"
 import {
   sellPackageSchema,
   staffSearchSchema,
@@ -92,6 +100,13 @@ export function RenewPackageWizard() {
     ? addDays(renewalStart, selectedPackage.durationDays)
     : null
   const operationError = renew.error ? mapStaffOperationError(renew.error) : null
+  const activeStep = renewalResult
+    ? 3
+    : selectedPackage
+      ? 2
+      : selectedMember
+        ? 1
+        : 0
 
   function onSearch(values: StaffSearchInput) {
     setSubmittedQuery(values.query)
@@ -121,181 +136,171 @@ export function RenewPackageWizard() {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-      <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-        <h2 className="text-xl font-semibold text-zinc-950">
-          1. Select member
-        </h2>
-        <form
-          className="mt-4 flex gap-2"
-          onSubmit={handleSearchSubmit(onSearch)}
-        >
-          <label className="sr-only" htmlFor="renew-member-search">
-            Search member for renewal
-          </label>
-          <input
-            className="min-h-11 flex-1 rounded-full border border-zinc-200 px-4 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
-            data-testid="staff-renew-member-search"
+    <div className="grid gap-5">
+      <StaffWizardStepper
+        activeIndex={activeStep}
+        steps={["Member", "Current", "Renewal", "Payment"]}
+      />
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <div className="grid gap-5">
+          <StaffSearchPanel
+            error={searchErrors.query?.message}
             id="renew-member-search"
+            label="Select member"
+            onSubmit={handleSearchSubmit(onSearch)}
             placeholder="Name, email, phone, or member code"
-            {...registerSearch("query")}
-          />
-          <Button type="submit">Find</Button>
-        </form>
-        {searchErrors.query ? (
-          <p className="mt-3 text-sm font-medium text-red-700">
-            {searchErrors.query.message}
-          </p>
-        ) : null}
-
-        <div className="mt-4 grid gap-2">
-          {!submittedQuery ? (
-            <StateBlock
-              description="Search by member code, phone, email, or name before previewing a renewal."
-              title="Search to select a member."
-              tone="empty"
-            />
-          ) : null}
-          {members.isLoading ? (
-            <StateBlock
-              description="Loading member records and current membership context."
-              title="Loading members..."
-              tone="loading"
-            />
-          ) : null}
-          {members.data?.items.map((member) => (
-            <button
-              className="rounded-[1.25rem] border border-zinc-200 bg-white p-3 text-left transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md active:scale-[0.97] data-[selected=true]:border-emerald-500 data-[selected=true]:bg-emerald-50"
-              data-selected={selectedMember?.id === member.id}
-              key={member.id}
-              onClick={() => {
-                setSelectedMember(member)
-                setRenewalResult(null)
-                setPaymentResult(null)
-                setValue("memberId", member.id, { shouldValidate: true })
-                setValue("startDate", getRenewalStartDate(null), {
-                  shouldValidate: true,
-                })
-              }}
-              type="button"
-            >
-              <span className="block font-semibold">{member.fullName}</span>
-              <span className="block text-sm text-zinc-600">
-                {member.memberCode} · {member.currentPackageName ?? "No package"}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-        <h2 className="text-xl font-semibold text-zinc-950">
-          2. Renewal period
-        </h2>
-
-        <div className="mt-4 rounded-[1.25rem] border border-zinc-200 bg-zinc-50 p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-sm font-semibold text-zinc-950">
-                Current membership
-              </p>
-              <p className="mt-1 text-sm text-zinc-600">
-                {currentMembership
-                  ? `${currentMembership.packageName} · ends ${currentMembership.endsAt}`
-                  : "Select a member with an existing membership."}
-              </p>
-            </div>
-            {currentMembership ? (
-              <StatusPill status={currentMembership.paymentStatus} />
+            registerInput={registerSearch("query")}
+            testId="staff-renew-member-search"
+          >
+            {!submittedQuery ? (
+              <StateBlock
+                description="Search by member code, phone, email, or name before previewing a renewal."
+                title="Search to select a member."
+                tone="empty"
+              />
             ) : null}
-          </div>
+            {members.isLoading ? (
+              <StateBlock
+                description="Loading member records and current membership context."
+                title="Loading members..."
+                tone="loading"
+              />
+            ) : null}
+            {members.data?.items.map((member) => (
+              <StaffMemberCard
+                key={member.id}
+                member={member}
+                onSelect={() => {
+                  setSelectedMember(member)
+                  setRenewalResult(null)
+                  setPaymentResult(null)
+                  setValue("memberId", member.id, { shouldValidate: true })
+                  setValue("startDate", getRenewalStartDate(null), {
+                    shouldValidate: true,
+                  })
+                }}
+                selected={selectedMember?.id === member.id}
+                subtitle={`${member.memberCode} · ${
+                  member.currentPackageName ?? "No package"
+                }`}
+              />
+            ))}
+          </StaffSearchPanel>
+
+          <section className="rounded-[1.5rem] border border-zinc-200 bg-white/90 p-5 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.25rem] border border-zinc-200 bg-zinc-50 p-4">
+              <div>
+                <p className="text-sm font-semibold text-zinc-950">
+                  Current membership
+                </p>
+                <p className="mt-1 text-sm text-zinc-600">
+                  {currentMembership
+                    ? `${currentMembership.packageName} · ends ${currentMembership.endsAt}`
+                    : "Select a member with an existing membership."}
+                </p>
+              </div>
+              {currentMembership ? (
+                <StatusPill status={currentMembership.paymentStatus} />
+              ) : null}
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-semibold text-zinc-950">
+                  Renewal Package
+                </h2>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Preview the next access window before confirming renewal.
+                </p>
+              </div>
+              <StatusPill status={selectedPackage ? "active" : "pending"} />
+            </div>
+            <div className="mt-5 grid gap-4 lg:grid-cols-3">
+              {packages.data?.map((gymPackage, index) => (
+                <PackageCard
+                  gymPackage={gymPackage}
+                  key={gymPackage.id}
+                  onSelect={() => {
+                    setSelectedPackageId(gymPackage.id)
+                    setRenewalResult(null)
+                    setPaymentResult(null)
+                    setValue("packageId", gymPackage.id, {
+                      shouldValidate: true,
+                    })
+                  }}
+                  recommended={index === 1}
+                  selected={selectedPackageId === gymPackage.id}
+                />
+              ))}
+            </div>
+          </section>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          {packages.data?.map((gymPackage) => (
-            <button
-              className="rounded-[1.25rem] border border-zinc-200 bg-white p-4 text-left transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md active:scale-[0.97] disabled:opacity-50 data-[selected=true]:border-emerald-500 data-[selected=true]:bg-emerald-50"
-              data-selected={selectedPackageId === gymPackage.id}
-              disabled={!gymPackage.isActive}
-              key={gymPackage.id}
-              onClick={() => {
-                setSelectedPackageId(gymPackage.id)
-                setRenewalResult(null)
-                setPaymentResult(null)
-                setValue("packageId", gymPackage.id, { shouldValidate: true })
-              }}
-              type="button"
-            >
-              <span className="block text-base font-semibold">
-                {gymPackage.name}
-              </span>
-              <span className="mt-1 block text-sm text-zinc-600">
-                {gymPackage.durationDays} days ·{" "}
-                {gymPackage.price.toLocaleString("vi-VN")} VND
-              </span>
-            </button>
-          ))}
-        </div>
+        <OrderSummaryShell
+          footer={
+            <>
+              <form onSubmit={handleRenewalSubmit(onSubmitRenewal)}>
+                {renewalErrors.memberId ||
+                renewalErrors.packageId ||
+                renewalErrors.startDate ? (
+                  <p className="mt-3 text-sm font-medium text-red-800">
+                    {renewalErrors.memberId?.message ??
+                      renewalErrors.packageId?.message ??
+                      renewalErrors.startDate?.message}
+                  </p>
+                ) : null}
+                <button
+                  className="mt-4 min-h-12 w-full rounded-full bg-zinc-950 px-5 text-sm font-semibold text-white transition-all duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                  data-testid="staff-renew-submit-button"
+                  disabled={renew.isPending}
+                  type="submit"
+                >
+                  {renew.isPending ? "Creating..." : "Confirm renewal"}
+                </button>
+              </form>
 
-        <div
-          className="mt-5 rounded-[1.25rem] border border-zinc-200 bg-white p-4"
-          data-testid="staff-renew-summary"
+              {operationError ? (
+                <StateBlock
+                  className="mt-3"
+                  description="Review the selected member and renewal package, then try again."
+                  title={operationError.message}
+                  tone="error"
+                />
+              ) : null}
+            </>
+          }
+          member={selectedMember}
+          title="Renewal Impact"
         >
-          <p className="text-sm font-semibold text-zinc-950">
-            Renewal impact
-          </p>
-          <dl className="mt-3 grid gap-2 text-sm text-zinc-700">
-            <div className="flex justify-between gap-4">
-              <dt>Member</dt>
-              <dd>{selectedMember?.fullName ?? "Not selected"}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt>Renewal package</dt>
-              <dd>{selectedPackage?.name ?? "Not selected"}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt>New period</dt>
-              <dd>
-                {selectedPackage ? `${renewalStart} to ${renewalEnd}` : "Pending"}
-              </dd>
-            </div>
-          </dl>
-        </div>
+          <div data-testid="staff-renew-summary">
+            <SummaryRow
+              label="Current"
+              value={
+                currentMembership
+                  ? `${currentMembership.packageName} · ends ${currentMembership.endsAt}`
+                  : "Not selected"
+              }
+            />
+            <SummaryRow
+              label="Renewal package"
+              value={selectedPackage?.name ?? "Not selected"}
+            />
+            <SummaryRow
+              label="New period"
+              value={
+                selectedPackage ? `${renewalStart} to ${renewalEnd}` : "Pending"
+              }
+            />
+          </div>
+        </OrderSummaryShell>
+      </div>
 
-        <form onSubmit={handleRenewalSubmit(onSubmitRenewal)}>
-          {renewalErrors.memberId ||
-          renewalErrors.packageId ||
-          renewalErrors.startDate ? (
-            <p className="mt-3 text-sm font-medium text-red-800">
-              {renewalErrors.memberId?.message ??
-                renewalErrors.packageId?.message ??
-                renewalErrors.startDate?.message}
-            </p>
-          ) : null}
-          <Button
-            className="mt-4 min-h-11 rounded-full bg-zinc-950 px-5 text-white hover:bg-zinc-800"
-            data-testid="staff-renew-submit-button"
-            disabled={renew.isPending}
-            type="submit"
-          >
-            {renew.isPending ? "Creating..." : "Confirm renewal"}
-          </Button>
-        </form>
-
-        {operationError ? (
-          <StateBlock
-            className="mt-3"
-            description="Review the selected member and renewal package, then try again."
-            title={operationError.message}
-            tone="error"
-          />
-        ) : null}
-
-        {renewalResult ? (
-          <div
-            className="mt-5 rounded-[1.25rem] border border-zinc-200 bg-white p-4"
-            data-testid="staff-renew-result"
-          >
+      {renewalResult ? (
+        <section
+          className="rounded-[1.5rem] border border-zinc-200 bg-white/90 p-5 shadow-sm"
+          data-testid="staff-renew-result"
+        >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-semibold text-zinc-950">
@@ -308,9 +313,7 @@ export function RenewPackageWizard() {
               <StatusPill status={paymentResult ? "paid" : "pending"} />
             </div>
             {paymentResult ? (
-              <p className="mt-4 rounded-[1.25rem] bg-emerald-50 p-3 text-sm font-medium text-emerald-900">
-                {paymentResult.message}
-              </p>
+              <PaymentCompleteBanner message={paymentResult.message} />
             ) : (
               <div className="mt-4">
                 <ManualPaymentPanel
@@ -319,9 +322,8 @@ export function RenewPackageWizard() {
                 />
               </div>
             )}
-          </div>
-        ) : null}
-      </section>
+        </section>
+      ) : null}
     </div>
   )
 }

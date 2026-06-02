@@ -26,7 +26,7 @@ export function LogoutButton() {
       onClick={handleLogout}
       size="sm"
       type="button"
-      variant="outline"
+      variant="destructive"
     >
       <LogOut aria-hidden="true" />
       {isPending ? "Signing out" : "Logout"}

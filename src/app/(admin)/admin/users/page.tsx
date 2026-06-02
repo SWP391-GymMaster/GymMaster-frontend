@@ -1,5 +1,5 @@
 import { AdminPageFrame } from "@/features/admin-dashboard/components/AdminPageFrame"
-import { ManagementWorkspace } from "@/features/member-management/components/ManagementWorkspace"
+import { AdminUsersTemplateWorkspace } from "@/features/member-management/components/AdminUsersTemplateWorkspace"
 
 export default function AdminUsersPage() {
   return (
@@ -7,7 +7,7 @@ export default function AdminUsersPage() {
       description="Create role-bound accounts and review active user access from backend spec 002."
       title="User Management"
     >
-      <ManagementWorkspace mode="users" />
+      <AdminUsersTemplateWorkspace />
     </AdminPageFrame>
   )
 }

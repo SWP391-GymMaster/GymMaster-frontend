@@ -27,6 +27,13 @@ export const createUserSchema = z.object({
     }),
 })
 
+export const updateUserSchema = z.object({
+  fullName: z.string().min(2, "Full name must be at least 2 characters."),
+  email: z.email("Enter a valid email address."),
+  phone: z.string().optional(),
+  role: z.enum(["staff", "pt", "member"]),
+})
+
 export const createTrainerSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters."),
   specialty: z.string().min(2, "Specialty is required."),
@@ -35,4 +42,5 @@ export const createTrainerSchema = z.object({
 
 export type CreateMemberFormValues = z.infer<typeof createMemberSchema>
 export type CreateUserFormValues = z.infer<typeof createUserSchema>
+export type UpdateUserFormValues = z.infer<typeof updateUserSchema>
 export type CreateTrainerFormValues = z.infer<typeof createTrainerSchema>

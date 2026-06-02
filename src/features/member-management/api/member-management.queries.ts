@@ -7,15 +7,21 @@ import {
   createManagedTrainer,
   createManagedUser,
   deleteManagedMember,
+  deleteManagedUser,
   getManagedMembers,
   getManagedTrainers,
   getManagedUsers,
+  resetManagedUserPassword,
   updateManagedMember,
+  updateManagedUser,
+  updateManagedUserStatus,
 } from "@/features/member-management/api/member-management.api"
 import type {
   CreateMemberInput,
   CreateTrainerInput,
   CreateUserInput,
+  UpdateUserInput,
+  UpdateUserStatusInput,
   UpdateMemberInput,
 } from "@/features/member-management/types/member-management.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
@@ -121,6 +127,63 @@ export function useCreateManagedUser() {
   return useMutation({
     mutationFn: (input: CreateUserInput) =>
       createManagedUser(accessToken ?? "", input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: memberManagementKeys.all })
+    },
+  })
+}
+
+export function useUpdateManagedUser() {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      input,
+      userId,
+    }: {
+      input: UpdateUserInput
+      userId: number
+    }) => updateManagedUser(accessToken ?? "", userId, input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: memberManagementKeys.all })
+    },
+  })
+}
+
+export function useUpdateManagedUserStatus() {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      input,
+      userId,
+    }: {
+      input: UpdateUserStatusInput
+      userId: number
+    }) => updateManagedUserStatus(accessToken ?? "", userId, input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: memberManagementKeys.all })
+    },
+  })
+}
+
+export function useResetManagedUserPassword() {
+  const accessToken = useAccessToken()
+
+  return useMutation({
+    mutationFn: (userId: number) =>
+      resetManagedUserPassword(accessToken ?? "", userId),
+  })
+}
+
+export function useDeleteManagedUser() {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (userId: number) => deleteManagedUser(accessToken ?? "", userId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: memberManagementKeys.all })
     },
