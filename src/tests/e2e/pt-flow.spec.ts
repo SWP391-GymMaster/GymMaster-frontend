@@ -41,6 +41,70 @@ test.describe("PT Dashboard Flow", () => {
     await expect(page.getByText("Assigned member").first()).toBeVisible()
   })
 
+  test("PT creates workout plan for assigned member", async ({ page }) => {
+    await loginAsPT(page)
+    await page.goto("/pt/members/101/workout")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+
+    await expect(page.getByText("Workout plan builder").first()).toBeVisible()
+    await page.getByLabel("Plan title").fill("Deadline Strength Block")
+    await page.getByLabel("Exercise name").fill("Deadlift")
+    await page.getByLabel("Sets").fill("5")
+    await page.getByLabel("Reps").fill("5")
+    await page
+      .getByLabel("Exercise note")
+      .fill("Stop one rep before form breaks.")
+    await page.getByTestId("workout-plan-submit-button").click()
+
+    await expect(page.getByText("Workout plan saved")).toBeVisible()
+    await expect(page.getByText("Deadline Strength Block")).toBeVisible()
+    await expect(page.getByText("Deadlift")).toBeVisible()
+  })
+
+  test("PT adds trainer note for assigned member", async ({ page }) => {
+    await loginAsPT(page)
+    await page.goto("/pt/members/101/notes")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+
+    await expect(page.getByText("Trainer notes").first()).toBeVisible()
+    await page
+      .getByLabel("Coaching note")
+      .fill("Keep shoulder warm-up before pressing.")
+    await page.getByTestId("trainer-note-submit-button").click()
+
+    await expect(page.getByText("Trainer note saved")).toBeVisible()
+    await expect(
+      page.getByText("Keep shoulder warm-up before pressing.").first(),
+    ).toBeVisible()
+  })
+
+  test("Member views workout and notes read-only", async ({ page }) => {
+    await openLogin(page)
+    await submitLogin(page, "member@gymmaster.local")
+
+    await page.goto("/member/workout")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+    await expect(page.getByText("Read-only member view").first()).toBeVisible()
+    await expect(page.getByText("Foundation Strength")).toBeVisible()
+    await expect(page.getByTestId("workout-plan-submit-button")).toHaveCount(0)
+
+    await page.goto("/member/notes")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+    await expect(page.getByText("Read-only member view").first()).toBeVisible()
+    await expect(
+      page.getByText("Keep shoulder warm-up before pressing.").first(),
+    ).toBeVisible()
+    await expect(page.getByTestId("trainer-note-submit-button")).toHaveCount(0)
+  })
+
   test("Non-PT user sees permission denial", async ({ page }) => {
     await openLogin(page)
     await submitLogin(page, "member@gymmaster.local")

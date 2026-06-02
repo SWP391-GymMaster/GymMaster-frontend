@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const workoutExerciseSchema = z.object({
   name: z.string().trim().min(2, "Exercise name is required."),
-  sets: z.coerce
+  sets: z
     .number()
     .int("Sets must be a whole number.")
     .min(1, "Sets must be at least 1.")

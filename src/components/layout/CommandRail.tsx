@@ -49,9 +49,13 @@ const navByRole: Record<UserRole, CommandRailItem[]> = {
   pt: [
     { href: "/pt/dashboard", icon: Home, label: "Dashboard" },
     { href: "/pt/members/101", icon: Dumbbell, label: "Member 360" },
+    { href: "/pt/members/101/workout", icon: ClipboardList, label: "Workout" },
+    { href: "/pt/members/101/notes", icon: FileClock, label: "Notes" },
   ],
   member: [
     { href: "/member/dashboard", icon: Home, label: "Today" },
+    { href: "/member/workout", icon: Dumbbell, label: "Workout" },
+    { href: "/member/notes", icon: FileClock, label: "Notes" },
     { href: "/member/nutrition/meal-journal", icon: Salad, label: "Meal Journal" },
     { href: "/member/nutrition/summary", icon: Activity, label: "Calories" },
   ],

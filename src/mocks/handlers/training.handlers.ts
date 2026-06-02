@@ -8,6 +8,13 @@ import {
 } from "@/mocks/data/gymmaster.mock-data"
 import { created, fail, ok, requireRole } from "@/mocks/utils/api-response"
 
+function isAssignedMember(memberId: number) {
+  return assignments.some(
+    (assignment) =>
+      assignment.memberId === memberId && assignment.status === "active",
+  )
+}
+
 export const trainingHandlers = [
   http.post("/api/assignments", async ({ request }) => {
     const role = requireRole(request, ["admin"])
@@ -47,13 +54,51 @@ export const trainingHandlers = [
     const role = requireRole(request, ["pt"])
     if (typeof role !== "string") return role
 
-    const body = (await request.json()) as { title?: string; exercises?: unknown[] }
+    const memberId = Number(params.id)
+    const body = (await request.json()) as {
+      title?: string
+      exercises?: Array<{
+        name?: string
+        sets?: number
+        reps?: string
+        note?: string
+        orderIndex?: number
+      }>
+    }
+
+    if (!isAssignedMember(memberId)) {
+      return fail("FORBIDDEN", "PT can only manage assigned members", 403)
+    }
+
+    if (!body.title?.trim()) {
+      return fail("VALIDATION_ERROR", "Workout plan title is required", 422)
+    }
+
+    if (!body.exercises?.length) {
+      return fail("EMPTY_PLAN", "Workout plan requires at least one exercise", 422)
+    }
+
+    const now = new Date().toISOString()
+    const nextId =
+      workoutPlans.length > 0 ? Math.max(...workoutPlans.map((item) => item.id)) + 1 : 1
     const plan = {
-      id: Math.max(...workoutPlans.map((item) => item.id)) + 1,
-      memberId: Number(params.id),
+      id: nextId,
+      memberId,
       trainerId: 301,
-      title: body.title ?? "New Workout Plan",
-      exercises: body.exercises ?? [],
+      title: body.title,
+      status: "active" as const,
+      startDate: new Date().toISOString().slice(0, 10),
+      createdAt: now,
+      updatedAt: now,
+      exercises: body.exercises.map((exercise, index) => ({
+        id: index + 1,
+        workoutPlanId: nextId,
+        name: exercise.name ?? "Exercise",
+        sets: exercise.sets ?? 1,
+        reps: exercise.reps ?? "8",
+        note: exercise.note,
+        orderIndex: exercise.orderIndex ?? index,
+      })),
     }
     workoutPlans.push(plan)
 
@@ -80,22 +125,51 @@ export const trainingHandlers = [
     const role = requireRole(request, ["pt"])
     if (typeof role !== "string") return role
 
+    const memberId = Number(params.id)
     const body = (await request.json()) as { content?: string }
+    const content = body.content?.trim() ?? ""
+
+    if (!isAssignedMember(memberId)) {
+      return fail("FORBIDDEN", "PT can only manage assigned members", 403)
+    }
+
+    if (!content) {
+      return fail("VALIDATION_ERROR", "Trainer note content is required", 422)
+    }
+
     const note = {
       id: Math.max(...trainerNotes.map((item) => item.id)) + 1,
-      memberId: Number(params.id),
+      memberId,
       trainerId: 301,
-      content: body.content ?? "",
+      content,
       createdAt: new Date().toISOString(),
     }
     trainerNotes.push(note)
 
     return created(note)
   }),
+  http.get("/api/members/:id/notes", ({ params, request }) => {
+    const role = requireRole(request, ["pt", "member", "admin"])
+    if (typeof role !== "string") return role
+
+    const memberId = Number(params.id)
+
+    if (role === "pt" && !isAssignedMember(memberId)) {
+      return fail("FORBIDDEN", "PT can only view assigned members", 403)
+    }
+
+    return ok(trainerNotes.filter((item) => item.memberId === memberId))
+  }),
   http.get("/api/members/:id/workout-plans", ({ params, request }) => {
     const role = requireRole(request, ["pt", "member", "admin"])
     if (typeof role !== "string") return role
 
-    return ok(workoutPlans.filter((item) => item.memberId === Number(params.id)))
+    const memberId = Number(params.id)
+
+    if (role === "pt" && !isAssignedMember(memberId)) {
+      return fail("FORBIDDEN", "PT can only view assigned members", 403)
+    }
+
+    return ok(workoutPlans.filter((item) => item.memberId === memberId))
   }),
 ]
