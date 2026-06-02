@@ -86,4 +86,17 @@ describe("LoginForm", () => {
     expect(screen.queryByText("Admin")).not.toBeInTheDocument()
     expect(navigation.push).not.toHaveBeenCalled()
   })
+
+  it("signs in with Google through backend role redirect in mock mode", async () => {
+    render(<LoginForm />)
+
+    fireEvent.click(screen.getByTestId("google-login-button"))
+
+    await waitFor(() => {
+      expect(navigation.push).toHaveBeenCalledWith("/member/dashboard")
+    })
+
+    expect(useAuthSessionStore.getState().session?.role).toBe("member")
+    expect(screen.queryByText("Admin")).not.toBeInTheDocument()
+  })
 })

@@ -36,9 +36,8 @@ GymMaster Full Premium App v8 Auth Update
 GymMaster Design UX/UI FE Docs Final V4
 ```
 
-The original **GymMaster Full Premium App v8** remains the selected design direction.  
-The **Auth Update** version only updates authentication and navigation rules while preserving the original v8 direction.  
-The packaged **Final V4** docs in `docs/design/` are the practical repo-local reference agents must read for implementation work.
+The current approved visual direction is the packaged **GymMaster OS design system** under `docs/design/design-system/`.  
+Older **Full Premium App v8**, **Auth Update**, and **Final V4** documents remain useful historical/product references, but runtime UI should follow the new repo-local design-system screens and tokens unless the human owner changes direction again.
 
 Backend, database, ORM, Azure, and API testing details in `docs/init/` and `docs/backend/` are **external system contracts** for this frontend repo. Do not implement backend/database code here unless the human owner explicitly changes repo scope.
 
@@ -408,40 +407,42 @@ Do not leak technical permission details.
 
 ## 11. Design Direction Rules
 
-Follow **GymMaster Full Premium App v8**.
+Follow the approved **GymMaster OS design system** in `docs/design/design-system/`.
 
 ### Design identity
 
 ```text
-Apple-inspired premium fitness operations product
+Premium fitness operations OS
 Bento layout
 Glass-like cards (backdrop-blur + layered borders + highlight overlays)
-Large typography (display up to 5xl–7xl)
-Dark metric hero
+Large but controlled typography
+Mist workspace surfaces with dark metric accents
 Role-focused workspaces
 Mobile-first member experience
-Emerald single accent
-Geist font family (primary) + Geist Mono (code)
+Electric Blue primary accent
+Inter font family (primary) + optional Geist Mono for code
 Restrained motion with tactile feedback
 ```
 
 ### Font rule
 
-Primary font: **Geist** (loaded via `next/font`).  
-Mono font: **Geist Mono**.  
-Do not use Inter, Roboto, Arial, or Open Sans as display/body fonts.
+Primary font: **Inter** (loaded via `next/font`).  
+Mono font: **Geist Mono** may be used for code, IDs, and technical metadata.  
+Do not load fonts through external Google Fonts links in runtime code.
 
 ### Icon rule
 
 Use **Lucide React** (per tech stack in Section 4).  
-Do not mix Lucide with other icon libraries.  
+Translate Material Symbols shown in `docs/design/design-system/*/code.html` to Lucide equivalents.  
+Do not import Material Symbols or mix Lucide with other icon libraries.  
 Standardize stroke width. Keep icons consistent across all views.
 
 ### Color rule
 
-Single accent: Emerald (`#10B981`).  
-Primary text/button: Zinc-950 / near-black neutral.  
-Do not use Indigo/Purple as primary accent.  
+Primary accent: Electric Blue (`#0058BE` / `#3B82F6`).  
+Primary text: Graphite / near-black neutral.  
+Workspace surfaces: Mist / soft blue-gray neutrals from `docs/design/design-system`.  
+Do not use Indigo/Purple or Emerald as the primary accent unless a specific legacy screen is intentionally being migrated later.  
 Do not use pure `#000000` for shadows.  
 Status colors are managed centrally by `StatusPill`.
 

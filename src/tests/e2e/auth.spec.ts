@@ -48,6 +48,20 @@ test("login page uses email and password without role picker controls", async ({
   await expect(page.getByRole("button", { name: "Member" })).toHaveCount(0)
 })
 
+test("google login redirects through backend role without role picker", async ({
+  page,
+}) => {
+  await openLogin(page)
+
+  await page.getByTestId("google-login-button").click()
+
+  await expect(page).toHaveURL(/\/member\/dashboard$/, { timeout: 15_000 })
+  await expect(
+    page.getByRole("heading", { name: "Member Dashboard" }),
+  ).toBeVisible()
+  await expect(page.getByRole("button", { name: "Admin" })).toHaveCount(0)
+})
+
 for (const roleCase of roleCases) {
   test(`login redirects ${roleCase.email} to ${roleCase.dashboardPath}`, async ({
     page,
@@ -72,4 +86,43 @@ test("invalid credentials show a safe error without redirect", async ({ page }) 
     page.getByRole("main").getByText("Email or password is incorrect."),
   ).toBeVisible()
   await expect(page).toHaveURL(/\/login$/)
+})
+
+test("member signup creates member session without role picker", async ({ page }) => {
+  await page.goto("/signup")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
+
+  await page.getByTestId("signup-full-name-input").fill("New Member")
+  await page
+    .getByTestId("signup-email-input")
+    .fill(`new-member-${Date.now()}@gymmaster.local`)
+  await page.getByTestId("signup-password-input").fill("Password123!")
+  await page.getByTestId("signup-submit-button").click()
+
+  await expect(page).toHaveURL(/\/member\/dashboard$/, { timeout: 15_000 })
+  await expect(
+    page.getByRole("heading", { name: "Member Dashboard" }),
+  ).toBeVisible()
+  await expect(page.getByRole("button", { name: "Admin" })).toHaveCount(0)
+})
+
+test("forgot and reset password flow handles dev reset token", async ({
+  page,
+}) => {
+  await page.goto("/forgot-password")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
+
+  await page.getByTestId("forgot-email-input").fill("member@gymmaster.local")
+  await page.getByTestId("forgot-submit-button").click()
+
+  await expect(page.getByText(/mock-reset-token/)).toBeVisible()
+
+  await page.goto("/reset-password?token=mock-reset-token")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
+  await page.getByTestId("reset-password-input").fill("NewPassword123!")
+  await page.getByTestId("reset-submit-button").click()
+
+  await expect(
+    page.getByText("Password reset successfully. You can sign in now."),
+  ).toBeVisible()
 })

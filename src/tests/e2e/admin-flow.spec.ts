@@ -75,4 +75,49 @@ test.describe("Admin Dashboard Flow", () => {
     await page.getByText("Browse members").click()
     await expect(page).toHaveURL(/\/admin\/members/)
   })
+
+  test("Admin creates Staff account from management screen", async ({ page }) => {
+    await loginAsAdmin(page)
+
+    await page.goto("/admin/staff")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+    await expect(page.getByText("Staff Management").first()).toBeVisible()
+
+    await page.getByTestId("user-create-name").fill("Deadline Staff")
+    await page
+      .getByTestId("user-create-email")
+      .fill(`deadline-staff-${Date.now()}@gymmaster.local`)
+    await page.getByTestId("user-create-phone").fill("0900000777")
+    await page.getByTestId("user-create-submit").click()
+
+    await expect(page.getByText("Deadline Staff")).toBeVisible()
+    await expect(page.getByText(/Initial password:/)).toBeVisible()
+  })
+
+  test("Admin creates and soft-deletes Member profile", async ({ page }) => {
+    await loginAsAdmin(page)
+
+    await page.goto("/admin/members")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+    await expect(page.getByText("Member Management").first()).toBeVisible()
+
+    await page.getByTestId("member-create-name").fill("Deadline Member E2E")
+    await page
+      .getByTestId("member-create-email")
+      .fill(`deadline-member-${Date.now()}@gymmaster.local`)
+    await page.getByTestId("member-create-phone").fill("0900000666")
+    await page.getByTestId("member-create-submit").click()
+
+    await expect(page.getByText("Deadline Member E2E")).toBeVisible()
+    await page
+      .locator("article")
+      .filter({ hasText: "Deadline Member E2E" })
+      .getByRole("button", { name: /delete/i })
+      .click()
+    await expect(page.getByText("Deadline Member E2E")).toHaveCount(0)
+  })
 })

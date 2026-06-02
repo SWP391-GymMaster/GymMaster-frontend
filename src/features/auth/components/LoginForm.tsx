@@ -1,13 +1,22 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Lock, Mail } from "lucide-react"
+import Link from "next/link"
+import { ArrowRight, Lock, Mail } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import { GoogleLoginButton } from "@/features/auth/components/GoogleLoginButton"
+import {
+  authButtonClassName,
+  authErrorClassName,
+  authInlineErrorClassName,
+  authInputClassName,
+  authLabelClassName,
+} from "@/features/auth/components/auth-form-styles"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 import {
   loginSchema,
@@ -48,17 +57,17 @@ export function LoginForm() {
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-2">
-        <label className="text-sm font-medium text-zinc-900" htmlFor="email">
+        <label className={authLabelClassName} htmlFor="email">
           Email
         </label>
         <div className="relative">
           <Mail
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-400"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
           />
           <input
             autoComplete="email"
-            className="min-h-12 w-full rounded-2xl border border-zinc-200 bg-white px-11 text-base outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15"
+            className={authInputClassName}
             data-testid="login-email-input"
             id="email"
             type="email"
@@ -66,22 +75,30 @@ export function LoginForm() {
           />
         </div>
         {errors.email ? (
-          <p className="text-sm text-red-700">{errors.email.message}</p>
+          <p className={authErrorClassName}>{errors.email.message}</p>
         ) : null}
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-zinc-900" htmlFor="password">
-          Password
-        </label>
+        <div className="flex items-center justify-between gap-3">
+          <label className={authLabelClassName} htmlFor="password">
+            Password
+          </label>
+          <Link
+            className="text-sm font-semibold text-[#0058be] transition hover:text-[#004395] hover:underline"
+            href="/forgot-password"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <div className="relative">
           <Lock
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-400"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
           />
           <input
             autoComplete="current-password"
-            className="min-h-12 w-full rounded-2xl border border-zinc-200 bg-white px-11 text-base outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15"
+            className={authInputClassName}
             data-testid="login-password-input"
             id="password"
             type="password"
@@ -89,27 +106,35 @@ export function LoginForm() {
           />
         </div>
         {errors.password ? (
-          <p className="text-sm text-red-700">{errors.password.message}</p>
+          <p className={authErrorClassName}>{errors.password.message}</p>
         ) : null}
       </div>
 
       {formError ? (
-        <div
-          className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
-          role="alert"
-        >
+        <div className={authInlineErrorClassName} role="alert">
           {formError}
         </div>
       ) : null}
 
       <Button
-        className="min-h-12 w-full rounded-2xl text-base"
+        className={authButtonClassName}
         data-testid="login-submit-button"
         disabled={isSubmitting}
         type="submit"
       >
-        {isSubmitting ? "Signing in..." : "Sign in"}
+        {isSubmitting ? "Authenticating..." : "Sign in"}
+        {!isSubmitting ? <ArrowRight aria-hidden="true" className="size-4" /> : null}
       </Button>
+
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-[#e1e2ec]" />
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#727785]">
+          Or
+        </span>
+        <span className="h-px flex-1 bg-[#e1e2ec]" />
+      </div>
+
+      <GoogleLoginButton />
     </form>
   )
 }

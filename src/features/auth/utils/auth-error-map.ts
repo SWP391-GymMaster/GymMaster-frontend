@@ -10,6 +10,10 @@ const authErrorMessages: Record<string, string> = {
   INVALID_REFRESH_TOKEN: "Your session has expired. Please sign in again.",
   MISSING_ROLE: "Your account is missing a valid role. Please contact support.",
   UNKNOWN_ROLE: "Your account role is not supported. Please contact support.",
+  EMAIL_EXISTS: "This email is already registered.",
+  PHONE_EXISTS: "This phone number is already registered.",
+  INVALID_RESET_TOKEN: "This reset link is invalid or expired.",
+  INVALID_CURRENT_PASSWORD: "Current password is incorrect.",
   NETWORK_ERROR: "Unable to reach GymMaster services. Please try again.",
 }
 

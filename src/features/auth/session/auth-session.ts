@@ -2,16 +2,29 @@
 
 import { create } from "zustand"
 
-import { login as loginRequest, logout as logoutRequest } from "@/features/auth/api/auth.api"
+import {
+  login as loginRequest,
+  loginWithGoogle as googleLoginRequest,
+  logout as logoutRequest,
+  registerMember,
+} from "@/features/auth/api/auth.api"
 import { ApiClientError } from "@/lib/api/http-client"
 import { getDashboardRoute, isUserRole } from "@/lib/auth/roles"
-import type { AuthSession, LoginRequest, LoginSuccess } from "@/types/auth"
+import type {
+  AuthSession,
+  GoogleLoginRequest,
+  LoginRequest,
+  LoginSuccess,
+  RegisterRequest,
+} from "@/types/auth"
 
 const storageKey = "gymmaster.auth.session"
 
 type AuthSessionState = {
   session: AuthSession | null
   login: (request: LoginRequest) => Promise<string>
+  loginWithGoogle: (request: GoogleLoginRequest) => Promise<string>
+  signup: (request: RegisterRequest) => Promise<string>
   logout: () => Promise<void>
   setSession: (session: AuthSession | null) => void
 }
@@ -97,6 +110,20 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
   },
   login: async (request) => {
     const data = await loginRequest(request)
+    const session = createSessionFromLogin(data)
+    persistSession(session)
+    set({ session })
+    return getDashboardRoute(session.role)
+  },
+  loginWithGoogle: async (request) => {
+    const data = await googleLoginRequest(request)
+    const session = createSessionFromLogin(data)
+    persistSession(session)
+    set({ session })
+    return getDashboardRoute(session.role)
+  },
+  signup: async (request) => {
+    const data = await registerMember(request)
     const session = createSessionFromLogin(data)
     persistSession(session)
     set({ session })

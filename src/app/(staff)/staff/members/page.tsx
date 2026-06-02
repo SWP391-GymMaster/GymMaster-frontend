@@ -1,4 +1,4 @@
-import { MemberSearchPanel } from "@/features/staff-front-desk/components/MemberSearchPanel"
+import { ManagementWorkspace } from "@/features/member-management/components/ManagementWorkspace"
 import { StaffPageFrame } from "@/features/staff-front-desk/components/StaffPageFrame"
 
 export default function StaffMembersPage() {
@@ -12,7 +12,7 @@ export default function StaffMembersPage() {
       ]}
       title="Member Search"
     >
-      <MemberSearchPanel />
+      <ManagementWorkspace detailBasePath="/staff/members" mode="members" />
     </StaffPageFrame>
   )
 }
