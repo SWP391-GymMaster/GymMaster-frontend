@@ -146,7 +146,7 @@ export function AdminDashboardContent() {
                       border: "1px solid #e4e4e7",
                       background: "rgba(255,255,255,0.9)",
                       backdropFilter: "blur(8px)",
-                      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+                      boxShadow: "0 4px 20px rgba(24,24,27,0.08)",
                     }}
                   />
                   <Bar

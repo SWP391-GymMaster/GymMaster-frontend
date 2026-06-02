@@ -57,7 +57,7 @@ export function PtWorkoutPlanWorkspace() {
 
           <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
             <section>
-              <h2 className="mb-3 text-lg font-black tracking-tight text-[#191b23]">
+              <h2 className="mb-3 text-lg font-black tracking-tight text-zinc-950">
                 Tạo giáo án
               </h2>
               <WorkoutPlanForm

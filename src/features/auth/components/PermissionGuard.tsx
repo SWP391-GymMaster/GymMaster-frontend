@@ -28,17 +28,17 @@ export function PermissionGuard({
   if (!mounted || !session) {
     return (
       <section className="mx-auto flex min-h-[60vh] w-full max-w-xl flex-col items-center justify-center px-6 py-12 text-center">
-        <div className="rounded-xl border border-[#e1e2ec] bg-white/90 p-8 shadow-[0_16px_60px_rgba(25,27,35,0.08)]">
+        <div className="rounded-xl border border-zinc-200 bg-white/90 p-8 shadow-[0_16px_60px_rgba(25,27,35,0.08)]">
           <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-full bg-[#e6e7f2]">
             <ShieldAlert aria-hidden="true" className="size-8 text-primary" />
           </div>
-          <div className="mb-3 inline-flex rounded-full border border-[#c2c6d6]/60 bg-[#f2f3fd] px-3 py-1 text-sm font-semibold text-[#595e6d]">
+          <div className="mb-3 inline-flex rounded-full border border-zinc-200/80 bg-zinc-50 px-3 py-1 text-sm font-semibold text-zinc-600">
             Cần đăng nhập
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#191b23]">
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
             Vui lòng đăng nhập để tiếp tục.
           </h1>
-          <p className="mt-3 text-base leading-7 text-[#424754]">
+          <p className="mt-3 text-base leading-7 text-zinc-600">
             Workspace GymMaster chỉ mở sau khi xác thực tài khoản.
           </p>
         </div>

@@ -63,7 +63,7 @@ export function LoginForm() {
         <div className="relative">
           <Mail
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
           />
           <input
             autoComplete="email"
@@ -94,7 +94,7 @@ export function LoginForm() {
         <div className="relative">
           <Lock
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
           />
           <input
             autoComplete="current-password"
@@ -127,11 +127,11 @@ export function LoginForm() {
       </Button>
 
       <div className="flex items-center gap-3">
-        <span className="h-px flex-1 bg-[#e1e2ec]" />
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#727785]">
+        <span className="h-px flex-1 bg-zinc-200" />
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-500">
           Hoặc
         </span>
-        <span className="h-px flex-1 bg-[#e1e2ec]" />
+        <span className="h-px flex-1 bg-zinc-200" />
       </div>
 
       <GoogleLoginButton />

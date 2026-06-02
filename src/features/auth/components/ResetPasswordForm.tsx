@@ -64,7 +64,7 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
         <div className="relative">
           <KeyRound
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
           />
           <input
             autoComplete="one-time-code"
@@ -87,7 +87,7 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
         <div className="relative">
           <Lock
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
           />
           <input
             autoComplete="new-password"

@@ -143,12 +143,12 @@ export function CommandRail({ role }: CommandRailProps) {
 
 export function MobileCommandHeader({ role }: CommandRailProps) {
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[#c2c6d6]/60 bg-white/85 px-4 py-3 backdrop-blur-xl lg:hidden">
+    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl lg:hidden">
       <div>
         <p className="text-lg font-black tracking-tight text-primary">
           GymMaster OS
         </p>
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#595e6d]">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-600">
           {roleWorkspaceLabels[role]}
         </p>
       </div>

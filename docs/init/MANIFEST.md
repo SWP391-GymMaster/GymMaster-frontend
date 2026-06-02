@@ -1,7 +1,7 @@
 # MANIFEST — GymMaster Docs
 
 **Project:** GymMaster — Gym Management Web System
-**Spec version:** v1.0 | **Updated:** 2026-05-30 | **Method:** Hybrid SDD + ADD
+**Spec version:** v1.2.0 | **Updated:** 2026-06-02 | **Method:** Hybrid SDD + ADD
 
 | # | File | Status |
 |---|---|---|
@@ -23,6 +23,11 @@
 | 13 | 13_TEAM_WORKFLOW.md | Approved |
 | 14 | 14_PROMPT_LIBRARY.md | Approved |
 | 15 | 15_DATABASE_SCHEMA.md | Approved |
+| - | CHANGELOG_vs_old_spec.md | Current delta snapshot |
+| - | DB_DIFF_FOR_DBTEAM.md | Current DB diff snapshot |
+| - | GymMaster_SQLServer_Final.sql | Legacy/Stale |
+| - | build_db.py | Legacy/Stale |
+| - | test_output.txt | Legacy/Stale |
 
-**Canonical tech stack:** Next.js · ASP.NET Core 8 · SQL Server · EF Core 8 · JWT+BCrypt · Azure/Vercel.
-**Source of truth cho stack:** `CONSTITUTION.md` Layer 3.
+**Canonical tech stack:** Next.js · ASP.NET Core 10 · SQL Server · EF Core 10 · JWT+BCrypt · Azure/Vercel.
+**Source of truth cho stack:** `CONSTITUTION.md` Layer 3. Backend/database implementation lives outside this frontend repo.

@@ -54,6 +54,10 @@ export function NutritionSummaryCard({
   }
 
   const hasConsumedCalories = summary.consumed > 0
+  const consumedPercent = Math.min(
+    100,
+    Math.max(0, Math.round((summary.consumed / Math.max(summary.target, 1)) * 100)),
+  )
 
   return (
     <section
@@ -81,6 +85,19 @@ export function NutritionSummaryCard({
         <Metric label="Mục tiêu" value={formatCalories(summary.target)} />
         <Metric label="Đã ăn" value={formatCalories(summary.consumed)} />
         <Metric label="Còn lại" value={formatCalories(summary.remaining)} />
+      </div>
+
+      <div className="mt-5">
+        <div className="flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          <span>Tiến độ</span>
+          <span>{consumedPercent}%</span>
+        </div>
+        <div className="mt-2 h-3 overflow-hidden rounded-full bg-zinc-100">
+          <div
+            className="h-full rounded-full bg-primary"
+            style={{ width: `${consumedPercent}%` }}
+          />
+        </div>
       </div>
 
       {!compact ? (

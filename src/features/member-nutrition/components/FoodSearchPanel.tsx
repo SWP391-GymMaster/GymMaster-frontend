@@ -8,6 +8,8 @@ import { useFoodSearch } from "@/features/member-nutrition/api/member-nutrition.
 import type { FoodItem } from "@/features/member-nutrition/types/member-nutrition.types"
 import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
 
+const quickSearches = ["ức gà", "cơm", "chuối"]
+
 type FoodSearchPanelProps = {
   query: string
   selectedFoodId?: number
@@ -50,6 +52,20 @@ export function FoodSearchPanel({
         value={query}
       />
 
+      <div className="mt-3 flex flex-wrap gap-2">
+        {quickSearches.map((quickSearch) => (
+          <Button
+            className="h-9 rounded-full border-zinc-200 px-3 text-xs font-semibold text-zinc-700 hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98]"
+            key={quickSearch}
+            onClick={() => onQueryChange(quickSearch)}
+            type="button"
+            variant="outline"
+          >
+            {quickSearch}
+          </Button>
+        ))}
+      </div>
+
       <div className="mt-4 grid gap-2">
         {!canSearch ? (
           <StateBlock
@@ -81,7 +97,7 @@ export function FoodSearchPanel({
         ) : null}
         {foods.data?.items.map((food) => (
           <Button
-            className="h-auto justify-start rounded-[1.25rem] border-zinc-200 bg-white p-4 text-left text-zinc-950 hover:border-primary/40 hover:bg-primary/10 data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
+            className="h-auto justify-between gap-4 rounded-[1.25rem] border-zinc-200 bg-white p-4 text-left text-zinc-950 hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98] data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
             data-selected={selectedFoodId === food.id}
             data-testid="member-food-result"
             key={food.id}
@@ -89,11 +105,14 @@ export function FoodSearchPanel({
             type="button"
             variant="outline"
           >
-            <span>
+            <span className="min-w-0">
               <span className="block font-semibold">{food.name}</span>
               <span className="mt-1 block text-sm text-zinc-600">
                 {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
               </span>
+            </span>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              Chọn
             </span>
           </Button>
         ))}

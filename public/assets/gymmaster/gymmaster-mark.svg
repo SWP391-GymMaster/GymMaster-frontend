@@ -1,0 +1,14 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">GymMaster mark</title>
+  <desc id="desc">A performance lime barbell mark inside an iron shield.</desc>
+  <rect x="8" y="8" width="80" height="80" rx="28" fill="#18181B"/>
+  <rect x="10" y="10" width="76" height="76" rx="26" stroke="white" stroke-opacity="0.14" stroke-width="2"/>
+  <path d="M48 21L69 31V48C69 61.5 60.7 73.2 48 78C35.3 73.2 27 61.5 27 48V31L48 21Z" fill="#27272A"/>
+  <path d="M48 25.5L64.5 33.4V48.1C64.5 58.8 58.2 68.2 48 72.6C37.8 68.2 31.5 58.8 31.5 48.1V33.4L48 25.5Z" stroke="#A3E635" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="M28 47H68" stroke="#F4F4F5" stroke-width="5.5" stroke-linecap="round"/>
+  <path d="M22 39V55" stroke="#A3E635" stroke-width="6.5" stroke-linecap="round"/>
+  <path d="M74 39V55" stroke="#A3E635" stroke-width="6.5" stroke-linecap="round"/>
+  <path d="M34 42V52" stroke="#A3E635" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M62 42V52" stroke="#A3E635" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M43 59L47 47H54L50 59H57L44 72L48 59H43Z" fill="#A3E635"/>
+</svg>

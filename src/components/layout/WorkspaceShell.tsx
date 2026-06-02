@@ -35,12 +35,12 @@ export function WorkspaceShell({
   }
 
   return (
-    <main className="min-h-screen bg-[#f9f9ff] text-[#191b23]">
+    <main className="min-h-screen bg-zinc-50 text-zinc-950">
       <CommandRail role={role} />
       <MobileCommandHeader role={role} />
       <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,color-mix(in_oklch,var(--gym-lime)_20%,transparent),transparent_32%),linear-gradient(135deg,var(--gym-chalk),#ffffff_48%,var(--gym-mat))] px-4 py-5 md:px-8 lg:ml-[280px] lg:px-10 lg:py-8">
         <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
-          <header className="rounded-xl border border-[#e1e2ec] bg-white/85 p-5 shadow-[0_16px_60px_rgba(25,27,35,0.08)] backdrop-blur">
+          <header className="rounded-xl border border-zinc-200 bg-white/85 p-5 shadow-[0_16px_60px_rgba(25,27,35,0.08)] backdrop-blur">
             <div className="space-y-2">
               <div className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-primary">
                 {roleLabels[role]}
@@ -49,7 +49,7 @@ export function WorkspaceShell({
                 <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">
                   {title}
                 </h1>
-                <p className="mt-2 max-w-2xl text-base leading-7 text-[#424754]">
+                <p className="mt-2 max-w-2xl text-base leading-7 text-zinc-600">
                   {description}
                 </p>
               </div>
@@ -65,15 +65,15 @@ export function WorkspaceShell({
                     className={cn(
                       "rounded-xl p-5 transition-[transform,box-shadow] duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-lg",
                       isDark
-                        ? "border border-white/10 bg-[#191b23] text-white shadow-xl"
-                        : "border border-[#e1e2ec] bg-white/85 text-[#191b23] shadow-sm",
+                        ? "border border-white/10 bg-zinc-950 text-white shadow-xl"
+                        : "border border-zinc-200 bg-white/85 text-zinc-950 shadow-sm",
                     )}
                     key={`${metric.label}-${metric.value}`}
                   >
                     <p
                       className={cn(
                         "text-sm",
-                        isDark ? "text-[#c2c6d8]" : "text-[#424754]",
+                        isDark ? "text-zinc-300" : "text-zinc-600",
                       )}
                     >
                       {metric.label}

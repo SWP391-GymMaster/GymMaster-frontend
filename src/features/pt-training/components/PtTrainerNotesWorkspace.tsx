@@ -57,7 +57,7 @@ export function PtTrainerNotesWorkspace() {
 
           <div className="grid gap-5 xl:grid-cols-[0.85fr_1.15fr]">
             <section>
-              <h2 className="mb-3 text-lg font-black tracking-tight text-[#191b23]">
+              <h2 className="mb-3 text-lg font-black tracking-tight text-zinc-950">
                 Thêm ghi chú
               </h2>
               <TrainerNoteForm

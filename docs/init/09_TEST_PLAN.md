@@ -55,7 +55,7 @@
 | TC ID | Scenario | Expected | Spec |
 |---|---|---|---|
 | TC-401 | Assign PT to member | Assignment created | FR-PT-01 |
-| TC-402 | Assign PT khi đã có active | 422 / đóng cũ rồi tạo mới | FR-PT-02 |
+| TC-402 | Assign PT khi đã có active | 422 `ALREADY_ASSIGNED`, không tạo assignment mới | FR-PT-02 |
 | TC-403 | PT views assigned member | Data shown | FR-RBAC-02 |
 | TC-404 | PT views unassigned member | 403 Access denied | FR-WP-02 |
 

@@ -69,17 +69,17 @@ function Field({
 }) {
   return (
     <label className="grid gap-2">
-      <span className="text-xs font-bold uppercase tracking-[0.08em] text-[#424754]">
+      <span className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
         {label}
       </span>
       {children}
-      {error ? <span className="text-sm font-semibold text-[#ba1a1a]">{error}</span> : null}
+      {error ? <span className="text-sm font-semibold text-red-700">{error}</span> : null}
     </label>
   )
 }
 
 const inputClass =
-  "min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+  "min-h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
 
 export function AdminUsersTemplateWorkspace() {
   const [query, setQuery] = useState("")
@@ -105,27 +105,27 @@ export function AdminUsersTemplateWorkspace() {
 
   return (
     <section className="grid min-h-[calc(100dvh-220px)] gap-4 lg:grid-cols-12">
-      <aside className="flex flex-col overflow-hidden rounded-xl border border-[#c2c6d6] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] lg:col-span-3">
-        <div className="flex items-center justify-between border-b border-[#c2c6d6] bg-[#f9f9ff] p-4">
+      <aside className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm lg:col-span-3">
+        <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-50 p-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]">
+            <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
               Team
             </p>
-            <h2 className="mt-1 text-2xl font-black tracking-tight text-[#191b23]">
+            <h2 className="mt-1 text-2xl font-black tracking-tight text-zinc-950">
               Directory
             </h2>
           </div>
           <UserPlus aria-hidden="true" className="size-5 text-primary" />
         </div>
 
-        <label className="relative border-b border-[#c2c6d6] bg-[#f2f3fd] p-3">
+        <label className="relative border-b border-zinc-200 bg-zinc-50 p-3">
           <span className="sr-only">Search team</span>
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute left-6 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+            className="pointer-events-none absolute left-6 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
           />
           <input
-            className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="min-h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-3 text-sm text-zinc-950 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
             data-testid="admin-user-search-input"
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search team..."
@@ -162,7 +162,7 @@ export function AdminUsersTemplateWorkspace() {
                   "flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
                   active
                     ? "translate-x-1 border-primary/30 bg-primary/10"
-                    : "border-transparent hover:bg-[#f2f3fd]",
+                    : "border-transparent hover:bg-zinc-50",
                 )}
                 data-testid="admin-user-directory-item"
                 key={user.userId}
@@ -177,7 +177,7 @@ export function AdminUsersTemplateWorkspace() {
                     "flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-black",
                     active
                       ? "bg-primary text-white"
-                      : "bg-[#dbdff1] text-[#5d6272]",
+                      : "bg-primary/10 text-primary",
                   )}
                 >
                   {initials(user.fullName)}
@@ -186,12 +186,12 @@ export function AdminUsersTemplateWorkspace() {
                   <span
                     className={cn(
                       "block truncate text-sm font-bold",
-                      active ? "text-primary" : "text-[#191b23]",
+                      active ? "text-primary" : "text-zinc-950",
                     )}
                   >
                     {user.fullName}
                   </span>
-                  <span className="block truncate text-xs text-[#595e6d]">
+                  <span className="block truncate text-xs text-zinc-600">
                     {roleLabel(user.role)}
                   </span>
                 </span>
@@ -205,20 +205,20 @@ export function AdminUsersTemplateWorkspace() {
         <div className="grid gap-3 sm:grid-cols-4">
           {metrics.map((metric) => (
             <div
-              className="rounded-xl border border-[#c2c6d6] bg-white p-4 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+              className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
               key={metric.label}
             >
-              <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]">
+              <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
                 {metric.label}
               </p>
-              <p className="mt-2 text-2xl font-black text-[#191b23]">
+              <p className="mt-2 text-2xl font-black text-zinc-950">
                 {metric.value}
               </p>
             </div>
           ))}
         </div>
 
-        <section className="relative overflow-hidden rounded-xl border border-[#c2c6d6] bg-white p-6 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+        <section className="relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
           <div className="absolute left-0 top-0 h-2 w-full bg-gradient-to-r from-primary to-gym-steel" />
           {selectedUser ? (
             <UserProfileCard user={selectedUser} />
@@ -234,15 +234,15 @@ export function AdminUsersTemplateWorkspace() {
         <CreateUserConsole />
       </main>
 
-      <aside className="flex flex-col overflow-hidden rounded-xl border border-[#c2c6d6] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.02)] lg:col-span-4">
-        <div className="flex items-center justify-between border-b border-[#c2c6d6] bg-[#f9f9ff] p-4">
+      <aside className="flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm lg:col-span-4">
+        <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-50 p-4">
           <div>
-            <h2 className="text-2xl font-black tracking-tight text-[#191b23]">
+            <h2 className="text-2xl font-black tracking-tight text-zinc-950">
               Role Editor
             </h2>
-            <p className="mt-1 text-xs font-medium text-[#595e6d]">
+            <p className="mt-1 text-xs font-medium text-zinc-600">
               Inheriting defaults for{" "}
-              <strong className="text-[#191b23]">
+              <strong className="text-zinc-950">
                 {selectedUser ? roleLabel(selectedUser.role) : "selected user"}
               </strong>
             </p>
@@ -286,12 +286,12 @@ function UserProfileCard({ user }: { user: ManagedUser }) {
             />
           </div>
           <div>
-            <h2 className="text-3xl font-black tracking-tight text-[#191b23]">
+            <h2 className="text-3xl font-black tracking-tight text-zinc-950">
               {user.fullName}
             </h2>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <RoleBadge role={user.role} />
-              <span className="text-xs font-semibold text-[#595e6d]">
+              <span className="text-xs font-semibold text-zinc-600">
                 ID: USR-{user.userId}
               </span>
             </div>
@@ -301,43 +301,43 @@ function UserProfileCard({ user }: { user: ManagedUser }) {
       </div>
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg bg-[#f2f3fd] p-3">
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]">
+        <div className="rounded-lg bg-zinc-50 p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
             Email
           </p>
-          <p className="mt-1 truncate text-sm font-semibold text-[#191b23]">
+          <p className="mt-1 truncate text-sm font-semibold text-zinc-950">
             {user.email}
           </p>
         </div>
-        <div className="rounded-lg bg-[#f2f3fd] p-3">
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]">
+        <div className="rounded-lg bg-zinc-50 p-3">
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
             Phone
           </p>
-          <p className="mt-1 truncate text-sm font-semibold text-[#191b23]">
+          <p className="mt-1 truncate text-sm font-semibold text-zinc-950">
             {user.phone ?? "No phone"}
           </p>
         </div>
       </div>
 
-      <section className="mt-4 rounded-xl border border-[#c2c6d6] bg-[#f9f9ff] p-4">
-        <h3 className="font-bold text-[#191b23]">Workspace & assignments</h3>
+      <section className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
+        <h3 className="font-bold text-zinc-950">Workspace & assignments</h3>
         <div className="mt-4 space-y-3">
-          <div className="flex items-center justify-between gap-3 rounded-lg border border-[#c2c6d6] bg-white p-3">
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-3">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]">
+              <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
                 Primary location
               </p>
-              <p className="mt-1 text-sm font-semibold text-[#191b23]">
+              <p className="mt-1 text-sm font-semibold text-zinc-950">
                 Downtown Elite Performance
               </p>
             </div>
             <span className="text-xs font-bold text-primary">Default</span>
           </div>
           <div className="flex flex-wrap gap-2">
-            <span className="rounded-md bg-[#dbdff1] px-2 py-1 text-xs font-bold text-[#5d6272]">
+            <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
               {roleLabel(user.role)}
             </span>
-            <span className="rounded-md bg-[#ecedf7] px-2 py-1 text-xs font-bold text-[#424754]">
+            <span className="rounded-md bg-zinc-100 px-2 py-1 text-xs font-bold text-zinc-600">
               GymMaster OS
             </span>
           </div>
@@ -381,12 +381,12 @@ function CreateUserConsole() {
 
   return (
     <form
-      className="rounded-xl border border-[#c2c6d6] bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.02)]"
+      className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm"
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="mb-4 flex items-center gap-2">
         <UserPlus aria-hidden="true" className="size-5 text-primary" />
-        <h2 className="text-lg font-black tracking-tight text-[#191b23]">
+        <h2 className="text-lg font-black tracking-tight text-zinc-950">
           Invite user
         </h2>
       </div>
@@ -545,8 +545,8 @@ function UserLifecycleConsole({
           </select>
         </Field>
 
-        <section className="mt-2 rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] p-3">
-          <h3 className="text-xs font-bold uppercase tracking-[0.08em] text-[#424754]">
+        <section className="mt-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+          <h3 className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-600">
             Client management
           </h3>
           <div className="mt-3 grid gap-2">
@@ -560,10 +560,10 @@ function UserLifecycleConsole({
                   {index < 2 ? <Check aria-hidden="true" className="size-3" /> : null}
                 </span>
                 <span>
-                  <span className="block text-sm font-semibold text-[#191b23]">
+                  <span className="block text-sm font-semibold text-zinc-950">
                     {permission}
                   </span>
-                  <span className="block text-xs text-[#595e6d]">
+                  <span className="block text-xs text-zinc-600">
                     Derived from {roleLabel(user.role)} role defaults.
                   </span>
                 </span>
@@ -582,7 +582,7 @@ function UserLifecycleConsole({
         </Button>
       </form>
 
-      <div className="mt-auto grid gap-2 border-t border-[#c2c6d6] bg-[#f9f9ff] p-4">
+      <div className="mt-auto grid gap-2 border-t border-zinc-200 bg-zinc-50 p-4">
         {temporaryPassword ? (
           <p className="rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs font-bold text-foreground">
             Temporary password: {temporaryPassword}
@@ -590,7 +590,7 @@ function UserLifecycleConsole({
         ) : null}
         <div className="grid gap-2 sm:grid-cols-3">
           <Button
-            className="min-h-10 rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd] active:scale-[0.98]"
+            className="min-h-10 rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50 active:scale-[0.98]"
             data-testid="user-toggle-lock-button"
             disabled={updateStatus.isPending || user.role === "admin"}
             onClick={toggleLock}
@@ -605,7 +605,7 @@ function UserLifecycleConsole({
             {user.status === "locked" ? "Unlock" : "Lock"}
           </Button>
           <Button
-            className="min-h-10 rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd] active:scale-[0.98]"
+            className="min-h-10 rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50 active:scale-[0.98]"
             data-testid="user-reset-password-button"
             disabled={resetPassword.isPending || user.role === "admin"}
             onClick={onResetPassword}

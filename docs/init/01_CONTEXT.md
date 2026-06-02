@@ -2,7 +2,7 @@
 
 # GymMaster — Project Context
 
-**Status:** Updated — Approved 4 Roles & Tech Stack  
+**Status:** Updated — Approved 4 Roles, Tech Stack, and Split Frontend Repo  
 **Phase:** Phase 0 — Context Discovery
 
 ## 1. Problem Statement
@@ -142,8 +142,8 @@ Admin tạo tài khoản/hồ sơ Member
 |---|---|---|
 | OQ-01 | Hệ thống dùng 3 roles hay 4 roles? | Resolved: 4 roles — Admin, Staff, PT, Member |
 | OQ-02 | Frontend ưu tiên React/Next.js, có cần chốt chính thức không? | Resolved: Next.js |
-| OQ-03 | Backend dùng ASP.NET Core, Supabase, hay phương án khác? | Resolved: ASP.NET Core 8 Web API |
-| OQ-04 | Database dùng SQL Server, PostgreSQL/Supabase hay khác? | Resolved: SQL Server + EF Core 8 Code First |
+| OQ-03 | Backend dùng ASP.NET Core, Supabase, hay phương án khác? | Resolved: ASP.NET Core 10 Web API |
+| OQ-04 | Database dùng SQL Server, PostgreSQL/Supabase hay khác? | Resolved: SQL Server + EF Core 10 Code First |
 | OQ-05 | Member có được tự gia hạn gói không, hay chỉ Admin/Staff? | Resolved: Member được gửi yêu cầu gia hạn, Admin/Staff xác nhận thanh toán |
 | OQ-06 | Check-in giới hạn 1 lần/ngày hay cho phép nhiều lần/ngày? | Resolved: MVP cho phép nhiều lần/ngày; có thể cấu hình giới hạn sau |
 | OQ-07 | Barcode lookup có nằm trong secondary scope không? | Resolved: Secondary/Optional |
@@ -156,9 +156,9 @@ Admin tạo tài khoản/hồ sơ Member
 | Layer | Công nghệ |
 |---|---|
 | Frontend | Next.js |
-| Backend | C# / ASP.NET Core 8 Web API |
+| Backend | C# / ASP.NET Core 10 Web API |
 | Database | SQL Server |
-| ORM | Entity Framework Core 8 - Code First Migrations |
+| ORM | Entity Framework Core 10 - Code First Migrations |
 | Authentication | JWT Bearer Token + BCrypt |
 | Token Policy | Access Token 15 phút, Refresh Token 7 ngày |
 | AI Vision | Google Cloud Vision API |
@@ -166,5 +166,5 @@ Admin tạo tài khoản/hồ sơ Member
 | File Storage | Azure Blob Storage |
 | Frontend Deploy | Vercel |
 | Backend Deploy | Azure App Service |
-| Version Control | GitHub Monorepo |
+| Version Control | GitHub split repositories (`GymMaster-backend`, `GymMaster-frontend`) |
 | API Testing | Postman / Thunder Client |

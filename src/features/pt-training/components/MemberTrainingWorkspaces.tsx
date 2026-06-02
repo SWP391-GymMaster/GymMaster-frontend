@@ -1,5 +1,9 @@
 "use client"
 
+import { NotebookPen, ShieldCheck } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
+
+import { StatusPill } from "@/components/data/StatusPill"
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 import {
@@ -14,6 +18,7 @@ import {
   WorkoutPlanList,
   WorkoutPlanListHeader,
 } from "@/features/pt-training/components/WorkoutPlanList"
+import { gymMasterAssets } from "@/lib/gymmaster-assets"
 
 const demoMemberId = 101
 
@@ -28,18 +33,12 @@ export function MemberWorkoutWorkspace() {
         title="Giáo án của tôi"
       >
         <section className="space-y-4">
-          <div className="rounded-xl border border-[#c2c6d6] bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-primary">
-              Chế độ xem hội viên
-            </p>
-            <h2 className="mt-2 text-2xl font-black tracking-tight text-[#191b23]">
-              Theo sát giáo án hiện tại
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#595e6d]">
-              Thay đổi giáo án do PT quản lý. Liên hệ lễ tân hoặc PT nếu bài tập
-              chưa phù hợp.
-            </p>
-          </div>
+          <MemberTrainingHero
+            description="Thay đổi giáo án do PT quản lý. Liên hệ lễ tân hoặc PT nếu bài tập chưa phù hợp."
+            eyebrow="Chế độ xem hội viên"
+            icon={ShieldCheck}
+            title="Theo sát giáo án hiện tại"
+          />
           <WorkoutPlanListHeader />
           <WorkoutPlanList
             error={plansQuery.error instanceof Error ? plansQuery.error : null}
@@ -63,17 +62,12 @@ export function MemberTrainerNotesWorkspace() {
         title="Ghi chú PT"
       >
         <section className="space-y-4">
-          <div className="rounded-xl border border-[#c2c6d6] bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.08em] text-primary">
-              Chế độ xem hội viên
-            </p>
-            <h2 className="mt-2 text-2xl font-black tracking-tight text-[#191b23]">
-              Phản hồi huấn luyện
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#595e6d]">
-              Ghi chú được PT tạo sau đánh giá, buổi tập hoặc trao đổi phục hồi.
-            </p>
-          </div>
+          <MemberTrainingHero
+            description="Ghi chú được PT tạo sau đánh giá, buổi tập hoặc trao đổi phục hồi."
+            eyebrow="Chế độ xem hội viên"
+            icon={NotebookPen}
+            title="Phản hồi huấn luyện"
+          />
           <TrainerNoteListHeader />
           <TrainerNoteList
             error={notesQuery.error instanceof Error ? notesQuery.error : null}
@@ -83,5 +77,67 @@ export function MemberTrainerNotesWorkspace() {
         </section>
       </WorkspaceShell>
     </PermissionGuard>
+  )
+}
+
+function MemberTrainingHero({
+  description,
+  eyebrow,
+  icon: Icon,
+  title,
+}: {
+  description: string
+  eyebrow: string
+  icon: LucideIcon
+  title: string
+}) {
+  return (
+    <div
+      className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950 p-5 text-white shadow-xl md:p-6"
+      style={{
+        backgroundImage: `linear-gradient(115deg, rgba(24,24,27,0.95), rgba(24,24,27,0.74) 58%, rgba(24,24,27,0.34)), url(${gymMasterAssets.workoutCover})`,
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+      }}
+    >
+      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="flex size-11 items-center justify-center rounded-full bg-primary text-zinc-950">
+              <Icon aria-hidden="true" className="size-5" />
+            </span>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              {eyebrow}
+            </p>
+            <StatusPill
+              className="border-white/10 bg-white/10 text-white"
+              label="PT phụ trách"
+              status="assigned"
+            />
+          </div>
+          <h2 className="mt-5 max-w-2xl text-3xl font-semibold tracking-tight md:text-4xl">
+            {title}
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-200">
+            {description}
+          </p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 sm:w-64">
+          <HeroStat label="Tuần" value="04" />
+          <HeroStat label="Mục tiêu" value="Tăng cơ" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function HeroStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1.25rem] border border-white/10 bg-white/10 p-3 backdrop-blur">
+      <p className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-300">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-semibold text-white">{value}</p>
+    </div>
   )
 }

@@ -38,7 +38,7 @@ function initials(name: string) {
 }
 
 const cardClass =
-  "rounded-xl border border-[#c2c6d6] bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]"
+  "rounded-xl border border-zinc-200 bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]"
 
 export function AdminPtAssignmentWorkspace() {
   const [memberQuery, setMemberQuery] = useState("")
@@ -97,10 +97,10 @@ export function AdminPtAssignmentWorkspace() {
     <section className="grid gap-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="text-3xl font-black tracking-tight text-[#191b23]">
+          <h2 className="text-3xl font-black tracking-tight text-zinc-950">
             Phân công PT
           </h2>
-          <p className="mt-1 text-sm font-semibold text-[#595e6d]">
+          <p className="mt-1 text-sm font-semibold text-zinc-600">
             Ghép hội viên với PT, kiểm soát mỗi hội viên chỉ có một PT active và ghi audit.
           </p>
         </div>
@@ -121,10 +121,10 @@ export function AdminPtAssignmentWorkspace() {
             <span className="sr-only">Lọc hội viên</span>
             <Search
               aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
             />
             <input
-              className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
+              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-zinc-50 pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
               data-testid="assignment-member-search"
               onChange={(event) => setMemberQuery(event.target.value)}
               placeholder="Tìm hội viên..."
@@ -169,10 +169,10 @@ export function AdminPtAssignmentWorkspace() {
             <span className="sr-only">Lọc PT</span>
             <Search
               aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
             />
             <input
-              className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
+              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-zinc-50 pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
               data-testid="assignment-trainer-search"
               onChange={(event) => setTrainerQuery(event.target.value)}
               placeholder="Tìm PT..."
@@ -186,7 +186,7 @@ export function AdminPtAssignmentWorkspace() {
                   "min-h-9 rounded-full border px-3 text-sm font-bold transition active:scale-[0.98]",
                   specialty === item
                     ? "border-primary bg-primary/10 text-primary"
-                    : "border-[#c2c6d6] bg-white text-[#595e6d] hover:bg-[#f2f3fd]",
+                    : "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50",
                 )}
                 key={item}
                 onClick={() => setSpecialty(item)}
@@ -219,7 +219,7 @@ export function AdminPtAssignmentWorkspace() {
           </div>
         </section>
 
-        <section className={cn(cardClass, "flex min-h-[620px] flex-col bg-[#f9f9ff] p-5 lg:col-span-3")}>
+        <section className={cn(cardClass, "flex min-h-[620px] flex-col bg-zinc-50 p-5 lg:col-span-3")}>
           <PanelHeader
             icon={<Handshake aria-hidden="true" className="size-4" />}
             title="Xem trước"
@@ -261,8 +261,8 @@ function MetricPill({
       className={cn(
         "rounded-xl border px-4 py-3",
         tone === "danger"
-          ? "border-[#f4c7c3] bg-[#ffedea] text-[#ba1a1a]"
-          : "border-[#c2c6d6] bg-white text-[#191b23]",
+          ? "border-red-200 bg-red-50 text-red-700"
+          : "border-zinc-200 bg-white text-zinc-950",
       )}
     >
       <p className="text-xs font-black uppercase tracking-[0.08em]">{label}</p>
@@ -283,17 +283,17 @@ function PanelHeader({
   title: string
 }) {
   return (
-    <header className="mb-4 flex items-center justify-between gap-3 border-b border-[#c2c6d6] pb-4">
+    <header className="mb-4 flex items-center justify-between gap-3 border-b border-zinc-200 pb-4">
       <div className="flex items-center gap-2">
         <span className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
           {icon}
         </span>
-        <h3 className="text-xs font-black uppercase tracking-[0.1em] text-[#191b23]">
+        <h3 className="text-xs font-black uppercase tracking-[0.1em] text-zinc-950">
           {title}
         </h3>
       </div>
       {badge ? (
-        <span className="rounded-full bg-[#ffedea] px-2 py-1 text-xs font-bold text-[#ba1a1a]">
+        <span className="rounded-full bg-red-50 px-2 py-1 text-xs font-bold text-red-700">
           {badge}
         </span>
       ) : null}
@@ -317,24 +317,24 @@ function MemberCard({
         "flex w-full items-start gap-3 rounded-lg border p-4 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
         selected
           ? "border-primary bg-primary/5"
-          : "border-[#c2c6d6] bg-white hover:bg-[#f9f9ff]",
+          : "border-zinc-200 bg-white hover:bg-zinc-50",
       )}
       data-testid="assignment-member-card"
       onClick={onSelect}
       type="button"
     >
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[#c2c6d6] bg-[#dbdff1] font-black text-[#5d6272]">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 font-black text-primary">
         {initials(member.fullName)}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-sm font-bold text-[#191b23]">
+        <span className="block text-sm font-bold text-zinc-950">
           {member.fullName}
         </span>
-        <span className="mt-1 block text-xs text-[#595e6d]">
+        <span className="mt-1 block text-xs text-zinc-600">
           Mục tiêu: {member.goal ?? "Thể lực tổng quát"}
         </span>
         <span className="mt-2 flex flex-wrap gap-2">
-          <span className="rounded-sm bg-[#f2f3fd] px-2 py-1 text-[10px] font-bold text-[#595e6d]">
+          <span className="rounded-sm bg-zinc-50 px-2 py-1 text-[10px] font-bold text-zinc-600">
             {member.memberCode}
           </span>
           {member.currentTrainerName ? (
@@ -342,7 +342,7 @@ function MemberCard({
               PT hiện tại: {member.currentTrainerName}
             </span>
           ) : (
-            <span className="rounded-sm bg-[#ffedea] px-2 py-1 text-[10px] font-bold text-[#ba1a1a]">
+            <span className="rounded-sm bg-red-50 px-2 py-1 text-[10px] font-bold text-red-700">
               Cần PT
             </span>
           )}
@@ -375,7 +375,7 @@ function TrainerCard({
         "relative w-full rounded-lg border p-4 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
         selected
           ? "border-2 border-primary bg-primary/5"
-          : "border-[#c2c6d6] bg-white hover:bg-[#f9f9ff]",
+          : "border-zinc-200 bg-white hover:bg-zinc-50",
       )}
       data-testid="assignment-trainer-card"
       onClick={onSelect}
@@ -388,14 +388,14 @@ function TrainerCard({
       ) : null}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex size-12 items-center justify-center rounded-full border border-[#c2c6d6] bg-[#dbdff1] font-black text-[#5d6272]">
+          <span className="flex size-12 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 font-black text-primary">
             {initials(trainer.fullName)}
           </span>
           <span>
-            <span className="block text-sm font-bold text-[#191b23]">
+            <span className="block text-sm font-bold text-zinc-950">
               {trainer.fullName}
             </span>
-            <span className="block text-xs text-[#595e6d]">
+            <span className="block text-xs text-zinc-600">
               Chuyên môn: {displaySpecialty(trainer.specialty)}
             </span>
           </span>
@@ -408,16 +408,16 @@ function TrainerCard({
       <div className="mt-4 flex items-end justify-between gap-4">
         <div className="flex-1">
           <div className="mb-1 flex justify-between text-xs font-semibold">
-            <span className="text-[#595e6d]">Tải hiện tại</span>
-            <span className={percent >= 90 ? "text-[#ba1a1a]" : "text-primary"}>
+            <span className="text-zinc-600">Tải hiện tại</span>
+            <span className={percent >= 90 ? "text-red-700" : "text-primary"}>
               {nextCapacity}/{trainer.capacity} suất
             </span>
           </div>
-          <div className="h-1.5 rounded-full bg-[#dbdff1]">
+          <div className="h-1.5 rounded-full bg-primary/10">
             <div
               className={cn(
                 "h-1.5 rounded-full",
-                percent >= 90 ? "bg-[#ba1a1a]" : "bg-primary",
+                percent >= 90 ? "bg-red-700" : "bg-primary",
               )}
               style={{ width: `${percent}%` }}
             />
@@ -428,7 +428,7 @@ function TrainerCard({
             "rounded-lg px-4 py-2 text-sm font-bold",
             selected
               ? "bg-primary text-white"
-              : "border border-[#c2c6d6] text-[#191b23]",
+              : "border border-zinc-200 text-zinc-950",
           )}
         >
           {selected ? "Đã chọn" : "Chọn"}
@@ -465,7 +465,7 @@ function AssignmentPreview({
         </span>
         <div className="h-8 border-l-2 border-dashed border-primary/40" />
       </div>
-      <div className="rounded-xl border border-[#c2c6d6] bg-white p-4">
+      <div className="rounded-xl border border-zinc-200 bg-white p-4">
         <PreviewIdentity
           empty="Chọn PT"
           label={
@@ -476,18 +476,18 @@ function AssignmentPreview({
           name={selectedTrainer?.fullName}
         />
         {selectedMember && selectedTrainer ? (
-          <div className="mt-4 rounded-md border border-[#e1e2ec] bg-[#f9f9ff] p-3">
-            <p className="mb-2 text-xs font-bold text-[#595e6d]">
+          <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 p-3">
+            <p className="mb-2 text-xs font-bold text-zinc-600">
               {mode === "reassign" ? "Không thể phân công mới" : "Phân công mới"}
             </p>
-            <div className="flex items-center justify-between text-sm font-bold text-[#191b23]">
+            <div className="flex items-center justify-between text-sm font-bold text-zinc-950">
               <span>Số suất sau phân công</span>
               <span className="text-primary">
                 {selectedTrainer.assignedCount + 1} / {selectedTrainer.capacity}
               </span>
             </div>
             {mode === "reassign" && selectedMember.currentTrainerName ? (
-              <p className="mt-2 text-xs text-[#595e6d]">
+              <p className="mt-2 text-xs text-zinc-600">
                 {selectedMember.currentTrainerName} đang là PT active. Theo tài liệu final, backend trả 422 cho đến khi assignment cũ kết thúc.
               </p>
             ) : null}
@@ -496,7 +496,7 @@ function AssignmentPreview({
       </div>
       {assignmentError ? (
         <div
-          className="mt-4 rounded-xl border border-[#f4c7c3] bg-[#ffedea] p-3 text-[#ba1a1a]"
+          className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-red-700"
           data-testid="assignment-error"
         >
           <p className="text-sm font-black">Không thể phân công PT</p>
@@ -540,9 +540,9 @@ function PreviewIdentity({
       <div className="mb-2 flex size-16 items-center justify-center rounded-full border-4 border-white bg-primary text-lg font-black text-white shadow-sm">
         {name ? initials(name) : <UserRound aria-hidden="true" className="size-6" />}
       </div>
-      <h4 className="font-bold text-[#191b23]">{name ?? empty}</h4>
+      <h4 className="font-bold text-zinc-950">{name ?? empty}</h4>
       {label ? (
-        <span className="mt-1 rounded-sm bg-[#f2f3fd] px-2 py-1 text-[10px] font-bold text-[#595e6d]">
+        <span className="mt-1 rounded-sm bg-zinc-50 px-2 py-1 text-[10px] font-bold text-zinc-600">
           {label}
         </span>
       ) : null}

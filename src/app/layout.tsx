@@ -15,8 +15,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+  ),
   title: "GymMaster",
   description: "Frontend quản lý vận hành phòng gym GymMaster.",
+  icons: {
+    icon: "/assets/gymmaster/gymmaster-mark.svg",
+  },
+  openGraph: {
+    images: ["/assets/gymmaster/gym-operations-cover.webp"],
+  },
 };
 
 export default function RootLayout({

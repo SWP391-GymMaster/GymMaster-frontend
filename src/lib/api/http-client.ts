@@ -19,16 +19,30 @@ const fallbackError: ApiError = {
   message: "Không thể kết nối dịch vụ GymMaster. Vui lòng thử lại.",
 }
 
-function getApiUrl(path: string) {
-  if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
+export function normalizeApiPath(path: string) {
+  if (path.startsWith("/api/v1") || !path.startsWith("/api")) {
     return path
   }
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_API_BASE_URL ??
-    (process.env.NODE_ENV === "test" ? "" : "http://localhost:5042")
+  const nextChar = path.at(4)
+  if (nextChar === undefined || nextChar === "/" || nextChar === "?") {
+    return `/api/v1${path.slice(4)}`
+  }
 
-  return `${baseUrl}${path}`
+  return path
+}
+
+function getApiUrl(path: string) {
+  if (
+    process.env.NEXT_PUBLIC_API_MOCKING === "enabled" ||
+    process.env.NODE_ENV === "test"
+  ) {
+    return path
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5042"
+
+  return `${baseUrl}${normalizeApiPath(path)}`
 }
 
 export async function parseApiResponse<T>(response: Response): Promise<T> {

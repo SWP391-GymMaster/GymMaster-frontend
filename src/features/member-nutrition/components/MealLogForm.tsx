@@ -82,7 +82,7 @@ export function MealLogForm({ date }: MealLogFormProps) {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+    <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]" id="add-meal">
       <FoodSearchPanel
         onQueryChange={setFoodQuery}
         onSelectFood={selectFood}

@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { gymMasterAssets } from "@/lib/gymmaster-assets"
 
 type AuthOSShellProps = {
   children: ReactNode
@@ -31,32 +32,33 @@ export function AuthOSShell({
   className,
 }: AuthOSShellProps) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f9f9ff] px-4 py-8 text-[#191b23]">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -right-32 -top-32 h-[34rem] w-[34rem] rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-28 h-[28rem] w-[28rem] rounded-full bg-[#dee2f4]/70 blur-3xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(#c2c6d6_1px,transparent_1px)] [background-size:24px_24px] opacity-20" />
-      </div>
-
+    <main
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-zinc-950 px-4 py-8 text-zinc-950"
+      style={{
+        backgroundImage: `linear-gradient(115deg, rgba(24,24,27,0.92), rgba(24,24,27,0.72) 55%, rgba(24,24,27,0.32)), url(${gymMasterAssets.operationsCover})`,
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+      }}
+    >
       <section
         className={cn(
-          "relative z-10 w-full max-w-[480px] rounded-xl border border-[#e1e2ec] bg-white/90 p-6 shadow-[0_16px_60px_rgba(25,27,35,0.08)] backdrop-blur-xl md:p-10",
+          "relative z-10 w-full max-w-[480px] rounded-xl border border-zinc-200 bg-white/90 p-6 shadow-[0_16px_60px_rgba(25,27,35,0.08)] backdrop-blur-xl md:p-10",
           className,
         )}
       >
         <div className="mb-8 flex flex-col items-center text-center">
           <Link
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#c2c6d6]/60 bg-[#f2f3fd] px-3 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary/10 active:scale-[0.98]"
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-200/80 bg-zinc-50 px-3 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary/10 active:scale-[0.98]"
             href="/welcome"
           >
             <Dumbbell aria-hidden="true" className="size-4" />
             {eyebrow}
           </Link>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#191b23] md:text-4xl">
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 md:text-4xl">
             {title}
           </h1>
           {description ? (
-            <p className="mt-3 max-w-sm text-base leading-7 text-[#424754]">
+            <p className="mt-3 max-w-sm text-base leading-7 text-zinc-600">
               {description}
             </p>
           ) : null}
@@ -65,7 +67,7 @@ export function AuthOSShell({
         {children}
 
         {footer ? (
-          <div className="mt-6 text-center text-sm text-[#424754]">{footer}</div>
+          <div className="mt-6 text-center text-sm text-zinc-600">{footer}</div>
         ) : null}
       </section>
     </main>
@@ -104,22 +106,22 @@ export function AuthStateCard({
     type === "loading" ? (
       <Loader2 aria-hidden="true" className="size-8 animate-spin text-primary" />
     ) : type === "session" ? (
-      <LockKeyhole aria-hidden="true" className="size-8 text-[#424754]" />
+      <LockKeyhole aria-hidden="true" className="size-8 text-zinc-600" />
     ) : (
-      <AlertTriangle aria-hidden="true" className="size-8 text-[#ba1a1a]" />
+      <AlertTriangle aria-hidden="true" className="size-8 text-red-700" />
     )
   const iconClass =
-    type === "error" ? "bg-[#ffdad6]" : "bg-[#e6e7f2] ring-4 ring-white"
+    type === "error" ? "bg-red-100" : "bg-zinc-100 ring-4 ring-white"
 
   return (
     <div className="flex flex-col items-center text-center">
       <div className={cn("mb-6 flex size-16 items-center justify-center rounded-full", iconClass)}>
         {icon}
       </div>
-      <h1 className="text-2xl font-semibold tracking-tight text-[#191b23]">
+      <h1 className="text-2xl font-semibold tracking-tight text-zinc-950">
         {title}
       </h1>
-      <p className="mt-3 max-w-sm text-base leading-7 text-[#424754]">
+      <p className="mt-3 max-w-sm text-base leading-7 text-zinc-600">
         {description}
       </p>
       {action ? <div className="mt-8 w-full">{action}</div> : null}
@@ -129,7 +131,7 @@ export function AuthStateCard({
 
 export function AuthSecurityBadge() {
   return (
-    <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#c2c6d6]/50 bg-[#f2f3fd] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-[#424754]">
+    <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-zinc-200/80 bg-zinc-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-zinc-600">
       <ShieldCheck aria-hidden="true" className="size-3.5 text-primary" />
       Truy cập an toàn theo vai trò
     </div>
@@ -139,7 +141,7 @@ export function AuthSecurityBadge() {
 export function BackToLoginLink() {
   return (
     <Link
-      className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-[#595e6d] transition hover:text-primary"
+      className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-zinc-600 transition hover:text-primary"
       href="/login"
     >
       <ArrowLeft aria-hidden="true" className="size-4" />

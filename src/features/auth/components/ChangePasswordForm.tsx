@@ -69,7 +69,7 @@ export function ChangePasswordForm() {
         <div className="relative">
           <Lock
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
           />
           <input
             autoComplete="current-password"
@@ -92,7 +92,7 @@ export function ChangePasswordForm() {
         <div className="relative">
           <Lock
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
           />
           <input
             autoComplete="new-password"

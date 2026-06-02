@@ -15,6 +15,7 @@ import {
   getRemainingLabel,
   getTodayDate,
 } from "@/features/member-nutrition/utils/nutrition-formatters"
+import { gymMasterAssets } from "@/lib/gymmaster-assets"
 
 const today = getTodayDate()
 
@@ -52,16 +53,42 @@ export function CalorieSummaryWorkspace() {
     )
   }
 
+  const consumedPercent = Math.min(
+    100,
+    Math.max(
+      0,
+      Math.round((summary.data.consumed / Math.max(summary.data.target, 1)) * 100),
+    ),
+  )
+
   return (
     <div className="grid gap-5">
       <section
-        className="rounded-[1.5rem] border border-zinc-200 bg-zinc-950 p-6 text-white shadow-xl"
+        className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950 p-6 text-white shadow-xl"
         data-testid="member-calorie-summary"
+        style={{
+          backgroundImage: `linear-gradient(115deg, rgba(24,24,27,0.96), rgba(24,24,27,0.78) 58%, rgba(24,24,27,0.36)), url(${gymMasterAssets.nutritionCover})`,
+          backgroundPosition: "center",
+          backgroundSize: "cover",
+        }}
       >
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
-          Tổng kết calo ngày
-        </p>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <div className="relative">
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
+            Tổng kết calo ngày
+          </p>
+          <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight">
+            {getRemainingLabel(summary.data.remaining)}
+          </h2>
+          <div className="mt-5 h-3 overflow-hidden rounded-full bg-white/10">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{
+                width: `${consumedPercent}%`,
+              }}
+            />
+          </div>
+        </div>
+        <div className="relative mt-5 grid gap-4 md:grid-cols-3">
           <HeroMetric
             icon={Flame}
             label="Đã ăn"

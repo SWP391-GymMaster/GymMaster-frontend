@@ -125,8 +125,8 @@
 | Pre-condition | Member & PT tồn tại. |
 | Post-condition | TrainerAssignment được tạo. |
 
-**Main Flow:** mở hồ sơ Member → Assign PT → chọn PT → đóng assignment cũ nếu có → tạo assignment mới → ghi AuditLog.
-**Exception Flow:** PT inactive/locked → không cho; Member not found → 404; assign trùng PT active → warning/422.
+**Main Flow:** mở hồ sơ Member → Assign PT → chọn PT → nếu Member chưa có PT active thì tạo assignment mới → ghi AuditLog.
+**Exception Flow:** PT inactive/locked → không cho; Member not found → 404; Member đã có PT active → 422 `ALREADY_ASSIGNED` cho đến khi assignment cũ kết thúc.
 **Acceptance Criteria:** Member có tối đa 1 PT active; PT thấy Member được phân công; audit log ghi.
 
 ## UC-17 — Add Meal Log
@@ -168,9 +168,9 @@
 | Layer | Công nghệ |
 |---|---|
 | Frontend | Next.js |
-| Backend | C# / ASP.NET Core 8 Web API |
+| Backend | C# / ASP.NET Core 10 Web API |
 | Database | SQL Server |
-| ORM | Entity Framework Core 8 - Code First Migrations |
+| ORM | Entity Framework Core 10 - Code First Migrations |
 | Authentication | JWT Bearer Token + BCrypt |
 | Token Policy | Access 15 phút, Refresh 7 ngày |
 | AI Vision | Google Cloud Vision API |

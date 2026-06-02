@@ -55,18 +55,18 @@ export function WorkoutPlanForm({
 
   return (
     <form
-      className="rounded-xl border border-[#c2c6d6] bg-white p-5 shadow-sm"
+      className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm"
       onSubmit={form.handleSubmit(handleSubmit)}
     >
       <div>
         <label
-          className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]"
+          className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-500"
           htmlFor="workout-title"
         >
           Tên giáo án
         </label>
         <input
-          className="mt-2 min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] px-3 text-sm font-semibold text-[#191b23] outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+          className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-3 text-sm font-semibold text-zinc-950 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
           id="workout-title"
           placeholder="Tăng cơ nâng cao"
           {...form.register("title")}
@@ -80,11 +80,11 @@ export function WorkoutPlanForm({
 
       <div className="mt-5 space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#595e6d]">
+          <p className="text-xs font-bold uppercase tracking-[0.08em] text-zinc-500">
             Bài tập
           </p>
           <Button
-            className="min-h-10 rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd] active:scale-[0.98]"
+            className="min-h-10 rounded-full border-zinc-200 bg-white text-zinc-950 hover:bg-primary/10 active:scale-[0.98]"
             onClick={() => append(defaultExercise)}
             type="button"
             variant="outline"
@@ -102,14 +102,14 @@ export function WorkoutPlanForm({
 
         {fields.map((field, index) => (
           <div
-            className="rounded-lg border border-[#e1e2ec] bg-[#f9f9ff] p-4"
+            className="rounded-[1.25rem] border border-zinc-200 bg-zinc-50 p-4"
             key={field.id}
           >
             <div className="flex items-center justify-between gap-3">
-              <p className="font-bold text-[#191b23]">Bài tập {index + 1}</p>
+              <p className="font-bold text-zinc-950">Bài tập {index + 1}</p>
               <Button
                 aria-label={`Xóa bài tập ${index + 1}`}
-                className="size-9 rounded-lg border-red-200 text-red-700 hover:bg-red-50 active:scale-[0.98]"
+                className="size-9 rounded-full border-red-200 text-red-700 hover:bg-red-50 active:scale-[0.98]"
                 disabled={fields.length === 1}
                 onClick={() => remove(index)}
                 type="button"
@@ -125,7 +125,7 @@ export function WorkoutPlanForm({
                   Tên bài tập
                 </label>
                 <input
-                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="min-h-11 w-full rounded-2xl border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
                   id={`exercise-name-${index}`}
                   placeholder="Tên bài tập"
                   {...form.register(`exercises.${index}.name`)}
@@ -141,7 +141,7 @@ export function WorkoutPlanForm({
                   Số hiệp
                 </label>
                 <input
-                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="min-h-11 w-full rounded-2xl border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
                   id={`exercise-sets-${index}`}
                   min={1}
                   type="number"
@@ -155,7 +155,7 @@ export function WorkoutPlanForm({
                   Reps
                 </label>
                 <input
-                  className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  className="min-h-11 w-full rounded-2xl border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
                   id={`exercise-reps-${index}`}
                   placeholder="8-10"
                   {...form.register(`exercises.${index}.reps`)}
@@ -166,7 +166,7 @@ export function WorkoutPlanForm({
               Ghi chú bài tập
             </label>
             <textarea
-              className="mt-3 min-h-20 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 py-2 text-sm text-[#191b23] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="mt-3 min-h-20 w-full rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-950 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
               id={`exercise-note-${index}`}
               placeholder="Cue kỹ thuật, tempo hoặc lưu ý an toàn"
               {...form.register(`exercises.${index}.note`)}
@@ -176,7 +176,7 @@ export function WorkoutPlanForm({
       </div>
 
       <Button
-        className="mt-5 min-h-12 w-full rounded-lg bg-primary text-white hover:brightness-95 active:scale-[0.98]"
+        className="mt-5 min-h-12 w-full rounded-full bg-primary text-zinc-950 hover:brightness-95 active:scale-[0.98]"
         data-testid="workout-plan-submit-button"
         disabled={isPending}
         type="submit"

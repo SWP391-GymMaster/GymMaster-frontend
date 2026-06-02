@@ -64,10 +64,10 @@ type ManagementWorkspaceProps = {
 }
 
 const surfaceClass =
-  "rounded-xl border border-[#e1e2ec] bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]"
+  "rounded-xl border border-zinc-200 bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]"
 const inputClass =
-  "min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white px-3 text-sm text-[#191b23] outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
-const labelClass = "text-sm font-semibold text-[#191b23]"
+  "min-h-11 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-950 outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
+const labelClass = "text-sm font-semibold text-zinc-950"
 
 const modeConfig = {
   members: {
@@ -111,7 +111,7 @@ function toStatus(status: string): Status {
 function FormError({ message }: { message?: string }) {
   if (!message) return null
 
-  return <p className="text-sm font-medium text-[#ba1a1a]">{message}</p>
+  return <p className="text-sm font-medium text-red-700">{message}</p>
 }
 
 export function ManagementWorkspace({
@@ -196,12 +196,12 @@ export function ManagementWorkspace({
             className={cn(
               "rounded-xl p-5",
               item.tone === "dark"
-                ? "border border-white/10 bg-[#191b23] text-white"
-                : "border border-[#e1e2ec] bg-white text-[#191b23]",
+                ? "border border-white/10 bg-zinc-950 text-white"
+                : "border border-zinc-200 bg-white text-zinc-950",
             )}
             key={item.label}
           >
-            <p className={cn("text-sm", item.tone === "dark" ? "text-[#c2c6d8]" : "text-[#424754]")}>
+            <p className={cn("text-sm", item.tone === "dark" ? "text-zinc-300" : "text-zinc-600")}>
               {item.label}
             </p>
             <p className="mt-2 text-2xl font-semibold">{item.value}</p>
@@ -211,16 +211,16 @@ export function ManagementWorkspace({
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className={cn(surfaceClass, "overflow-hidden")}>
-          <div className="flex flex-col gap-4 border-b border-[#e1e2ec] p-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-4 border-b border-zinc-200 p-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-start gap-3">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Icon aria-hidden="true" className="size-5" />
               </div>
               <div>
-                <h2 className="text-2xl font-semibold tracking-tight text-[#191b23]">
+                <h2 className="text-2xl font-semibold tracking-tight text-zinc-950">
                   {config.title}
                 </h2>
-                <p className="mt-1 text-sm leading-6 text-[#424754]">
+                <p className="mt-1 text-sm leading-6 text-zinc-600">
                   {config.description}
                 </p>
               </div>
@@ -229,10 +229,10 @@ export function ManagementWorkspace({
               <span className="sr-only">Search records</span>
               <Search
                 aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+                className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
               />
               <input
-                className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-[#f9f9ff] pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
+                className="min-h-11 w-full rounded-lg border border-zinc-200 bg-zinc-50 pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15"
                 data-testid={isMembersMode ? "staff-member-search-input" : "management-search-input"}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={config.queryPlaceholder}
@@ -327,14 +327,14 @@ function MemberDirectoryTemplate({
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="mb-1 flex items-center gap-2">
-            <h2 className="text-3xl font-black tracking-tight text-[#191b23]">
+            <h2 className="text-3xl font-black tracking-tight text-zinc-950">
               Member Directory
             </h2>
             <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-primary">
               Admin
             </span>
           </div>
-          <p className="text-sm font-semibold text-[#595e6d]">
+          <p className="text-sm font-semibold text-zinc-600">
             Member Management · active and inactive member profiles.
           </p>
         </div>
@@ -343,10 +343,10 @@ function MemberDirectoryTemplate({
             <span className="sr-only">Search members</span>
             <Search
               aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
             />
             <input
-              className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/15"
+              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-3 text-sm text-zinc-950 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/15"
               data-testid="staff-member-search-input"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search members..."
@@ -354,7 +354,7 @@ function MemberDirectoryTemplate({
             />
           </label>
           <Button
-            className="min-h-11 rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd] active:scale-[0.98]"
+            className="min-h-11 rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50 active:scale-[0.98]"
             type="button"
             variant="outline"
           >
@@ -372,7 +372,7 @@ function MemberDirectoryTemplate({
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <section className="overflow-hidden rounded-xl border border-[#c2c6d6] bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]">
+        <section className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)]">
           {isLoading ? (
             <StateBlock
               className="m-5"
@@ -454,13 +454,13 @@ function MemberTable({
     <div data-testid="management-member-list">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">
-          <thead className="border-b border-[#c2c6d6] bg-[#f9f9ff]">
+          <thead className="border-b border-zinc-200 bg-zinc-50">
             <tr>
               {["Member Name", "Status", "Last Check-in", "Package Type", "Actions"].map(
                 (heading) => (
                   <th
                     className={cn(
-                      "px-5 py-3 text-xs font-black uppercase tracking-[0.1em] text-[#595e6d]",
+                      "px-5 py-3 text-xs font-black uppercase tracking-[0.1em] text-zinc-600",
                       heading === "Actions" ? "text-right" : "",
                     )}
                     key={heading}
@@ -471,34 +471,34 @@ function MemberTable({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e1e2ec] text-sm">
+          <tbody className="divide-y divide-zinc-200 text-sm">
             {members.map((member) => (
               <tr
-                className="group transition-colors hover:bg-[#f2f3fd]"
+                className="group transition-colors hover:bg-zinc-50"
                 data-testid="staff-member-result"
                 key={member.id}
               >
                 <td className="whitespace-nowrap px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-full border border-[#c2c6d6] bg-primary/10 text-sm font-black text-primary">
+                    <div className="flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 text-sm font-black text-primary">
                       {initials(member.fullName)}
                     </div>
                     <div>
-                      <div className="font-bold text-[#191b23]">
+                      <div className="font-bold text-zinc-950">
                         {member.fullName}
                       </div>
-                      <div className="text-xs text-[#595e6d]">{member.email}</div>
-                      <div className="text-xs text-[#595e6d]">{member.memberCode}</div>
+                      <div className="text-xs text-zinc-600">{member.email}</div>
+                      <div className="text-xs text-zinc-600">{member.memberCode}</div>
                     </div>
                   </div>
                 </td>
                 <td className="whitespace-nowrap px-5 py-4">
                   <StatusPill status={toStatus(member.status)} />
                 </td>
-                <td className="whitespace-nowrap px-5 py-4 text-[#595e6d]">
+                <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
                   {member.status === "active" ? "Today, 08:30 AM" : "Oct 24, 2023"}
                 </td>
-                <td className="whitespace-nowrap px-5 py-4 text-[#595e6d]">
+                <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
                   {member.status === "expired" ? "Standard Monthly" : "Premium 30"}
                 </td>
                 <td className="whitespace-nowrap px-5 py-4 text-right">
@@ -506,7 +506,7 @@ function MemberTable({
                     {detailBasePath ? (
                       <Button
                         asChild
-                        className="rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd]"
+                        className="rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50"
                         variant="outline"
                       >
                         <Link href={`${detailBasePath}/${member.id}`}>
@@ -515,7 +515,7 @@ function MemberTable({
                       </Button>
                     ) : null}
                     <Button
-                      className="rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd]"
+                      className="rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50"
                       disabled={updateMember.isPending}
                       onClick={() => markExpired(member)}
                       type="button"
@@ -542,7 +542,7 @@ function MemberTable({
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-between border-t border-[#c2c6d6] bg-white px-5 py-3 text-xs font-semibold text-[#595e6d]">
+      <div className="flex items-center justify-between border-t border-zinc-200 bg-white px-5 py-3 text-xs font-semibold text-zinc-600">
         <span>
           Showing 1 to {members.length} of {total} entries
         </span>
@@ -585,10 +585,10 @@ function StaffDirectoryTemplate({
     <section className="grid gap-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="text-3xl font-black tracking-tight text-[#191b23]">
+          <h2 className="text-3xl font-black tracking-tight text-zinc-950">
             Staff Directory
           </h2>
-          <p className="mt-1 text-sm font-semibold text-[#595e6d]">
+          <p className="mt-1 text-sm font-semibold text-zinc-600">
             Staff Management · manage team members and access defaults.
           </p>
         </div>
@@ -602,19 +602,19 @@ function StaffDirectoryTemplate({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-12">
-        <aside className="flex min-h-[580px] flex-col overflow-hidden rounded-xl border border-[#c2c6d6] bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)] lg:col-span-4">
-          <div className="flex items-center justify-between gap-3 border-b border-[#c2c6d6] bg-[#f9f9ff] p-4">
-            <span className="text-xs font-black uppercase tracking-[0.1em] text-[#595e6d]">
+        <aside className="flex min-h-[580px] flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-[0_4px_24px_rgba(25,27,35,0.04)] lg:col-span-4">
+          <div className="flex items-center justify-between gap-3 border-b border-zinc-200 bg-zinc-50 p-4">
+            <span className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
               Active Roster
             </span>
             <label className="relative max-w-44">
               <span className="sr-only">Search staff</span>
               <Search
                 aria-hidden="true"
-                className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+                className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
               />
               <input
-                className="min-h-9 w-full rounded-md border border-[#c2c6d6] bg-white pl-8 pr-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                className="min-h-9 w-full rounded-md border border-zinc-200 bg-white pl-8 pr-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
                 data-testid="management-search-input"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Search staff..."
@@ -637,8 +637,8 @@ function StaffDirectoryTemplate({
                   className={cn(
                     "relative flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
                     active
-                      ? "border-[#c2c6d6] bg-[#f2f3fd]"
-                      : "border-transparent hover:bg-[#f9f9ff]",
+                      ? "border-zinc-200 bg-zinc-50"
+                      : "border-transparent hover:bg-zinc-50",
                   )}
                   key={user.userId}
                   onClick={() => setSelectedId(user.userId)}
@@ -647,14 +647,14 @@ function StaffDirectoryTemplate({
                   {active ? (
                     <span className="absolute bottom-0 left-0 top-0 w-1 bg-primary" />
                   ) : null}
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[#c2c6d6] bg-[#dbdff1] font-black text-[#5d6272]">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 font-black text-primary">
                     {initials(user.fullName)}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-bold text-[#191b23]">
+                    <span className="block truncate text-sm font-bold text-zinc-950">
                       {user.fullName}
                     </span>
-                    <span className="block truncate text-xs text-[#595e6d]">
+                    <span className="block truncate text-xs text-zinc-600">
                       Front Desk Staff
                     </span>
                     {user.initialPassword ? (
@@ -663,7 +663,7 @@ function StaffDirectoryTemplate({
                       </span>
                     ) : null}
                   </span>
-                  <span className="text-xs font-semibold text-[#595e6d]">
+                  <span className="text-xs font-semibold text-zinc-600">
                     {user.status === "active" ? "Active" : "Locked"}
                   </span>
                 </button>
@@ -682,14 +682,14 @@ function StaffDirectoryTemplate({
           <section className={cn(surfaceClass, "p-5 md:col-span-2")}>
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.1em] text-[#595e6d]">
+                <p className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
                   Team Stats
                 </p>
-                <h3 className="mt-1 text-xl font-black text-[#191b23]">
+                <h3 className="mt-1 text-xl font-black text-zinc-950">
                   {total} staff accounts
                 </h3>
               </div>
-              <MoreHorizontal aria-hidden="true" className="size-5 text-[#727785]" />
+              <MoreHorizontal aria-hidden="true" className="size-5 text-zinc-500" />
             </div>
             <CreateUserPanel fixedRole="staff" />
           </section>
@@ -708,7 +708,7 @@ function StaffProfileCard({ user }: { user: ManagedUser }) {
             {initials(user.fullName)}
           </div>
           <div>
-            <h3 className="text-2xl font-black tracking-tight text-[#191b23]">
+            <h3 className="text-2xl font-black tracking-tight text-zinc-950">
               {user.fullName}
             </h3>
             <p className="mt-1 text-sm font-bold text-primary">
@@ -716,30 +716,30 @@ function StaffProfileCard({ user }: { user: ManagedUser }) {
             </p>
           </div>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-md border border-[#c2c6d6] bg-[#f2f3fd] px-2 py-1 text-xs font-black uppercase tracking-[0.1em] text-[#424754]">
+        <span className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-1 text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
           <ShieldCheck aria-hidden="true" className="size-3.5" />
           Staff
         </span>
       </div>
       <div className="mb-5 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-[#e1e2ec] bg-[#f9f9ff] p-3">
-          <span className="mb-1 block text-xs font-black uppercase tracking-[0.08em] text-[#595e6d]">
+        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+          <span className="mb-1 block text-xs font-black uppercase tracking-[0.08em] text-zinc-600">
             Contact
           </span>
-          <p className="truncate text-sm font-semibold text-[#191b23]">
+          <p className="truncate text-sm font-semibold text-zinc-950">
             {user.email}
           </p>
-          <p className="mt-1 text-sm text-[#595e6d]">{user.phone ?? "No phone"}</p>
+          <p className="mt-1 text-sm text-zinc-600">{user.phone ?? "No phone"}</p>
         </div>
-        <div className="rounded-lg border border-[#e1e2ec] bg-[#f9f9ff] p-3">
-          <span className="mb-1 block text-xs font-black uppercase tracking-[0.08em] text-[#595e6d]">
+        <div className="rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+          <span className="mb-1 block text-xs font-black uppercase tracking-[0.08em] text-zinc-600">
             Employment
           </span>
-          <p className="text-sm font-semibold text-[#191b23]">Started: Oct 12, 2021</p>
-          <p className="mt-1 text-sm text-[#595e6d]">Type: Full-Time</p>
+          <p className="text-sm font-semibold text-zinc-950">Started: Oct 12, 2021</p>
+          <p className="mt-1 text-sm text-zinc-600">Type: Full-Time</p>
         </div>
       </div>
-      <span className="mb-3 block text-xs font-black uppercase tracking-[0.1em] text-[#595e6d]">
+      <span className="mb-3 block text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
         Upcoming Shifts
       </span>
       <div className="space-y-2">
@@ -748,7 +748,7 @@ function StaffProfileCard({ user }: { user: ManagedUser }) {
           ["Tomorrow", "10:00 AM - 06:00 PM", "PT Sessions"],
         ].map(([day, time, label]) => (
           <div
-            className="flex items-center justify-between gap-3 rounded-lg border border-[#c2c6d6] bg-white p-3"
+            className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-3"
             key={day}
           >
             <div className="flex items-center gap-3">
@@ -756,8 +756,8 @@ function StaffProfileCard({ user }: { user: ManagedUser }) {
                 <CalendarDays aria-hidden="true" className="size-4" />
               </span>
               <span>
-                <span className="block text-sm font-bold text-[#191b23]">{day}</span>
-                <span className="block text-xs text-[#595e6d]">{time}</span>
+                <span className="block text-sm font-bold text-zinc-950">{day}</span>
+                <span className="block text-xs text-zinc-600">{time}</span>
               </span>
             </div>
             <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
@@ -773,8 +773,8 @@ function StaffProfileCard({ user }: { user: ManagedUser }) {
 function StaffAccessControl({ user }: { user: ManagedUser | null }) {
   return (
     <>
-      <div className="mb-4 flex items-center justify-between border-b border-[#c2c6d6] pb-3">
-        <span className="text-xs font-black uppercase tracking-[0.1em] text-[#595e6d]">
+      <div className="mb-4 flex items-center justify-between border-b border-zinc-200 pb-3">
+        <span className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
           Access Control
         </span>
         <Button className="rounded-lg text-primary" type="button" variant="ghost">
@@ -790,7 +790,7 @@ function StaffAccessControl({ user }: { user: ManagedUser | null }) {
         ].map(([title, description, enabled]) => (
           <label
             className={cn(
-              "flex items-start gap-3 rounded-lg p-3 transition hover:bg-[#f9f9ff]",
+              "flex items-start gap-3 rounded-lg p-3 transition hover:bg-zinc-50",
               enabled ? "" : "opacity-60",
             )}
             key={title as string}
@@ -800,25 +800,25 @@ function StaffAccessControl({ user }: { user: ManagedUser | null }) {
                 "mt-0.5 flex size-4 items-center justify-center rounded border",
                 enabled
                   ? "border-primary bg-primary text-white"
-                  : "border-[#c2c6d6] bg-[#f2f3fd]",
+                  : "border-zinc-200 bg-zinc-50",
               )}
             >
               {enabled ? <Check aria-hidden="true" className="size-3" /> : null}
             </span>
             <span>
-              <span className="block text-sm font-bold text-[#191b23]">
+              <span className="block text-sm font-bold text-zinc-950">
                 {title}
               </span>
-              <span className="block text-xs text-[#595e6d]">
+              <span className="block text-xs text-zinc-600">
                 {description}
               </span>
             </span>
           </label>
         ))}
       </div>
-      <div className="mt-4 rounded-lg border border-[#f4c7c3] bg-[#ffedea] p-3">
-        <p className="text-sm font-bold text-[#ba1a1a]">Operational account</p>
-        <p className="mt-1 text-xs leading-5 text-[#595e6d]">
+      <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+        <p className="text-sm font-bold text-red-700">Operational account</p>
+        <p className="mt-1 text-xs leading-5 text-zinc-600">
           {user ? user.fullName : "Selected staff"} can access front desk tools.
           Keep credentials current before demo sessions.
         </p>
@@ -850,10 +850,10 @@ function TrainerRosterTemplate({
     <section className="grid gap-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="text-3xl font-black tracking-tight text-[#191b23]">
+          <h2 className="text-3xl font-black tracking-tight text-zinc-950">
             PT Management
           </h2>
-          <p className="mt-1 text-sm font-semibold text-[#595e6d]">
+          <p className="mt-1 text-sm font-semibold text-zinc-600">
             Trainer roster, capacity, and daily schedule.
           </p>
         </div>
@@ -862,10 +862,10 @@ function TrainerRosterTemplate({
             <span className="sr-only">Search trainers</span>
             <Search
               aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#727785]"
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
             />
             <input
-              className="min-h-11 w-full rounded-lg border border-[#c2c6d6] bg-white pl-10 pr-3 text-sm text-[#191b23] outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/15"
+              className="min-h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-3 text-sm text-zinc-950 outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/15"
               data-testid="management-search-input"
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search trainers..."
@@ -885,11 +885,11 @@ function TrainerRosterTemplate({
       <div className="grid gap-4 lg:grid-cols-12">
         <aside className="grid gap-4 lg:col-span-4">
           <section className={cn(surfaceClass, "p-5")}>
-            <div className="mb-4 flex items-center justify-between border-b border-[#c2c6d6] pb-3">
-              <h3 className="text-xs font-black uppercase tracking-[0.1em] text-[#595e6d]">
+            <div className="mb-4 flex items-center justify-between border-b border-zinc-200 pb-3">
+              <h3 className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
                 Active Roster
               </h3>
-              <Filter aria-hidden="true" className="size-5 text-[#727785]" />
+              <Filter aria-hidden="true" className="size-5 text-zinc-500" />
             </div>
             <ManagementStateBlock
               emptyTitle="No trainers found."
@@ -905,8 +905,8 @@ function TrainerRosterTemplate({
                 return (
                   <button
                     className={cn(
-                      "relative w-full rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:bg-[#f9f9ff] active:scale-[0.98]",
-                      active ? "border-primary/25 bg-[#f2f3fd]" : "border-transparent",
+                      "relative w-full rounded-lg border p-3 text-left transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:bg-zinc-50 active:scale-[0.98]",
+                      active ? "border-primary/25 bg-zinc-50" : "border-transparent",
                     )}
                     key={trainer.id}
                     onClick={() => setSelectedId(trainer.id)}
@@ -916,14 +916,14 @@ function TrainerRosterTemplate({
                       <span className="absolute bottom-0 left-0 top-0 w-1 bg-primary" />
                     ) : null}
                     <div className="flex items-center gap-3">
-                      <span className="flex size-10 items-center justify-center rounded-full border border-[#c2c6d6] bg-[#dbdff1] font-black text-[#5d6272]">
+                      <span className="flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-primary/10 font-black text-primary">
                         {initials(trainer.fullName)}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-bold text-[#191b23]">
+                        <span className="block truncate text-sm font-bold text-zinc-950">
                           {trainer.fullName}
                         </span>
-                        <span className="block truncate text-xs text-[#595e6d]">
+                        <span className="block truncate text-xs text-zinc-600">
                           {trainer.specialty}
                         </span>
                       </span>
@@ -932,12 +932,12 @@ function TrainerRosterTemplate({
                         {(4.9 - index / 10).toFixed(1)}
                       </span>
                     </div>
-                    <div className="mt-3 flex justify-between border-t border-[#e1e2ec] pt-2 text-xs font-semibold text-[#595e6d]">
+                    <div className="mt-3 flex justify-between border-t border-zinc-200 pt-2 text-xs font-semibold text-zinc-600">
                       <span>
-                        Capacity: <strong className="text-[#191b23]">{assigned}</strong>
+                        Capacity: <strong className="text-zinc-950">{assigned}</strong>
                       </span>
                       <span>
-                        Sessions: <strong className="text-[#191b23]">{24 + index * 4}</strong>
+                        Sessions: <strong className="text-zinc-950">{24 + index * 4}</strong>
                       </span>
                     </div>
                   </button>
@@ -983,19 +983,19 @@ function TrainerProfileHero({
       <div className="absolute right-0 top-0 size-64 -translate-y-1/2 translate-x-1/3 rounded-full bg-primary/10/40 blur-3xl" />
       <div className="relative z-10 flex flex-col justify-between gap-5 md:flex-row md:items-start">
         <div className="flex gap-5">
-          <div className="flex size-24 shrink-0 items-center justify-center rounded-xl border border-[#c2c6d6] bg-primary text-2xl font-black text-white shadow-sm">
+          <div className="flex size-24 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-primary text-2xl font-black text-white shadow-sm">
             {initials(trainer.fullName)}
           </div>
           <div>
             <div className="mb-1 flex flex-wrap items-center gap-2">
-              <h2 className="text-2xl font-black tracking-tight text-[#191b23]">
+              <h2 className="text-2xl font-black tracking-tight text-zinc-950">
                 {trainer.fullName}
               </h2>
               <span className="rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-xs font-bold text-primary">
                 Level 3
               </span>
             </div>
-            <p className="mb-5 text-sm font-semibold text-[#595e6d]">
+            <p className="mb-5 text-sm font-semibold text-zinc-600">
               {trainer.specialty}
             </p>
             <div className="flex flex-wrap gap-6">
@@ -1006,11 +1006,11 @@ function TrainerProfileHero({
           </div>
         </div>
         <div className="grid gap-2">
-          <Button className="rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd]" type="button" variant="outline">
+          <Button className="rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50" type="button" variant="outline">
             <MessageSquare aria-hidden="true" className="size-4" />
             Message
           </Button>
-          <Button className="rounded-lg border-[#c2c6d6] bg-white text-[#191b23] hover:bg-[#f2f3fd]" type="button" variant="outline">
+          <Button className="rounded-lg border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50" type="button" variant="outline">
             Edit Profile
           </Button>
         </div>
@@ -1022,10 +1022,10 @@ function TrainerProfileHero({
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-black uppercase tracking-[0.08em] text-[#595e6d]">
+      <p className="text-xs font-black uppercase tracking-[0.08em] text-zinc-600">
         {label}
       </p>
-      <p className="mt-1 text-2xl font-black text-[#191b23]">{value}</p>
+      <p className="mt-1 text-2xl font-black text-zinc-950">{value}</p>
     </div>
   )
 }
@@ -1041,16 +1041,16 @@ function TrainerSchedule() {
   return (
     <section className={cn(surfaceClass, "p-6")}>
       <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-xs font-black uppercase tracking-[0.1em] text-[#595e6d]">
+        <h3 className="text-xs font-black uppercase tracking-[0.1em] text-zinc-600">
           Today&apos;s Schedule
         </h3>
         <div className="flex items-center gap-2">
-          <ChevronLeft aria-hidden="true" className="size-4 text-[#727785]" />
-          <span className="text-sm font-bold text-[#191b23]">Tue, Jun 2</span>
-          <ChevronRight aria-hidden="true" className="size-4 text-[#727785]" />
+          <ChevronLeft aria-hidden="true" className="size-4 text-zinc-500" />
+          <span className="text-sm font-bold text-zinc-950">Tue, Jun 2</span>
+          <ChevronRight aria-hidden="true" className="size-4 text-zinc-500" />
         </div>
       </div>
-      <div className="relative space-y-4 before:absolute before:bottom-0 before:left-4 before:top-0 before:w-px before:bg-gradient-to-b before:from-transparent before:via-[#c2c6d6] before:to-transparent">
+      <div className="relative space-y-4 before:absolute before:bottom-0 before:left-4 before:top-0 before:w-px before:bg-gradient-to-b before:from-transparent before:via-zinc-200 before:to-transparent">
         {items.map(([time, title, meta, state]) => (
           <div className="relative flex gap-4 pl-1" key={`${time}-${title}`}>
             <span
@@ -1058,7 +1058,7 @@ function TrainerSchedule() {
                 "relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border bg-white shadow-sm",
                 state === "active"
                   ? "border-primary bg-primary/10 text-primary ring-4 ring-primary/20"
-                  : "border-[#c2c6d6] text-[#595e6d]",
+                  : "border-zinc-200 text-zinc-600",
               )}
             >
               {state === "done" ? <Check aria-hidden="true" className="size-4" /> : <CalendarDays aria-hidden="true" className="size-4" />}
@@ -1069,18 +1069,18 @@ function TrainerSchedule() {
                 state === "active"
                   ? "border-primary/20 bg-primary/5"
                   : state === "blocked"
-                    ? "border-dashed border-[#c2c6d6] bg-[#f2f3fd]"
-                    : "border-[#e1e2ec] bg-white",
+                    ? "border-dashed border-zinc-200 bg-zinc-50"
+                    : "border-zinc-200 bg-white",
               )}
             >
               <div className="mb-1 flex justify-between gap-3">
                 <span className="text-xs font-black text-primary">{time}</span>
-                <span className="text-xs font-semibold text-[#595e6d]">
+                <span className="text-xs font-semibold text-zinc-600">
                   {state === "active" ? "60m · In Progress" : "60m"}
                 </span>
               </div>
-              <p className="font-bold text-[#191b23]">{title}</p>
-              <p className="mt-1 text-xs font-semibold text-[#595e6d]">{meta}</p>
+              <p className="font-bold text-zinc-950">{title}</p>
+              <p className="mt-1 text-xs font-semibold text-zinc-600">{meta}</p>
             </div>
           </div>
         ))}
@@ -1172,16 +1172,16 @@ function MemberList({
     <div className="grid gap-3" data-testid="management-member-list">
       {members.map((member) => (
         <article
-          className="grid gap-4 rounded-xl border border-[#e1e2ec] bg-[#f9f9ff] p-4 transition hover:-translate-y-0.5 hover:shadow-md md:grid-cols-[minmax(0,1fr)_auto]"
+          className="grid gap-4 rounded-xl border border-zinc-200 bg-zinc-50 p-4 transition hover:-translate-y-0.5 hover:shadow-md md:grid-cols-[minmax(0,1fr)_auto]"
           data-testid="staff-member-result"
           key={member.id}
         >
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-semibold text-[#191b23]">{member.fullName}</h3>
+              <h3 className="text-lg font-semibold text-zinc-950">{member.fullName}</h3>
               <StatusPill status={toStatus(member.status)} />
             </div>
-            <div className="mt-2 grid gap-1 text-sm text-[#424754] sm:grid-cols-2">
+            <div className="mt-2 grid gap-1 text-sm text-zinc-600 sm:grid-cols-2">
               <span className="inline-flex items-center gap-2">
                 <Badge aria-hidden="true" className="size-4 text-primary" />
                 {member.memberCode}
@@ -1203,7 +1203,7 @@ function MemberList({
               </Button>
             ) : null}
             <Button
-              className="rounded-lg border-[#c2c6d6]"
+              className="rounded-lg border-zinc-200"
               disabled={updateMember.isPending}
               onClick={() => markExpired(member)}
               type="button"
@@ -1235,14 +1235,14 @@ function UserList({ users }: { users: ManagedUser[] }) {
     <div className="grid gap-3" data-testid="management-user-list">
       {users.map((user) => (
         <article
-          className="rounded-xl border border-[#e1e2ec] bg-[#f9f9ff] p-4"
+          className="rounded-xl border border-zinc-200 bg-zinc-50 p-4"
           key={user.userId}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="text-lg font-semibold text-[#191b23]">{user.fullName}</h3>
-              <p className="mt-1 text-sm text-[#424754]">{user.email}</p>
-              {user.phone ? <p className="mt-1 text-sm text-[#424754]">{user.phone}</p> : null}
+              <h3 className="text-lg font-semibold text-zinc-950">{user.fullName}</h3>
+              <p className="mt-1 text-sm text-zinc-600">{user.email}</p>
+              {user.phone ? <p className="mt-1 text-sm text-zinc-600">{user.phone}</p> : null}
             </div>
             <div className="flex flex-wrap justify-end gap-2">
               <StatusPill label={user.role.toUpperCase()} status="assigned" />
@@ -1265,13 +1265,13 @@ function TrainerList({ trainers }: { trainers: ManagedTrainer[] }) {
     <div className="grid gap-3" data-testid="management-trainer-list">
       {trainers.map((trainer) => (
         <article
-          className="rounded-xl border border-[#e1e2ec] bg-[#f9f9ff] p-4"
+          className="rounded-xl border border-zinc-200 bg-zinc-50 p-4"
           key={trainer.id}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="text-lg font-semibold text-[#191b23]">{trainer.fullName}</h3>
-              <p className="mt-1 text-sm text-[#424754]">{trainer.specialty}</p>
+              <h3 className="text-lg font-semibold text-zinc-950">{trainer.fullName}</h3>
+              <p className="mt-1 text-sm text-zinc-600">{trainer.specialty}</p>
             </div>
             <StatusPill status={toStatus(trainer.status)} />
           </div>
@@ -1450,10 +1450,10 @@ function CreatePanelHeader({ title }: { title: string }) {
       <p className="text-sm font-semibold uppercase tracking-[0.08em] text-primary">
         Spec 002
       </p>
-      <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[#191b23]">
+      <h2 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950">
         {title}
       </h2>
-      <p className="mt-2 text-sm leading-6 text-[#424754]">
+      <p className="mt-2 text-sm leading-6 text-zinc-600">
         Mutations use MSW/backend contracts and preserve role permissions.
       </p>
     </div>

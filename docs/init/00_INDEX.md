@@ -1,6 +1,6 @@
 # 00 — INDEX | GymMaster Documentation
 
-**Phiên bản:** v1.0 | **Ngôn ngữ:** Tiếng Việt | **Trạng thái:** Spec hoàn chỉnh — 4 roles, SQL Server stack
+**Phiên bản:** v1.2.0 | **Ngôn ngữ:** Tiếng Việt | **Trạng thái:** Spec hoàn chỉnh — 4 roles, SQL Server, ASP.NET Core 10 / EF Core 10 stack
 
 Bộ tài liệu này là **SPEC chính** (source of truth) cho dự án GymMaster, soạn theo phương pháp **Hybrid SDD + ADD** (Spec-Driven & Agent-Driven Development).
 
@@ -30,6 +30,8 @@ Bộ tài liệu này là **SPEC chính** (source of truth) cho dự án GymMast
 | `13_TEAM_WORKFLOW.md` | Git flow, PR, ceremony, review | ADD |
 | `14_PROMPT_LIBRARY.md` | Prompt mẫu cho BA, DB, code, test | ADD |
 | `15_DATABASE_SCHEMA.md` | SQL Server + EF Core schema chi tiết | SDD |
+| `CHANGELOG_vs_old_spec.md` | Snapshot thay đổi final so với spec cũ | ADD |
+| `DB_DIFF_FOR_DBTEAM.md` | Diff DB cũ/mới cho team DB | SDD/DB |
 
 ## Quy ước trạng thái Spec
 `Draft` → `Review` → `Approved` → `Implemented`. Chỉ code khi spec ở trạng thái **Approved**.
