@@ -47,7 +47,7 @@ export function GoogleLoginButton() {
 
   return (
     <Button
-      className="min-h-12 w-full rounded-lg border-border bg-background text-base font-semibold text-foreground hover:bg-primary/10 active:scale-[0.98]"
+      className="min-h-12 w-full rounded-full border-border bg-background text-base font-semibold text-foreground hover:bg-primary/10 active:scale-[0.98]"
       data-testid="google-login-button"
       disabled={isPending}
       onClick={handleGoogleLogin}

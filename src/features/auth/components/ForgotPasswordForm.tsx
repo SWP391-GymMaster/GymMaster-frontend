@@ -62,7 +62,7 @@ export function ForgotPasswordForm() {
         <div className="relative">
           <Mail
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
             autoComplete="email"
@@ -86,7 +86,7 @@ export function ForgotPasswordForm() {
 
       {message ? (
         <div
-          className="rounded-lg border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground"
+          className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground"
           role="status"
         >
           {message}

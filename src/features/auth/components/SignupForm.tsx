@@ -66,7 +66,7 @@ export function SignupForm() {
         <div className="relative">
           <User
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
             autoComplete="name"
@@ -89,7 +89,7 @@ export function SignupForm() {
         <div className="relative">
           <Mail
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
             autoComplete="email"
@@ -107,12 +107,12 @@ export function SignupForm() {
 
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="phone">
-          Số điện thoại <span className="font-normal text-zinc-500">(không bắt buộc)</span>
+          Số điện thoại <span className="font-normal text-muted-foreground">(không bắt buộc)</span>
         </label>
         <div className="relative">
           <Phone
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
             autoComplete="tel"
@@ -132,7 +132,7 @@ export function SignupForm() {
         <div className="relative">
           <Lock
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
             autoComplete="new-password"
