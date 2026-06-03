@@ -21,9 +21,12 @@ import {
   UsersRound,
   Volume2,
   Zap,
+  Palette,
 } from "lucide-react";
 import { toast } from "sonner";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
+import { SettingsDialog } from "@/features/billing/components/SettingsDialog";
+import { useSidebarStore } from "@/stores/useSideBarStore";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -203,6 +206,7 @@ const ACCENT = {
 // ─── Page Component ───────────────────────────────────────────────────────────
 
 export default function AboutPage() {
+  const { isSettingsOpen, setSettingsOpen } = useSidebarStore();
   const [copied, setCopied] = useState<Record<string, boolean>>({});
 
   const handleCopy = (text: string, key: string, label: string) => {
@@ -235,6 +239,14 @@ export default function AboutPage() {
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-muted text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.98]"
+            type="button"
+            title="Cấu hình giao diện"
+          >
+            <Palette className="size-4" />
+          </button>
           <Link
             href="/welcome"
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.98]"
@@ -602,6 +614,7 @@ export default function AboutPage() {
           </Link>
         </div>
       </footer>
+      <SettingsDialog open={isSettingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 }
