@@ -10,10 +10,12 @@ interface SidebarState {
   isCollapsed: boolean;
   theme: Theme;
   colorPreset: ColorPreset;
+  isSettingsOpen: boolean;
   toggleSidebar: () => void;
   setCollapsed: (collapsed: boolean) => void;
   setTheme: (theme: Theme) => void;
   setColorPreset: (preset: ColorPreset) => void;
+  setSettingsOpen: (open: boolean) => void;
 }
 
 export const useSidebarStore = create<SidebarState>()(
@@ -22,6 +24,7 @@ export const useSidebarStore = create<SidebarState>()(
       isCollapsed: false,
       theme: "light",
       colorPreset: "lime",
+      isSettingsOpen: false,
       toggleSidebar: () => set((state) => ({ isCollapsed: !state.isCollapsed })),
       setCollapsed: (collapsed) => set({ isCollapsed: collapsed }),
       setTheme: (theme) => {
@@ -45,6 +48,7 @@ export const useSidebarStore = create<SidebarState>()(
           root.classList.add(`theme-${colorPreset}`);
         }
       },
+      setSettingsOpen: (isSettingsOpen) => set({ isSettingsOpen }),
     }),
     {
       name: "gymmaster-sidebar-state",

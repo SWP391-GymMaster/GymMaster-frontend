@@ -11,6 +11,7 @@ import {
 } from "recharts"
 
 import type { MockProgressEntry } from "@/features/member-progress-tracking/types/member-progress.types"
+import { useChartColors } from "@/hooks/use-chart-colors"
 
 type ProgressChartsPanelProps = {
   entries: MockProgressEntry[]
@@ -29,6 +30,8 @@ function formatDate(dateStr: string) {
 }
 
 export function ProgressChartsPanel({ entries }: ProgressChartsPanelProps) {
+  const c = useChartColors()
+
   // Sort entries ascending by measuredAt for chronological chart rendering
   const sortedEntries = [...entries].sort(
     (a, b) => new Date(a.measuredAt).getTime() - new Date(b.measuredAt).getTime()
@@ -58,33 +61,36 @@ export function ProgressChartsPanel({ entries }: ProgressChartsPanelProps) {
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
-                <CartesianGrid stroke="var(--border)" strokeDasharray="4 4" vertical={false} />
+                <CartesianGrid stroke={c.border} strokeDasharray="4 4" vertical={false} />
                 <XAxis
                   dataKey="formattedDate"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tick={{ fontSize: 11, fill: c.mutedFg }}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tick={{ fontSize: 11, fill: c.mutedFg }}
                   domain={["auto", "auto"]}
                 />
                 <Tooltip
                   contentStyle={{
-                    background: "var(--card)",
-                    border: "1px solid var(--border)",
+                    background: c.cardBg,
+                    border: `1px solid ${c.border}`,
                     borderRadius: "0.875rem",
-                    boxShadow: "0 16px 40px rgba(15, 23, 42, 0.08)",
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.10)",
+                    color: c.cardFg,
                   }}
+                  labelStyle={{ color: c.cardFg, fontWeight: 600 }}
+                  itemStyle={{ color: c.mutedFg }}
                   formatter={(value) => [`${value} kg`, "Cân nặng"]}
                   labelFormatter={(label) => `Ngày đo: ${label}`}
                 />
                 <Line
                   type="monotone"
                   dataKey="weightKg"
-                  stroke="var(--gym-lime)"
+                  stroke={c.primary}
                   strokeWidth={3}
                   activeDot={{ r: 6 }}
                   dot={{ r: 4, strokeWidth: 1 }}
@@ -113,33 +119,36 @@ export function ProgressChartsPanel({ entries }: ProgressChartsPanelProps) {
           {chartData.length > 0 && hasBodyFatData ? (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ left: -20, right: 10, top: 10, bottom: 0 }}>
-                <CartesianGrid stroke="var(--border)" strokeDasharray="4 4" vertical={false} />
+                <CartesianGrid stroke={c.border} strokeDasharray="4 4" vertical={false} />
                 <XAxis
                   dataKey="formattedDate"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tick={{ fontSize: 11, fill: c.mutedFg }}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
+                  tick={{ fontSize: 11, fill: c.mutedFg }}
                   domain={["auto", "auto"]}
                 />
                 <Tooltip
                   contentStyle={{
-                    background: "var(--card)",
-                    border: "1px solid var(--border)",
+                    background: c.cardBg,
+                    border: `1px solid ${c.border}`,
                     borderRadius: "0.875rem",
-                    boxShadow: "0 16px 40px rgba(15, 23, 42, 0.08)",
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.10)",
+                    color: c.cardFg,
                   }}
+                  labelStyle={{ color: c.cardFg, fontWeight: 600 }}
+                  itemStyle={{ color: c.mutedFg }}
                   formatter={(value) => [`${value} %`, "Tỷ lệ mỡ"]}
                   labelFormatter={(label) => `Ngày đo: ${label}`}
                 />
                 <Line
                   type="monotone"
                   dataKey="bodyFatPct"
-                  stroke="var(--gym-steel)"
+                  stroke={c.chart2}
                   strokeWidth={3}
                   activeDot={{ r: 6 }}
                   dot={{ r: 4, strokeWidth: 1 }}

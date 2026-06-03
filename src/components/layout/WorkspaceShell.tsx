@@ -35,10 +35,9 @@ export function WorkspaceShell({
   metrics = [],
   children,
 }: WorkspaceShellProps) {
-  const { isCollapsed, theme, colorPreset } = useSidebarStore()
+  const { isCollapsed, theme, colorPreset, isSettingsOpen, setSettingsOpen } = useSidebarStore()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   // Initialize and apply theme & presets from local store to prevent hydration lag
   useEffect(() => {
@@ -139,7 +138,7 @@ export function WorkspaceShell({
 
             {/* Config theme presets click handler */}
             <button
-              onClick={() => setIsSettingsOpen(true)}
+              onClick={() => setSettingsOpen(true)}
               className="flex items-center gap-3 text-left hover:opacity-90 transition active:scale-[0.98]"
               type="button"
             >
@@ -220,7 +219,7 @@ export function WorkspaceShell({
       />
       <SettingsDialog
         open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
+        onOpenChange={setSettingsOpen}
       />
     </main>
   )

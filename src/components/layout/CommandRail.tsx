@@ -18,6 +18,7 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
@@ -137,7 +138,7 @@ type CommandRailProps = {
 
 export function CommandRail({ role }: CommandRailProps) {
   const pathname = usePathname();
-  const { isCollapsed, toggleSidebar } = useSidebarStore();
+  const { isCollapsed, toggleSidebar, setSettingsOpen } = useSidebarStore();
   const navGroups = navGroupsByRole[role] || [];
 
   return (
@@ -145,6 +146,7 @@ export function CommandRail({ role }: CommandRailProps) {
       aria-label={`Điều hướng ${roleWorkspaceLabels[role]}`}
       className="fixed left-0 top-0 z-40 hidden h-dvh flex-col bg-sidebar p-4 text-sidebar-foreground shadow-xl lg:flex overflow-x-hidden"
       data-testid="command-rail"
+      initial={false}
       animate={{ width: isCollapsed ? 80 : 280 }}
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
     >
@@ -187,7 +189,10 @@ export function CommandRail({ role }: CommandRailProps) {
       )}
 
       {/* Navigation Groups */}
-      <nav className={cn("flex-1 flex flex-col gap-5 overflow-y-auto pr-1 py-4", isCollapsed ? "items-center" : "")}>
+      <nav className={cn(
+        "flex-1 flex flex-col gap-5 overflow-y-auto overflow-x-hidden pr-1 py-4 w-full",
+        isCollapsed ? "items-center px-0" : ""
+      )}>
         {navGroups.map((group, idx) => (
           <div key={idx} className="w-full flex flex-col gap-1 shrink-0">
             {/* Group Title */}
@@ -234,7 +239,26 @@ export function CommandRail({ role }: CommandRailProps) {
       </nav>
 
       {/* Footer controls */}
-      <div className="mt-auto shrink-0 flex flex-col gap-3 border-t border-white/5 pt-4">
+      <div className="mt-auto shrink-0 flex flex-col gap-2.5 border-t border-white/5 pt-4">
+        {/* Settings button */}
+        <button
+          onClick={() => setSettingsOpen(true)}
+          type="button"
+          className={cn(
+            "flex h-10 items-center rounded-lg text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground transition-all duration-200 active:scale-[0.98] w-full relative group",
+            isCollapsed ? "justify-center size-10 mx-auto px-0" : "gap-3 px-3"
+          )}
+          title={isCollapsed ? "Cấu hình giao diện" : undefined}
+        >
+          <Settings className="size-4 shrink-0" />
+          {!isCollapsed && <span>Cấu hình</span>}
+          {isCollapsed && (
+            <div className="absolute left-14 top-1/2 -translate-y-1/2 ml-2 pointer-events-none rounded-md bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap shadow-xl ring-1 ring-white/10 z-50">
+              Cấu hình giao diện
+            </div>
+          )}
+        </button>
+
         <LogoutButton isCollapsed={isCollapsed} />
 
         {/* Sidebar Collapse Toggle Trigger */}

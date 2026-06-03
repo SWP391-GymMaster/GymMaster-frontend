@@ -1,10 +1,22 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Search, Compass, User, CreditCard, Dumbbell, ShieldAlert } from "lucide-react";
+import {
+  Search,
+  Compass,
+  User,
+  CreditCard,
+  Dumbbell,
+  ShieldAlert,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface SpotlightSearchProps {
   open: boolean;
@@ -20,7 +32,11 @@ interface SpotlightItem {
   icon: typeof Compass;
 }
 
-export function SpotlightSearch({ open, onOpenChange, role }: SpotlightSearchProps) {
+export function SpotlightSearch({
+  open,
+  onOpenChange,
+  role,
+}: SpotlightSearchProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -39,19 +55,26 @@ export function SpotlightSearch({ open, onOpenChange, role }: SpotlightSearchPro
       title: "Danh sách hội viên",
       description: "Tìm kiếm thông tin, xem hồ sơ chi tiết hội viên.",
       category: "Hội viên",
-      href: role === "admin" ? "/admin/members" : role === "staff" ? "/staff/members" : "/pt/members",
+      href:
+        role === "admin"
+          ? "/admin/members"
+          : role === "staff"
+            ? "/staff/members"
+            : "/pt/members",
       icon: User,
     },
     {
       title: "Quản lý gói tập (Packages)",
-      description: "Cấu hình giá tiền, hạn sử dụng và quyền lợi của các gói gym.",
+      description:
+        "Cấu hình giá tiền, hạn sử dụng và quyền lợi của các gói gym.",
       category: "Cấu hình & Quản trị",
       href: "/admin/packages",
       icon: Dumbbell,
     },
     {
       title: "Nhật ký hóa đơn (Payments)",
-      description: "Tra cứu giao dịch, tổng doanh thu và hóa đơn đã thanh toán.",
+      description:
+        "Tra cứu giao dịch, tổng doanh thu và hóa đơn đã thanh toán.",
       category: "Cấu hình & Quản trị",
       href: role === "admin" ? "/admin/payments" : "/staff/payments",
       icon: CreditCard,
@@ -72,7 +95,8 @@ export function SpotlightSearch({ open, onOpenChange, role }: SpotlightSearchPro
     },
     {
       title: "Nhật ký hệ thống (Audit Logs)",
-      description: "Xem nhật ký kiểm toán hành vi của các nhân viên và quản trị viên.",
+      description:
+        "Xem nhật ký kiểm toán hành vi của các nhân viên và quản trị viên.",
       category: "Cấu hình & Quản trị",
       href: "/admin/audit-logs",
       icon: ShieldAlert,
@@ -89,13 +113,27 @@ export function SpotlightSearch({ open, onOpenChange, role }: SpotlightSearchPro
 
     // Role access boundaries
     if (role === "member") {
-      return matchesQuery && !item.href.startsWith("/admin") && !item.href.startsWith("/staff") && !item.href.startsWith("/pt");
+      return (
+        matchesQuery &&
+        !item.href.startsWith("/admin") &&
+        !item.href.startsWith("/staff") &&
+        !item.href.startsWith("/pt")
+      );
     }
     if (role === "pt") {
-      return matchesQuery && !item.href.startsWith("/admin") && !item.href.startsWith("/staff") && !item.href.startsWith("/member");
+      return (
+        matchesQuery &&
+        !item.href.startsWith("/admin") &&
+        !item.href.startsWith("/staff") &&
+        !item.href.startsWith("/member")
+      );
     }
     if (role === "staff") {
-      return matchesQuery && !item.href.startsWith("/admin") && !item.href.startsWith("/pt");
+      return (
+        matchesQuery &&
+        !item.href.startsWith("/admin") &&
+        !item.href.startsWith("/pt")
+      );
     }
     return matchesQuery;
   });
@@ -111,7 +149,9 @@ export function SpotlightSearch({ open, onOpenChange, role }: SpotlightSearchPro
         setSelectedIndex((prev) => (prev + 1) % Math.max(1, filtered.length));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSelectedIndex((prev) => (prev - 1 + filtered.length) % Math.max(1, filtered.length));
+        setSelectedIndex(
+          (prev) => (prev - 1 + filtered.length) % Math.max(1, filtered.length),
+        );
       } else if (e.key === "Enter") {
         e.preventDefault();
         if (filtered[selectedIndex]) {
@@ -140,6 +180,10 @@ export function SpotlightSearch({ open, onOpenChange, role }: SpotlightSearchPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogTitle className="sr-only">Spotlight Search</DialogTitle>
+      <DialogDescription className="sr-only">
+        Tìm kiếm trang, chức năng hoặc hóa đơn.
+      </DialogDescription>
       <DialogContent className="p-0 sm:max-w-[550px] overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
         <div className="flex items-center border-b px-4 py-3 bg-muted/20">
           <Search className="size-5 text-muted-foreground mr-3 shrink-0" />
@@ -173,17 +217,23 @@ export function SpotlightSearch({ open, onOpenChange, role }: SpotlightSearchPro
                         : "hover:bg-muted/40 text-muted-foreground"
                     }`}
                   >
-                    <div className={`p-2 rounded-xl shrink-0 ${isSelected ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                    <div
+                      className={`p-2 rounded-xl shrink-0 ${isSelected ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                    >
                       <Icon className="size-4" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="font-semibold text-sm text-foreground">{item.title}</span>
+                        <span className="font-semibold text-sm text-foreground">
+                          {item.title}
+                        </span>
                         <span className="text-[10px] uppercase font-bold tracking-wide opacity-50 bg-muted px-2 py-0.5 rounded-full shrink-0">
                           {item.category}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{item.description}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                        {item.description}
+                      </p>
                     </div>
                   </button>
                 );
@@ -192,8 +242,12 @@ export function SpotlightSearch({ open, onOpenChange, role }: SpotlightSearchPro
           ) : (
             <div className="py-12 text-center">
               <Compass className="size-8 mx-auto text-muted-foreground/50 animate-pulse" />
-              <p className="text-sm font-semibold text-foreground mt-4">Không tìm thấy kết quả</p>
-              <p className="text-xs text-muted-foreground mt-1">Thử dùng các từ khóa như "calo", "hội viên" hoặc "gói tập"</p>
+              <p className="text-sm font-semibold text-foreground mt-4">
+                Không tìm thấy kết quả
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Thử dùng các từ khóa như "calo", "hội viên" hoặc "gói tập"
+              </p>
             </div>
           )}
         </div>

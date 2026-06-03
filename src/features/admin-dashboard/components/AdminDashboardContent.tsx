@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   BarChart,
@@ -8,7 +8,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-} from "recharts"
+} from "recharts";
 import {
   Activity,
   AlertTriangle,
@@ -21,39 +21,40 @@ import {
   UserPlus,
   Users,
   UserCheck,
-} from "lucide-react"
-import Link from "next/link"
+} from "lucide-react";
+import Link from "next/link";
 
-import { DashboardMetricCard } from "@/features/admin-dashboard/components/DashboardMetricCard"
-import { useDashboardSummary } from "@/features/admin-dashboard/api/admin-dashboard.queries"
-import { adminRoutes } from "@/features/admin-dashboard/constants/admin-routes"
+import { DashboardMetricCard } from "@/features/admin-dashboard/components/DashboardMetricCard";
+import { useDashboardSummary } from "@/features/admin-dashboard/api/admin-dashboard.queries";
+import { adminRoutes } from "@/features/admin-dashboard/constants/admin-routes";
+import { useChartColors } from "@/hooks/use-chart-colors";
 
 function formatVnd(amount: number) {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",
     maximumFractionDigits: 0,
-  }).format(amount)
+  }).format(amount);
 }
 
 function formatCompactVnd(amount: number) {
   if (amount >= 1_000_000_000) {
-    return `${Math.round(amount / 1_000_000_000)} tỷ`
+    return `${Math.round(amount / 1_000_000_000)} tỷ`;
   }
 
   if (amount >= 1_000_000) {
-    return `${Math.round(amount / 1_000_000)} triệu`
+    return `${Math.round(amount / 1_000_000)} triệu`;
   }
 
-  return formatVnd(amount)
+  return formatVnd(amount);
 }
 
 type DashboardOptionalFields = {
-  pendingPaymentAmount?: number
-  pendingPaymentCount?: number
-}
+  pendingPaymentAmount?: number;
+  pendingPaymentCount?: number;
+};
 
-const monthlyRevenueRatio = [0.48, 0.54, 0.64, 0.7, 1]
+const monthlyRevenueRatio = [0.48, 0.54, 0.64, 0.7, 1];
 
 const expiredMembers = [
   {
@@ -68,10 +69,11 @@ const expiredMembers = [
     plan: "Monthly Basic",
     expiredOn: "Hôm nay",
   },
-]
+];
 
 export function AdminDashboardContent() {
-  const summary = useDashboardSummary()
+  const summary = useDashboardSummary();
+  const c = useChartColors();
 
   if (summary.isLoading) {
     return (
@@ -81,14 +83,14 @@ export function AdminDashboardContent() {
         <DashboardMetricCard isLoading label="Check-in hôm nay" value="" />
         <DashboardMetricCard isLoading label="Thanh toán chờ xử lý" value="" />
       </div>
-    )
+    );
   }
 
   if (summary.error) {
     const message =
       summary.error instanceof Error
         ? summary.error.message
-        : "Không thể tải dữ liệu dashboard."
+        : "Không thể tải dữ liệu dashboard.";
 
     return (
       <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6">
@@ -101,21 +103,21 @@ export function AdminDashboardContent() {
           Thử lại
         </button>
       </div>
-    )
+    );
   }
 
-  const data = summary.data
-  const optionalData = data as DashboardOptionalFields | undefined
-  const revenue = data?.revenue ?? 0
+  const data = summary.data;
+  const optionalData = data as DashboardOptionalFields | undefined;
+  const revenue = data?.revenue ?? 0;
   const todayCheckIns =
-    data?.checkinsByDay?.reduce((sum, d) => sum + d.count, 0) ?? 0
-  const pendingPaymentAmount = optionalData?.pendingPaymentAmount ?? 3_150_000
-  const pendingPaymentCount = optionalData?.pendingPaymentCount ?? 14
+    data?.checkinsByDay?.reduce((sum, d) => sum + d.count, 0) ?? 0;
+  const pendingPaymentAmount = optionalData?.pendingPaymentAmount ?? 3_150_000;
+  const pendingPaymentCount = optionalData?.pendingPaymentCount ?? 14;
 
   const chartData = monthlyRevenueRatio.map((ratio, index) => ({
     month: ["T1", "T2", "T3", "T4", "T5"][index],
     "Doanh thu": Math.round(revenue * ratio),
-  }))
+  }));
 
   return (
     <div className="space-y-6">
@@ -135,7 +137,10 @@ export function AdminDashboardContent() {
         </button>
       </div>
 
-      <section className="grid gap-5 xl:grid-cols-4" aria-label="Chỉ số quản trị">
+      <section
+        className="grid gap-5 xl:grid-cols-4"
+        aria-label="Chỉ số quản trị"
+      >
         <DashboardMetricCard
           className="min-h-[190px] rounded-2xl border-border bg-card shadow-sm"
           icon={DollarSign}
@@ -162,7 +167,10 @@ export function AdminDashboardContent() {
           icon={AlertTriangle}
           iconColor="warning"
           label="THANH TOÁN CHỜ XỬ LÝ"
-          trend={{ direction: "neutral", label: `${pendingPaymentCount} hóa đơn cần xử lý` }}
+          trend={{
+            direction: "neutral",
+            label: `${pendingPaymentCount} hóa đơn cần xử lý`,
+          }}
           value={formatVnd(pendingPaymentAmount)}
         />
       </section>
@@ -192,35 +200,42 @@ export function AdminDashboardContent() {
               <ResponsiveContainer height="100%" width="100%">
                 <BarChart data={chartData} margin={{ left: -10, right: 12 }}>
                   <CartesianGrid
-                    stroke="hsl(var(--border))"
+                    stroke={c.border}
                     strokeDasharray="4 4"
                     vertical={false}
                   />
                   <XAxis
                     axisLine={false}
                     dataKey="month"
-                    tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                    tick={{ fontSize: 12, fill: c.mutedFg }}
                     tickLine={false}
                   />
                   <YAxis
                     axisLine={false}
-                    tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                    tickFormatter={(value) => `${Math.round(Number(value) / 1_000_000)}tr`}
+                    tick={{ fontSize: 12, fill: c.mutedFg }}
+                    tickFormatter={(value) =>
+                      `${Math.round(Number(value) / 1_000_000)}tr`
+                    }
                     tickLine={false}
                   />
                   <Tooltip
                     contentStyle={{
-                      background: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
+                      background: c.cardBg,
+                      border: `1px solid ${c.border}`,
                       borderRadius: "0.875rem",
-                      boxShadow: "0 16px 40px rgba(15, 23, 42, 0.12)",
+                      boxShadow: "0 16px 40px rgba(0,0,0,0.14)",
+                      color: c.cardFg,
                     }}
+                    labelStyle={{ color: c.cardFg, fontWeight: 600 }}
+                    itemStyle={{ color: c.mutedFg }}
                     formatter={(value) => formatVnd(Number(value))}
-                    labelFormatter={(label) => `Tháng ${String(label).replace("T", "")}`}
+                    labelFormatter={(label) =>
+                      `Tháng ${String(label).replace("T", "")}`
+                    }
                   />
                   <Bar
                     dataKey="Doanh thu"
-                    fill="hsl(var(--primary))"
+                    fill={c.primary}
                     maxBarSize={52}
                     radius={[8, 8, 0, 0]}
                   />
@@ -243,15 +258,16 @@ export function AdminDashboardContent() {
             <div
               className="relative flex size-48 items-center justify-center rounded-full"
               style={{
-                background:
-                  "conic-gradient(hsl(var(--primary)) 0deg 281deg, hsl(var(--muted)) 281deg 360deg)",
+                background: `conic-gradient(${c.primary} 0deg 281deg, ${c.muted} 281deg 360deg)`,
               }}
             >
               <div className="flex size-36 flex-col items-center justify-center rounded-full bg-card shadow-inner">
                 <p className="text-4xl font-semibold tracking-tight text-foreground">
                   78%
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">giờ cao điểm</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  giờ cao điểm
+                </p>
               </div>
             </div>
           </div>
@@ -283,10 +299,14 @@ export function AdminDashboardContent() {
 
           <div className="mt-5 grid grid-cols-2 gap-3">
             {[
-              { href: adminRoutes.members, label: "Hội viên mới", icon: UserPlus },
+              {
+                href: adminRoutes.members,
+                label: "Hội viên mới",
+                icon: UserPlus,
+              },
               { href: adminRoutes.staff, label: "Thêm nhân sự", icon: UserCog },
             ].map((action) => {
-              const Icon = action.icon
+              const Icon = action.icon;
 
               return (
                 <Link
@@ -297,7 +317,7 @@ export function AdminDashboardContent() {
                   <Icon aria-hidden="true" className="size-5" />
                   {action.label}
                 </Link>
-              )
+              );
             })}
 
             <Link
@@ -340,9 +360,13 @@ export function AdminDashboardContent() {
                   <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                     {member.id}
                   </span>
-                  <span className="font-medium text-foreground">{member.name}</span>
+                  <span className="font-medium text-foreground">
+                    {member.name}
+                  </span>
                 </div>
-                <span className="text-sm text-muted-foreground">{member.plan}</span>
+                <span className="text-sm text-muted-foreground">
+                  {member.plan}
+                </span>
                 <span className="text-sm font-medium text-destructive">
                   {member.expiredOn}
                 </span>
@@ -358,5 +382,5 @@ export function AdminDashboardContent() {
         </div>
       </section>
     </div>
-  )
+  );
 }
