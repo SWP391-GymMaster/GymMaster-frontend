@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { CalendarDays, Plus, Utensils } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { MealLogForm } from "@/features/member-nutrition/components/MealLogForm"
@@ -20,9 +21,53 @@ const today = getTodayDate()
 export function MealJournalWorkspace() {
   const summary = useMemberCalorieSummary(today)
   const logs = useMemberMealLogs(today)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const [activeView, setActiveView] = useState<"list" | "add">("list")
+  const [defaultMealType, setDefaultMealType] = useState<"breakfast" | "lunch" | "dinner" | "snack">("lunch")
   const [calorieTarget, setCalorieTarget] = useState(2200)
   const [isTdeeOpen, setIsTdeeOpen] = useState(false)
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      if (typeof window === "undefined") return
+      const hash = window.location.hash
+      const viewParam = searchParams.get("view")
+      const typeParam = searchParams.get("type")
+
+      if (viewParam === "add" || hash.startsWith("#add-meal")) {
+        setActiveView("add")
+        
+        let mealType: "breakfast" | "lunch" | "dinner" | "snack" = "lunch"
+        if (typeParam && ["breakfast", "lunch", "dinner", "snack"].includes(typeParam)) {
+          mealType = typeParam as "breakfast" | "lunch" | "dinner" | "snack"
+        } else if (hash.includes("breakfast")) {
+          mealType = "breakfast"
+        } else if (hash.includes("lunch")) {
+          mealType = "lunch"
+        } else if (hash.includes("dinner")) {
+          mealType = "dinner"
+        } else if (hash.includes("snack")) {
+          mealType = "snack"
+        }
+        
+        setDefaultMealType(mealType)
+
+        // Clean up hash to prevent double-hash loops
+        if (hash.startsWith("#add-meal")) {
+          router.replace(`/member/nutrition/meal-journal?view=add&type=${mealType}`)
+        }
+      } else {
+        setActiveView("list")
+      }
+    }
+
+    handleLocationChange()
+
+    window.addEventListener("hashchange", handleLocationChange)
+    return () => window.removeEventListener("hashchange", handleLocationChange)
+  }, [searchParams, router])
 
   useEffect(() => {
     const override = localStorage.getItem("gymmaster-calorie-goal")
@@ -35,33 +80,13 @@ export function MealJournalWorkspace() {
     return () => clearTimeout(timer)
   }, [summary.data?.target])
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const checkHash = () => {
-      if (window.location.hash === "#add-meal") {
-        setActiveView("add");
-      } else {
-        setActiveView("list");
-      }
-    };
-
-    checkHash();
-
-    window.addEventListener("hashchange", checkHash);
-    return () => window.removeEventListener("hashchange", checkHash);
-  }, []);
-
   function handleTargetApplied(newTarget: number) {
     setCalorieTarget(newTarget)
     summary.refetch()
   }
 
   function handleBackToList() {
-    if (typeof window !== "undefined" && window.location.hash === "#add-meal") {
-      window.history.replaceState(null, "", window.location.pathname);
-    }
-    setActiveView("list");
+    router.push("/member/nutrition/meal-journal")
   }
 
   return (
@@ -106,7 +131,7 @@ export function MealJournalWorkspace() {
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button
-                  onClick={() => setActiveView("add")}
+                  onClick={() => router.push("/member/nutrition/meal-journal?view=add")}
                   className="min-h-12 rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-95 active:scale-[0.98]"
                 >
                   <Plus aria-hidden="true" className="size-4" />
@@ -163,7 +188,7 @@ export function MealJournalWorkspace() {
                 Ghi bữa ăn mới
               </h2>
             </div>
-            <MealLogForm date={today} onSuccess={handleBackToList} />
+            <MealLogForm date={today} defaultMealType={defaultMealType} onSuccess={handleBackToList} />
           </div>
         </div>
       )}

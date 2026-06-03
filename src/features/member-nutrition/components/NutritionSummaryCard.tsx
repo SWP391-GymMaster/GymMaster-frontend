@@ -84,10 +84,7 @@ export function NutritionSummaryCard({
 
   const consumedPercent = Math.min(
     100,
-    Math.max(
-      0,
-      Math.round((consumed / Math.max(target, 1)) * 100),
-    ),
+    Math.max(0, Math.round((consumed / Math.max(target, 1)) * 100)),
   );
 
   const remainingPercent = Math.max(0, 100 - consumedPercent);
@@ -222,8 +219,8 @@ export function NutritionSummaryCard({
           {!compact ? (
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               <MacroBar
-                icon="💪"
-                label="Protein"
+                icon="🍖"
+                label="Đạm"
                 percent={pPercent}
                 target={pTarget}
                 value={summary.proteinG}
@@ -231,8 +228,8 @@ export function NutritionSummaryCard({
                 colorClass="bg-primary"
               />
               <MacroBar
-                icon="🌾"
-                label="Carb"
+                icon="🍞"
+                label="Tinh Bột"
                 percent={cPercent}
                 target={cTarget}
                 value={summary.carbsG}
@@ -240,8 +237,8 @@ export function NutritionSummaryCard({
                 colorClass="bg-amber-500"
               />
               <MacroBar
-                icon="💧"
-                label="Fat"
+                icon="🍟"
+                label="Chất Béo"
                 percent={fPercent}
                 target={fTarget}
                 value={summary.fatG}
@@ -256,7 +253,7 @@ export function NutritionSummaryCard({
               asChild
               className="rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-[0.98]"
             >
-              <Link href="/member/nutrition/meal-journal#add-meal">
+              <Link href="/member/nutrition/meal-journal?view=add">
                 <Plus aria-hidden="true" className="size-4" />
                 Thêm bữa ăn
               </Link>

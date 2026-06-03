@@ -51,7 +51,11 @@ export const nutritionHandlers = [
 
     const query = new URL(request.url).searchParams.get("query")?.toLowerCase()
     const filtered = query
-      ? foodItems.filter((item) => item.name.toLowerCase().includes(query))
+      ? foodItems.filter((item) => {
+          const nameLower = item.name.toLowerCase()
+          const terms = query.trim().split(/\s+/)
+          return terms.every((term) => nameLower.includes(term))
+        })
       : foodItems
 
     return paged(filtered, getPage(request.url))

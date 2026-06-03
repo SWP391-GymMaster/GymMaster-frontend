@@ -21,7 +21,6 @@ import {
 } from "@/features/member-nutrition/api/member-nutrition.queries";
 import {
   formatCalories,
-  formatMacro,
   getRemainingLabel,
   getTodayDate,
 } from "@/features/member-nutrition/utils/nutrition-formatters";
@@ -238,34 +237,34 @@ export function CalorieSummaryWorkspace() {
 
             <div className="mt-5 grid gap-3 md:grid-cols-3">
               <MacroTrack
-                label="Protein"
+                label="Đạm"
                 value={summary.data.proteinG}
                 target={pTarget}
                 percent={pPercent}
                 colorClass="bg-primary"
-                icon="💪"
+                icon="🍖"
               />
               <MacroTrack
-                label="Carb"
+                label="Tinh Bột"
                 value={summary.data.carbsG}
                 target={cTarget}
                 percent={cPercent}
                 colorClass="bg-amber-500"
-                icon="🌾"
+                icon="🍞"
               />
               <MacroTrack
-                label="Fat"
+                label="Chất Béo"
                 value={summary.data.fatG}
                 target={fTarget}
                 percent={fPercent}
                 colorClass="bg-[oklch(0.64_0.12_235)]"
-                icon="💧"
+                icon="🍟"
               />
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
               <Link
-                href="/member/nutrition/meal-journal#add-meal"
+                href="/member/nutrition/meal-journal?view=add"
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-foreground px-4 text-sm font-semibold text-background transition hover:bg-foreground/90 active:scale-[0.98]"
               >
                 <Plus className="size-4" />
@@ -301,15 +300,15 @@ export function CalorieSummaryWorkspace() {
               <div className="mt-4 divide-y divide-border">
                 <NextAction
                   label="Thêm bữa sáng"
-                  href="/member/nutrition/meal-journal#add-meal"
+                  href="/member/nutrition/meal-journal?view=add&type=breakfast"
                 />
                 <NextAction
                   label="Thêm bữa trưa"
-                  href="/member/nutrition/meal-journal#add-meal"
+                  href="/member/nutrition/meal-journal?view=add&type=lunch"
                 />
                 <NextAction
                   label="Thêm bữa tối"
-                  href="/member/nutrition/meal-journal#add-meal"
+                  href="/member/nutrition/meal-journal?view=add&type=dinner"
                 />
                 {/* <NextAction label="Xem tổng kết" href="/member/nutrition/summary" /> */}
               </div>
@@ -333,21 +332,25 @@ export function CalorieSummaryWorkspace() {
           title="Bữa sáng"
           kcal={breakfastCal}
           count={breakfastLogs.length}
+          type="breakfast"
         />
         <CategoryCard
           title="Bữa trưa"
           kcal={lunchCal}
           count={lunchLogs.length}
+          type="lunch"
         />
         <CategoryCard
           title="Bữa tối"
           kcal={dinnerCal}
           count={dinnerLogs.length}
+          type="dinner"
         />
         <CategoryCard
           title="Bữa nhẹ"
           kcal={snackCal}
           count={snackLogs.length}
+          type="snack"
         />
       </section>
 
@@ -485,10 +488,12 @@ function CategoryCard({
   title,
   kcal,
   count,
+  type,
 }: {
   title: string;
   kcal: number;
   count: number;
+  type: "breakfast" | "lunch" | "dinner" | "snack";
 }) {
   return (
     <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between min-h-[140px]">
@@ -511,7 +516,7 @@ function CategoryCard({
           </span>
         </span>
         <Link
-          href={`/member/nutrition/meal-journal#add-meal`}
+          href={`/member/nutrition/meal-journal?view=add&type=${type}`}
           className="inline-flex size-8 items-center justify-center rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground text-muted-foreground transition active:scale-90"
           title={`Thêm món vào ${title}`}
         >

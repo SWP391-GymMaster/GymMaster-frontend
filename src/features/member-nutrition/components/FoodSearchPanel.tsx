@@ -1,11 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Search, Utensils } from "lucide-react"
+import { Plus, Search, Utensils, History, Heart } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 
+import { cn } from "@/lib/utils"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,6 +31,29 @@ import { formatCalories } from "@/features/member-nutrition/utils/nutrition-form
 
 const quickSearches = ["ức gà", "cơm", "chuối", "trứng", "sữa", "yến mạch"]
 
+const LOCAL_STORAGE_KEY_RECENT_FOODS = "gymmaster-recent-foods"
+const LOCAL_STORAGE_KEY_CUSTOM_FOODS = "gymmaster-custom-foods"
+
+function getRecentFoods(): FoodItem[] {
+  if (typeof window === "undefined") return []
+  try {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY_RECENT_FOODS)
+    return data ? JSON.parse(data) : []
+  } catch {
+    return []
+  }
+}
+
+function getCustomFoods(): FoodItem[] {
+  if (typeof window === "undefined") return []
+  try {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_FOODS)
+    return data ? JSON.parse(data) : []
+  } catch {
+    return []
+  }
+}
+
 type FoodSearchPanelProps = {
   query: string
   selectedFoodId?: number
@@ -43,115 +67,277 @@ export function FoodSearchPanel({
   onQueryChange,
   onSelectFood,
 }: FoodSearchPanelProps) {
+  const [activeTab, setActiveTab] = useState<"search" | "recent" | "custom">("search")
+  const [recentFoods, setRecentFoods] = useState<FoodItem[]>([])
+  const [customFoods, setCustomFoods] = useState<FoodItem[]>([])
+
   const foods = useFoodSearch(query)
   const canSearch = query.trim().length >= 2
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRecentFoods(getRecentFoods())
+      setCustomFoods(getCustomFoods())
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [activeTab, selectedFoodId])
+
+  const handleCustomFoodCreated = (food: FoodItem) => {
+    // Save to local custom list
+    const existing = getCustomFoods()
+    const updated = [food, ...existing]
+    localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOM_FOODS, JSON.stringify(updated))
+    setCustomFoods(updated)
+
+    // Select the newly created food
+    onSelectFood(food)
+  }
 
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center gap-3">
         <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Search aria-hidden="true" className="size-5" />
+          <Utensils aria-hidden="true" className="size-5" />
         </span>
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            Tìm món ăn
+            Cơ sở dữ liệu món ăn
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Tìm trong cơ sở dữ liệu món ăn trước khi ghi bữa.
+            Tra cứu thực phẩm thô và món ăn chế biến sẵn chuẩn MyFitnessPal.
           </p>
         </div>
       </div>
 
-      <label className="mt-5 block text-sm font-medium text-foreground" htmlFor="food-search">
-        Tên món
-      </label>
-      <div className="relative mt-2">
-        <Search
-          aria-hidden="true"
-          className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-        />
-        <input
-          className="min-h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
-          data-testid="member-food-search-input"
-          id="food-search"
-          onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Ức gà, cơm, chuối..."
-          value={query}
-        />
+      {/* Tabs */}
+      <div className="mt-5 flex border-b border-border">
+        <button
+          type="button"
+          onClick={() => setActiveTab("search")}
+          className={cn(
+            "flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
+            activeTab === "search"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Search className="size-3.5" />
+          Tra cứu
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("recent")}
+          className={cn(
+            "flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
+            activeTab === "recent"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <History className="size-3.5" />
+          Gần đây
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("custom")}
+          className={cn(
+            "flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
+            activeTab === "custom"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Heart className="size-3.5" />
+          Tự tạo
+        </button>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        {quickSearches.map((quickSearch) => (
-          <Button
-            className="h-9 rounded-full border-border bg-card px-3 text-xs font-semibold text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98]"
-            key={quickSearch}
-            onClick={() => onQueryChange(quickSearch)}
-            type="button"
-            variant="outline"
-          >
-            {quickSearch}
-          </Button>
-        ))}
-      </div>
-
-      <div className="mt-5 grid gap-2">
-        {!canSearch ? (
-          <StateBlock
-            description="Nhập ít nhất hai ký tự để tìm món ăn."
-            title="Bắt đầu bằng tên món."
-            tone="empty"
-          />
-        ) : null}
-        {foods.isLoading ? (
-          <StateBlock
-            description="Đang tìm món ăn phù hợp."
-            title="Đang tìm món..."
-            tone="loading"
-          />
-        ) : null}
-        {foods.isError ? (
-          <StateBlock
-            description="Tìm kiếm món ăn đang tạm thời gián đoạn."
-            title="Không thể tìm món ăn."
-            tone="error"
-          />
-        ) : null}
-        {canSearch && foods.data?.items.length === 0 ? (
+      {/* Tab Contents */}
+      <div className="mt-5">
+        {activeTab === "search" && (
           <div className="space-y-4">
-            <StateBlock
-              description="Bạn có thể tự tạo món ăn mới này để ghi nhận bữa ăn của mình."
-              title="Không tìm thấy món phù hợp."
-              tone="empty"
-            />
-            <CreateCustomFoodDialog initialName={query} onCreated={onSelectFood} />
+            <div>
+              <label className="block text-sm font-semibold text-foreground" htmlFor="food-search">
+                Tên thực phẩm hoặc món ăn
+              </label>
+              <div className="relative mt-2">
+                <Search
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                />
+                <input
+                  className="min-h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                  data-testid="member-food-search-input"
+                  id="food-search"
+                  onChange={(event) => onQueryChange(event.target.value)}
+                  placeholder="Gõ 'ức gà', 'cơm trắng', 'phở bò'..."
+                  value={query}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {quickSearches.map((quickSearch) => (
+                <Button
+                  className="h-9 rounded-full border-border bg-card px-3 text-xs font-semibold text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98]"
+                  key={quickSearch}
+                  onClick={() => onQueryChange(quickSearch)}
+                  type="button"
+                  variant="outline"
+                >
+                  {quickSearch}
+                </Button>
+              ))}
+            </div>
+            {canSearch && foods.data && foods.data.items.length > 0 && (
+              <p className="text-xs font-semibold text-muted-foreground px-1">
+                Tìm thấy {foods.data.total.toLocaleString("vi-VN")} kết quả tương thích (trong tổng số 32,800 thực phẩm & món ăn).
+              </p>
+            )}
+
+            <div className="grid gap-2">
+              {!canSearch && (
+                <StateBlock
+                  description="Nhập từ khóa thực phẩm thô (ví dụ: 'ức gà', 'cá hồi') hoặc món ăn (ví dụ: 'phở bò', 'cơm tấm') để tìm kiếm."
+                  title="Tìm món ăn chuẩn"
+                  tone="empty"
+                />
+              )}
+              {canSearch && foods.isLoading && (
+                <StateBlock
+                  description="Đang tìm kiếm hàng ngàn thực phẩm dinh dưỡng..."
+                  title="Đang tra cứu..."
+                  tone="loading"
+                />
+              )}
+              {canSearch && foods.isError && (
+                <StateBlock
+                  description="Tìm kiếm món ăn đang tạm thời gián đoạn."
+                  title="Không thể tìm món ăn."
+                  tone="error"
+                />
+              )}
+              {canSearch && foods.data?.items.length === 0 && (
+                <div className="space-y-4">
+                  <StateBlock
+                    description="Không tìm thấy món phù hợp trong 30,000+ món ăn giả lập. Bạn có thể tự tạo món mới."
+                    title="Không tìm thấy kết quả"
+                    tone="empty"
+                  />
+                  <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
+                </div>
+              )}
+              {canSearch && foods.data?.items.map((food) => (
+                <Button
+                  className="h-auto justify-between gap-4 rounded-xl border-border bg-background p-4 text-left text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98] data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
+                  data-selected={selectedFoodId === food.id}
+                  data-testid="member-food-result"
+                  key={food.id}
+                  onClick={() => onSelectFood(food)}
+                  type="button"
+                  variant="outline"
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Utensils aria-hidden="true" className="size-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-semibold">{food.name}</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
+                        {food.proteinG !== undefined && ` · P: ${food.proteinG}g C: ${food.carbsG}g F: ${food.fatG}g`}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    Chọn
+                  </span>
+                </Button>
+              ))}
+            </div>
           </div>
-        ) : null}
-        {foods.data?.items.map((food) => (
-          <Button
-            className="h-auto justify-between gap-4 rounded-xl border-border bg-background p-4 text-left text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98] data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
-            data-selected={selectedFoodId === food.id}
-            data-testid="member-food-result"
-            key={food.id}
-            onClick={() => onSelectFood(food)}
-            type="button"
-            variant="outline"
-          >
-            <span className="flex min-w-0 items-center gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Utensils aria-hidden="true" className="size-4" />
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate font-semibold">{food.name}</span>
-                <span className="mt-1 block text-sm text-muted-foreground">
-                  {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
-                </span>
-              </span>
-            </span>
-            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-              Chọn
-            </span>
-          </Button>
-        ))}
+        )}
+
+        {activeTab === "recent" && (
+          <div className="grid gap-2">
+            {recentFoods.length === 0 ? (
+              <StateBlock
+                description="Bạn chưa ghi bữa ăn nào gần đây. Hãy tra cứu và thêm món ăn để tích lũy lịch sử ghi bữa."
+                title="Chưa có món ăn gần đây"
+                tone="empty"
+              />
+            ) : (
+              recentFoods.map((food) => (
+                <Button
+                  className="h-auto justify-between gap-4 rounded-xl border-border bg-background p-4 text-left text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98] data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
+                  data-selected={selectedFoodId === food.id}
+                  key={`recent-${food.id}`}
+                  onClick={() => onSelectFood(food)}
+                  type="button"
+                  variant="outline"
+                >
+                  <span className="flex min-w-0 items-center gap-3">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <History className="size-4" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-semibold">{food.name}</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
+                        {food.proteinG !== undefined && ` · P: ${food.proteinG}g C: ${food.carbsG}g F: ${food.fatG}g`}
+                      </span>
+                    </span>
+                  </span>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    Chọn
+                  </span>
+                </Button>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeTab === "custom" && (
+          <div className="space-y-4">
+            <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
+            <div className="grid gap-2">
+              {customFoods.length === 0 ? (
+                <StateBlock
+                  description="Bạn chưa tạo món ăn tùy chỉnh nào. Tự tạo món ăn đặc trưng của riêng bạn bằng cách nhấn nút phía trên."
+                  title="Chưa có món ăn tự tạo"
+                  tone="empty"
+                />
+              ) : (
+                customFoods.map((food) => (
+                  <Button
+                    className="h-auto justify-between gap-4 rounded-xl border-border bg-background p-4 text-left text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98] data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
+                    data-selected={selectedFoodId === food.id}
+                    key={`custom-${food.id}`}
+                    onClick={() => onSelectFood(food)}
+                    type="button"
+                    variant="outline"
+                  >
+                    <span className="flex min-w-0 items-center gap-3">
+                      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Heart className="size-4" />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate font-semibold">{food.name}</span>
+                        <span className="mt-1 block text-xs text-muted-foreground">
+                          {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
+                          {food.proteinG !== undefined && ` · P: ${food.proteinG}g C: ${food.carbsG}g F: ${food.fatG}g`}
+                        </span>
+                      </span>
+                    </span>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                      Chọn
+                    </span>
+                  </Button>
+                ))
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   )

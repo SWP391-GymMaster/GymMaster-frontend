@@ -324,11 +324,154 @@ export const progressEntries: MockProgressEntry[] = [
   },
 ]
 
-export const foodItems = [
-  { id: 901, name: "Chicken breast", unit: "100g", caloriesPerUnit: 165 },
-  { id: 902, name: "White rice", unit: "100g", caloriesPerUnit: 130 },
-  { id: 903, name: "Banana", unit: "piece", caloriesPerUnit: 105 },
+const rawIngredients = [
+  { name: "Ức gà", calories: 120, protein: 26, carbs: 0, fat: 2 },
+  { name: "Thịt bò phi lê", calories: 200, protein: 26, carbs: 0, fat: 10 },
+  { name: "Thịt heo nạc", calories: 145, protein: 21, carbs: 0, fat: 6 },
+  { name: "Cá hồi phi lê", calories: 206, protein: 22, carbs: 0, fat: 13 },
+  { name: "Cá ngừ", calories: 130, protein: 28, carbs: 0, fat: 1 },
+  { name: "Tôm thẻ", calories: 99, protein: 24, carbs: 0.2, fat: 0.3 },
+  { name: "Lòng trắng trứng", calories: 17, protein: 3.6, carbs: 0.2, fat: 0.1 },
+  { name: "Trứng gà nguyên quả", calories: 78, protein: 6.3, carbs: 0.6, fat: 5.3 },
+  { name: "Đậu hũ trắng", calories: 76, protein: 8, carbs: 1.9, fat: 4.8 },
+  { name: "Trứng vịt", calories: 130, protein: 9, carbs: 1, fat: 9.6 },
+  { name: "Thịt đùi gà", calories: 170, protein: 20, carbs: 0, fat: 9 },
+  { name: "Cá thu", calories: 190, protein: 19, carbs: 0, fat: 12 },
+  { name: "Bơ thực vật", calories: 72, protein: 0.1, carbs: 0.1, fat: 8.1 },
+  { name: "Dầu ô liu", calories: 88, protein: 0, carbs: 0, fat: 10 },
+  { name: "Hạnh nhân", calories: 58, protein: 2.1, carbs: 2.2, fat: 5 },
+  { name: "Hạt điều", calories: 55, protein: 1.8, carbs: 3, fat: 4.4 },
+  { name: "Hạt lạc", calories: 56, protein: 2.6, carbs: 1.6, fat: 4.9 },
+  { name: "Sữa tươi TH True Milk không đường", calories: 110, protein: 6, carbs: 8.5, fat: 5.8 },
+  { name: "Sữa tươi Vinamilk không đường", calories: 112, protein: 6.1, carbs: 8.6, fat: 5.9 },
+  { name: "Sữa chua Hy Lạp", calories: 97, protein: 9, carbs: 4, fat: 5 },
+  { name: "Yến mạch Quaker Oats", calories: 190, protein: 6.5, carbs: 33, fat: 3 },
+  { name: "Khoai lang luộc", calories: 86, protein: 1.6, carbs: 20, fat: 0.1 },
+  { name: "Khoai tây luộc", calories: 77, protein: 2, carbs: 17, fat: 0.1 },
+  { name: "Bánh mì nguyên cám", calories: 75, protein: 3.5, carbs: 13, fat: 1 },
+  { name: "Bánh mì đen", calories: 80, protein: 3, carbs: 15, fat: 1 },
+  { name: "Cơm gạo lứt", calories: 110, protein: 2.3, carbs: 23, fat: 0.8 },
+  { name: "Cơm trắng", calories: 130, protein: 2.7, carbs: 28, fat: 0.3 },
+  { name: "Chuối chín", calories: 105, protein: 1.3, carbs: 27, fat: 0.3 },
+  { name: "Quả bơ", calories: 160, protein: 2, carbs: 9, fat: 15 },
+  { name: "Táo đỏ", calories: 95, protein: 0.5, carbs: 25, fat: 0.3 },
+  { name: "Bông cải xanh", calories: 34, protein: 2.8, carbs: 7, fat: 0.4 },
+  { name: "Măng tây", calories: 20, protein: 2.2, carbs: 3.9, fat: 0.2 },
+  { name: "Rau bina", calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4 },
+  { name: "Whey Protein Gold Standard", calories: 120, protein: 24, carbs: 3, fat: 1 },
+  { name: "Whey Protein Rule 1", calories: 110, protein: 25, carbs: 1, fat: 0.5 },
 ]
+
+const brands = [
+  "CP", "TH True Food", "Vinamilk", "GymMaster Kitchen", "Bách Hóa Xanh",
+  "VinMart", "HealthyLife", "Nhà làm", "Organic Farm", "Gia đình"
+]
+
+const rawPreparations = [
+  "luộc", "hấp", "nướng", "áp chảo", "sống", "chiên không dầu", "sốt tiêu", "xào tỏi"
+]
+
+const weightMultipliers = [
+  { label: "50g", mult: 0.5 },
+  { label: "100g", mult: 1.0 },
+  { label: "150g", mult: 1.5 },
+  { label: "200g", mult: 2.0 },
+  { label: "250g", mult: 2.5 },
+  { label: "300g", mult: 3.0 },
+  { label: "1 phần", mult: 1.0 },
+  { label: "1 dĩa", mult: 1.2 },
+  { label: "1 chén", mult: 0.8 },
+  { label: "khẩu phần vừa", mult: 1.0 },
+  { label: "khẩu phần lớn", mult: 1.5 }
+]
+
+const preparedMeals = [
+  { name: "Cơm tấm sườn bì chả", calories: 650, protein: 32, carbs: 80, fat: 22 },
+  { name: "Phở bò chín", calories: 450, protein: 24, carbs: 58, fat: 13 },
+  { name: "Phở gà xé", calories: 400, protein: 26, carbs: 54, fat: 9 },
+  { name: "Bún chả Hà Nội", calories: 550, protein: 22, carbs: 75, fat: 18 },
+  { name: "Bún bò Huế", calories: 520, protein: 23, carbs: 68, fat: 17 },
+  { name: "Bún riêu cua", calories: 410, protein: 16, carbs: 56, fat: 12 },
+  { name: "Hủ tiếu Nam Vang", calories: 480, protein: 20, carbs: 62, fat: 15 },
+  { name: "Gỏi cuốn tôm thịt", calories: 60, protein: 4.5, carbs: 8, fat: 1 },
+  { name: "Bánh mì kẹp thịt pate", calories: 420, protein: 15, carbs: 48, fat: 18 },
+  { name: "Bánh mì trứng ốp la", calories: 350, protein: 12, carbs: 40, fat: 15 },
+  { name: "Salad ức gà sốt mè rang", calories: 280, protein: 28, carbs: 12, fat: 13 },
+  { name: "Cơm gạo lứt cá hồi áp chảo", calories: 480, protein: 28, carbs: 45, fat: 20 },
+  { name: "Cháo yến mạch thịt băm", calories: 260, protein: 14, carbs: 32, fat: 8 },
+  { name: "Bò bít tết khoai tây chiên", calories: 750, protein: 35, carbs: 55, fat: 42 },
+  { name: "Hamburger bò", calories: 500, protein: 22, carbs: 40, fat: 28 },
+  { name: "Pizza hải sản cỡ nhỏ", calories: 680, protein: 26, carbs: 85, fat: 24 },
+  { name: "Khoai tây chiên", calories: 312, protein: 3.4, carbs: 41, fat: 15 },
+  { name: "Trà sữa trân châu truyền thống", calories: 450, protein: 4, carbs: 82, fat: 12 },
+  { name: "Sinh tố bơ chuối", calories: 320, protein: 5, carbs: 48, fat: 12 },
+  { name: "Mì Ý sốt bò băm", calories: 580, protein: 24, carbs: 72, fat: 22 }
+]
+
+const mealPortions = [
+  { label: "tô thường", mult: 1.0 },
+  { label: "tô đặc biệt", mult: 1.3 },
+  { label: "tô lớn", mult: 1.5 },
+  { label: "đĩa vừa", mult: 1.0 },
+  { label: "đĩa lớn", mult: 1.4 },
+  { label: "phần nhỏ", mult: 0.7 },
+  { label: "phần vừa", mult: 1.0 },
+  { label: "phần lớn", mult: 1.4 },
+  { label: "ly nhỏ", mult: 0.7 },
+  { label: "ly lớn", mult: 1.3 }
+]
+
+export const foodItems: Array<{
+  id: number
+  name: string
+  unit: string
+  caloriesPerUnit: number
+  proteinG?: number
+  carbsG?: number
+  fatG?: number
+}> = [
+  { id: 901, name: "Chicken breast", unit: "100g", caloriesPerUnit: 165, proteinG: 31, carbsG: 0, fatG: 3.6 },
+  { id: 902, name: "White rice", unit: "100g", caloriesPerUnit: 130, proteinG: 2.7, carbsG: 28, fatG: 0.3 },
+  { id: 903, name: "Banana", unit: "piece", caloriesPerUnit: 105, proteinG: 1.3, carbsG: 27, fatG: 0.3 }
+]
+
+let currentId = 904
+
+// 1. Generate Raw & Packaged Items
+for (const ing of rawIngredients) {
+  for (const brand of brands) {
+    for (const prep of rawPreparations) {
+      for (const w of weightMultipliers) {
+        foodItems.push({
+          id: currentId++,
+          name: `${ing.name} ${brand} ${prep} (${w.label})`,
+          unit: w.label,
+          caloriesPerUnit: Math.round(ing.calories * w.mult),
+          proteinG: Number((ing.protein * w.mult).toFixed(1)),
+          carbsG: Number((ing.carbs * w.mult).toFixed(1)),
+          fatG: Number((ing.fat * w.mult).toFixed(1))
+        })
+      }
+    }
+  }
+}
+
+// 2. Generate Prepared Meals
+for (const meal of preparedMeals) {
+  for (const brand of brands) {
+    for (const port of mealPortions) {
+      foodItems.push({
+        id: currentId++,
+        name: `${meal.name} ${brand} (${port.label})`,
+        unit: port.label,
+        caloriesPerUnit: Math.round(meal.calories * port.mult),
+        proteinG: Number((meal.protein * port.mult).toFixed(1)),
+        carbsG: Number((meal.carbs * port.mult).toFixed(1)),
+        fatG: Number((meal.fat * port.mult).toFixed(1))
+      })
+    }
+  }
+}
 
 export const mealLogs = [
   {
