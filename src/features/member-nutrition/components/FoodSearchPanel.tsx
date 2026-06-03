@@ -177,6 +177,9 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
       name: initialName,
       unit: "gam",
       caloriesPerUnit: 0,
+      carbsG: 0,
+      proteinG: 0,
+      fatG: 0,
     },
   })
 
@@ -185,6 +188,9 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
       name: initialName,
       unit: "gam",
       caloriesPerUnit: 0,
+      carbsG: 0,
+      proteinG: 0,
+      fatG: 0,
     })
   }, [initialName, reset])
 
@@ -264,6 +270,42 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               {errors.caloriesPerUnit && (
                 <p className="text-xs font-semibold text-destructive">{errors.caloriesPerUnit.message}</p>
               )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-carbs">
+                Carbs (g)
+              </label>
+              <input
+                id="custom-food-carbs"
+                type="number"
+                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                {...register("carbsG")}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-protein">
+                Protein (g)
+              </label>
+              <input
+                id="custom-food-protein"
+                type="number"
+                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                {...register("proteinG")}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-fat">
+                Fat (g)
+              </label>
+              <input
+                id="custom-food-fat"
+                type="number"
+                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                {...register("fatG")}
+              />
             </div>
           </div>
 

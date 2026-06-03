@@ -173,19 +173,38 @@ export function MealLogForm({ date, onSuccess }: MealLogFormProps) {
         )}
 
         {selectedFood ? (
-          <div className="mt-5 rounded-xl border border-primary/20 bg-primary/10 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="mt-5 rounded-2xl border border-border bg-muted/40 p-5">
+            <div className="flex items-center justify-between gap-3 border-b border-border pb-3 mb-4">
               <div>
-                <p className="text-sm font-semibold text-foreground">
+                <p className="text-base font-bold text-foreground">
                   {selectedFood.name}
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {formatCalories(selectedFood.caloriesPerUnit)} mỗi {selectedFood.unit}
+                <p className="text-xs text-muted-foreground">
+                  Phân lượng gốc: {selectedFood.caloriesPerUnit} kcal / {selectedFood.unit}
                 </p>
               </div>
-              <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                 Đã chọn
               </span>
+            </div>
+
+            <div className="grid grid-cols-4 gap-3 text-center">
+              <div className="rounded-xl bg-background border border-border p-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground">Calo</p>
+                <p className="mt-1 text-sm font-bold text-foreground">{estimatedCalories}</p>
+              </div>
+              <div className="rounded-xl bg-background border border-border p-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary">Carbs</p>
+                <p className="mt-1 text-sm font-bold text-foreground">{Math.round((selectedFood.carbsG || 0) * quantity)}g</p>
+              </div>
+              <div className="rounded-xl bg-background border border-border p-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-sky-500">Protein</p>
+                <p className="mt-1 text-sm font-bold text-foreground">{Math.round((selectedFood.proteinG || 0) * quantity)}g</p>
+              </div>
+              <div className="rounded-xl bg-background border border-border p-2">
+                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-amber-500">Fat</p>
+                <p className="mt-1 text-sm font-bold text-foreground">{Math.round((selectedFood.fatG || 0) * quantity)}g</p>
+              </div>
             </div>
           </div>
         ) : (
@@ -199,6 +218,41 @@ export function MealLogForm({ date, onSuccess }: MealLogFormProps) {
 
         <form className="mt-5 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <input type="hidden" {...register("foodItemId")} />
+
+          {/* Segmented Meal Type Control */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Utensils className="size-4 text-primary" />
+              Loại bữa ăn
+            </label>
+            <input type="hidden" {...register("mealType")} />
+            <div className="grid grid-cols-4 gap-2">
+              {mealTypes.map((t) => {
+                const isActive = watch("mealType") === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setValue("mealType", t, { shouldValidate: true })}
+                    className={cn(
+                      "flex flex-col items-center justify-center p-2.5 rounded-xl border text-xs font-semibold transition active:scale-95",
+                      isActive
+                        ? "border-primary bg-primary/10 text-primary shadow-sm"
+                        : "border-border bg-background hover:bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {formatMealType(t)}
+                  </button>
+                );
+              })}
+            </div>
+            {errors.mealType ? (
+              <p className="mt-1 text-xs font-medium text-destructive">
+                {errors.mealType.message}
+              </p>
+            ) : null}
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Ngày" icon={CalendarDays}>
               <input
@@ -215,48 +269,47 @@ export function MealLogForm({ date, onSuccess }: MealLogFormProps) {
               ) : null}
             </Field>
 
-            <Field label="Loại bữa" icon={Utensils}>
-              <select
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-                data-testid="member-meal-type-select"
-                id="meal-type"
-                {...register("mealType")}
-              >
-                {mealTypes.map((mealType) => (
-                  <option key={mealType} value={mealType}>
-                    {formatMealType(mealType)}
-                  </option>
+            <div className="space-y-2">
+              <Field label="Khẩu phần" icon={Scale}>
+                <input
+                  className="min-h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                  data-testid="member-meal-quantity-input"
+                  id="meal-quantity"
+                  min="0"
+                  step="0.1"
+                  type="number"
+                  {...register("quantity")}
+                />
+              </Field>
+              <div className="flex gap-1.5 flex-wrap">
+                {[0.5, 1, 1.5, 2, 3].map((mult) => (
+                  <button
+                    key={mult}
+                    type="button"
+                    onClick={() => setValue("quantity", mult, { shouldValidate: true })}
+                    className={cn(
+                      "px-2.5 py-1 text-[11px] rounded-lg border transition active:scale-95",
+                      quantity === mult
+                        ? "border-primary bg-primary/10 text-primary font-semibold"
+                        : "border-border bg-background hover:bg-muted text-muted-foreground"
+                    )}
+                  >
+                    {mult}x
+                  </button>
                 ))}
-              </select>
-              {errors.mealType ? (
-                <p className="mt-2 text-sm font-medium text-destructive">
-                  {errors.mealType.message}
+              </div>
+              {errors.quantity ? (
+                <p className="mt-1 text-xs font-medium text-destructive">
+                  {errors.quantity.message}
                 </p>
               ) : null}
-            </Field>
+              {errors.foodItemId ? (
+                <p className="mt-1 text-xs font-medium text-destructive">
+                  {errors.foodItemId.message}
+                </p>
+              ) : null}
+            </div>
           </div>
-
-          <Field label="Khẩu phần" icon={Scale}>
-            <input
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-              data-testid="member-meal-quantity-input"
-              id="meal-quantity"
-              min="0"
-              step="0.1"
-              type="number"
-              {...register("quantity")}
-            />
-            {errors.quantity ? (
-              <p className="mt-2 text-sm font-medium text-destructive">
-                {errors.quantity.message}
-              </p>
-            ) : null}
-            {errors.foodItemId ? (
-              <p className="mt-2 text-sm font-medium text-destructive">
-                {errors.foodItemId.message}
-              </p>
-            ) : null}
-          </Field>
 
           <div className="rounded-xl border border-border bg-background p-4">
             <div className="flex items-center justify-between gap-4">

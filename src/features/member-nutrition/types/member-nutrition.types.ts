@@ -65,4 +65,7 @@ export type CreateCustomFoodInput = {
   name: string
   unit: string
   caloriesPerUnit: number
+  carbsG?: number
+  proteinG?: number
+  fatG?: number
 }

@@ -12,6 +12,24 @@ export const customFoodSchema = z.object({
       message: "Nhập hàm lượng calo.",
     })
     .nonnegative("Hàm lượng calo không được là số âm."),
+  carbsG: z.coerce
+    .number({
+      message: "Nhập lượng tinh bột.",
+    })
+    .nonnegative("Tinh bột không được là số âm.")
+    .optional(),
+  proteinG: z.coerce
+    .number({
+      message: "Nhập lượng chất đạm.",
+    })
+    .nonnegative("Chất đạm không được là số âm.")
+    .optional(),
+  fatG: z.coerce
+    .number({
+      message: "Nhập lượng chất béo.",
+    })
+    .nonnegative("Chất béo không được là số âm.")
+    .optional(),
 })
 
 export type CustomFoodFormInput = z.input<typeof customFoodSchema>

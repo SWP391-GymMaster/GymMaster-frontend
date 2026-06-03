@@ -60,13 +60,16 @@ export const nutritionHandlers = [
     const role = requireRole(request, ["member"])
     if (typeof role !== "string") return role
 
-    const body = (await request.json()) as Partial<(typeof foodItems)[number]>
+    const body = (await request.json()) as unknown as Record<string, unknown>
     const food = {
       id: Math.max(...foodItems.map((item) => item.id)) + 1,
-      name: body.name ?? "Custom food",
-      unit: body.unit ?? "serving",
-      caloriesPerUnit: body.caloriesPerUnit ?? 0,
-    }
+      name: (body.name as string) ?? "Custom food",
+      unit: (body.unit as string) ?? "serving",
+      caloriesPerUnit: (body.caloriesPerUnit as number) ?? 0,
+      carbsG: (body.carbsG as number) ?? 0,
+      proteinG: (body.proteinG as number) ?? 0,
+      fatG: (body.fatG as number) ?? 0,
+    } as unknown as (typeof foodItems)[number]
     foodItems.push(food)
 
     return created(food)
