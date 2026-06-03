@@ -34,7 +34,7 @@ const todayActions = [
     icon: Dumbbell,
   },
   {
-    href: "/member/trainer-notes",
+    href: "/member/notes",
     title: "Ghi chú PT",
     description: "Đọc phản hồi mới nhất về kỹ thuật và phục hồi.",
     icon: CheckCircle2,

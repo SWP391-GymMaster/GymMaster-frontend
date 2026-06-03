@@ -48,7 +48,7 @@ export function MemberWorkoutWorkspace() {
       >
         <section className="space-y-6">
           <MemberTrainingHero
-            ctaHref="/member/trainer-notes"
+            ctaHref="/member/notes"
             ctaLabel="Xem ghi chú PT"
             description="Theo dõi bài tập, số hiệp, reps và cue kỹ thuật từ PT trong một layout dễ tập theo."
             eyebrow="Training Plan Viewer"
@@ -93,7 +93,7 @@ export function MemberWorkoutWorkspace() {
             <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
               <MemberSideCard
                 description="Đọc ghi chú mới nhất để biết lỗi kỹ thuật cần sửa trong buổi tới."
-                href="/member/trainer-notes"
+                href="/member/notes"
                 icon={NotebookPen}
                 title="Cue từ PT"
               />
