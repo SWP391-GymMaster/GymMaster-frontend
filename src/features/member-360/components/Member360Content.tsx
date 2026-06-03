@@ -8,7 +8,11 @@ import {
   Dumbbell,
   RotateCcw,
   UserPlus,
+  Scale,
+  Percent,
 } from "lucide-react"
+
+import { useMemberProgress } from "@/features/member-progress-tracking/api/member-progress.queries"
 
 import { Button } from "@/components/ui/button"
 import type { Member360Data } from "@/features/member-360/types/member-360.types"
@@ -134,7 +138,7 @@ export function Member360Content({
             specialty={pt?.specialty}
           />
 
-          <MemberQuickStats isLoading={isLoading} />
+          <MemberQuickStats memberId={memberId} isLoading={isLoading} />
 
           {!isLoading && memberId > 0 ? (
             <QuickActionPanel actions={roleActions} />
@@ -151,8 +155,17 @@ export function Member360Content({
   )
 }
 
-function MemberQuickStats({ isLoading }: { isLoading?: boolean }) {
-  if (isLoading) {
+function MemberQuickStats({
+  memberId,
+  isLoading,
+}: {
+  memberId: number
+  isLoading?: boolean
+}) {
+  const progressQuery = useMemberProgress(memberId || null)
+  const progressEntries = progressQuery.data ?? []
+
+  if (isLoading || progressQuery.isLoading) {
     return (
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="h-4 w-28 animate-pulse rounded bg-muted" />
@@ -165,14 +178,25 @@ function MemberQuickStats({ isLoading }: { isLoading?: boolean }) {
     )
   }
 
+  // Sort by date descending
+  const sorted = [...progressEntries].sort(
+    (a, b) => new Date(b.measuredAt).getTime() - new Date(a.measuredAt).getTime(),
+  )
+  const latest = sorted[0]
+  const weightVal = latest ? `${latest.weightKg} kg` : "Chưa đo"
+  const fatVal =
+    latest?.bodyFatPct !== undefined && latest.bodyFatPct !== null
+      ? `${latest.bodyFatPct}%`
+      : "—"
+
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <p className="text-sm font-semibold text-foreground">Thống kê nhanh</p>
       <div className="mt-4 grid grid-cols-2 gap-3">
         <QuickStat icon={Activity} label="Tổng check-in" value="32 lần" />
-        <QuickStat icon={CalendarDays} label="Tuần này" value="3 lần" />
-        <QuickStat icon={RotateCcw} label="Tỷ lệ tham gia" value="88%" />
         <QuickStat icon={Dumbbell} label="Buổi cùng PT" value="12 buổi" />
+        <QuickStat icon={Scale} label="Cân nặng" value={weightVal} />
+        <QuickStat icon={Percent} label="Tỷ lệ mỡ" value={fatVal} />
       </div>
     </section>
   )

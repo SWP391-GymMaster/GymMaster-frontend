@@ -39,6 +39,12 @@ const todayActions = [
     description: "Đọc phản hồi mới nhất về kỹ thuật và phục hồi.",
     icon: CheckCircle2,
   },
+  {
+    href: "/member/progress",
+    title: "Theo dõi tiến độ",
+    description: "Ghi nhận cân nặng, tỷ lệ mỡ và xem biểu đồ cơ thể.",
+    icon: TrendingUp,
+  },
 ]
 
 export function MemberDashboardContent() {

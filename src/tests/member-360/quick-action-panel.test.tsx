@@ -44,9 +44,10 @@ describe("getPtActions", () => {
   it("returns PT actions for a member", () => {
     const actions = getPtActions(101)
 
-    expect(actions).toHaveLength(2)
+    expect(actions).toHaveLength(3)
     expect(actions[0].label).toBe("Thêm ghi chú PT")
     expect(actions[1].label).toBe("Tạo giáo án")
+    expect(actions[2].label).toBe("Xem tiến độ")
   })
 })
 

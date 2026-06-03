@@ -8,6 +8,7 @@ import {
   FileText,
   ShieldCheck,
   UserPlus,
+  TrendingUp,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
@@ -90,6 +91,11 @@ export function getPtActions(memberId: number): QuickAction[] {
       href: `/pt/members/${memberId}/workout`,
       label: "Tạo giáo án",
       icon: ClipboardList,
+    },
+    {
+      href: `/pt/members/${memberId}/progress`,
+      label: "Xem tiến độ",
+      icon: TrendingUp,
     },
   ]
 }

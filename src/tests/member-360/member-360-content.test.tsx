@@ -1,9 +1,21 @@
 import { render, screen } from "@testing-library/react"
-import { describe, expect, it } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { Member360Content } from "@/features/member-360/components/Member360Content"
+import { useMemberProgress } from "@/features/member-progress-tracking/api/member-progress.queries"
+
+vi.mock("@/features/member-progress-tracking/api/member-progress.queries")
 
 describe("Member360Content", () => {
+  beforeEach(() => {
+    vi.mocked(useMemberProgress).mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    } as any)
+  })
+
   it("renders loading state", () => {
     const { container } = render(
       <Member360Content isLoading viewContext="admin" />,
