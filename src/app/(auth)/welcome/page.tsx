@@ -1,5 +1,5 @@
-import type { ReactNode } from "react"
-import Link from "next/link"
+import type { ReactNode } from "react";
+import Link from "next/link";
 import {
   Activity,
   ArrowRight,
@@ -8,16 +8,16 @@ import {
   ShieldCheck,
   Sparkles,
   UsersRound,
-} from "lucide-react"
+} from "lucide-react";
 
-import { gymMasterAssets } from "@/lib/gymmaster-assets"
+import { gymMasterAssets } from "@/lib/gymmaster-assets";
 
 export default function WelcomePage() {
   return (
     <main
       className="relative isolate flex min-h-screen items-center overflow-hidden bg-background px-4 py-8 text-white"
       style={{
-        backgroundImage: `linear-gradient(105deg, rgba(8,10,15,0.98), rgba(8,10,15,0.82) 46%, rgba(8,10,15,0.36)), url(${gymMasterAssets.operationsCover})`,
+        backgroundImage: `linear-gradient(105deg, rgba(8,10,15,0.98), rgba(8,10,15,0.82) 46%, rgba(8,10,15,0.36)), url(${gymMasterAssets.backgrounds.welcomeGymHero})`,
         backgroundPosition: "center",
         backgroundSize: "cover",
       }}
@@ -31,13 +31,15 @@ export default function WelcomePage() {
             <span
               aria-hidden="true"
               className="size-14 rounded-[1.25rem] bg-contain bg-center bg-no-repeat shadow-xl shadow-background/40 ring-1 ring-white/10"
-              style={{ backgroundImage: `url(${gymMasterAssets.mark})` }}
+              style={{ backgroundImage: `url(${gymMasterAssets.brand.mark})` }}
             />
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
                 GymMaster OS
               </p>
-              <p className="text-sm text-white/70">Fitness operations platform</p>
+              <p className="text-sm text-white/70">
+                Fitness operations platform
+              </p>
             </div>
           </div>
 
@@ -52,10 +54,12 @@ export default function WelcomePage() {
 
           <div className="mt-10 max-w-2xl border-l border-primary/50 pl-5">
             <p className="text-base font-medium text-white leading-7">
-              Kết nối, quản lý vận hành, huấn luyện và dữ liệu hội viên trong một hệ thống.
+              Kết nối, quản lý vận hành, huấn luyện và dữ liệu hội viên trong
+              một hệ thống.
             </p>
             <p className="mt-2 max-w-xl text-sm leading-6 text-white/58">
-              Quản lý gói tập, check-in, lịch sử tập luyện và tiến độ hội viên hiệu quả.
+              Quản lý gói tập, check-in, lịch sử tập luyện và tiến độ hội viên
+              hiệu quả.
             </p>
           </div>
 
@@ -94,7 +98,8 @@ export default function WelcomePage() {
                 Một không gian vận hành thống nhất
               </p>
               <p className="mt-1 text-sm leading-5 text-white/64">
-                Quản lý phòng gym, đội ngũ và hành trình hội viên trong cùng một hệ thống.
+                Quản lý phòng gym, đội ngũ và hành trình hội viên trong cùng một
+                hệ thống.
               </p>
             </div>
           </div>
@@ -126,9 +131,12 @@ export default function WelcomePage() {
                 <ShieldCheck aria-hidden="true" className="size-4" />
               </span>
               <div>
-                <p className="text-sm font-semibold text-white">Truy cập cá nhân hóa</p>
+                <p className="text-sm font-semibold text-white">
+                  Truy cập cá nhân hóa
+                </p>
                 <p className="mt-1 text-xs leading-5 text-white/58">
-                  Hệ thống tự xác định quyền truy cập và mở đúng không gian làm việc.
+                  Hệ thống tự xác định quyền truy cập và mở đúng không gian làm
+                  việc.
                 </p>
               </div>
             </div>
@@ -136,7 +144,7 @@ export default function WelcomePage() {
         </div>
       </section>
     </main>
-  )
+  );
 }
 
 function WelcomeFeature({
@@ -145,10 +153,10 @@ function WelcomeFeature({
   description,
   value,
 }: {
-  icon: ReactNode
-  title: string
-  description: string
-  value: string
+  icon: ReactNode;
+  title: string;
+  description: string;
+  value: string;
 }) {
   return (
     <div className="group flex items-center justify-between gap-4 rounded-[1.35rem] border border-white/10 bg-background/10 px-4 py-3.5 text-sm transition-colors hover:bg-background/15">
@@ -166,5 +174,5 @@ function WelcomeFeature({
         {value}
       </span>
     </div>
-  )
+  );
 }

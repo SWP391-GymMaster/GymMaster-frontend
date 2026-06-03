@@ -1,0 +1,15 @@
+{
+  "brand": "GymMaster",
+  "updated": "2026-06-02",
+  "assets": {
+    "mark": "/assets/gymmaster/gymmaster-mark.svg",
+    "wordmark": "/assets/gymmaster/gymmaster-wordmark.svg",
+    "operationsCover": "/assets/gymmaster/gym-operations-cover.webp",
+    "workoutCover": "/assets/gymmaster/workout-equipment-cover.webp",
+    "nutritionCover": "/assets/gymmaster/nutrition-cover.webp"
+  },
+  "notes": [
+    "Raster covers were generated for this frontend repo and contain no embedded text or logos.",
+    "Logo assets are deterministic SVGs and should remain the canonical runtime brand marks."
+  ]
+}

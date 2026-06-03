@@ -1,24 +1,23 @@
-import Link from "next/link"
-import { Activity, ArrowRight, Flame, Target, Utensils } from "lucide-react"
+import Link from "next/link";
+import { Activity, ArrowRight, Flame, Target, Utensils } from "lucide-react";
 
-import { StateBlock } from "@/components/feedback/StateBlock"
-import { Button } from "@/components/ui/button"
-import type { CalorieSummary } from "@/features/member-nutrition/types/member-nutrition.types"
+import { StateBlock } from "@/components/feedback/StateBlock";
+import { Button } from "@/components/ui/button";
+import type { CalorieSummary } from "@/features/member-nutrition/types/member-nutrition.types";
 import {
   formatCalories,
   formatMacro,
   getRemainingLabel,
-} from "@/features/member-nutrition/utils/nutrition-formatters"
+} from "@/features/member-nutrition/utils/nutrition-formatters";
 
-import { gymMasterAssets } from "@/lib/gymmaster-assets"
-
+import { gymMasterAssets } from "@/lib/gymmaster-assets";
 
 type NutritionSummaryCardProps = {
-  summary?: CalorieSummary
-  isLoading?: boolean
-  isError?: boolean
-  compact?: boolean
-}
+  summary?: CalorieSummary;
+  isLoading?: boolean;
+  isError?: boolean;
+  compact?: boolean;
+};
 
 export function NutritionSummaryCard({
   summary,
@@ -33,7 +32,7 @@ export function NutritionSummaryCard({
         title="Đang tải tổng kết dinh dưỡng..."
         tone="loading"
       />
-    )
+    );
   }
 
   if (isError) {
@@ -43,7 +42,7 @@ export function NutritionSummaryCard({
         title="Không thể tải tổng kết dinh dưỡng."
         tone="error"
       />
-    )
+    );
   }
 
   if (!summary) {
@@ -53,27 +52,33 @@ export function NutritionSummaryCard({
         title="Chưa có tổng kết dinh dưỡng."
         tone="empty"
       />
-    )
+    );
   }
 
-  const hasConsumedCalories = summary.consumed > 0
+  const hasConsumedCalories = summary.consumed > 0;
   const consumedPercent = Math.min(
     100,
-    Math.max(0, Math.round((summary.consumed / Math.max(summary.target, 1)) * 100)),
-  )
-  const remainingIsOver = summary.remaining < 0
+    Math.max(
+      0,
+      Math.round((summary.consumed / Math.max(summary.target, 1)) * 100),
+    ),
+  );
+  const remainingIsOver = summary.remaining < 0;
 
   return (
     <section
       className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
       data-testid="member-nutrition-summary-card"
     >
-      <div className="grid h-full gap-0 lg:grid-cols-[280px_minmax(0,1fr)]" >
-        <div className="flex h-full flex-col items-center justify-center border-b border-border bg-primary/5 p-6 text-center lg:border-b-0 lg:border-r"             style={{
-              backgroundImage: `url(${gymMasterAssets.nutritionCover})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}>
+      <div className="grid h-full gap-0 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <div
+          className="flex h-full flex-col items-center justify-center border-b border-border bg-primary/5 p-6 text-center lg:border-b-0 lg:border-r"
+          style={{
+            backgroundImage: `url(${gymMasterAssets.covers.nutrition})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
           <div
             className="flex size-44 items-center justify-center rounded-full"
             style={{
@@ -92,25 +97,24 @@ export function NutritionSummaryCard({
             </div>
           </div>
 
-          <h2 className="mt-5 text-xl font-semibold tracking-tight text-foreground">
-            {hasConsumedCalories
-              ? formatCalories(summary.consumed)
-              : "Chưa có bữa ăn"}
-          </h2>
-          <p
-            className={`mt-1 text-sm font-medium ${
-              remainingIsOver ? "text-destructive" : "text-muted-foreground"
-            }`}
-          >
-            {getRemainingLabel(summary.remaining)}
-          </p>
+          <div className="mt-5 flex flex-col items-center backdrop-blur-sm p-4 rounded-2xl">
+            <h2 className="text-xl font-semibold tracking-tight text-card">
+              {hasConsumedCalories
+                ? formatCalories(summary.consumed)
+                : "Chưa có bữa ăn"}
+            </h2>
+            <p
+              className={`mt-1 text-sm font-medium ${
+                remainingIsOver ? "text-destructive" : "text-muted/80"
+              }`}
+            >
+              {getRemainingLabel(summary.remaining)}
+            </p>
+          </div>
         </div>
 
         <div className="p-5">
-          <div
-            className="flex flex-wrap items-start justify-between gap-4"
-
-          >
+          <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
                 Dinh dưỡng hôm nay
@@ -119,7 +123,8 @@ export function NutritionSummaryCard({
                 Daily Nutrition
               </h3>
               <p className="mt-1 max-w-xl text-sm leading-6 text-muted-foreground">
-                Theo dõi calo đã ăn, mục tiêu còn lại và macro để giữ nhịp tập luyện.
+                Theo dõi calo đã ăn, mục tiêu còn lại và macro để giữ nhịp tập
+                luyện.
               </p>
             </div>
             <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -128,34 +133,65 @@ export function NutritionSummaryCard({
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <Metric icon={Target} label="Mục tiêu" value={formatCalories(summary.target)} />
-            <Metric icon={Flame} label="Đã ăn" value={formatCalories(summary.consumed)} />
-            <Metric icon={Utensils} label="Còn lại" value={formatCalories(summary.remaining)} />
+            <Metric
+              icon={Target}
+              label="Mục tiêu"
+              value={formatCalories(summary.target)}
+            />
+            <Metric
+              icon={Flame}
+              label="Đã ăn"
+              value={formatCalories(summary.consumed)}
+            />
+            <Metric
+              icon={Utensils}
+              label="Còn lại"
+              value={formatCalories(summary.remaining)}
+            />
           </div>
 
           {!compact ? (
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              <MacroBar label="Protein" value={formatMacro(summary.proteinG)} percent={summary.proteinG ? 68 : 0} />
-              <MacroBar label="Carb" value={formatMacro(summary.carbsG)} percent={summary.carbsG ? 54 : 0} />
-              <MacroBar label="Fat" value={formatMacro(summary.fatG)} percent={summary.fatG ? 42 : 0} />
+              <MacroBar
+                label="Protein"
+                value={formatMacro(summary.proteinG)}
+                percent={summary.proteinG ? 68 : 0}
+              />
+              <MacroBar
+                label="Carb"
+                value={formatMacro(summary.carbsG)}
+                percent={summary.carbsG ? 54 : 0}
+              />
+              <MacroBar
+                label="Fat"
+                value={formatMacro(summary.fatG)}
+                percent={summary.fatG ? 42 : 0}
+              />
             </div>
           ) : null}
 
           <div className="mt-5 flex flex-wrap gap-2">
-            <Button asChild className="rounded-xl bg-foreground text-background hover:bg-foreground/90">
+            <Button
+              asChild
+              className="rounded-xl bg-foreground text-background hover:bg-foreground/90"
+            >
               <Link href="/member/nutrition/meal-journal">
                 Thêm bữa ăn
                 <ArrowRight aria-hidden="true" className="size-4" />
               </Link>
             </Button>
-            <Button asChild className="rounded-xl border-border bg-card text-foreground hover:bg-muted" variant="outline">
+            <Button
+              asChild
+              className="rounded-xl border-border bg-card text-foreground hover:bg-muted"
+              variant="outline"
+            >
               <Link href="/member/nutrition/summary">Xem tổng kết</Link>
             </Button>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
 
 function Metric({
@@ -163,9 +199,9 @@ function Metric({
   label,
   value,
 }: {
-  icon: typeof Target
-  label: string
-  value: string
+  icon: typeof Target;
+  label: string;
+  value: string;
 }) {
   return (
     <div className="rounded-xl border border-border bg-background p-4">
@@ -175,7 +211,7 @@ function Metric({
       </p>
       <p className="mt-1 text-base font-semibold text-foreground">{value}</p>
     </div>
-  )
+  );
 }
 
 function MacroBar({
@@ -183,9 +219,9 @@ function MacroBar({
   percent,
   value,
 }: {
-  label: string
-  percent: number
-  value: string
+  label: string;
+  percent: number;
+  value: string;
 }) {
   return (
     <div className="rounded-xl border border-border bg-background p-4">
@@ -202,5 +238,5 @@ function MacroBar({
         />
       </div>
     </div>
-  )
+  );
 }
