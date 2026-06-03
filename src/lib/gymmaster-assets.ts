@@ -4,26 +4,26 @@ export const gymMasterAssets = {
     wordmark: "/assets/gymmaster/gymmaster-wordmark.svg",
   },
   covers: {
-    operations: "/assets/gymmaster/gym-operations-cover.webp",
+    operations: "/assets/gymmaster/covers/gym-operations-cover.png",
     workout: "/assets/gymmaster/workout-equipment-cover.webp",
-    nutrition: "/assets/gymmaster/nutrition-cover.webp",
+    nutrition: "/assets/gymmaster/covers/nutrition-cover.png",
   },
 
   // Backward-compatible aliases for components that still import these keys.
-  operationsCover: "/assets/gymmaster/gym-operations-cover.webp",
+  operationsCover: "/assets/gymmaster/covers/gym-operations-cover.png",
   workoutCover: "/assets/gymmaster/workout-equipment-cover.webp",
-  nutritionCover: "/assets/gymmaster/nutrition-cover.webp",
+  nutritionCover: "/assets/gymmaster/covers/nutrition-cover.png",
 
   // Keep optional page-level aliases pointing to the canonical covers.
   backgrounds: {
-    welcomeGymHero: "/assets/gymmaster/gym-operations-cover.webp",
-    authPremiumDark: "/assets/gymmaster/gym-operations-cover.webp",
-    adminOperations: "/assets/gymmaster/gym-operations-cover.webp",
-    staffFrontdesk: "/assets/gymmaster/gym-operations-cover.webp",
+    welcomeGymHero: "/assets/gymmaster/covers/gym-operations-cover.png",
+    authPremiumDark: "/assets/gymmaster/covers/gym-operations-cover.png",
+    adminOperations: "/assets/gymmaster/covers/gym-operations-cover.png",
+    staffFrontdesk: "/assets/gymmaster/covers/gym-operations-cover.png",
     ptCoachHub: "/assets/gymmaster/workout-equipment-cover.webp",
     memberToday: "/assets/gymmaster/workout-equipment-cover.webp",
-    nutritionMeal: "/assets/gymmaster/nutrition-cover.webp",
-    calorieSummary: "/assets/gymmaster/nutrition-cover.webp",
+    nutritionMeal: "/assets/gymmaster/covers/nutrition-cover.png",
+    calorieSummary: "/assets/gymmaster/covers/nutrition-cover.png",
   },
 
   notes: [

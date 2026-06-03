@@ -6,13 +6,14 @@ import {
   CalendarDays,
   CreditCard,
   Dumbbell,
-  RotateCcw,
   UserPlus,
   Scale,
   Percent,
 } from "lucide-react"
 
 import { useMemberProgress } from "@/features/member-progress-tracking/api/member-progress.queries"
+import { useMemberCheckIns } from "@/features/billing/api/billing.queries"
+import { useMemberWorkoutPlans, useMemberTrainerNotes } from "@/features/pt-training/api/pt-training.queries"
 
 import { Button } from "@/components/ui/button"
 import type { Member360Data } from "@/features/member-360/types/member-360.types"
@@ -127,7 +128,7 @@ export function Member360Content({
 
           <CheckInTimeline entries={checkIns} isLoading={isLoading} />
 
-          <ActivityNotesPanel isLoading={isLoading} />
+          <ActivityNotesPanel memberId={memberId} pt={pt} isLoading={isLoading} />
         </div>
 
         <aside className="space-y-6">
@@ -163,9 +164,20 @@ function MemberQuickStats({
   isLoading?: boolean
 }) {
   const progressQuery = useMemberProgress(memberId || null)
-  const progressEntries = progressQuery.data ?? []
+  const checkinsQuery = useMemberCheckIns(memberId || null)
+  const workoutsQuery = useMemberWorkoutPlans(memberId || null)
 
-  if (isLoading || progressQuery.isLoading) {
+  const progressEntries = progressQuery.data ?? []
+  const checkinsCount = checkinsQuery.data?.length ?? 0
+  const workoutsCount = workoutsQuery.data?.length ?? 0
+
+  const isStatsLoading =
+    isLoading ||
+    progressQuery.isLoading ||
+    checkinsQuery.isLoading ||
+    workoutsQuery.isLoading
+
+  if (isStatsLoading) {
     return (
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="h-4 w-28 animate-pulse rounded bg-muted" />
@@ -193,8 +205,8 @@ function MemberQuickStats({
     <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <p className="text-sm font-semibold text-foreground">Thống kê nhanh</p>
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <QuickStat icon={Activity} label="Tổng check-in" value="32 lần" />
-        <QuickStat icon={Dumbbell} label="Buổi cùng PT" value="12 buổi" />
+        <QuickStat icon={Activity} label="Tổng check-in" value={`${checkinsCount} lần`} />
+        <QuickStat icon={Dumbbell} label="Buổi cùng PT" value={`${workoutsCount} buổi`} />
         <QuickStat icon={Scale} label="Cân nặng" value={weightVal} />
         <QuickStat icon={Percent} label="Tỷ lệ mỡ" value={fatVal} />
       </div>
@@ -224,8 +236,21 @@ function QuickStat({
   )
 }
 
-function ActivityNotesPanel({ isLoading }: { isLoading?: boolean }) {
-  if (isLoading) {
+function ActivityNotesPanel({
+  memberId,
+  pt,
+  isLoading,
+}: {
+  memberId: number
+  pt?: Member360Data["assignedPT"]
+  isLoading?: boolean
+}) {
+  const checkinsQuery = useMemberCheckIns(memberId || null)
+  const notesQuery = useMemberTrainerNotes(memberId || null)
+
+  const isPanelLoading = isLoading || checkinsQuery.isLoading || notesQuery.isLoading
+
+  if (isPanelLoading) {
     return (
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="h-4 w-40 animate-pulse rounded bg-muted" />
@@ -238,35 +263,109 @@ function ActivityNotesPanel({ isLoading }: { isLoading?: boolean }) {
     )
   }
 
+  type TimelineEvent = {
+    id: string
+    title: string
+    description: string
+    meta: string
+    date: string
+    type: "checkin" | "note" | "assignment"
+  }
+
+  const events: TimelineEvent[] = []
+
+  if (checkinsQuery.data) {
+    checkinsQuery.data.forEach((ci) => {
+      const formattedDate = new Date(ci.checkInAt).toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+      events.push({
+        id: `checkin-${ci.id}`,
+        title: "Check-in hệ thống",
+        description: ci.source === "front-desk" ? "Check-in thành công tại quầy lễ tân." : "Tự check-in thành công qua ứng dụng.",
+        meta: formattedDate,
+        date: ci.checkInAt,
+        type: "checkin",
+      })
+    })
+  }
+
+  if (notesQuery.data) {
+    notesQuery.data.forEach((note) => {
+      const formattedDate = new Date(note.createdAt).toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+      events.push({
+        id: `note-${note.id}`,
+        title: "Ghi chú huấn luyện",
+        description: note.content,
+        meta: `Bởi PT · ${formattedDate}`,
+        date: note.createdAt,
+        type: "note",
+      })
+    })
+  }
+
+  if (pt) {
+    const formattedDate = new Date(pt.assignedAt).toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+    events.push({
+      id: `assignment-${pt.id}`,
+      title: "Phân công PT",
+      description: `Huấn luyện viên ${pt.fullName} được chỉ định phụ trách hội viên.`,
+      meta: `Hệ thống · ${formattedDate}`,
+      date: pt.assignedAt,
+      type: "assignment",
+    })
+  }
+
+  events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-foreground">
           Ghi chú & hoạt động gần đây
         </p>
-        <button className="text-sm font-medium text-primary" type="button">
-          Xem tất cả
-        </button>
       </div>
 
-      <div className="mt-4 space-y-4">
-        {[
-          ["Tư vấn dinh dưỡng", "Tăng protein, giảm carb tinh bột buổi tối.", "Bởi Coach PT · 04/06/2026 20:15"],
-          ["Phân công PT", "Coach PT được chỉ định phụ trách hội viên.", "Bởi Admin User · 01/06/2026 10:30"],
-          ["Check-in bởi hệ thống", "Chi nhánh Q1 · Tầng 2", "06/06/2026 16:15"],
-        ].map(([title, description, meta], index) => (
-          <div className="flex gap-3" key={title}>
-            <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              {index === 0 ? <Bell aria-hidden="true" className="size-4" /> : <Activity aria-hidden="true" className="size-4" />}
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-foreground">{title}</p>
-              <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{meta}</p>
+      {events.length === 0 ? (
+        <p className="text-sm text-muted-foreground mt-4">Chưa ghi nhận hoạt động nào.</p>
+      ) : (
+        <div className="mt-4 space-y-4">
+          {events.map((evt) => (
+            <div className="flex gap-3" key={evt.id} data-testid={`timeline-event-${evt.type}`}>
+              <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                {evt.type === "note" ? (
+                  <Bell aria-hidden="true" className="size-4" />
+                ) : evt.type === "assignment" ? (
+                  <UserPlus aria-hidden="true" className="size-4" />
+                ) : (
+                  <Activity aria-hidden="true" className="size-4" />
+                )}
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-foreground">{evt.title}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">{evt.description}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{evt.meta}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

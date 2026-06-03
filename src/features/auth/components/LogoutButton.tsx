@@ -7,7 +7,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 
-export function LogoutButton() {
+export function LogoutButton({ isCollapsed = false }: { isCollapsed?: boolean }) {
   const router = useRouter()
   const logout = useAuthSessionStore((state) => state.logout)
   const [isPending, setIsPending] = useState(false)
@@ -24,12 +24,14 @@ export function LogoutButton() {
       aria-label="Đăng xuất"
       disabled={isPending}
       onClick={handleLogout}
-      size="sm"
+      size={isCollapsed ? "icon" : "sm"}
       type="button"
       variant="destructive"
+      className={isCollapsed ? "size-10 rounded-xl mx-auto flex items-center justify-center" : "w-full rounded-xl justify-start gap-3 px-3 py-2"}
+      title={isCollapsed ? "Đăng xuất" : undefined}
     >
-      <LogOut aria-hidden="true" />
-      {isPending ? "Đang đăng xuất" : "Đăng xuất"}
+      <LogOut aria-hidden="true" className="size-4 shrink-0" />
+      {!isCollapsed && <span>{isPending ? "Đang đăng xuất..." : "Đăng xuất"}</span>}
     </Button>
   )
 }

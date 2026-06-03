@@ -1,6 +1,6 @@
 import { http } from "msw"
 
-import { members, memberships, packages } from "@/mocks/data/gymmaster.mock-data"
+import { members, memberships, packages, payments } from "@/mocks/data/gymmaster.mock-data"
 import { created, fail, ok, requireRole } from "@/mocks/utils/api-response"
 
 export const billingHandlers = [
@@ -74,6 +74,19 @@ export const billingHandlers = [
 
     return created({ membership })
   }),
+  http.get("/api/payments", ({ request }) => {
+    const role = requireRole(request, ["admin", "staff"])
+    if (typeof role !== "string") return role
+
+    return ok(payments)
+  }),
+  http.get("/api/members/:id/payments", ({ params, request }) => {
+    const role = requireRole(request, ["admin", "staff", "member"])
+    if (typeof role !== "string") return role
+
+    const memberId = Number(params.id)
+    return ok(payments.filter((item) => item.memberId === memberId))
+  }),
   http.post("/api/memberships/:id/payment", async ({ params, request }) => {
     const role = requireRole(request, ["admin", "staff"])
     if (typeof role !== "string") return role
@@ -90,15 +103,26 @@ export const billingHandlers = [
       member.status = "active"
       member.currentPackageId = membership.packageId
     }
-    const paymentBody = (await request.json()) as Record<string, unknown>
+    
+    const gymPackage = packages.find((p) => p.id === membership.packageId)
+    const paymentBody = (await request.json()) as { amount?: number; paymentMethod?: string }
+
+    const payment = {
+      id: Math.floor(10000 + Math.random() * 90000),
+      membershipId: membership.id,
+      memberId: membership.memberId,
+      memberName: member?.fullName ?? "Hội viên",
+      packageName: gymPackage?.name ?? `Gói tập #${membership.packageId}`,
+      amount: paymentBody.amount ?? gymPackage?.price ?? 0,
+      paymentMethod: paymentBody.paymentMethod ?? "Tiền mặt",
+      paymentDate: new Date().toISOString(),
+      status: "paid" as const,
+    }
+    payments.unshift(payment)
 
     return created({
       membership,
-      payment: {
-        id: Math.floor(1000 + Math.random() * 9000),
-        membershipId: membership.id,
-        ...paymentBody,
-      },
+      payment,
       status: "Active",
     })
   }),

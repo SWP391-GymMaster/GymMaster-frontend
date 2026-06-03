@@ -43,6 +43,18 @@ export type MockMembership = {
   status: "PendingPayment" | "Active" | "Expired"
 }
 
+export type MockPayment = {
+  id: number
+  membershipId: number
+  memberId: number
+  memberName: string
+  packageName: string
+  amount: number
+  paymentMethod: string
+  paymentDate: string
+  status: "paid" | "pending" | "failed"
+}
+
 export type MockTrainer = {
   id: number
   userId: number
@@ -187,6 +199,31 @@ export const memberships: MockMembership[] = [
     startDate: "2026-06-01",
     endDate: "2026-08-29",
     status: "PendingPayment",
+  },
+]
+
+export const payments: MockPayment[] = [
+  {
+    id: 8001,
+    membershipId: 201,
+    memberId: 101,
+    memberName: "Nguyen Minh Anh",
+    packageName: "Premium 30",
+    amount: 900000,
+    paymentMethod: "Tiền mặt",
+    paymentDate: "2026-06-01T09:30:00.000Z",
+    status: "paid",
+  },
+  {
+    id: 8002,
+    membershipId: 202,
+    memberId: 102,
+    memberName: "Tran Bao Long",
+    packageName: "Strength 90",
+    amount: 2400000,
+    paymentMethod: "Chuyển khoản",
+    paymentDate: "2026-06-01T08:45:00.000Z",
+    status: "pending",
   },
 ]
 

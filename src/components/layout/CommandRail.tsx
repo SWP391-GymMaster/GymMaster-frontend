@@ -16,14 +16,18 @@ import {
   ShieldCheck,
   UserCog,
   Users,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
 
 import { RoleBadge } from "@/components/data/RoleBadge";
 import { LogoutButton } from "@/features/auth/components/LogoutButton";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/auth";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
+import { useSidebarStore } from "@/stores/sidebar-store";
 
 type CommandRailItem = {
   href: string;
@@ -31,40 +35,85 @@ type CommandRailItem = {
   label: string;
 };
 
-const navByRole: Record<UserRole, CommandRailItem[]> = {
+type SidebarGroup = {
+  title: string;
+  items: CommandRailItem[];
+};
+
+const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
   admin: [
-    { href: "/admin/dashboard", icon: Home, label: "Tổng quan" },
-    { href: "/admin/users", icon: UserCog, label: "Tài khoản" },
-    { href: "/admin/staff", icon: ShieldCheck, label: "Lễ tân" },
-    { href: "/admin/trainers", icon: Dumbbell, label: "PTs" },
-    { href: "/admin/members", icon: Users, label: "Hội viên" },
-    { href: "/admin/assignments", icon: Handshake, label: "Phân công PT" },
-    { href: "/admin/audit-logs", icon: FileClock, label: "Nhật ký" },
+    {
+      title: "Vận hành chính",
+      items: [
+        { href: "/admin/dashboard", icon: Home, label: "Tổng quan" },
+        { href: "/admin/members", icon: Users, label: "Hội viên" },
+        { href: "/admin/trainers", icon: Dumbbell, label: "PTs" },
+        { href: "/admin/staff", icon: ShieldCheck, label: "Lễ tân" },
+        { href: "/admin/assignments", icon: Handshake, label: "Phân công PT" },
+      ],
+    },
+    {
+      title: "Cấu hình & Quản trị",
+      items: [
+        { href: "/admin/packages", icon: Package, label: "Gói tập" },
+        { href: "/admin/memberships", icon: ClipboardList, label: "Hợp đồng" },
+        { href: "/admin/payments", icon: CreditCard, label: "Hóa đơn" },
+        { href: "/admin/users", icon: UserCog, label: "Tài khoản" },
+        { href: "/admin/audit-logs", icon: FileClock, label: "Nhật ký" },
+      ],
+    },
   ],
   staff: [
-    { href: "/staff/dashboard", icon: Home, label: "Quầy lễ tân" },
-    { href: "/staff/members", icon: Search, label: "Tìm hội viên" },
-    { href: "/staff/sell-package", icon: Package, label: "Bán gói" },
-    { href: "/staff/renew-package", icon: ClipboardList, label: "Gia hạn" },
-    { href: "/staff/check-in", icon: Activity, label: "Check-in" },
-    { href: "/staff/payments", icon: CreditCard, label: "Thanh toán" },
+    {
+      title: "Vận hành quầy",
+      items: [
+        { href: "/staff/dashboard", icon: Home, label: "Quầy lễ tân" },
+        { href: "/staff/check-in", icon: Activity, label: "Check-in" },
+        { href: "/staff/payments", icon: CreditCard, label: "Thanh toán" },
+      ],
+    },
+    {
+      title: "Nghiệp vụ hội viên",
+      items: [
+        { href: "/staff/members", icon: Search, label: "Tìm hội viên" },
+        { href: "/staff/sell-package", icon: Package, label: "Bán gói" },
+        { href: "/staff/renew-package", icon: ClipboardList, label: "Gia hạn" },
+      ],
+    },
   ],
   pt: [
-    { href: "/pt/dashboard", icon: Home, label: "Coach hub" },
-    { href: "/pt/members/101", icon: Dumbbell, label: "Hội viên 360" },
-    { href: "/pt/members/101/workout", icon: ClipboardList, label: "Giáo án" },
-    { href: "/pt/members/101/notes", icon: FileClock, label: "Ghi chú" },
+    {
+      title: "Làm việc",
+      items: [
+        { href: "/pt/dashboard", icon: Home, label: "Coach hub" },
+        { href: "/pt/members/101", icon: Dumbbell, label: "Hội viên 360" },
+      ],
+    },
+    {
+      title: "Giáo án & Ghi chú",
+      items: [
+        { href: "/pt/members/101/workout", icon: ClipboardList, label: "Giáo án" },
+        { href: "/pt/members/101/notes", icon: FileClock, label: "Ghi chú" },
+      ],
+    },
   ],
   member: [
-    { href: "/member/dashboard", icon: Home, label: "Hôm nay" },
-    { href: "/member/workout", icon: Dumbbell, label: "Giáo án" },
-    { href: "/member/notes", icon: FileClock, label: "Ghi chú" },
     {
-      href: "/member/nutrition/meal-journal",
-      icon: Salad,
-      label: "Nhật ký ăn",
+      title: "Hôm nay",
+      items: [
+        { href: "/member/dashboard", icon: Home, label: "Hôm nay" },
+        { href: "/member/workout", icon: Dumbbell, label: "Giáo án" },
+        { href: "/member/notes", icon: FileClock, label: "Ghi chú" },
+      ],
     },
-    { href: "/member/nutrition/summary", icon: Activity, label: "Calo" },
+    {
+      title: "Dinh dưỡng & Gói tập",
+      items: [
+        { href: "/member/nutrition/summary", icon: Activity, label: "Calo" },
+        { href: "/member/nutrition/meal-journal", icon: Salad, label: "Nhật ký ăn" },
+        { href: "/member/membership", icon: CreditCard, label: "Gói tập & Hóa đơn" },
+      ],
+    },
   ],
 };
 
@@ -79,7 +128,6 @@ function isActivePath(pathname: string, href: string) {
   if (pathname === href) {
     return true;
   }
-
   return href !== "/" && pathname.startsWith(`${href}/`);
 }
 
@@ -89,64 +137,124 @@ type CommandRailProps = {
 
 export function CommandRail({ role }: CommandRailProps) {
   const pathname = usePathname();
-  const navItems = navByRole[role];
+  const { isCollapsed, toggleSidebar } = useSidebarStore();
+  const navGroups = navGroupsByRole[role] || [];
 
   return (
-    <aside
+    <motion.aside
       aria-label={`Điều hướng ${roleWorkspaceLabels[role]}`}
-      className="fixed left-0 top-0 z-40 hidden h-dvh w-[280px] flex-col bg-sidebar p-4 text-sidebar-foreground shadow-xl lg:flex"
+      className="fixed left-0 top-0 z-40 hidden h-dvh flex-col bg-sidebar p-4 text-sidebar-foreground shadow-xl lg:flex overflow-x-hidden"
       data-testid="command-rail"
+      animate={{ width: isCollapsed ? 80 : 280 }}
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="flex items-center gap-3 px-2 pb-8">
-        {/* <div className="flex size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-black text-sidebar-primary-foreground shadow-sm"> */}
+      {/* Brand Header */}
+      <div className={cn("flex items-center gap-3 px-2 pb-6 shrink-0 border-b border-white/5", isCollapsed ? "justify-center" : "")}>
         <span
           aria-hidden="true"
-          className="size-14 rounded-[1.25rem] bg-contain bg-center bg-no-repeat shadow-xl shadow-background/40 ring-1 ring-white/10"
+          className="size-12 rounded-xl bg-contain bg-center bg-no-repeat shadow-md ring-1 ring-white/10 shrink-0"
           style={{ backgroundImage: `url(${gymMasterAssets.brand.mark})` }}
         />
-        {/* </div> */}
-        <div>
-          <p className="text-xl font-black tracking-tight text-sidebar-foreground">
-            GymMaster OS
-          </p>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/70">
-            Vận hành phòng gym
-          </p>
-        </div>
+        {!isCollapsed && (
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <p className="text-lg font-black tracking-tight text-sidebar-foreground">
+              GymMaster OS
+            </p>
+            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/60">
+              Vận hành phòng gym
+            </p>
+          </motion.div>
+        )}
+        {/* Support accessibility audits or queries searching for GymMaster OS in text */}
+        {isCollapsed && <span className="sr-only">GymMaster OS</span>}
       </div>
 
-      <div className="mb-5 px-2">
-        <RoleBadge role={role} />
-      </div>
+      {/* Role Badge Section */}
+      {!isCollapsed && (
+        <motion.div
+          className="my-4 px-2 shrink-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <RoleBadge role={role} />
+        </motion.div>
+      )}
 
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto pr-1">
-        {navItems.map((item) => {
-          const active = isActivePath(pathname, item.href);
-          const Icon = item.icon;
+      {/* Navigation Groups */}
+      <nav className={cn("flex-1 flex flex-col gap-5 overflow-y-auto pr-1 py-4", isCollapsed ? "items-center" : "")}>
+        {navGroups.map((group, idx) => (
+          <div key={idx} className="w-full flex flex-col gap-1 shrink-0">
+            {/* Group Title */}
+            {!isCollapsed && (
+              <p className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40 mb-1">
+                {group.title}
+              </p>
+            )}
+            {/* Group Items */}
+            <div className="flex flex-col gap-0.5">
+              {group.items.map((item) => {
+                const active = isActivePath(pathname, item.href);
+                const Icon = item.icon;
 
-          return (
-            <Link
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-all duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] active:scale-[0.98]",
-                active
-                  ? "translate-x-1 bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
-                  : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground",
-              )}
-              href={item.href}
-              key={item.href}
-            >
-              <Icon aria-hidden="true" className="size-4" />
-              {item.label}
-            </Link>
-          );
-        })}
+                return (
+                  <div key={item.href} className="relative group w-full">
+                    <Link
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex min-h-10 items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98] relative",
+                        isCollapsed ? "justify-center size-10 mx-auto" : "gap-3 px-3 w-full",
+                        active
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
+                          : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground"
+                      )}
+                      href={item.href}
+                    >
+                      <Icon aria-hidden="true" className="size-4 shrink-0" />
+                      {!isCollapsed && <span>{item.label}</span>}
+                    </Link>
+
+                    {/* Premium CSS Absolute Tooltip on Collapse */}
+                    {isCollapsed && (
+                      <div className="absolute left-14 top-1/2 -translate-y-1/2 ml-2 pointer-events-none rounded-md bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap shadow-xl ring-1 ring-white/10 z-50">
+                        {item.label}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      <div className="mt-5 border-t border-white/10 pt-4">
-        <LogoutButton />
+      {/* Footer controls */}
+      <div className="mt-auto shrink-0 flex flex-col gap-3 border-t border-white/5 pt-4">
+        <LogoutButton isCollapsed={isCollapsed} />
+
+        {/* Sidebar Collapse Toggle Trigger */}
+        <button
+          onClick={toggleSidebar}
+          type="button"
+          className="flex h-10 w-full items-center justify-center rounded-lg text-sidebar-foreground/50 hover:bg-white/5 hover:text-sidebar-foreground transition active:scale-95"
+          title={isCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="size-4" />
+          ) : (
+            <div className="flex items-center gap-2 text-xs font-semibold">
+              <ChevronLeft className="size-4" />
+              <span>Thu gọn</span>
+            </div>
+          )}
+        </button>
       </div>
-    </aside>
+    </motion.aside>
   );
 }
 
