@@ -8,8 +8,9 @@ import {
   getMemberCalorieSummary,
   getMemberMealLogs,
   searchFoodItems,
+  createCustomFoodItem,
 } from "@/features/member-nutrition/api/member-nutrition.api"
-import type { CreateMealLogDraft } from "@/features/member-nutrition/types/member-nutrition.types"
+import type { CreateMealLogDraft, CreateCustomFoodInput } from "@/features/member-nutrition/types/member-nutrition.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 
 export const memberNutritionKeys = {
@@ -114,6 +115,21 @@ export function useCreateMemberMealLog() {
           queryKey: memberNutritionKeys.all,
         }),
       ])
+    },
+  })
+}
+
+export function useCreateCustomFoodItem() {
+  const accessToken = useMemberAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: CreateCustomFoodInput) =>
+      createCustomFoodItem(accessToken ?? "", input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [...memberNutritionKeys.all, "foods"],
+      })
     },
   })
 }

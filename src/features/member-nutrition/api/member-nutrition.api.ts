@@ -6,6 +6,7 @@ import type {
   FoodItem,
   MealLog,
   PagedResult,
+  CreateCustomFoodInput,
 } from "@/features/member-nutrition/types/member-nutrition.types"
 
 function authHeaders(accessToken: string) {
@@ -72,4 +73,18 @@ export async function getMemberCalorieHistory(
       headers: authHeaders(accessToken),
     },
   )
+}
+
+export async function createCustomFoodItem(
+  accessToken: string,
+  input: CreateCustomFoodInput,
+) {
+  return apiRequest<FoodItem>("/api/food-items", {
+    method: "POST",
+    headers: {
+      ...authHeaders(accessToken),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+  })
 }

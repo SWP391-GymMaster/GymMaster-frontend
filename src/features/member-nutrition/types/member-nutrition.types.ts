@@ -60,3 +60,9 @@ export type CalorieHistoryPoint = {
   consumed: number
   target: number
 }
+
+export type CreateCustomFoodInput = {
+  name: string
+  unit: string
+  caloriesPerUnit: number
+}

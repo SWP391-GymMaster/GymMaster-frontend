@@ -731,7 +731,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
       phone: user.phone ?? "",
       role: user.role === "admin" ? "staff" : user.role,
     })
-  }, [reset, user])
+  }, [reset, user.userId])
 
   async function onSubmit(values: UpdateUserFormValues) {
     try {
