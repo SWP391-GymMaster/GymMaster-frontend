@@ -25,38 +25,40 @@ import {
 import { toast } from "sonner";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const PASSWORD = "Password123!";
+
 const DEMO_ACCOUNTS = [
   {
     role: "Quản trị viên",
     tag: "Admin",
     email: "admin@gymmaster.local",
-    color: "red",
+    accent: "destructive" as const,
     icon: ShieldCheck,
   },
   {
     role: "Nhân viên lễ tân",
     tag: "Staff",
     email: "staff@gymmaster.local",
-    color: "cyan",
+    accent: "steel" as const,
     icon: UsersRound,
   },
   {
     role: "Huấn luyện viên PT",
     tag: "PT",
     email: "pt@gymmaster.local",
-    color: "amber",
+    accent: "pending" as const,
     icon: Dumbbell,
   },
   {
     role: "Hội viên",
     tag: "Member",
     email: "member@gymmaster.local",
-    color: "lime",
+    accent: "active" as const,
     icon: Activity,
   },
 ] as const;
-
-const PASSWORD = "Password123!";
 
 const WORKSPACE_CARDS = [
   {
@@ -65,7 +67,7 @@ const WORKSPACE_CARDS = [
     subtitle: "Admin Panel",
     desc: "Trung tâm kiểm soát cấp cao, chịu trách nhiệm quản trị hệ thống, nhân sự, gói cước và phân công HLV.",
     icon: ShieldCheck,
-    color: "red" as const,
+    accent: "destructive" as const,
     bullets: [
       "Quản lý danh sách Nhân sự, HLV, Hội viên toàn hệ thống",
       "Phân công / thay đổi Huấn luyện viên cá nhân cho Hội viên",
@@ -79,7 +81,7 @@ const WORKSPACE_CARDS = [
     subtitle: "Staff Console",
     desc: "Giải quyết nhanh chóng các dịch vụ tại sảnh, check-in, bán/gia hạn thẻ thành viên và tra soát thanh toán.",
     icon: UsersRound,
-    color: "cyan" as const,
+    accent: "steel" as const,
     bullets: [
       "Quét kiểm tra thẻ check-in và phát cảnh báo giọng nói tự động",
       "Wizard 3 bước bán gói tập & lập hóa đơn tức thì tại quầy",
@@ -93,7 +95,7 @@ const WORKSPACE_CARDS = [
     subtitle: "Trainer Workspace",
     desc: "Đồng hành trực tiếp cùng hội viên, thiết lập giáo án và đánh giá kết quả luyện tập chuyên môn.",
     icon: Dumbbell,
-    color: "amber" as const,
+    accent: "pending" as const,
     bullets: [
       "Thiết kế giáo án workout theo hiệp / nghỉ / reps chi tiết",
       "Ghi nhận nhận xét, đánh giá thể trạng và phục hồi hội viên",
@@ -107,7 +109,7 @@ const WORKSPACE_CARDS = [
     subtitle: "Member Hub",
     desc: "Trải nghiệm tập luyện tối ưu trên di động, quản lý dinh dưỡng, lượng nước uống và tiến trình cá nhân.",
     icon: Activity,
-    color: "lime" as const,
+    accent: "active" as const,
     bullets: [
       "Theo dõi giáo án huấn luyện từ PT và hẹn giờ nghỉ giữa hiệp",
       "Log nước uống bento động & nhật ký ăn uống calo hàng ngày",
@@ -168,32 +170,33 @@ const TECH_STACK = [
   "Playwright",
 ];
 
-const COLOR_MAP = {
-  red: {
-    badge: "bg-red-500/15 text-red-400 border-red-500/20",
-    icon: "bg-red-500/10 text-red-400 border-red-500/20",
-    glow: "bg-red-500/10",
-    ring: "ring-red-500/20",
+// ─── Accent token map ─────────────────────────────────────────────────────────
+// Maps accent keys to semantic status token classes from globals.css
+
+const ACCENT = {
+  active: {
+    badge: "bg-[var(--status-active-bg)] text-[var(--status-active-text)] border-[var(--status-active-border)]",
+    icon: "bg-[var(--status-active-bg)] text-[var(--status-active-text)] border-[var(--status-active-border)]",
+    glow: "bg-primary",
   },
-  cyan: {
-    badge: "bg-cyan-500/15 text-cyan-400 border-cyan-500/20",
-    icon: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
-    glow: "bg-cyan-500/10",
-    ring: "ring-cyan-500/20",
+  pending: {
+    badge: "bg-[var(--status-pending-bg)] text-[var(--status-pending-text)] border-[var(--status-pending-border)]",
+    icon: "bg-[var(--status-pending-bg)] text-[var(--status-pending-text)] border-[var(--status-pending-border)]",
+    glow: "bg-[var(--status-pending-bg)]",
   },
-  amber: {
-    badge: "bg-amber-500/15 text-amber-400 border-amber-500/20",
-    icon: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    glow: "bg-amber-500/10",
-    ring: "ring-amber-500/20",
+  steel: {
+    badge: "bg-[var(--status-info-bg)] text-[var(--status-info-text)] border-[var(--status-info-border)]",
+    icon: "bg-[var(--status-info-bg)] text-[var(--status-info-text)] border-[var(--status-info-border)]",
+    glow: "bg-[var(--status-info-bg)]",
   },
-  lime: {
-    badge: "bg-lime-500/15 text-lime-400 border-lime-500/20",
-    icon: "bg-lime-500/10 text-lime-400 border-lime-500/20",
-    glow: "bg-lime-500/10",
-    ring: "ring-lime-500/20",
+  destructive: {
+    badge: "bg-[var(--status-failed-bg)] text-[var(--status-failed-text)] border-[var(--status-failed-border)]",
+    icon: "bg-[var(--status-failed-bg)] text-[var(--status-failed-text)] border-[var(--status-failed-border)]",
+    glow: "bg-[var(--status-failed-bg)]",
   },
 } as const;
+
+// ─── Page Component ───────────────────────────────────────────────────────────
 
 export default function AboutPage() {
   const [copied, setCopied] = useState<Record<string, boolean>>({});
@@ -214,13 +217,14 @@ export default function AboutPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-zinc-950 text-white scroll-smooth">
-      {/* ── Top nav ────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-white/5 bg-zinc-950/80 px-6 py-4 backdrop-blur-xl">
+    <div className="min-h-screen scroll-smooth overflow-y-auto bg-background text-foreground">
+
+      {/* ── Sticky header ─────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <span
             aria-hidden="true"
-            className="size-8 rounded-xl bg-contain bg-center bg-no-repeat ring-1 ring-white/10"
+            className="size-8 rounded-xl bg-contain bg-center bg-no-repeat ring-1 ring-border"
             style={{ backgroundImage: `url(${gymMasterAssets.brand.mark})` }}
           />
           <span className="text-sm font-bold uppercase tracking-widest text-primary">
@@ -230,7 +234,7 @@ export default function AboutPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/welcome"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-white/70 transition hover:bg-white/10 hover:text-white active:scale-[0.98]"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.98]"
           >
             <ArrowLeft className="size-3.5" />
             Quay lại
@@ -245,27 +249,36 @@ export default function AboutPage() {
         </div>
       </header>
 
-      {/* ── Hero ───────────────────────────────────────────────────── */}
+      {/* ── Hero ──────────────────────────────────────────────────── */}
       <section
         className="relative isolate flex min-h-[52vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(8,10,15,0.96), rgba(8,10,15,0.80) 50%, rgba(8,10,15,0.96)), url(${gymMasterAssets.backgrounds.welcomeGymHero})`,
+          backgroundImage: `linear-gradient(to bottom, var(--background) 0%, color-mix(in oklch, var(--background) 35%, transparent) 50%, var(--background) 100%), url(${gymMasterAssets.backgrounds.welcomeGymHero})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,hsl(var(--primary)/0.15),transparent_50%)]" />
+        <div 
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: 'radial-gradient(circle at 50% 40%, color-mix(in oklch, var(--primary) 15%, transparent), transparent 55%)'
+          }}
+        />
+
         <div className="relative z-10 mx-auto max-w-3xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary backdrop-blur-md">
             <Layers className="size-3.5" />
             Tổng quan hệ thống
           </div>
-          <h1 className="text-4xl font-semibold tracking-tight text-white md:text-6xl md:leading-[1.04]">
+
+          <h1 className="text-4xl font-semibold tracking-tight text-foreground md:text-6xl md:leading-[1.04]">
             GymMaster OS
           </h1>
-          <p className="mt-5 text-lg leading-8 text-white/60 max-w-2xl mx-auto">
+
+          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
             Nền tảng vận hành phòng gym toàn diện — từ check-in lễ tân, bán gói tập đến giáo án huấn luyện và theo dõi dinh dưỡng cá nhân hóa.
           </p>
+
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/login"
@@ -276,7 +289,7 @@ export default function AboutPage() {
             </Link>
             <a
               href="#workspaces"
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/15 bg-white/8 px-6 text-sm font-semibold text-white/80 backdrop-blur-md transition hover:bg-white/12 hover:text-white active:scale-[0.98]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-6 text-sm font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-[0.98]"
             >
               <Compass className="size-4" />
               Khám phá workspace
@@ -287,16 +300,16 @@ export default function AboutPage() {
 
       <div className="mx-auto max-w-6xl space-y-28 px-4 pb-28 pt-20">
 
-        {/* ── Section 2: Workspace Bento Grid ─────────────────────── */}
+        {/* ── Section 2: Workspace Bento Grid ───────────────────── */}
         <section id="workspaces" className="scroll-mt-24">
           <div className="mb-14 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">
               Role Workspaces
             </p>
-            <h2 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               Không Gian Làm Việc Phân Vai
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/55">
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
               Hệ thống chia làm 4 giao diện nghiệp vụ riêng biệt, phục vụ đầy đủ vòng đời vận hành của câu lạc bộ thể hình chuyên nghiệp.
             </p>
           </div>
@@ -304,54 +317,53 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {WORKSPACE_CARDS.map((card) => {
               const Icon = card.icon;
-              const c = COLOR_MAP[card.color];
+              const a = ACCENT[card.accent];
               return (
                 <div
                   key={card.role}
-                  className="group relative overflow-hidden rounded-[2rem] border border-white/8 bg-white/[0.03] shadow-xl backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:bg-white/[0.06]"
+                  className="group relative overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
                 >
-                  {/* Cover image strip */}
                   <div
                     className="h-32 w-full"
                     style={{
-                      backgroundImage: `linear-gradient(to bottom, rgba(9,11,17,0.06), rgba(9,11,17,0.72)), url(${card.cover})`,
+                      backgroundImage: `linear-gradient(to bottom, color-mix(in oklch, var(--card) 6%, transparent), color-mix(in oklch, var(--card) 75%, transparent)), url(${card.cover})`,
                       backgroundSize: "cover",
                       backgroundPosition: "center",
                     }}
                   />
-                  {/* Glow blob */}
+                  {/* Hover glow */}
                   <div
-                    className={`pointer-events-none absolute right-6 top-6 size-28 rounded-full blur-2xl ${c.glow} opacity-0 transition-opacity duration-500 group-hover:opacity-100`}
+                    className={`pointer-events-none absolute right-6 top-6 size-28 rounded-full blur-2xl ${a.glow} opacity-0 transition-opacity duration-500 group-hover:opacity-30`}
                   />
 
                   <div className="relative p-7">
                     <div className="mb-5 flex items-center gap-3">
                       <span
-                        className={`flex size-11 items-center justify-center rounded-2xl border ${c.icon}`}
+                        className={`flex size-11 items-center justify-center rounded-2xl border ${a.icon}`}
                       >
                         <Icon className="size-5" />
                       </span>
                       <div>
-                        <p className="text-lg font-bold text-white leading-tight">
+                        <p className="text-lg font-bold leading-tight text-card-foreground">
                           {card.title}
                         </p>
                         <span
-                          className={`mt-0.5 inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${c.badge}`}
+                          className={`mt-0.5 inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${a.badge}`}
                         >
                           {card.subtitle}
                         </span>
                       </div>
                     </div>
 
-                    <p className="mb-5 text-sm leading-6 text-white/55">
+                    <p className="mb-5 text-sm leading-6 text-muted-foreground">
                       {card.desc}
                     </p>
 
-                    <ul className="space-y-2.5 border-t border-white/6 pt-4">
+                    <ul className="space-y-2.5 border-t border-border pt-4">
                       {card.bullets.map((b) => (
                         <li
                           key={b}
-                          className="flex items-start gap-2.5 text-xs text-white/50"
+                          className="flex items-start gap-2.5 text-xs text-muted-foreground"
                         >
                           <BadgeCheck className="mt-0.5 size-3.5 shrink-0 text-primary/70" />
                           {b}
@@ -365,13 +377,13 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Section 3: Tech Stack ───────────────────────────────── */}
+        {/* ── Section 3: Tech Stack ─────────────────────────────── */}
         <section>
           <div className="mb-10 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">
               Tech Stack
             </p>
-            <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
               Được xây dựng trên nền tảng hiện đại
             </h2>
           </div>
@@ -379,7 +391,7 @@ export default function AboutPage() {
             {TECH_STACK.map((tech) => (
               <span
                 key={tech}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/70 backdrop-blur-sm transition hover:border-primary/30 hover:bg-primary/5 hover:text-white"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground backdrop-blur-sm transition hover:border-primary/40 hover:bg-accent hover:text-accent-foreground"
               >
                 <Zap className="size-3 text-primary/60" />
                 {tech}
@@ -388,16 +400,16 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Section 4: Client-Side Innovations ──────────────────── */}
+        {/* ── Section 4: Client-Side Innovations ───────────────── */}
         <section id="innovations">
           <div className="mb-14 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">
               Client-Side Innovations
             </p>
-            <h2 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               Trải Nghiệm Vượt Trội Phía Client
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-white/55">
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
               Không phụ thuộc server-side — frontend tận dụng Web API phần cứng để mang lại phản hồi tức thì và tiện lợi tuyệt đối.
             </p>
           </div>
@@ -408,16 +420,16 @@ export default function AboutPage() {
               return (
                 <div
                   key={i}
-                  className="group relative overflow-hidden rounded-[1.5rem] border border-white/8 bg-white/[0.02] p-6 transition duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:bg-white/[0.04]"
+                  className="group relative overflow-hidden rounded-[1.5rem] border border-border bg-card p-6 transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
                 >
-                  <div className="pointer-events-none absolute -right-6 -top-6 size-20 rounded-full bg-primary/8 blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="pointer-events-none absolute -right-6 -top-6 size-20 rounded-full bg-primary/10 blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <span className="mb-4 flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                     <Icon className="size-5" />
                   </span>
-                  <h4 className="mb-2 text-sm font-bold text-white">
+                  <h4 className="mb-2 text-sm font-bold text-card-foreground">
                     {item.title}
                   </h4>
-                  <p className="text-xs leading-relaxed text-white/50">
+                  <p className="text-xs leading-relaxed text-muted-foreground">
                     {item.desc}
                   </p>
                 </div>
@@ -426,20 +438,21 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Section 5: Demo Sandbox ──────────────────────────────── */}
+        {/* ── Section 5: Demo Sandbox ───────────────────────────── */}
         <section id="demo" className="scroll-mt-24">
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-white/8 bg-gradient-to-br from-white/[0.04] via-transparent to-primary/[0.03] p-8 shadow-2xl backdrop-blur-xl md:p-12">
+          <div className="relative overflow-hidden rounded-[2.5rem] border border-border bg-card p-8 shadow-sm md:p-12">
+            {/* Decorative glows */}
             <div className="pointer-events-none absolute -bottom-24 -right-24 size-72 rounded-full bg-primary/8 blur-3xl" />
-            <div className="pointer-events-none absolute -left-20 -top-20 size-52 rounded-full bg-white/4 blur-3xl" />
+            <div className="pointer-events-none absolute -left-20 -top-20 size-52 rounded-full bg-muted blur-3xl" />
 
             <div className="relative mb-10 max-w-xl">
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
                 Demo Sandbox
               </p>
-              <h2 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
+              <h2 className="text-2xl font-bold tracking-tight text-card-foreground md:text-3xl">
                 Tài Khoản Thử Nghiệm
               </h2>
-              <p className="mt-3 text-sm leading-6 text-white/55">
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
                 GymMaster OS phân quyền tự động sau khi đăng nhập. Sử dụng các tài khoản dưới đây để đánh giá từng giao diện nghiệp vụ.
               </p>
             </div>
@@ -448,36 +461,40 @@ export default function AboutPage() {
             <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2">
               {DEMO_ACCOUNTS.map((acc, i) => {
                 const Icon = acc.icon;
-                const c = COLOR_MAP[acc.color];
+                const a = ACCENT[acc.accent];
                 const emailKey = `email-${i}`;
                 const passKey = `pass-${i}`;
                 return (
                   <div
                     key={acc.tag}
-                    className="group relative overflow-hidden rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-5 transition hover:border-white/12 hover:bg-white/[0.05]"
+                    className="group relative overflow-hidden rounded-[1.5rem] border border-border bg-muted/40 p-5 transition hover:border-primary/20 hover:bg-accent/30"
                   >
                     <div className="mb-4 flex items-center gap-3">
-                      <span className={`flex size-9 items-center justify-center rounded-xl border ${c.icon}`}>
+                      <span className={`flex size-9 items-center justify-center rounded-xl border ${a.icon}`}>
                         <Icon className="size-4" />
                       </span>
                       <div>
-                        <p className="text-sm font-bold text-white">{acc.role}</p>
-                        <span className={`text-[10px] font-semibold uppercase tracking-wider ${c.badge.split(" ").find((s) => s.startsWith("text-"))}`}>
+                        <p className="text-sm font-bold text-foreground">{acc.role}</p>
+                        <span className={`text-[10px] font-semibold uppercase tracking-wider ${a.badge.split(" ").find((s) => s.startsWith("text-"))}`}>
                           {acc.tag}
                         </span>
                       </div>
                     </div>
 
                     {/* Email row */}
-                    <div className="mb-2.5 flex items-center justify-between gap-2 rounded-xl border border-white/6 bg-black/20 px-3.5 py-2.5">
+                    <div className="mb-2.5 flex items-center justify-between gap-2 rounded-xl border border-input bg-background px-3.5 py-2.5">
                       <div className="min-w-0">
-                        <p className="text-[9px] uppercase tracking-wider text-white/35 mb-0.5">Email</p>
-                        <p className="truncate font-mono text-xs text-white/80">{acc.email}</p>
+                        <p className="mb-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
+                          Email
+                        </p>
+                        <p className="truncate font-mono text-xs text-foreground">
+                          {acc.email}
+                        </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopy(acc.email, emailKey, "email")}
-                        className="shrink-0 rounded-lg border border-white/8 bg-white/5 p-1.5 text-white/40 transition hover:bg-white/10 hover:text-white active:scale-[0.96]"
+                        className="shrink-0 rounded-lg border border-border bg-muted p-1.5 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.96]"
                         title="Sao chép email"
                       >
                         {copied[emailKey] ? (
@@ -489,15 +506,19 @@ export default function AboutPage() {
                     </div>
 
                     {/* Password row */}
-                    <div className="flex items-center justify-between gap-2 rounded-xl border border-white/6 bg-black/20 px-3.5 py-2.5">
+                    <div className="flex items-center justify-between gap-2 rounded-xl border border-input bg-background px-3.5 py-2.5">
                       <div className="min-w-0">
-                        <p className="text-[9px] uppercase tracking-wider text-white/35 mb-0.5">Mật khẩu</p>
-                        <p className="truncate font-mono text-xs text-white/80">{PASSWORD}</p>
+                        <p className="mb-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
+                          Mật khẩu
+                        </p>
+                        <p className="truncate font-mono text-xs text-foreground">
+                          {PASSWORD}
+                        </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleCopy(PASSWORD, passKey, "mật khẩu")}
-                        className="shrink-0 rounded-lg border border-white/8 bg-white/5 p-1.5 text-white/40 transition hover:bg-white/10 hover:text-white active:scale-[0.96]"
+                        className="shrink-0 rounded-lg border border-border bg-muted p-1.5 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.96]"
                         title="Sao chép mật khẩu"
                       >
                         {copied[passKey] ? (
@@ -513,18 +534,18 @@ export default function AboutPage() {
             </div>
 
             {/* CTA row */}
-            <div className="relative mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/[0.06] px-6 py-5 sm:flex-row">
+            <div className="relative mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/5 px-6 py-5 sm:flex-row">
               <div className="flex items-center gap-3">
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
                   <Sparkles className="size-4" />
                 </span>
-                <p className="text-xs leading-relaxed text-white/65">
+                <p className="text-xs leading-relaxed text-muted-foreground">
                   Sao chép email & mật khẩu, sau đó dán vào trang đăng nhập để trải nghiệm từng vai trò nghiệp vụ.
                 </p>
               </div>
               <Link
                 href="/login"
-                className="shrink-0 inline-flex h-10 items-center gap-2 rounded-full bg-primary px-5 text-xs font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.98]"
+                className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-primary px-5 text-xs font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.98]"
               >
                 Đi tới Đăng nhập
                 <ArrowRight className="size-3.5" />
@@ -534,20 +555,20 @@ export default function AboutPage() {
         </section>
       </div>
 
-      {/* ── Footer ─────────────────────────────────────────────────── */}
-      <footer className="border-t border-white/5 bg-zinc-950 px-6 py-10 text-center">
+      {/* ── Footer ──────────────────────────────────────────────── */}
+      <footer className="border-t border-border bg-card px-6 py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              className="size-7 rounded-lg bg-contain bg-center bg-no-repeat ring-1 ring-white/10"
+              className="size-7 rounded-lg bg-contain bg-center bg-no-repeat ring-1 ring-border"
               style={{ backgroundImage: `url(${gymMasterAssets.brand.mark})` }}
             />
-            <span className="text-xs font-semibold uppercase tracking-widest text-white/50">
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               GymMaster OS
             </span>
           </div>
-          <p className="text-xs text-white/30">
+          <p className="text-xs text-muted-foreground">
             SWP391 Course Project · Frontend Demo
           </p>
           <Link
