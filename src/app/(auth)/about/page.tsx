@@ -276,7 +276,7 @@ export default function AboutPage() {
           }}
         />
 
-        <div className="relative z-20 mx-auto max-w-3xl">
+        <div className="relative z-20 mx-auto max-w-3xl rounded-[2rem] border border-border bg-card/60 p-8 md:p-12 backdrop-blur-xl shadow-2xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary backdrop-blur-md">
             <Layers className="size-3.5" />
             Tổng quan hệ thống
@@ -286,9 +286,8 @@ export default function AboutPage() {
             GymMaster OS
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-            Nền tảng vận hành phòng gym toàn diện — từ check-in lễ tân, bán gói
-            tập đến giáo án huấn luyện và theo dõi dinh dưỡng cá nhân hóa.
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-muted-foreground">
+            Nền tảng vận hành phòng gym toàn diện — từ check-in lễ tân, bán gói tập đến giáo án huấn luyện và theo dõi dinh dưỡng cá nhân hóa.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
