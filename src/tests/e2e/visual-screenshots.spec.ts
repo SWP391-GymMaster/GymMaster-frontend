@@ -106,6 +106,7 @@ test.describe("PT Screenshots", () => {
     { url: "/pt/members/101", filename: "pt-member-360.png" },
     { url: "/pt/members/101/workout", filename: "pt-workout-planner.png" },
     { url: "/pt/members/101/notes", filename: "pt-trainer-notes.png" },
+    { url: "/pt/members/101/progress", filename: "pt-member-progress.png" },
   ]
 
   for (const item of ptPages) {
@@ -126,6 +127,7 @@ test.describe("Member Screenshots", () => {
     { url: "/member/workout", filename: "member-workout.png" },
     { url: "/member/nutrition/meal-journal", filename: "member-meal-journal.png" },
     { url: "/member/nutrition/summary", filename: "member-nutrition-summary.png" },
+    { url: "/member/progress", filename: "member-progress.png" },
   ]
 
   for (const item of memberPages) {
