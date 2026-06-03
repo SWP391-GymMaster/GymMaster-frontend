@@ -256,20 +256,27 @@ export default function AboutPage() {
       <section
         className="relative isolate flex min-h-[52vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center"
         style={{
-          backgroundImage: `linear-gradient(to bottom, var(--background) 0%, color-mix(in oklch, var(--background) 35%, transparent) 50%, var(--background) 100%), url(${gymMasterAssets.backgrounds.welcomeGymHero})`,
+          backgroundImage: `url(${gymMasterAssets.backgrounds.welcomeGymHero})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
+        {/* Frosted Glass Overlay */}
+        <div className="absolute inset-0 bg-background/45 backdrop-blur-[16px]" />
+
+        {/* Bottom fade blending to page background */}
+        <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-background to-transparent" />
+
+        {/* Primary radial glow */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 50% 40%, color-mix(in oklch, var(--primary) 15%, transparent), transparent 55%)",
+              "radial-gradient(circle at 50% 40%, color-mix(in oklch, var(--primary) 12%, transparent), transparent 55%)",
           }}
         />
 
-        <div className="relative z-10 mx-auto max-w-3xl">
+        <div className="relative z-20 mx-auto max-w-3xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary backdrop-blur-md">
             <Layers className="size-3.5" />
             Tổng quan hệ thống
