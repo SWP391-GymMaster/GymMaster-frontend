@@ -12,8 +12,8 @@ export function PageAnimateWrapper({ children }: PageAnimateWrapperProps) {
   const isTest =
     typeof window !== "undefined" &&
     (navigator.webdriver ||
-      (window as any).__vitest__ ||
-      (window as any).__PLAYWRIGHT__);
+      (window as unknown as Record<string, unknown>).__vitest__ ||
+      (window as unknown as Record<string, unknown>).__PLAYWRIGHT__);
 
   if (isTest) {
     return <div data-testid="page-animate-fallback">{children}</div>;

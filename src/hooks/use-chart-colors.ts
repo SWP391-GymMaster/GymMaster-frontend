@@ -89,8 +89,9 @@ export function useChartColors(): ChartColorPalette {
   );
 
   useEffect(() => {
-    // Run after the DOM has applied the new theme class so getComputedStyle
-    // reads the correct resolved values.
+    // Must call synchronously after render so getComputedStyle reads the new
+    // theme class values. Deferring via setTimeout causes a colour flash.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPalette(buildPalette());
   }, [theme, colorPreset]);
 

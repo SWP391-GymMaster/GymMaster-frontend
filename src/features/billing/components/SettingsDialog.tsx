@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Moon, Sun, Palette, Check } from "lucide-react";
 import {
   Dialog,
@@ -21,7 +21,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [mounted, setMounted] = useState(false);
 
   // Avoid hydration mismatch
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // Standard client-mount guard — must run synchronously to avoid
+    // hydration mismatch when rendering theme-aware content.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 

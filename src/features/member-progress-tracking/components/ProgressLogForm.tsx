@@ -43,7 +43,7 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
     resolver: zodResolver(progressEntrySchema),
     defaultValues: {
       measuredAt: todayStr,
-      weightKg: undefined as any,
+      weightKg: "" as unknown as number,
       bodyFatPct: undefined,
     },
   })
@@ -53,7 +53,7 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
     if (open) {
       reset({
         measuredAt: todayStr,
-        weightKg: undefined as any,
+        weightKg: "" as unknown as number,
         bodyFatPct: undefined,
       })
     }

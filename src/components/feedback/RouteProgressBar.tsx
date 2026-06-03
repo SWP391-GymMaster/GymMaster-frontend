@@ -9,8 +9,11 @@ export function RouteProgressBar() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(true);
-    setProgress(15);
+    // Defer initial state updates out of the synchronous effect body
+    const t0 = setTimeout(() => {
+      setVisible(true);
+      setProgress(15);
+    }, 0);
 
     const t1 = setTimeout(() => {
       setProgress(45);
@@ -22,13 +25,13 @@ export function RouteProgressBar() {
 
     const t3 = setTimeout(() => {
       setProgress(100);
-      const t4 = setTimeout(() => {
+      setTimeout(() => {
         setVisible(false);
       }, 150);
-      return () => clearTimeout(t4);
     }, 450);
 
     return () => {
+      clearTimeout(t0);
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);

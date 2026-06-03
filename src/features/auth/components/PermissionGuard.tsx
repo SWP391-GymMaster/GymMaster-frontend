@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { LogIn, ShieldAlert } from "lucide-react"
-import { useEffect, useState, type ReactNode } from "react"
+import { useLayoutEffect, useState, type ReactNode } from "react"
 
 import { PermissionDenied } from "@/components/feedback/PermissionDenied"
 import { getDashboardRoute } from "@/lib/auth/roles"
@@ -43,7 +43,10 @@ export function PermissionGuard({
   const [mounted, setMounted] = useState(false)
   const session = useAuthSessionStore((state) => state.session)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // Standard client-mount detection idiom — must run synchronously to
+    // prevent a layout flash from showing the skeleton on re-renders.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
   }, [])
 
