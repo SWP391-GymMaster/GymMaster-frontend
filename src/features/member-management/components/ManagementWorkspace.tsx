@@ -303,6 +303,7 @@ function SearchToolbar({
         <input
           className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
           data-testid="management-search-input"
+          data-shortcut-search
           onChange={(event) => onSearch(event.target.value)}
           placeholder={placeholder}
           value={value}

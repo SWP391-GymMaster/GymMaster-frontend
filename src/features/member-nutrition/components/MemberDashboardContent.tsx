@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   CalendarCheck,
@@ -18,6 +19,7 @@ import { WaterTrackerCard } from "@/features/member-nutrition/components/WaterTr
 import { useMemberCalorieSummary } from "@/features/member-nutrition/api/member-nutrition.queries";
 import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
+import { BmiCalculator } from "@/features/member-nutrition/components/BmiCalculator";
 
 const today = getTodayDate();
 
@@ -50,6 +52,7 @@ const todayActions = [
 
 export function MemberDashboardContent() {
   const summary = useMemberCalorieSummary(today);
+  const [isBmiOpen, setIsBmiOpen] = useState(false);
 
   return (
     <div className="grid gap-6">
@@ -114,6 +117,14 @@ export function MemberDashboardContent() {
                 >
                   <Link href="/member/workout">Xem giáo án</Link>
                 </Button>
+                <Button
+                  onClick={() => setIsBmiOpen(true)}
+                  className="rounded-xl border-white/15 bg-white/10 text-white backdrop-blur-md hover:bg-white/15 active:scale-[0.98] transition"
+                  variant="outline"
+                  type="button"
+                >
+                  Đo BMI & Mỡ
+                </Button>
               </div>
             </div>
           </div>
@@ -168,6 +179,8 @@ export function MemberDashboardContent() {
           <WaterTrackerCard />
         </aside>
       </section>
+
+      <BmiCalculator open={isBmiOpen} onOpenChange={setIsBmiOpen} />
     </div>
   );
 }

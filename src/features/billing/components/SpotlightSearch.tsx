@@ -10,7 +10,6 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
 import {
   Dialog,
   DialogContent,
@@ -138,10 +137,14 @@ export function SpotlightSearch({
     return matchesQuery;
   });
 
+  const handleSelect = (href: string) => {
+    onOpenChange(false);
+    router.push(href);
+  };
+
   // Handle keyboard events (up/down/enter/escape)
   useEffect(() => {
     if (!open) return;
-    setSelectedIndex(0);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown") {
@@ -150,33 +153,35 @@ export function SpotlightSearch({
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setSelectedIndex(
-          (prev) => (prev - 1 + filtered.length) % Math.max(1, filtered.length),
+          (prev) =>
+            (prev - 1 + filtered.length) % Math.max(1, filtered.length),
         );
       } else if (e.key === "Enter") {
         e.preventDefault();
-        if (filtered[selectedIndex]) {
-          handleSelect(filtered[selectedIndex].href);
+        const item = filtered[selectedIndex];
+        if (item) {
+          handleSelect(item.href);
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, filtered, selectedIndex]);
 
-  // Focus input on mount
+  // Focus input on open; reset state after close (deferred so exit animation plays)
   useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-    } else {
-      setQuery("");
+    if (!open) {
+      const t = setTimeout(() => {
+        setQuery("");
+        setSelectedIndex(0);
+      }, 200);
+      return () => clearTimeout(t);
     }
+    const t = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(t);
   }, [open]);
-
-  const handleSelect = (href: string) => {
-    onOpenChange(false);
-    router.push(href);
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -246,7 +251,7 @@ export function SpotlightSearch({
                 Không tìm thấy kết quả
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Thử dùng các từ khóa như "calo", "hội viên" hoặc "gói tập"
+                Thử dùng các từ khóa như &quot;calo&quot;, &quot;hội viên&quot; hoặc &quot;gói tập&quot;
               </p>
             </div>
           )}

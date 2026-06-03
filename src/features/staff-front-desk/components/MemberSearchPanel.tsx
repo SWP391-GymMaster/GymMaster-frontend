@@ -121,6 +121,7 @@ export function MemberSearchPanel() {
                 <input
                   className="min-h-12 w-full rounded-xl border border-border bg-background pl-12 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
                   data-testid="staff-member-search-input"
+                  data-shortcut-search
                   id="staff-member-search"
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Tên, email, số điện thoại hoặc mã hội viên"

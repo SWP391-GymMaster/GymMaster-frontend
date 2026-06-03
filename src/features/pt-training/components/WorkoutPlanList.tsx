@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import {
   CheckCircle2,
   ChevronDown,
@@ -325,11 +326,11 @@ function ExerciseRow({
                   {index + 1}
                 </span>
                 <div>
-                  <p className="text-lg font-semibold text-foreground">
+                  <p className="text-lg font-semibold text-foreground print-exercise-name">
                     {exercise.name}
                   </p>
                   {exercise.note ? (
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground print-exercise-note">
                       {exercise.note}
                     </p>
                   ) : null}
@@ -343,7 +344,7 @@ function ExerciseRow({
           </div>
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="grid gap-2 grid-cols-3 flex-1">
+            <div className="grid gap-2 grid-cols-3 flex-1 print-exercise-details">
               <ExerciseStat label="Sets" value={`${exercise.sets}`} />
               <ExerciseStat label="Reps" value={exercise.reps} />
               <ExerciseStat label="Cue" value={exercise.note ? "Có" : "Chưa có"} />
@@ -425,29 +426,90 @@ function SummaryItem({ label, value }: { label: string; value: string }) {
 }
 
 export function WorkoutPlanListHeader() {
+  const [hideNotes, setHideNotes] = useState(false)
+  const [hidePT, setHidePT] = useState(false)
+  const [largeText, setLargeText] = useState(false)
+
   const handlePrint = () => {
     if (typeof window !== "undefined") {
       window.print()
     }
   }
 
+  const toggleOption = (option: 'notes' | 'pt' | 'text') => {
+    if (typeof window === "undefined") return
+    const root = document.body
+    if (option === 'notes') {
+      root.classList.toggle('print-hide-notes')
+      setHideNotes(!hideNotes)
+    } else if (option === 'pt') {
+      root.classList.toggle('print-hide-pt')
+      setHidePT(!hidePT)
+    } else if (option === 'text') {
+      root.classList.toggle('print-large-text')
+      setLargeText(!largeText)
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined") {
+        document.body.classList.remove('print-hide-notes', 'print-hide-pt', 'print-large-text')
+      }
+    }
+  }, [])
+
   return (
-    <div className="flex items-center justify-between gap-2 w-full">
+    <div className="flex flex-col gap-4 w-full border-b border-border/50 pb-4 md:flex-row md:items-center md:justify-between print:border-none print:pb-0">
       <div className="flex items-center gap-2">
         <ClipboardList aria-hidden="true" className="size-5 text-primary" />
         <h2 className="text-2xl font-semibold tracking-tight text-foreground">
           Giáo án luyện tập
         </h2>
       </div>
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={handlePrint}
-        className="rounded-xl flex items-center gap-1.5 print:hidden bg-card border-border hover:bg-muted text-foreground font-medium h-9"
-      >
-        <Printer className="size-4" />
-        In giáo án
-      </Button>
+
+      <div className="flex flex-wrap items-center gap-4 print:hidden">
+        {/* Print Customizer Checkboxes */}
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground border-r border-border/60 pr-4">
+          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition">
+            <input
+              type="checkbox"
+              checked={hideNotes}
+              onChange={() => toggleOption('notes')}
+              className="size-3.5 rounded border-border bg-muted/40 accent-primary"
+            />
+            Ẩn ghi chú
+          </label>
+          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition">
+            <input
+              type="checkbox"
+              checked={hidePT}
+              onChange={() => toggleOption('pt')}
+              className="size-3.5 rounded border-border bg-muted/40 accent-primary"
+            />
+            Ẩn tên PT
+          </label>
+          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition">
+            <input
+              type="checkbox"
+              checked={largeText}
+              onChange={() => toggleOption('text')}
+              className="size-3.5 rounded border-border bg-muted/40 accent-primary"
+            />
+            Chữ to (+2px)
+          </label>
+        </div>
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handlePrint}
+          className="rounded-xl flex items-center gap-1.5 bg-card border-border hover:bg-muted text-foreground font-medium h-9 active:scale-95 transition"
+        >
+          <Printer className="size-4" />
+          In giáo án
+        </Button>
+      </div>
     </div>
   )
 }

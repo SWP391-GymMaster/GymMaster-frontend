@@ -456,3 +456,15 @@
   --status-active-border: oklch(0.68 0.18 35 / 40%);
   --status-active-text: oklch(0.9 0.1 46);
 }
+
+/* Custom View Transition circular ripple */
+::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+  display: block;
+}

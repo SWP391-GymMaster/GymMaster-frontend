@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
-import { Bell, Command, Search } from "lucide-react";
+import { Bell, Command, Search, Sun, Moon } from "lucide-react";
 
 import {
   CommandRail,
@@ -17,6 +17,8 @@ import { SettingsDialog } from "@/features/billing/components/SettingsDialog";
 import { RouteProgressBar } from "@/components/feedback/RouteProgressBar";
 import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper";
 import { RestTimerOverlay } from "@/components/premium/RestTimerOverlay";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { ShortcutsHelpOverlay } from "@/components/premium/ShortcutsHelpOverlay";
 
 export type WorkspaceShellMetric = {
   label: string;
@@ -39,10 +41,52 @@ export function WorkspaceShell({
   metrics = [],
   children,
 }: WorkspaceShellProps) {
-  const { isCollapsed, theme, colorPreset, isSettingsOpen, setSettingsOpen } =
+  const { isCollapsed, theme, setTheme, colorPreset, isSettingsOpen, setSettingsOpen } =
     useSidebarStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  // Invoke keyboard shortcuts
+  useKeyboardShortcuts();
+
+  const handleToggleTheme = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const nextTheme = theme === "light" ? "dark" : "light";
+
+    if (typeof document !== "undefined" && "startViewTransition" in document) {
+      const x = event.clientX;
+      const y = event.clientY;
+      const endRadius = Math.hypot(
+        Math.max(x, window.innerWidth - x),
+        Math.max(y, window.innerHeight - y)
+      );
+
+      const transition = document.startViewTransition(() => {
+        setTheme(nextTheme);
+      });
+
+      transition.ready.then(() => {
+        const clipPath = [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${endRadius}px at ${x}px ${y}px)`,
+        ];
+        document.documentElement.animate(
+          {
+            clipPath: theme === "light" ? clipPath : clipPath.reverse(),
+          },
+          {
+            duration: 400,
+            easing: "ease-in-out",
+            pseudoElement:
+              theme === "light"
+                ? "::view-transition-new(root)"
+                : "::view-transition-old(root)",
+          }
+        );
+      });
+    } else {
+      setTheme(nextTheme);
+    }
+  };
 
   // Initialize and apply theme & presets from local store to prevent hydration lag
   useEffect(() => {
@@ -121,6 +165,21 @@ export function WorkspaceShell({
           </div>
 
           <div className="flex items-center gap-5">
+            {/* Theme Switcher circular view transition toggle */}
+            <button
+              onClick={handleToggleTheme}
+              className="inline-flex size-10 items-center justify-center rounded-full text-foreground transition hover:bg-muted active:scale-[0.96]"
+              type="button"
+              title="Chuyển đổi giao diện"
+            >
+              {theme === "light" ? (
+                <Moon aria-hidden="true" className="size-5" />
+              ) : (
+                <Sun aria-hidden="true" className="size-5" />
+              )}
+              <span className="sr-only">Chuyển theme</span>
+            </button>
+
             {/* Notifications drawer trigger */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
@@ -233,6 +292,7 @@ export function WorkspaceShell({
       />
       <SettingsDialog open={isSettingsOpen} onOpenChange={setSettingsOpen} />
       <RestTimerOverlay />
+      <ShortcutsHelpOverlay />
     </main>
   );
 }
