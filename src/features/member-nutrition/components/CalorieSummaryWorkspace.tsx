@@ -15,7 +15,6 @@ import {
   getRemainingLabel,
   getTodayDate,
 } from "@/features/member-nutrition/utils/nutrition-formatters"
-import { gymMasterAssets } from "@/lib/gymmaster-assets"
 
 const today = getTodayDate()
 
@@ -62,60 +61,71 @@ export function CalorieSummaryWorkspace() {
   )
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-6">
       <section
-        className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-950 p-6 text-white shadow-xl"
+        className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
         data-testid="member-calorie-summary"
-        style={{
-          backgroundImage: `linear-gradient(115deg, rgba(24,24,27,0.96), rgba(24,24,27,0.78) 58%, rgba(24,24,27,0.36)), url(${gymMasterAssets.nutritionCover})`,
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-        }}
       >
-        <div className="relative">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
-            Tổng kết calo ngày
-          </p>
-          <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight">
-            {getRemainingLabel(summary.data.remaining)}
-          </h2>
-          <div className="mt-5 h-3 overflow-hidden rounded-full bg-white/10">
+        <div className="grid gap-0 xl:grid-cols-[340px_minmax(0,1fr)]">
+          <div className="flex flex-col items-center justify-center border-b border-border bg-primary/5 p-6 text-center xl:border-b-0 xl:border-r">
             <div
-              className="h-full rounded-full bg-primary"
+              className="flex size-52 items-center justify-center rounded-full"
               style={{
-                width: `${consumedPercent}%`,
+                background: `conic-gradient(hsl(var(--primary)) 0deg ${
+                  consumedPercent * 3.6
+                }deg, hsl(var(--muted)) ${consumedPercent * 3.6}deg 360deg)`,
               }}
-            />
+            >
+              <div className="flex size-36 flex-col items-center justify-center rounded-full border border-border bg-card shadow-sm">
+                <p className="text-3xl font-semibold tracking-tight text-foreground">
+                  {formatCalories(summary.data.consumed)}
+                </p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                  Đã ăn
+                </p>
+              </div>
+            </div>
+            <p className="mt-5 text-sm text-muted-foreground">Tiến độ hôm nay</p>
+            <p className="mt-1 text-xl font-semibold text-foreground">
+              {consumedPercent}%
+            </p>
           </div>
-        </div>
-        <div className="relative mt-5 grid gap-4 md:grid-cols-3">
-          <HeroMetric
-            icon={Flame}
-            label="Đã ăn"
-            value={formatCalories(summary.data.consumed)}
-          />
-          <HeroMetric
-            icon={Target}
-            label="Mục tiêu"
-            value={formatCalories(summary.data.target)}
-          />
-          <HeroMetric
-            icon={Utensils}
-            label="Còn lại"
-            value={getRemainingLabel(summary.data.remaining)}
-          />
-        </div>
-      </section>
 
-      <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-zinc-950">Macro</h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          Giá trị macro sẽ hiển thị khi contract backend trả đủ dữ liệu.
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <Macro label="Protein" value={formatMacro(summary.data.proteinG)} />
-          <Macro label="Carb" value={formatMacro(summary.data.carbsG)} />
-          <Macro label="Fat" value={formatMacro(summary.data.fatG)} />
+          <div className="p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              Tổng kết calo ngày
+            </p>
+            <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight text-foreground">
+              {getRemainingLabel(summary.data.remaining)}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Theo dõi đã ăn, mục tiêu, phần còn lại và macro trong ngày.
+            </p>
+
+            <div className="mt-6 grid gap-3 md:grid-cols-3">
+              <HeroMetric
+                icon={Flame}
+                label="Đã ăn"
+                value={formatCalories(summary.data.consumed)}
+              />
+              <HeroMetric
+                icon={Target}
+                label="Mục tiêu"
+                value={formatCalories(summary.data.target)}
+              />
+              <HeroMetric
+                icon={Utensils}
+                label="Còn lại"
+                value={getRemainingLabel(summary.data.remaining)}
+              />
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <Macro label="Protein" value={formatMacro(summary.data.proteinG)} percent={summary.data.proteinG ? 68 : 0} />
+              <Macro label="Carb" value={formatMacro(summary.data.carbsG)} percent={summary.data.carbsG ? 54 : 0} />
+              <Macro label="Fat" value={formatMacro(summary.data.fatG)} percent={summary.data.fatG ? 42 : 0} />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -138,21 +148,34 @@ function HeroMetric({
   value: string
 }) {
   return (
-    <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
+    <div className="rounded-xl border border-border bg-background p-4">
       <Icon aria-hidden="true" className="size-5 text-primary" />
-      <p className="mt-4 text-sm text-zinc-400">{label}</p>
-      <p className="mt-1 text-xl font-semibold">{value}</p>
+      <p className="mt-4 text-sm text-muted-foreground">{label}</p>
+      <p className="mt-1 text-xl font-semibold text-foreground">{value}</p>
     </div>
   )
 }
 
-function Macro({ label, value }: { label: string; value: string }) {
+function Macro({
+  label,
+  percent,
+  value,
+}: {
+  label: string
+  percent: number
+  value: string
+}) {
   return (
-    <div className="rounded-[1.25rem] border border-zinc-200 bg-zinc-50 p-4">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-        {label}
-      </p>
-      <p className="mt-1 text-base font-semibold text-zinc-950">{value}</p>
+    <div className="rounded-xl border border-border bg-background p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          {label}
+        </p>
+        <p className="text-sm font-semibold text-foreground">{value}</p>
+      </div>
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+        <div className="h-full rounded-full bg-primary" style={{ width: `${percent}%` }} />
+      </div>
     </div>
   )
 }

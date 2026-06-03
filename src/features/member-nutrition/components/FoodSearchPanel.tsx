@@ -1,6 +1,6 @@
 "use client"
 
-import { Search } from "lucide-react"
+import { Search, Utensils } from "lucide-react"
 
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { useFoodSearch } from "@/features/member-nutrition/api/member-nutrition.
 import type { FoodItem } from "@/features/member-nutrition/types/member-nutrition.types"
 import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
 
-const quickSearches = ["ức gà", "cơm", "chuối"]
+const quickSearches = ["ức gà", "cơm", "chuối", "trứng", "sữa", "yến mạch"]
 
 type FoodSearchPanelProps = {
   query: string
@@ -27,35 +27,43 @@ export function FoodSearchPanel({
   const canSearch = query.trim().length >= 2
 
   return (
-    <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center gap-3">
-        <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Search aria-hidden="true" className="size-4" />
+        <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <Search aria-hidden="true" className="size-5" />
         </span>
         <div>
-          <h2 className="text-lg font-semibold text-zinc-950">Tìm món ăn</h2>
-          <p className="text-sm text-zinc-600">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            Tìm món ăn
+          </h2>
+          <p className="text-sm leading-6 text-muted-foreground">
             Tìm trong cơ sở dữ liệu món ăn trước khi ghi bữa.
           </p>
         </div>
       </div>
 
-      <label className="mt-4 block text-sm font-medium text-zinc-800" htmlFor="food-search">
+      <label className="mt-5 block text-sm font-medium text-foreground" htmlFor="food-search">
         Tên món
       </label>
-      <input
-        className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none transition-colors focus:border-primary focus:ring-4 focus:ring-primary/10"
-        data-testid="member-food-search-input"
-        id="food-search"
-        onChange={(event) => onQueryChange(event.target.value)}
-        placeholder="Ức gà, cơm, chuối..."
-        value={query}
-      />
+      <div className="relative mt-2">
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        />
+        <input
+          className="min-h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+          data-testid="member-food-search-input"
+          id="food-search"
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder="Ức gà, cơm, chuối..."
+          value={query}
+        />
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {quickSearches.map((quickSearch) => (
           <Button
-            className="h-9 rounded-full border-zinc-200 px-3 text-xs font-semibold text-zinc-700 hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98]"
+            className="h-9 rounded-full border-border bg-card px-3 text-xs font-semibold text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98]"
             key={quickSearch}
             onClick={() => onQueryChange(quickSearch)}
             type="button"
@@ -66,7 +74,7 @@ export function FoodSearchPanel({
         ))}
       </div>
 
-      <div className="mt-4 grid gap-2">
+      <div className="mt-5 grid gap-2">
         {!canSearch ? (
           <StateBlock
             description="Nhập ít nhất hai ký tự để tìm món ăn."
@@ -90,14 +98,14 @@ export function FoodSearchPanel({
         ) : null}
         {canSearch && foods.data?.items.length === 0 ? (
           <StateBlock
-            description="Custom food là phạm vi Secondary sau khi luồng ghi bữa ổn định."
+            description="Có thể thêm custom food sau khi luồng ghi bữa ổn định."
             title="Không tìm thấy món phù hợp."
             tone="empty"
           />
         ) : null}
         {foods.data?.items.map((food) => (
           <Button
-            className="h-auto justify-between gap-4 rounded-[1.25rem] border-zinc-200 bg-white p-4 text-left text-zinc-950 hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98] data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
+            className="h-auto justify-between gap-4 rounded-xl border-border bg-background p-4 text-left text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98] data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
             data-selected={selectedFoodId === food.id}
             data-testid="member-food-result"
             key={food.id}
@@ -105,10 +113,15 @@ export function FoodSearchPanel({
             type="button"
             variant="outline"
           >
-            <span className="min-w-0">
-              <span className="block font-semibold">{food.name}</span>
-              <span className="mt-1 block text-sm text-zinc-600">
-                {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
+            <span className="flex min-w-0 items-center gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <Utensils aria-hidden="true" className="size-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate font-semibold">{food.name}</span>
+                <span className="mt-1 block text-sm text-muted-foreground">
+                  {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
+                </span>
               </span>
             </span>
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">

@@ -1,7 +1,8 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useState } from "react"
+import { CalendarDays, CheckCircle2, Scale, Utensils } from "lucide-react"
+import { useState, type ReactNode } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -39,6 +40,7 @@ export function MealLogForm({ date }: MealLogFormProps) {
     register,
     reset,
     setValue,
+    watch,
   } = useForm<MealLogFormInput, unknown, MealLogInput>({
     resolver: zodResolver(mealLogSchema),
     defaultValues: {
@@ -48,6 +50,11 @@ export function MealLogForm({ date }: MealLogFormProps) {
       quantity: 1,
     },
   })
+
+  const quantity = Number(watch("quantity") || 0)
+  const estimatedCalories = selectedFood
+    ? Math.round(selectedFood.caloriesPerUnit * quantity)
+    : 0
 
   function selectFood(food: FoodItem) {
     setSelectedFood(food)
@@ -82,7 +89,7 @@ export function MealLogForm({ date }: MealLogFormProps) {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]" id="add-meal">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]" id="add-meal">
       <FoodSearchPanel
         onQueryChange={setFoodQuery}
         onSelectFood={selectFood}
@@ -90,24 +97,40 @@ export function MealLogForm({ date }: MealLogFormProps) {
         selectedFoodId={selectedFood?.id}
       />
 
-      <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-        <h2 className="text-lg font-semibold text-zinc-950">Thêm bữa ăn</h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          Chọn món, loại bữa và khẩu phần. Calo được tính từ cơ sở dữ liệu món ăn.
-        </p>
+      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="flex items-start gap-3">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Utensils aria-hidden="true" className="size-5" />
+          </span>
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">
+              Thêm bữa ăn
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Chọn món, loại bữa và khẩu phần. Calo được tính từ cơ sở dữ liệu món ăn.
+            </p>
+          </div>
+        </div>
 
         {selectedFood ? (
-          <div className="mt-4 rounded-[1.25rem] border border-[color:var(--status-active-border)] bg-[var(--status-active-bg)] p-4">
-            <p className="text-sm font-semibold text-[var(--status-active-text)]">
-              {selectedFood.name}
-            </p>
-            <p className="mt-1 text-sm text-[var(--status-active-text)]">
-              {formatCalories(selectedFood.caloriesPerUnit)} mỗi {selectedFood.unit}
-            </p>
+          <div className="mt-5 rounded-xl border border-primary/20 bg-primary/10 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {selectedFood.name}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {formatCalories(selectedFood.caloriesPerUnit)} mỗi {selectedFood.unit}
+                </p>
+              </div>
+              <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+                Đã chọn
+              </span>
+            </div>
           </div>
         ) : (
           <StateBlock
-            className="mt-4"
+            className="mt-5"
             description="Chọn một món ăn trước khi gửi bữa."
             title="Chưa chọn món ăn."
             tone="empty"
@@ -117,29 +140,24 @@ export function MealLogForm({ date }: MealLogFormProps) {
         <form className="mt-5 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <input type="hidden" {...register("foodItemId")} />
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="text-sm font-medium text-zinc-800" htmlFor="meal-date">
-                Ngày
-              </label>
+            <Field label="Ngày" icon={CalendarDays}>
               <input
-                className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
                 data-testid="member-meal-date-input"
                 id="meal-date"
                 type="date"
                 {...register("logDate")}
               />
               {errors.logDate ? (
-                <p className="mt-2 text-sm font-medium text-red-700">
+                <p className="mt-2 text-sm font-medium text-destructive">
                   {errors.logDate.message}
                 </p>
               ) : null}
-            </div>
-            <div>
-              <label className="text-sm font-medium text-zinc-800" htmlFor="meal-type">
-                Loại bữa
-              </label>
+            </Field>
+
+            <Field label="Loại bữa" icon={Utensils}>
               <select
-                className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
                 data-testid="member-meal-type-select"
                 id="meal-type"
                 {...register("mealType")}
@@ -151,19 +169,16 @@ export function MealLogForm({ date }: MealLogFormProps) {
                 ))}
               </select>
               {errors.mealType ? (
-                <p className="mt-2 text-sm font-medium text-red-700">
+                <p className="mt-2 text-sm font-medium text-destructive">
                   {errors.mealType.message}
                 </p>
               ) : null}
-            </div>
+            </Field>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-zinc-800" htmlFor="meal-quantity">
-              Khẩu phần
-            </label>
+          <Field label="Khẩu phần" icon={Scale}>
             <input
-              className="mt-2 min-h-11 w-full rounded-2xl border border-zinc-200 px-4 outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
               data-testid="member-meal-quantity-input"
               id="meal-quantity"
               min="0"
@@ -172,23 +187,33 @@ export function MealLogForm({ date }: MealLogFormProps) {
               {...register("quantity")}
             />
             {errors.quantity ? (
-              <p className="mt-2 text-sm font-medium text-red-700">
+              <p className="mt-2 text-sm font-medium text-destructive">
                 {errors.quantity.message}
               </p>
             ) : null}
             {errors.foodItemId ? (
-              <p className="mt-2 text-sm font-medium text-red-700">
+              <p className="mt-2 text-sm font-medium text-destructive">
                 {errors.foodItemId.message}
               </p>
             ) : null}
+          </Field>
+
+          <div className="rounded-xl border border-border bg-background p-4">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-sm text-muted-foreground">Ước tính bữa ăn</span>
+              <span className="text-lg font-semibold text-foreground">
+                {formatCalories(estimatedCalories)}
+              </span>
+            </div>
           </div>
 
           <Button
-            className="min-h-12 rounded-full bg-zinc-950 text-white hover:bg-zinc-800"
+            className="min-h-12 rounded-xl bg-foreground text-background hover:bg-foreground/90"
             data-testid="member-add-meal-button"
             disabled={createMealLog.isPending}
             type="submit"
           >
+            <CheckCircle2 aria-hidden="true" className="size-4" />
             {createMealLog.isPending ? "Đang thêm..." : "Thêm bữa ăn"}
           </Button>
         </form>
@@ -203,5 +228,25 @@ export function MealLogForm({ date }: MealLogFormProps) {
         ) : null}
       </section>
     </div>
+  )
+}
+
+function Field({
+  children,
+  icon: Icon,
+  label,
+}: {
+  children: ReactNode
+  icon: typeof Utensils
+  label: string
+}) {
+  return (
+    <label className="grid gap-2">
+      <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <Icon aria-hidden="true" className="size-4 text-primary" />
+        {label}
+      </span>
+      {children}
+    </label>
   )
 }

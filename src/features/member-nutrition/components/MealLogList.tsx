@@ -1,3 +1,5 @@
+import { Clock3, Utensils } from "lucide-react"
+
 import { StateBlock } from "@/components/feedback/StateBlock"
 import type { MealLog } from "@/features/member-nutrition/types/member-nutrition.types"
 import {
@@ -47,28 +49,55 @@ export function MealLogList({
   }
 
   return (
-    <section className="rounded-[1.5rem] border border-white/70 bg-white/85 p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-zinc-950">Nhật ký ăn</h2>
-      <div className="mt-4 grid gap-3" data-testid="member-meal-log-list">
+    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+            Meal Timeline
+          </p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground">
+            Nhật ký ăn
+          </h2>
+        </div>
+        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          {logs.length} bữa
+        </span>
+      </div>
+
+      <div className="relative mt-5 grid gap-3" data-testid="member-meal-log-list">
         {logs.map((log) => (
           <article
-            className="rounded-[1.25rem] border border-zinc-200 bg-white p-4"
+            className="rounded-xl border border-border bg-background p-4"
             key={log.id}
           >
-            <p className="font-semibold text-zinc-950">
-              {formatMealType(log.mealType)}
-            </p>
-            <div className="mt-3 grid gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Utensils aria-hidden="true" className="size-4" />
+                </span>
+                <div>
+                  <p className="font-semibold text-foreground">
+                    {formatMealType(log.mealType)}
+                  </p>
+                  <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock3 aria-hidden="true" className="size-3.5" />
+                    Đã ghi hôm nay
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-2">
               {log.items.map((item) => (
                 <div
-                  className="flex flex-wrap items-center justify-between gap-3 text-sm text-zinc-700"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground"
                   key={`${log.id}-${item.foodItemId}`}
                 >
                   <span>
                     {item.foodName ?? `Món #${item.foodItemId}`} · {item.quantity}
                     {item.unit ? ` ${item.unit}` : ""}
                   </span>
-                  <span className="font-medium text-zinc-950">
+                  <span className="font-semibold text-foreground">
                     {formatCalories(item.calories ?? 0)}
                   </span>
                 </div>

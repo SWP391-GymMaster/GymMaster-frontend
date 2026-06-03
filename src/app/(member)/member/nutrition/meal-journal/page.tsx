@@ -7,11 +7,11 @@ export default function MemberMealJournalPage() {
     <PermissionGuard allowedRoles={["member"]}>
       <WorkspaceShell
         description="Tìm món, ghi khẩu phần và cập nhật tổng kết calo hôm nay."
-        metrics={[
-          { label: "Chế độ ghi", value: "Nhập tay", tone: "dark" },
-          { label: "Custom food", value: "Secondary" },
-          { label: "Image assist", value: "Ngoài MVP" },
-        ]}
+        // metrics={[
+        //   { label: "Chế độ ghi", value: "Nhập tay", tone: "dark" },
+        //   { label: "Custom food", value: "Secondary" },
+        //   { label: "Image assist", value: "Ngoài MVP" },
+        // ]}
         role="member"
         title="Nhật ký ăn"
       >

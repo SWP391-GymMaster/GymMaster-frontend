@@ -1,14 +1,16 @@
 "use client"
 
-import { NotebookPen } from "lucide-react"
+import { AlertCircle, CheckCircle2, NotebookPen } from "lucide-react"
 
 import { StateBlock } from "@/components/feedback/StateBlock"
 import type { TrainerNote } from "@/features/pt-training/types/pt-training.types"
+import { cn } from "@/lib/utils"
 
 type TrainerNoteListProps = {
   error?: Error | null
   isLoading?: boolean
   notes?: TrainerNote[]
+  variant?: "default" | "member"
 }
 
 function formatDate(value: string) {
@@ -22,6 +24,7 @@ export function TrainerNoteList({
   error,
   isLoading,
   notes,
+  variant = "default",
 }: TrainerNoteListProps) {
   if (isLoading) {
     return (
@@ -49,7 +52,7 @@ export function TrainerNoteList({
   if (!notes?.length) {
     return (
       <StateBlock
-        description="Thêm ghi chú ngắn sau buổi đánh giá, tập luyện hoặc trao đổi phục hồi."
+        description="Ghi chú từ PT sẽ xuất hiện tại đây sau buổi đánh giá hoặc tập luyện."
         title="Chưa có ghi chú PT"
         tone="empty"
       />
@@ -57,14 +60,21 @@ export function TrainerNoteList({
   }
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", variant === "member" && "relative")}>
+      {variant === "member" ? (
+        <div className="absolute bottom-8 left-5 top-8 w-px bg-border" />
+      ) : null}
+
       {notes.map((note, index) => (
         <article
-          className="rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+          className={cn(
+            "relative rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
+            variant === "member" && "ml-4",
+          )}
           key={note.id}
         >
           <div className="flex gap-4">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+            <span className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary ring-4 ring-background">
               {index + 1}
             </span>
             <div className="min-w-0 flex-1">
@@ -76,9 +86,35 @@ export function TrainerNoteList({
                   PT note
                 </span>
               </div>
-              <p className="mt-3 whitespace-pre-line text-sm leading-6 text-foreground">
-                {note.content}
-              </p>
+
+              {variant === "member" ? (
+                <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
+                  <div>
+                    <p className="whitespace-pre-line text-base leading-7 text-foreground">
+                      {note.content}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-border bg-background p-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                      Action cue
+                    </p>
+                    <div className="mt-3 space-y-2 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-2">
+                        <CheckCircle2 aria-hidden="true" className="size-4 text-primary" />
+                        Khởi động vai trước buổi tập
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <AlertCircle aria-hidden="true" className="size-4 text-orange-500" />
+                        Ưu tiên form hơn mức tạ
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-3 whitespace-pre-line text-sm leading-6 text-foreground">
+                  {note.content}
+                </p>
+              )}
             </div>
           </div>
         </article>
