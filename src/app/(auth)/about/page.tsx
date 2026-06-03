@@ -175,22 +175,26 @@ const TECH_STACK = [
 
 const ACCENT = {
   active: {
-    badge: "bg-[var(--status-active-bg)] text-[var(--status-active-text)] border-[var(--status-active-border)]",
+    badge:
+      "bg-[var(--status-active-bg)] text-[var(--status-active-text)] border-[var(--status-active-border)]",
     icon: "bg-[var(--status-active-bg)] text-[var(--status-active-text)] border-[var(--status-active-border)]",
     glow: "bg-primary",
   },
   pending: {
-    badge: "bg-[var(--status-pending-bg)] text-[var(--status-pending-text)] border-[var(--status-pending-border)]",
+    badge:
+      "bg-[var(--status-pending-bg)] text-[var(--status-pending-text)] border-[var(--status-pending-border)]",
     icon: "bg-[var(--status-pending-bg)] text-[var(--status-pending-text)] border-[var(--status-pending-border)]",
     glow: "bg-[var(--status-pending-bg)]",
   },
   steel: {
-    badge: "bg-[var(--status-info-bg)] text-[var(--status-info-text)] border-[var(--status-info-border)]",
+    badge:
+      "bg-[var(--status-info-bg)] text-[var(--status-info-text)] border-[var(--status-info-border)]",
     icon: "bg-[var(--status-info-bg)] text-[var(--status-info-text)] border-[var(--status-info-border)]",
     glow: "bg-[var(--status-info-bg)]",
   },
   destructive: {
-    badge: "bg-[var(--status-failed-bg)] text-[var(--status-failed-text)] border-[var(--status-failed-border)]",
+    badge:
+      "bg-[var(--status-failed-bg)] text-[var(--status-failed-text)] border-[var(--status-failed-border)]",
     icon: "bg-[var(--status-failed-bg)] text-[var(--status-failed-text)] border-[var(--status-failed-border)]",
     glow: "bg-[var(--status-failed-bg)]",
   },
@@ -218,7 +222,6 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen scroll-smooth overflow-y-auto bg-background text-foreground">
-
       {/* ── Sticky header ─────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-border bg-background/80 px-6 py-4 backdrop-blur-xl">
         <div className="flex items-center gap-3">
@@ -258,10 +261,11 @@ export default function AboutPage() {
           backgroundPosition: "center",
         }}
       >
-        <div 
+        <div
           className="pointer-events-none absolute inset-0"
           style={{
-            background: 'radial-gradient(circle at 50% 40%, color-mix(in oklch, var(--primary) 15%, transparent), transparent 55%)'
+            background:
+              "radial-gradient(circle at 50% 40%, color-mix(in oklch, var(--primary) 15%, transparent), transparent 55%)",
           }}
         />
 
@@ -276,7 +280,8 @@ export default function AboutPage() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-muted-foreground">
-            Nền tảng vận hành phòng gym toàn diện — từ check-in lễ tân, bán gói tập đến giáo án huấn luyện và theo dõi dinh dưỡng cá nhân hóa.
+            Nền tảng vận hành phòng gym toàn diện — từ check-in lễ tân, bán gói
+            tập đến giáo án huấn luyện và theo dõi dinh dưỡng cá nhân hóa.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
@@ -299,7 +304,6 @@ export default function AboutPage() {
       </section>
 
       <div className="mx-auto max-w-6xl space-y-28 px-4 pb-28 pt-20">
-
         {/* ── Section 2: Workspace Bento Grid ───────────────────── */}
         <section id="workspaces" className="scroll-mt-24">
           <div className="mb-14 text-center">
@@ -310,7 +314,8 @@ export default function AboutPage() {
               Không Gian Làm Việc Phân Vai
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-              Hệ thống chia làm 4 giao diện nghiệp vụ riêng biệt, phục vụ đầy đủ vòng đời vận hành của câu lạc bộ thể hình chuyên nghiệp.
+              Hệ thống chia làm 4 giao diện nghiệp vụ riêng biệt, phục vụ đầy đủ
+              vòng đời vận hành của câu lạc bộ thể hình chuyên nghiệp.
             </p>
           </div>
 
@@ -410,7 +415,8 @@ export default function AboutPage() {
               Trải Nghiệm Vượt Trội Phía Client
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
-              Không phụ thuộc server-side — frontend tận dụng Web API phần cứng để mang lại phản hồi tức thì và tiện lợi tuyệt đối.
+              Không phụ thuộc server-side — frontend tận dụng Web API phần cứng
+              để mang lại phản hồi tức thì và tiện lợi tuyệt đối.
             </p>
           </div>
 
@@ -453,7 +459,8 @@ export default function AboutPage() {
                 Tài Khoản Thử Nghiệm
               </h2>
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                GymMaster OS phân quyền tự động sau khi đăng nhập. Sử dụng các tài khoản dưới đây để đánh giá từng giao diện nghiệp vụ.
+                GymMaster OS phân quyền tự động sau khi đăng nhập. Sử dụng các
+                tài khoản dưới đây để đánh giá từng giao diện nghiệp vụ.
               </p>
             </div>
 
@@ -470,12 +477,18 @@ export default function AboutPage() {
                     className="group relative overflow-hidden rounded-[1.5rem] border border-border bg-muted/40 p-5 transition hover:border-primary/20 hover:bg-accent/30"
                   >
                     <div className="mb-4 flex items-center gap-3">
-                      <span className={`flex size-9 items-center justify-center rounded-xl border ${a.icon}`}>
+                      <span
+                        className={`flex size-9 items-center justify-center rounded-xl border ${a.icon}`}
+                      >
                         <Icon className="size-4" />
                       </span>
                       <div>
-                        <p className="text-sm font-bold text-foreground">{acc.role}</p>
-                        <span className={`text-[10px] font-semibold uppercase tracking-wider ${a.badge.split(" ").find((s) => s.startsWith("text-"))}`}>
+                        <p className="text-sm font-bold text-foreground">
+                          {acc.role}
+                        </p>
+                        <span
+                          className={`text-[10px] font-semibold uppercase tracking-wider ${a.badge.split(" ").find((s) => s.startsWith("text-"))}`}
+                        >
                           {acc.tag}
                         </span>
                       </div>
@@ -517,7 +530,9 @@ export default function AboutPage() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => handleCopy(PASSWORD, passKey, "mật khẩu")}
+                        onClick={() =>
+                          handleCopy(PASSWORD, passKey, "mật khẩu")
+                        }
                         className="shrink-0 rounded-lg border border-border bg-muted p-1.5 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.96]"
                         title="Sao chép mật khẩu"
                       >
@@ -540,7 +555,8 @@ export default function AboutPage() {
                   <Sparkles className="size-4" />
                 </span>
                 <p className="text-xs leading-relaxed text-muted-foreground">
-                  Sao chép email & mật khẩu, sau đó dán vào trang đăng nhập để trải nghiệm từng vai trò nghiệp vụ.
+                  Sao chép email & mật khẩu, sau đó dán vào trang đăng nhập để
+                  trải nghiệm từng vai trò nghiệp vụ.
                 </p>
               </div>
               <Link
