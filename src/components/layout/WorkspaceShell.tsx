@@ -1,32 +1,35 @@
-"use client"
+"use client";
 
-import type { ReactNode } from "react"
-import { useState, useEffect } from "react"
-import { Bell, Command, Search } from "lucide-react"
+import type { ReactNode } from "react";
+import { useState, useEffect } from "react";
+import { Bell, Command, Search } from "lucide-react";
 
-import { CommandRail, MobileCommandHeader } from "@/components/layout/CommandRail"
-import { cn } from "@/lib/utils"
-import type { UserRole } from "@/types/auth"
-import { useSidebarStore } from "@/stores/sidebar-store"
-import { SpotlightSearch } from "@/features/billing/components/SpotlightSearch"
-import { NotificationsDrawer } from "@/components/feedback/NotificationsDrawer"
-import { SettingsDialog } from "@/features/billing/components/SettingsDialog"
-import { RouteProgressBar } from "@/components/feedback/RouteProgressBar"
-import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper"
+import {
+  CommandRail,
+  MobileCommandHeader,
+} from "@/components/layout/CommandRail";
+import { cn } from "@/lib/utils";
+import type { UserRole } from "@/types/auth";
+import { useSidebarStore } from "@/stores/sidebar-store";
+import { SpotlightSearch } from "@/features/billing/components/SpotlightSearch";
+import { NotificationsDrawer } from "@/components/feedback/NotificationsDrawer";
+import { SettingsDialog } from "@/features/billing/components/SettingsDialog";
+import { RouteProgressBar } from "@/components/feedback/RouteProgressBar";
+import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper";
 
 export type WorkspaceShellMetric = {
-  label: string
-  value: string
-  tone?: "dark" | "light"
-}
+  label: string;
+  value: string;
+  tone?: "dark" | "light";
+};
 
 type WorkspaceShellProps = {
-  role: UserRole
-  title: string
-  description: string
-  metrics?: WorkspaceShellMetric[]
-  children?: ReactNode
-}
+  role: UserRole;
+  title: string;
+  description: string;
+  metrics?: WorkspaceShellMetric[];
+  children?: ReactNode;
+};
 
 export function WorkspaceShell({
   role,
@@ -35,9 +38,10 @@ export function WorkspaceShell({
   metrics = [],
   children,
 }: WorkspaceShellProps) {
-  const { isCollapsed, theme, colorPreset, isSettingsOpen, setSettingsOpen } = useSidebarStore()
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+  const { isCollapsed, theme, colorPreset, isSettingsOpen, setSettingsOpen } =
+    useSidebarStore();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   // Initialize and apply theme & presets from local store to prevent hydration lag
   useEffect(() => {
@@ -47,7 +51,7 @@ export function WorkspaceShell({
     } else {
       root.classList.remove("dark");
     }
-    
+
     root.classList.remove("theme-lime", "theme-steel", "theme-orange");
     root.classList.add(`theme-${colorPreset}`);
   }, [theme, colorPreset]);
@@ -69,17 +73,17 @@ export function WorkspaceShell({
     staff: "STAFF",
     pt: "PT",
     member: "MEMBER",
-  }
+  };
 
   const userLabels: Record<UserRole, string> = {
     admin: "Quản trị viên",
     staff: "Nhân viên lễ tân",
     pt: "Huấn luyện viên",
     member: "Hội viên GymMaster",
-  }
+  };
 
   return (
-    <main className="min-h-screen bg-background text-foreground transition-colors duration-200">
+    <main className="min-h-screen bg-background text-foreground transition-colors duration-200 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0">
       {/* Route Progress indicator */}
       <RouteProgressBar />
 
@@ -91,7 +95,7 @@ export function WorkspaceShell({
       <div
         className={cn(
           "min-h-screen bg-[linear-gradient(135deg,hsl(var(--muted)/0.55),hsl(var(--background))_42%,hsl(var(--muted)/0.35))] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          isCollapsed ? "lg:ml-[80px]" : "lg:ml-[280px]"
+          isCollapsed ? "lg:ml-[80px]" : "lg:ml-[280px]",
         )}
       >
         <header className="sticky top-0 z-20 hidden min-h-[72px] items-center justify-between gap-6 border-b border-border/70 bg-background/85 px-8 backdrop-blur-xl lg:flex">
@@ -143,7 +147,9 @@ export function WorkspaceShell({
               type="button"
             >
               <div className="text-right">
-                <p className="text-sm font-semibold text-foreground">{userLabels[role]}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {userLabels[role]}
+                </p>
                 <span className="mt-1 inline-flex rounded-md bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
                   {roleBadges[role]}
                 </span>
@@ -174,7 +180,7 @@ export function WorkspaceShell({
                   className="grid gap-4 md:grid-cols-3"
                 >
                   {metrics.map((metric) => {
-                    const isDark = metric.tone === "dark"
+                    const isDark = metric.tone === "dark";
 
                     return (
                       <div
@@ -189,14 +195,18 @@ export function WorkspaceShell({
                         <p
                           className={cn(
                             "text-sm",
-                            isDark ? "text-background/70" : "text-muted-foreground",
+                            isDark
+                              ? "text-background/70"
+                              : "text-muted-foreground",
                           )}
                         >
                           {metric.label}
                         </p>
-                        <p className="mt-3 text-2xl font-semibold">{metric.value}</p>
+                        <p className="mt-3 text-2xl font-semibold">
+                          {metric.value}
+                        </p>
                       </div>
-                    )
+                    );
                   })}
                 </section>
               ) : null}
@@ -217,10 +227,7 @@ export function WorkspaceShell({
         open={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
       />
-      <SettingsDialog
-        open={isSettingsOpen}
-        onOpenChange={setSettingsOpen}
-      />
+      <SettingsDialog open={isSettingsOpen} onOpenChange={setSettingsOpen} />
     </main>
-  )
+  );
 }

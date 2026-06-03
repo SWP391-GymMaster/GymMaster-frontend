@@ -1,35 +1,38 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
+  ChevronLeft,
+  ChevronRight,
   ClipboardList,
   CreditCard,
   Dumbbell,
   FileClock,
   Handshake,
   Home,
+  MoreHorizontal,
   Package,
   Salad,
   Search,
+  Settings,
   ShieldCheck,
   UserCog,
   Users,
-  ChevronLeft,
-  ChevronRight,
-  Settings,
   UtensilsCrossed,
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
 
 import { RoleBadge } from "@/components/data/RoleBadge";
 import { LogoutButton } from "@/features/auth/components/LogoutButton";
-import { cn } from "@/lib/utils";
-import type { UserRole } from "@/types/auth";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
+import { cn } from "@/lib/utils";
 import { useSidebarStore } from "@/stores/sidebar-store";
+import type { UserRole } from "@/types/auth";
 
 type CommandRailItem = {
   href: string;
@@ -136,6 +139,33 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
   ],
 };
 
+const mobilePrimaryHrefsByRole: Record<UserRole, string[]> = {
+  admin: [
+    "/admin/dashboard",
+    "/admin/members",
+    "/admin/assignments",
+    "/admin/audit-logs",
+  ],
+  staff: [
+    "/staff/dashboard",
+    "/staff/members",
+    "/staff/sell-package",
+    "/staff/check-in",
+  ],
+  pt: [
+    "/pt/dashboard",
+    "/pt/members/101",
+    "/pt/members/101/workout",
+    "/pt/members/101/notes",
+  ],
+  member: [
+    "/member/dashboard",
+    "/member/workout",
+    "/member/nutrition/meal-journal",
+    "/member/nutrition/summary",
+  ],
+};
+
 const roleWorkspaceLabels: Record<UserRole, string> = {
   admin: "Không gian quản trị",
   staff: "Không gian lễ tân",
@@ -150,6 +180,28 @@ function isActivePath(pathname: string, href: string) {
   return href !== "/" && pathname.startsWith(`${href}/`);
 }
 
+function flattenNavGroups(groups: SidebarGroup[]) {
+  return groups.flatMap((group) => group.items);
+}
+
+function getMobileNavItems(role: UserRole) {
+  const allItems = flattenNavGroups(navGroupsByRole[role] || []);
+  const priorityHrefs = mobilePrimaryHrefsByRole[role];
+
+  const primaryItems = priorityHrefs
+    .map((href) => allItems.find((item) => item.href === href))
+    .filter((item): item is CommandRailItem => Boolean(item));
+
+  const moreItems = allItems.filter(
+    (item) => !priorityHrefs.includes(item.href),
+  );
+
+  return {
+    primaryItems,
+    moreItems,
+  };
+}
+
 type CommandRailProps = {
   role: UserRole;
 };
@@ -160,167 +212,368 @@ export function CommandRail({ role }: CommandRailProps) {
   const navGroups = navGroupsByRole[role] || [];
 
   return (
-    <motion.aside
-      aria-label={`Điều hướng ${roleWorkspaceLabels[role]}`}
-      className="fixed left-0 top-0 z-40 hidden h-dvh flex-col bg-sidebar p-4 text-sidebar-foreground shadow-xl lg:flex overflow-x-hidden"
-      data-testid="command-rail"
-      initial={false}
-      animate={{ width: isCollapsed ? 80 : 280 }}
-      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {/* Brand Header */}
-      <div
-        className={cn(
-          "flex items-center gap-3 px-2 pb-6 shrink-0 border-b border-white/5",
-          isCollapsed ? "justify-center" : "",
-        )}
+    <>
+      <motion.aside
+        aria-label={`Điều hướng ${roleWorkspaceLabels[role]}`}
+        className="fixed left-0 top-0 z-40 hidden h-dvh flex-col overflow-x-hidden bg-sidebar p-4 text-sidebar-foreground shadow-xl lg:flex"
+        data-testid="command-rail"
+        initial={false}
+        animate={{ width: isCollapsed ? 80 : 280 }}
+        transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
       >
-        <span
-          aria-hidden="true"
-          className="size-12 rounded-xl bg-contain bg-center bg-no-repeat shadow-md ring-1 ring-white/10 shrink-0"
-          style={{ backgroundImage: `url(${gymMasterAssets.brand.mark})` }}
-        />
+        {/* Brand Header */}
+        <div
+          className={cn(
+            "flex shrink-0 items-center gap-3 border-b border-white/5 px-2 pb-6",
+            isCollapsed ? "justify-center" : "",
+          )}
+        >
+          <span
+            aria-hidden="true"
+            className="size-12 shrink-0 rounded-xl bg-contain bg-center bg-no-repeat shadow-md ring-1 ring-white/10"
+            style={{ backgroundImage: `url(${gymMasterAssets.brand.mark})` }}
+          />
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <p className="text-lg font-black tracking-tight text-sidebar-foreground">
+                GymMaster OS
+              </p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/60">
+                Vận hành phòng gym
+              </p>
+            </motion.div>
+          )}
+          {/* Support accessibility audits or queries searching for GymMaster OS in text */}
+          {isCollapsed && <span className="sr-only">GymMaster OS</span>}
+        </div>
+
+        {/* Role Badge Section */}
         {!isCollapsed && (
           <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            className="my-4 shrink-0 px-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
           >
-            <p className="text-lg font-black tracking-tight text-sidebar-foreground">
-              GymMaster OS
-            </p>
-            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-sidebar-foreground/60">
-              Vận hành phòng gym
-            </p>
+            <RoleBadge role={role} />
           </motion.div>
         )}
-        {/* Support accessibility audits or queries searching for GymMaster OS in text */}
-        {isCollapsed && <span className="sr-only">GymMaster OS</span>}
-      </div>
 
-      {/* Role Badge Section */}
-      {!isCollapsed && (
-        <motion.div
-          className="my-4 px-2 shrink-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <RoleBadge role={role} />
-        </motion.div>
-      )}
-
-      {/* Navigation Groups */}
-      <nav
-        className={cn(
-          "flex-1 flex flex-col gap-5 overflow-y-auto overflow-x-hidden pr-1 py-4 w-full",
-          isCollapsed ? "items-center px-0" : "",
-        )}
-      >
-        {navGroups.map((group, idx) => (
-          <div key={idx} className="w-full flex flex-col gap-1 shrink-0">
-            {/* Group Title */}
-            {!isCollapsed && (
-              <p className="px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40 mb-1">
-                {group.title}
-              </p>
-            )}
-            {/* Group Items */}
-            <div className="flex flex-col gap-0.5">
-              {group.items.map((item) => {
-                const active = isActivePath(pathname, item.href);
-                const Icon = item.icon;
-
-                return (
-                  <div key={item.href} className="relative group w-full">
-                    <Link
-                      aria-current={active ? "page" : undefined}
-                      className={cn(
-                        "flex min-h-10 items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98] relative",
-                        isCollapsed
-                          ? "justify-center size-10 mx-auto"
-                          : "gap-3 px-3 w-full",
-                        active
-                          ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
-                          : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground",
-                      )}
-                      href={item.href}
-                    >
-                      <Icon aria-hidden="true" className="size-4 shrink-0" />
-                      {!isCollapsed && <span>{item.label}</span>}
-                    </Link>
-
-                    {/* Premium CSS Absolute Tooltip on Collapse */}
-                    {isCollapsed && (
-                      <div className="absolute left-14 top-1/2 -translate-y-1/2 ml-2 pointer-events-none rounded-md bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap shadow-xl ring-1 ring-white/10 z-50">
-                        {item.label}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </nav>
-
-      {/* Footer controls */}
-      <div className="mt-auto shrink-0 flex flex-col gap-2.5 border-t border-white/5 pt-4">
-        {/* Settings button */}
-        <button
-          onClick={() => setSettingsOpen(true)}
-          type="button"
+        {/* Navigation Groups */}
+        <nav
           className={cn(
-            "flex h-10 items-center rounded-lg text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground transition-all duration-200 active:scale-[0.98] w-full relative group",
-            isCollapsed ? "justify-center size-10 mx-auto px-0" : "gap-3 px-3",
+            "flex w-full flex-1 flex-col gap-5 overflow-y-auto overflow-x-hidden py-4 pr-1",
+            isCollapsed ? "items-center px-0" : "",
           )}
-          title={isCollapsed ? "Cấu hình giao diện" : undefined}
         >
-          <Settings className="size-4 shrink-0" />
-          {!isCollapsed && <span>Cấu hình</span>}
-          {isCollapsed && (
-            <div className="absolute left-14 top-1/2 -translate-y-1/2 ml-2 pointer-events-none rounded-md bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0 whitespace-nowrap shadow-xl ring-1 ring-white/10 z-50">
-              Cấu hình giao diện
-            </div>
-          )}
-        </button>
+          {navGroups.map((group, idx) => (
+            <div key={idx} className="flex w-full shrink-0 flex-col gap-1">
+              {/* Group Title */}
+              {!isCollapsed && (
+                <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40">
+                  {group.title}
+                </p>
+              )}
+              {/* Group Items */}
+              <div className="flex flex-col gap-0.5">
+                {group.items.map((item) => {
+                  const active = isActivePath(pathname, item.href);
+                  const Icon = item.icon;
 
-        <LogoutButton isCollapsed={isCollapsed} />
+                  return (
+                    <div key={item.href} className="group relative w-full">
+                      <Link
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "relative flex min-h-10 items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98]",
+                          isCollapsed
+                            ? "mx-auto size-10 justify-center"
+                            : "w-full gap-3 px-3",
+                          active
+                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
+                            : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground",
+                        )}
+                        href={item.href}
+                      >
+                        <Icon aria-hidden="true" className="size-4 shrink-0" />
+                        {!isCollapsed && <span>{item.label}</span>}
+                      </Link>
 
-        {/* Sidebar Collapse Toggle Trigger */}
-        <button
-          onClick={toggleSidebar}
-          type="button"
-          className="flex h-10 w-full items-center justify-center rounded-lg text-sidebar-foreground/50 hover:bg-white/5 hover:text-sidebar-foreground transition active:scale-95"
-          title={isCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="size-4" />
-          ) : (
-            <div className="flex items-center gap-2 text-xs font-semibold">
-              <ChevronLeft className="size-4" />
-              <span>Thu gọn</span>
+                      {/* Premium CSS Absolute Tooltip on Collapse */}
+                      {isCollapsed && (
+                        <div className="pointer-events-none absolute left-14 top-1/2 z-50 ml-2 -translate-x-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl ring-1 ring-white/10 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+                          {item.label}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          )}
-        </button>
-      </div>
-    </motion.aside>
+          ))}
+        </nav>
+
+        {/* Footer controls */}
+        <div className="mt-auto flex shrink-0 flex-col gap-2.5 border-t border-white/5 pt-4">
+          {/* Settings button */}
+          <button
+            onClick={() => setSettingsOpen(true)}
+            type="button"
+            className={cn(
+              "group relative flex h-10 w-full items-center rounded-lg text-sidebar-foreground/75 transition-all duration-200 hover:bg-white/10 hover:text-sidebar-foreground active:scale-[0.98]",
+              isCollapsed
+                ? "mx-auto size-10 justify-center px-0"
+                : "gap-3 px-3",
+            )}
+            title={isCollapsed ? "Cấu hình giao diện" : undefined}
+          >
+            <Settings className="size-4 shrink-0" />
+            {!isCollapsed && <span>Cấu hình</span>}
+            {isCollapsed && (
+              <div className="pointer-events-none absolute left-14 top-1/2 z-50 ml-2 -translate-x-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl ring-1 ring-white/10 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+                Cấu hình giao diện
+              </div>
+            )}
+          </button>
+
+          <LogoutButton isCollapsed={isCollapsed} />
+
+          {/* Sidebar Collapse Toggle Trigger */}
+          <button
+            onClick={toggleSidebar}
+            type="button"
+            className="flex h-10 w-full items-center justify-center rounded-lg text-sidebar-foreground/50 transition hover:bg-white/5 hover:text-sidebar-foreground active:scale-95"
+            title={isCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
+          >
+            {isCollapsed ? (
+              <ChevronRight className="size-4" />
+            ) : (
+              <div className="flex items-center gap-2 text-xs font-semibold">
+                <ChevronLeft className="size-4" />
+                <span>Thu gọn</span>
+              </div>
+            )}
+          </button>
+        </div>
+      </motion.aside>
+
+      <MobileCommandNav role={role} />
+    </>
   );
 }
 
 export function MobileCommandHeader({ role }: CommandRailProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl lg:hidden">
-      <div>
-        <p className="text-lg font-black tracking-tight text-primary">
-          GymMaster OS
-        </p>
-        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-600">
-          {roleWorkspaceLabels[role]}
-        </p>
+      <div className="flex min-w-0 items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="size-10 shrink-0 rounded-xl bg-contain bg-center bg-no-repeat shadow-sm ring-1 ring-zinc-950/10"
+          style={{ backgroundImage: `url(${gymMasterAssets.brand.mark})` }}
+        />
+        <div className="min-w-0">
+          <p className="truncate text-base font-black tracking-tight text-primary">
+            GymMaster OS
+          </p>
+          <p className="truncate text-xs font-semibold uppercase tracking-[0.08em] text-zinc-600">
+            {roleWorkspaceLabels[role]}
+          </p>
+        </div>
       </div>
       <RoleBadge role={role} />
     </header>
+  );
+}
+
+function MobileCommandNav({ role }: CommandRailProps) {
+  const pathname = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const { setSettingsOpen } = useSidebarStore();
+
+  const { primaryItems, moreItems } = useMemo(
+    () => getMobileNavItems(role),
+    [role],
+  );
+
+  return (
+    <>
+      <nav
+        aria-label={`Điều hướng nhanh ${roleWorkspaceLabels[role]}`}
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/80 bg-white/90 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-16px_40px_rgba(15,23,42,0.10)] backdrop-blur-2xl lg:hidden"
+        data-testid="mobile-command-nav"
+      >
+        <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
+          {primaryItems.map((item) => (
+            <MobileNavItem
+              active={isActivePath(pathname, item.href)}
+              item={item}
+              key={item.href}
+              onClick={() => setMoreOpen(false)}
+            />
+          ))}
+
+          <button
+            aria-expanded={moreOpen}
+            aria-label="Mở thêm điều hướng"
+            className={cn(
+              "flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[10px] font-bold transition active:scale-[0.96]",
+              moreOpen
+                ? "bg-primary/10 text-primary"
+                : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900",
+            )}
+            onClick={() => setMoreOpen((open) => !open)}
+            type="button"
+          >
+            <MoreHorizontal aria-hidden="true" className="size-5" />
+            <span>Thêm</span>
+          </button>
+        </div>
+      </nav>
+
+      {moreOpen ? (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            aria-label="Đóng menu điều hướng"
+            className="absolute inset-0 bg-zinc-950/35 backdrop-blur-[2px]"
+            onClick={() => setMoreOpen(false)}
+            type="button"
+          />
+
+          <motion.div
+            aria-label="Điều hướng mở rộng"
+            className="absolute inset-x-0 bottom-0 overflow-hidden rounded-t-[2rem] border border-zinc-200 bg-white pb-[calc(env(safe-area-inset-bottom)+6rem)] shadow-2xl"
+            data-testid="mobile-command-more-sheet"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-zinc-200" />
+
+            <div className="flex items-center justify-between gap-4 border-b border-zinc-100 px-5 py-4">
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                  {roleWorkspaceLabels[role]}
+                </p>
+                <h2 className="mt-1 text-xl font-black tracking-tight text-zinc-950">
+                  Điều hướng mở rộng
+                </h2>
+              </div>
+              <button
+                aria-label="Đóng menu"
+                className="flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-600 transition hover:bg-zinc-50 active:scale-95"
+                onClick={() => setMoreOpen(false)}
+                type="button"
+              >
+                <X aria-hidden="true" className="size-4" />
+              </button>
+            </div>
+
+            <div className="max-h-[62dvh] overflow-y-auto px-5 py-4">
+              <div className="grid gap-3">
+                {moreItems.map((item) => (
+                  <MobileMoreItem
+                    active={isActivePath(pathname, item.href)}
+                    item={item}
+                    key={item.href}
+                    onClick={() => setMoreOpen(false)}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 p-2">
+                <button
+                  className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-zinc-800 transition hover:bg-white active:scale-[0.98]"
+                  onClick={() => {
+                    setSettingsOpen(true);
+                    setMoreOpen(false);
+                  }}
+                  type="button"
+                >
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-white text-primary shadow-sm">
+                    <Settings aria-hidden="true" className="size-4" />
+                  </span>
+                  Cấu hình giao diện
+                </button>
+                <div className="mt-1 rounded-xl px-1">
+                  <LogoutButton isCollapsed={false} />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function MobileNavItem({
+  active,
+  item,
+  onClick,
+}: {
+  active: boolean;
+  item: CommandRailItem;
+  onClick: () => void;
+}) {
+  const Icon = item.icon;
+
+  return (
+    <Link
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[10px] font-bold transition active:scale-[0.96]",
+        active
+          ? "bg-primary/10 text-primary"
+          : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900",
+      )}
+      href={item.href}
+      onClick={onClick}
+    >
+      <Icon aria-hidden="true" className="size-5" />
+      <span className="max-w-full truncate">{item.label}</span>
+    </Link>
+  );
+}
+
+function MobileMoreItem({
+  active,
+  item,
+  onClick,
+}: {
+  active: boolean;
+  item: CommandRailItem;
+  onClick: () => void;
+}) {
+  const Icon = item.icon;
+
+  return (
+    <Link
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "flex min-h-14 items-center gap-3 rounded-2xl border px-3 text-sm font-semibold transition active:scale-[0.98]",
+        active
+          ? "border-primary/20 bg-primary/10 text-primary"
+          : "border-zinc-200 bg-white text-zinc-800 hover:border-primary/30 hover:bg-primary/5",
+      )}
+      href={item.href}
+      onClick={onClick}
+    >
+      <span
+        className={cn(
+          "flex size-10 shrink-0 items-center justify-center rounded-xl",
+          active ? "bg-primary text-white" : "bg-zinc-100 text-zinc-600",
+        )}
+      >
+        <Icon aria-hidden="true" className="size-4" />
+      </span>
+      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+      <ChevronRight aria-hidden="true" className="size-4 text-zinc-400" />
+    </Link>
   );
 }
