@@ -283,7 +283,7 @@ export function CalorieSummaryWorkspace() {
 
           {/* Next Actions */}
           <aside className="border-t border-border bg-background/50 p-5 xl:border-l xl:border-t-0">
-            <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-sm h-full">
               <div className="flex items-center gap-3">
                 <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <CalendarCheck2 aria-hidden="true" className="size-4" />
@@ -299,10 +299,19 @@ export function CalorieSummaryWorkspace() {
               </div>
 
               <div className="mt-4 divide-y divide-border">
-                <NextAction label="Thêm bữa sáng" href="/member/nutrition/meal-journal#add-meal" />
-                <NextAction label="Thêm bữa trưa" href="/member/nutrition/meal-journal#add-meal" />
-                <NextAction label="Thêm bữa tối" href="/member/nutrition/meal-journal#add-meal" />
-                <NextAction label="Xem tổng kết" href="/member/nutrition/summary" />
+                <NextAction
+                  label="Thêm bữa sáng"
+                  href="/member/nutrition/meal-journal#add-meal"
+                />
+                <NextAction
+                  label="Thêm bữa trưa"
+                  href="/member/nutrition/meal-journal#add-meal"
+                />
+                <NextAction
+                  label="Thêm bữa tối"
+                  href="/member/nutrition/meal-journal#add-meal"
+                />
+                {/* <NextAction label="Xem tổng kết" href="/member/nutrition/summary" /> */}
               </div>
 
               <div className="mt-4 rounded-2xl bg-primary/5 p-4">

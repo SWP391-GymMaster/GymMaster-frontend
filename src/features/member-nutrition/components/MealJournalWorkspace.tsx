@@ -35,9 +35,33 @@ export function MealJournalWorkspace() {
     return () => clearTimeout(timer)
   }, [summary.data?.target])
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const checkHash = () => {
+      if (window.location.hash === "#add-meal") {
+        setActiveView("add");
+      } else {
+        setActiveView("list");
+      }
+    };
+
+    checkHash();
+
+    window.addEventListener("hashchange", checkHash);
+    return () => window.removeEventListener("hashchange", checkHash);
+  }, []);
+
   function handleTargetApplied(newTarget: number) {
     setCalorieTarget(newTarget)
     summary.refetch()
+  }
+
+  function handleBackToList() {
+    if (typeof window !== "undefined" && window.location.hash === "#add-meal") {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+    setActiveView("list");
   }
 
   return (
@@ -129,7 +153,7 @@ export function MealJournalWorkspace() {
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <Button
-                onClick={() => setActiveView("list")}
+                onClick={handleBackToList}
                 variant="outline"
                 className="rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
               >
@@ -139,7 +163,7 @@ export function MealJournalWorkspace() {
                 Ghi bữa ăn mới
               </h2>
             </div>
-            <MealLogForm date={today} onSuccess={() => setActiveView("list")} />
+            <MealLogForm date={today} onSuccess={handleBackToList} />
           </div>
         </div>
       )}
