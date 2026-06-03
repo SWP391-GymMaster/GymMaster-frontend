@@ -18,6 +18,7 @@ async function submitLogin(
 async function loginAsPT(page: Page) {
   await openLogin(page)
   await submitLogin(page, "pt@gymmaster.local")
+  await expect(page).toHaveURL(/\/pt\/dashboard$/, { timeout: 15_000 })
 }
 
 test.describe("PT Dashboard Flow", () => {
@@ -49,18 +50,23 @@ test.describe("PT Dashboard Flow", () => {
     )
 
     await expect(page.getByText("Trình tạo giáo án").first()).toBeVisible()
+
+    // Click step 2 'Bài tập' to fill the inputs
+    await page.getByRole("button").filter({ hasText: "Tùy chỉnh chi tiết" }).click()
+
     await page.getByLabel("Tên giáo án").fill("Deadline Strength Block")
-    await page.getByLabel("Tên bài tập").fill("Deadlift")
-    await page.getByLabel("Số hiệp").fill("5")
-    await page.getByLabel("Reps").fill("5")
-    await page
-      .getByLabel("Ghi chú bài tập")
-      .fill("Stop one rep before form breaks.")
+    await page.getByPlaceholder("Tên bài tập custom").fill("Deadlift")
+    await page.getByLabel("Sets").fill("5")
+    await page.getByLabel("Reps / Time").fill("5")
+    await page.getByLabel("Cue / note").fill("Stop one rep before form breaks.")
+
+    // Click step 3 'Lưu' to see the submit button
+    await page.getByRole("button").filter({ hasText: "Kiểm tra lần cuối" }).click()
     await page.getByTestId("workout-plan-submit-button").click()
 
     await expect(page.getByText("Đã lưu giáo án")).toBeVisible()
     await expect(page.getByText("Deadline Strength Block")).toBeVisible()
-    await expect(page.getByText("Deadlift")).toBeVisible()
+    await expect(page.getByText("Deadlift").first()).toBeVisible()
   })
 
   test("PT adds trainer note for assigned member", async ({ page }) => {
@@ -90,7 +96,7 @@ test.describe("PT Dashboard Flow", () => {
     await page.waitForFunction(
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
-    await expect(page.getByText("Chế độ xem hội viên").first()).toBeVisible()
+    await expect(page.getByText("Giáo án của tôi").first()).toBeVisible()
     await expect(page.getByText("Foundation Strength")).toBeVisible()
     await expect(page.getByTestId("workout-plan-submit-button")).toHaveCount(0)
 
@@ -98,7 +104,7 @@ test.describe("PT Dashboard Flow", () => {
     await page.waitForFunction(
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
-    await expect(page.getByText("Chế độ xem hội viên").first()).toBeVisible()
+    await expect(page.getByText("Ghi chú PT").first()).toBeVisible()
     await expect(
       page.getByText("Keep shoulder warm-up before pressing.").first(),
     ).toBeVisible()

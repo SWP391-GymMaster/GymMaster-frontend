@@ -72,8 +72,11 @@ function initials(name: string) {
 }
 
 function roleLabel(role: ManagedUser["role"]) {
-  if (role === "pt") return "Trainer"
-  return role.charAt(0).toUpperCase() + role.slice(1)
+  if (role === "pt") return "Huấn luyện viên"
+  if (role === "staff") return "Lễ tân"
+  if (role === "member") return "Hội viên"
+  if (role === "admin") return "Quản trị viên"
+  return role
 }
 
 function toStatus(status: ManagedUser["status"]) {
@@ -495,7 +498,7 @@ function UserSecurityPanel({
         userId: user.userId,
         input: { status: user.status === "locked" ? "active" : "locked" },
       })
-      toast.success(user.status === "locked" ? "User unlocked" : "User locked")
+      toast.success(user.status === "locked" ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -505,7 +508,7 @@ function UserSecurityPanel({
     try {
       const result = await resetPassword.mutateAsync(user.userId)
       onTemporaryPassword(result.temporaryPassword)
-      toast.success("Temporary password generated")
+      toast.success("Đã tạo mật khẩu tạm thời")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -515,7 +518,7 @@ function UserSecurityPanel({
     try {
       await deleteUser.mutateAsync(user.userId)
       onTemporaryPassword(null)
-      toast.success("User deactivated")
+      toast.success("Đã vô hiệu hóa tài khoản")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -541,7 +544,7 @@ function UserSecurityPanel({
 
         {temporaryPassword ? (
           <p className="mt-5 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs font-semibold text-foreground">
-            Temporary password: {temporaryPassword}
+            Mật khẩu tạm thời: {temporaryPassword}
           </p>
         ) : null}
       </section>
@@ -741,7 +744,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
           role: user.role === "admin" ? undefined : values.role,
         },
       })
-      toast.success("User profile updated")
+      toast.success("Đã cập nhật thông tin người dùng")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -753,7 +756,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
         userId: user.userId,
         input: { status: user.status === "locked" ? "active" : "locked" },
       })
-      toast.success(user.status === "locked" ? "User unlocked" : "User locked")
+      toast.success(user.status === "locked" ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }

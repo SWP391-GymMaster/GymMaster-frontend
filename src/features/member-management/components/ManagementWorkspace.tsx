@@ -87,32 +87,32 @@ const labelClass =
 
 const modeConfig = {
   members: {
-    title: "Member Directory",
-    description: "Create, search, update, and soft-delete member profiles.",
-    createTitle: "Add Member",
+    title: "Danh mục hội viên",
+    description: "Tạo, tìm kiếm, cập nhật và xóa mềm hồ sơ hội viên.",
+    createTitle: "Thêm hội viên",
     icon: UserRound,
-    queryPlaceholder: "Search name, email, phone, or member code",
+    queryPlaceholder: "Tìm theo tên, email, số điện thoại hoặc mã hội viên...",
   },
   users: {
-    title: "User & Role Management",
-    description: "Create role-bound user accounts and temporary passwords.",
-    createTitle: "Create User",
+    title: "Quản lý người dùng & vai trò",
+    description: "Tạo tài khoản người dùng gắn vai trò và mật khẩu tạm thời.",
+    createTitle: "Tạo tài khoản",
     icon: ShieldCheck,
-    queryPlaceholder: "Search users by name, email, phone, or role",
+    queryPlaceholder: "Tìm người dùng theo tên, email, SĐT hoặc vai trò...",
   },
   staff: {
-    title: "Staff Management",
-    description: "Create and review front desk staff accounts.",
-    createTitle: "Create Staff",
+    title: "Quản lý nhân sự",
+    description: "Tạo và đánh giá tài khoản nhân viên lễ tân.",
+    createTitle: "Thêm nhân sự",
     icon: Badge,
-    queryPlaceholder: "Search staff by name, email, or phone",
+    queryPlaceholder: "Tìm nhân sự theo tên, email hoặc số điện thoại...",
   },
   trainers: {
-    title: "PT Management",
-    description: "Create trainer profiles and review coaching specialties.",
-    createTitle: "Create PT",
+    title: "Quản lý PT",
+    description: "Tạo hồ sơ huấn luyện viên và đánh giá chuyên môn giảng dạy.",
+    createTitle: "Thêm PT",
     icon: Dumbbell,
-    queryPlaceholder: "Search trainers by name or specialty",
+    queryPlaceholder: "Tìm huấn luyện viên theo tên hoặc chuyên môn...",
   },
 } as const
 
@@ -367,7 +367,7 @@ function MemberDirectoryTemplate({
         <DirectoryMetricCard
           helper="Đang hoạt động"
           icon={BadgeCheck}
-          label="Active"
+          label="Hoạt động"
           tone="success"
           value={String(activeMembers)}
         />
@@ -381,7 +381,7 @@ function MemberDirectoryTemplate({
         <DirectoryMetricCard
           helper="Chờ hoàn tất"
           icon={UserRound}
-          label="Pending"
+          label="Chờ kích hoạt"
           tone="purple"
           value={String(pendingMembers)}
         />
@@ -392,7 +392,7 @@ function MemberDirectoryTemplate({
           <div className="flex items-start justify-between gap-4 border-b border-border p-5">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-                Member CRM
+                CRM Hội viên
               </p>
               <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
                 Danh sách hội viên
@@ -413,22 +413,22 @@ function MemberDirectoryTemplate({
           <div className="p-5">
             {isLoading ? (
               <StateBlock
-                description="Loading records from the MSW/backend member contract."
-                title="Loading member directory..."
+                description="Đang tải dữ liệu từ hệ thống..."
+                title="Đang tải danh sách hội viên..."
                 tone="loading"
               />
             ) : null}
             {error ? (
               <StateBlock
-                description="Try again or verify your role permission."
+                description="Vui lòng thử lại hoặc kiểm tra quyền của tài khoản."
                 title={error.message}
                 tone="error"
               />
             ) : null}
             {!isLoading && !error && members.length === 0 ? (
               <StateBlock
-                description="Create a record or adjust the search query."
-                title="No members found."
+                description="Tạo hồ sơ mới hoặc điều chỉnh bộ lọc tìm kiếm."
+                title="Không tìm thấy hội viên."
                 tone="empty"
               />
             ) : null}
@@ -475,7 +475,7 @@ function MemberTable({
         memberId: member.id,
         input: { status: "expired" },
       })
-      toast.success("Member status updated")
+      toast.success("Đã cập nhật trạng thái hội viên")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -484,7 +484,7 @@ function MemberTable({
   async function removeMember(member: ManagedMember) {
     try {
       await deleteMember.mutateAsync(member.id)
-      toast.success("Member soft-deleted")
+      toast.success("Đã xóa mềm hội viên")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -561,7 +561,7 @@ function MemberTable({
                             variant="outline"
                           >
                             <Link href={`${detailBasePath}/${member.id}`}>
-                              Open
+                              Xem
                             </Link>
                           </Button>
                         ) : null}
@@ -575,7 +575,7 @@ function MemberTable({
                           type="button"
                           variant="outline"
                         >
-                          Mark expired
+                          Đánh dấu hết hạn
                         </Button>
                         {canDelete ? (
                           <Button
@@ -589,7 +589,7 @@ function MemberTable({
                             variant="destructive"
                           >
                             <Trash2 aria-hidden="true" className="size-4" />
-                            Delete
+                            Xóa
                           </Button>
                         ) : null}
                       </div>
@@ -633,8 +633,8 @@ function MemberPreviewPanel({
     return (
       <section className={cn(surfaceClass, "p-6")}>
         <StateBlock
-          description="Create a record or select a member from the directory."
-          title="No member selected"
+          description="Tạo hồ sơ mới hoặc chọn một hội viên từ danh sách."
+          title="Chưa chọn hội viên"
           tone="empty"
         />
       </section>
@@ -646,7 +646,7 @@ function MemberPreviewPanel({
       <div className="flex items-start justify-between gap-3 border-b border-border p-5">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-            Member 360°
+            Hồ sơ Hội viên 360°
           </p>
           <h3 className="mt-1 text-xl font-semibold text-foreground">
             Thông tin hội viên
@@ -793,14 +793,14 @@ function StaffDirectoryTemplate({
         <DirectoryMetricCard
           helper="Sẵn sàng vận hành"
           icon={UserCheck}
-          label="Active"
+          label="Hoạt động"
           tone="success"
           value={String(activeStaff)}
         />
         <DirectoryMetricCard
           helper="Tài khoản bị khóa"
           icon={ShieldCheck}
-          label="Locked"
+          label="Đã khóa"
           tone="warning"
           value={String(lockedStaff)}
         />
@@ -817,7 +817,7 @@ function StaffDirectoryTemplate({
         <section className={cn(surfaceClass, "overflow-hidden")}>
           <div className="border-b border-border p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-              Front Desk Team
+              Đội ngũ Lễ tân
             </p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
               Quản lý nhân sự
@@ -836,11 +836,11 @@ function StaffDirectoryTemplate({
 
           <div className="space-y-2 p-3">
             <ManagementStateBlock
-              emptyTitle="No staff found."
+              emptyTitle="Không tìm thấy nhân sự."
               error={error}
               isLoading={isLoading}
               itemCount={users.length}
-              loadingTitle="Loading staff roster..."
+              loadingTitle="Đang tải danh sách nhân sự..."
             />
             {users.map((user) => {
               const active = selectedStaff?.userId === user.userId
@@ -865,11 +865,11 @@ function StaffDirectoryTemplate({
                       {user.fullName}
                     </span>
                     <span className="block truncate text-xs text-muted-foreground">
-                      Front Desk Staff
+                      Nhân viên Lễ tân
                     </span>
                     {user.initialPassword ? (
                       <span className="mt-1 block truncate font-mono text-[11px] font-semibold text-primary">
-                        Initial password: {user.initialPassword}
+                        Mật khẩu tạm thời: {user.initialPassword}
                       </span>
                     ) : null}
                   </span>
@@ -900,8 +900,8 @@ function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
     return (
       <section className={cn(surfaceClass, "p-6")}>
         <StateBlock
-          description="Create a staff account or adjust your search."
-          title="No staff selected"
+          description="Tạo tài khoản nhân sự hoặc điều chỉnh bộ lọc tìm kiếm."
+          title="Chưa chọn nhân sự"
           tone="empty"
         />
       </section>
@@ -1046,14 +1046,14 @@ function TrainerRosterTemplate({
         <DirectoryMetricCard
           helper="Sẵn sàng nhận lịch"
           icon={BadgeCheck}
-          label="Active"
+          label="Hoạt động"
           tone="success"
           value={String(activeTrainers)}
         />
         <DirectoryMetricCard
           helper="Tài khoản bị khóa"
           icon={ShieldCheck}
-          label="Locked"
+          label="Đã khóa"
           tone="warning"
           value={String(lockedTrainers)}
         />
@@ -1069,7 +1069,7 @@ function TrainerRosterTemplate({
         <section className={cn(surfaceClass, "overflow-hidden")}>
           <div className="border-b border-border p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-              Coach Roster
+              Danh sách PT
             </p>
             <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
               Quản lý huấn luyện viên
@@ -1088,11 +1088,11 @@ function TrainerRosterTemplate({
 
           <div className="space-y-2 p-3">
             <ManagementStateBlock
-              emptyTitle="No trainers found."
+              emptyTitle="Không tìm thấy huấn luyện viên."
               error={error}
               isLoading={isLoading}
               itemCount={trainers.length}
-              loadingTitle="Loading trainer roster..."
+              loadingTitle="Đang tải danh sách huấn luyện viên..."
             />
             {trainers.map((trainer, index) => {
               const active = selectedTrainer?.id === trainer.id
@@ -1163,8 +1163,8 @@ function TrainerProfilePanel({
     return (
       <section className={cn(surfaceClass, "p-6")}>
         <StateBlock
-          description="Create a trainer profile or adjust your search."
-          title="No trainer selected"
+          description="Tạo hồ sơ PT hoặc điều chỉnh bộ lọc tìm kiếm."
+          title="Chưa chọn PT"
           tone="empty"
         />
       </section>
@@ -1372,22 +1372,22 @@ function UserRoleDirectoryTemplate({
         <DirectoryMetricCard
           helper="Tất cả tài khoản"
           icon={UsersRound}
-          label="Records"
+          label="Bản ghi"
           value={String(total)}
         />
         <DirectoryMetricCard
           helper="/api/v1/users"
           icon={ShieldCheck}
-          label="Contract"
+          label="Hợp đồng"
           tone="purple"
-          value="Users"
+          value="Người dùng"
         />
         <DirectoryMetricCard
           helper="Backend spec 002"
           icon={BadgeCheck}
-          label="Source"
+          label="Nguồn"
           tone="success"
-          value="Ready"
+          value="Sẵn sàng"
         />
       </div>
 
@@ -1395,16 +1395,16 @@ function UserRoleDirectoryTemplate({
         <SearchToolbar
           action={<CreateUserDialog label="Tạo tài khoản" title="Tạo tài khoản hệ thống" />}
           onSearch={setQuery}
-          placeholder="Search users by name, email, phone, or role"
+          placeholder="Tìm người dùng theo tên, email, số điện thoại hoặc vai trò..."
           value={query}
         />
         <div className="p-5">
           <ManagementStateBlock
-            emptyTitle="No records found."
+            emptyTitle="Không tìm thấy tài khoản."
             error={error}
             isLoading={isLoading}
             itemCount={users.length}
-            loadingTitle="Loading management records..."
+            loadingTitle="Đang tải danh sách quản trị..."
           />
           {users.length > 0 ? <UserList users={users} /> : null}
         </div>
@@ -1441,7 +1441,7 @@ function UserList({ users }: { users: ManagedUser[] }) {
           </div>
           {user.initialPassword ? (
             <p className="mt-3 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs text-foreground">
-              Initial password: {user.initialPassword}
+              Mật khẩu tạm thời: {user.initialPassword}
             </p>
           ) : null}
         </article>
@@ -1466,7 +1466,7 @@ function ManagementStateBlock({
   if (isLoading) {
     return (
       <StateBlock
-        description="Loading records from the MSW/backend management contract."
+        description="Đang tải dữ liệu từ hệ thống..."
         title={loadingTitle}
         tone="loading"
       />
@@ -1476,7 +1476,7 @@ function ManagementStateBlock({
   if (error) {
     return (
       <StateBlock
-        description="Try again or verify your role permission."
+        description="Vui lòng thử lại hoặc kiểm tra quyền của tài khoản."
         title={error.message}
         tone="error"
       />
@@ -1486,7 +1486,7 @@ function ManagementStateBlock({
   if (itemCount === 0) {
     return (
       <StateBlock
-        description="Create a record or adjust the search query."
+        description="Tạo hồ sơ mới hoặc điều chỉnh bộ lọc tìm kiếm."
         title={emptyTitle}
         tone="empty"
       />
@@ -1606,7 +1606,7 @@ function CreateMemberPanel({ onCreated }: { onCreated?: () => void }) {
     try {
       await createMember.mutateAsync(values)
       reset()
-      toast.success("Member profile created")
+      toast.success("Đã tạo hồ sơ hội viên")
       onCreated?.()
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
@@ -1615,21 +1615,21 @@ function CreateMemberPanel({ onCreated }: { onCreated?: () => void }) {
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <Field error={errors.fullName?.message} label="Full name">
+      <Field error={errors.fullName?.message} label="Họ và tên">
         <input className={inputClass} data-testid="member-create-name" {...register("fullName")} />
       </Field>
       <Field error={errors.email?.message} label="Email">
         <input className={inputClass} data-testid="member-create-email" type="email" {...register("email")} />
       </Field>
-      <Field error={errors.phone?.message} label="Phone">
+      <Field error={errors.phone?.message} label="Số điện thoại">
         <input className={inputClass} data-testid="member-create-phone" {...register("phone")} />
       </Field>
-      <Field label="Address">
+      <Field label="Địa chỉ">
         <input className={inputClass} {...register("address")} />
       </Field>
       <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="member-create-submit" disabled={isSubmitting || createMember.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
-        Create member
+        Tạo hội viên
       </Button>
     </form>
   )
@@ -1668,7 +1668,7 @@ function CreateUserPanel({
         phone: values.phone || undefined,
       })
       reset({ email: "", fullName: "", password: "", phone: "", role: fixedRole ?? "staff" })
-      toast.success("User account created")
+      toast.success("Đã tạo tài khoản người dùng")
       onCreated?.()
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
@@ -1677,30 +1677,30 @@ function CreateUserPanel({
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <Field error={errors.fullName?.message} label="Full name">
+      <Field error={errors.fullName?.message} label="Họ và tên">
         <input className={inputClass} data-testid="user-create-name" {...register("fullName")} />
       </Field>
       <Field error={errors.email?.message} label="Email">
         <input className={inputClass} data-testid="user-create-email" type="email" {...register("email")} />
       </Field>
-      <Field label="Phone">
+      <Field label="Số điện thoại">
         <input className={inputClass} data-testid="user-create-phone" {...register("phone")} />
       </Field>
       {!fixedRole ? (
-        <Field error={errors.role?.message} label="Role">
+        <Field error={errors.role?.message} label="Vai trò">
           <select className={inputClass} data-testid="user-create-role" {...register("role")}>
-            <option value="staff">Staff</option>
+            <option value="staff">Lễ tân</option>
             <option value="pt">PT</option>
-            <option value="member">Member</option>
+            <option value="member">Hội viên</option>
           </select>
         </Field>
       ) : null}
-      <Field error={errors.password?.message} label="Password">
-        <input className={inputClass} data-testid="user-create-password" placeholder="Leave blank for temporary password" type="password" {...register("password")} />
+      <Field error={errors.password?.message} label="Mật khẩu">
+        <input className={inputClass} data-testid="user-create-password" placeholder="Để trống để sử dụng mật khẩu tạm thời" type="password" {...register("password")} />
       </Field>
       <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="user-create-submit" disabled={isSubmitting || createUser.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
-        Create account
+        Tạo tài khoản
       </Button>
     </form>
   )
@@ -1729,7 +1729,7 @@ function CreateTrainerPanel({ onCreated }: { onCreated?: () => void }) {
         userId: values.userId ? Number(values.userId) : undefined,
       })
       reset()
-      toast.success("Trainer profile created")
+      toast.success("Đã tạo hồ sơ PT")
       onCreated?.()
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
@@ -1738,18 +1738,18 @@ function CreateTrainerPanel({ onCreated }: { onCreated?: () => void }) {
 
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <Field error={errors.fullName?.message} label="Full name">
+      <Field error={errors.fullName?.message} label="Họ và tên">
         <input className={inputClass} data-testid="trainer-create-name" {...register("fullName")} />
       </Field>
-      <Field error={errors.specialty?.message} label="Specialty">
+      <Field error={errors.specialty?.message} label="Chuyên môn">
         <input className={inputClass} data-testid="trainer-create-specialty" {...register("specialty")} />
       </Field>
-      <Field label="Linked user ID">
+      <Field label="ID người dùng liên kết">
         <input className={inputClass} type="number" {...register("userId")} />
       </Field>
       <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="trainer-create-submit" disabled={isSubmitting || createTrainer.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
-        Create PT profile
+        Tạo hồ sơ PT
       </Button>
     </form>
   )

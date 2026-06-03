@@ -20,9 +20,10 @@ async function loginAsStaff(page: Page) {
 test("Staff dashboard shows route-aware shell metrics", async ({ page }) => {
   await loginAsStaff(page)
 
-  await expect(page.getByText("Vận hành hôm nay")).toBeVisible()
-  await expect(page.getByText("Sẵn sàng")).toBeVisible()
-  await expect(page.getByText("Trung tâm lễ tân", { exact: true })).toBeVisible()
+  await expect(page.getByText("Chào buổi sáng, Staff").first()).toBeVisible()
+  await expect(page.getByText("Check-in hôm nay").first()).toBeVisible()
+  await expect(page.getByText("Gia hạn sắp đến").first()).toBeVisible()
+  await expect(page.getByText("Trung tâm lễ tân", { exact: false })).toBeVisible()
   await expect(page.getByText("Skeleton only")).toHaveCount(0)
 })
 
@@ -30,17 +31,17 @@ test("Staff searches and opens member detail", async ({ page }) => {
   await loginAsStaff(page)
 
   await page.goto("/staff/members")
-  await page.getByTestId("staff-member-search-input").fill("0900000101")
-  await expect(page.getByText("Nguyen Minh Anh")).toBeVisible()
+  await page.getByTestId("management-search-input").fill("0900000101")
+  await expect(page.getByText("Nguyen Minh Anh").first()).toBeVisible()
 
   await page
     .getByTestId("staff-member-result")
     .first()
-    .getByRole("link", { name: "Open" })
+    .getByRole("link", { name: "Xem" })
     .click()
   await expect(page).toHaveURL(/\/staff\/members\/101$/, { timeout: 15_000 })
   await expect(page.getByRole("heading", { name: "Chi tiết hội viên" })).toBeVisible()
-  await expect(page.getByText("Premium 30")).toBeVisible()
+  await expect(page.getByText("Premium 30").first()).toBeVisible()
 })
 
 test("Staff creates package sale and records payment", async ({ page }) => {
@@ -91,7 +92,7 @@ test("Staff confirms active member check-in", async ({ page }) => {
   await page.goto("/staff/check-in")
   await page.getByTestId("staff-checkin-search").fill("GM-101")
   await page.getByRole("button", { name: "Tìm" }).click()
-  await page.getByText("Nguyen Minh Anh").click()
+  await page.locator("section").filter({ hasText: "Kết quả tra cứu" }).getByText("Nguyen Minh Anh").click()
   await page.getByTestId("staff-checkin-confirm").click()
 
   await expect(page.getByTestId("staff-checkin-result")).toContainText(
@@ -105,7 +106,7 @@ test("Staff sees safe check-in denial for inactive member", async ({ page }) => 
   await page.goto("/staff/check-in")
   await page.getByTestId("staff-checkin-search").fill("GM-103")
   await page.getByRole("button", { name: "Tìm" }).click()
-  await page.getByText("Le Hoang My").click()
+  await page.locator("section").filter({ hasText: "Kết quả tra cứu" }).getByText("Le Hoang My").click()
   await page.getByTestId("staff-checkin-confirm").click()
 
   await expect(page.getByTestId("staff-checkin-result")).toContainText(

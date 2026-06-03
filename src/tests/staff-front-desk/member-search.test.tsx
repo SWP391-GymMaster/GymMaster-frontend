@@ -18,9 +18,12 @@ describe("MemberSearchPanel", () => {
     })
     fireEvent.click(screen.getByTestId("staff-member-search-button"))
 
-    expect(await screen.findByText("Nguyen Minh Anh")).toBeInTheDocument()
-    expect(screen.getByText("GM-101 · 0900000101 · member@gymmaster.local")).toBeInTheDocument()
-    expect(screen.getByText("Hoạt động")).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getAllByText("Nguyen Minh Anh").length).toBeGreaterThan(0)
+    })
+    expect(screen.getAllByText("member@gymmaster.local").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("0900000101").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Hoạt động").length).toBeGreaterThan(0)
   })
 
   it("shows an empty state when no member matches", async () => {

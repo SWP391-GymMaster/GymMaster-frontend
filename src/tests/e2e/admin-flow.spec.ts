@@ -18,6 +18,7 @@ async function submitLogin(
 async function loginAsAdmin(page: Page) {
   await openLogin(page)
   await submitLogin(page, "admin@gymmaster.local")
+  await expect(page).toHaveURL(/\/admin\/dashboard$/, { timeout: 15_000 })
 }
 
 test.describe("Admin Dashboard Flow", () => {
@@ -28,12 +29,12 @@ test.describe("Admin Dashboard Flow", () => {
     await expect(page).toHaveURL(/\/admin\/dashboard/)
     await expect(page.getByText("Bảng điều khiển Admin").first()).toBeVisible()
 
-    await expect(page.getByText("Gói active")).toBeVisible()
-    await expect(page.getByText("Gói hết hạn")).toBeVisible()
-    await expect(page.getByText("Check-in hôm nay")).toBeVisible()
-    await expect(page.getByText("Doanh thu").first()).toBeVisible()
+    await expect(page.getByText("HỘI VIÊN HOẠT ĐỘNG").first()).toBeVisible()
+    await expect(page.getByText("THANH TOÁN CHỜ XỬ LÝ").first()).toBeVisible()
+    await expect(page.getByText("CHECK-IN HÔM NAY").first()).toBeVisible()
+    await expect(page.getByText("DOANH THU THÁNG").first()).toBeVisible()
     await expect(
-      page.getByText("Doanh thu và hoạt động check-in").first(),
+      page.getByText("Tăng trưởng doanh thu").first(),
     ).toBeVisible()
   })
 
@@ -83,7 +84,7 @@ test.describe("Admin Dashboard Flow", () => {
     await loginAsAdmin(page)
     await expect(page).toHaveURL(/\/admin\/dashboard/)
 
-    await page.getByText("Duyệt hội viên").click()
+    await page.getByText("Hội viên mới").click()
     await expect(page).toHaveURL(/\/admin\/members/)
   })
 
@@ -96,6 +97,8 @@ test.describe("Admin Dashboard Flow", () => {
     )
     await expect(page.getByText("Quản lý lễ tân").first()).toBeVisible()
 
+    await page.getByRole("button", { name: "Thêm nhân sự" }).click()
+
     await page.getByTestId("user-create-name").fill("Deadline Staff")
     await page
       .getByTestId("user-create-email")
@@ -104,7 +107,7 @@ test.describe("Admin Dashboard Flow", () => {
     await page.getByTestId("user-create-submit").click()
 
     await expect(page.getByText("Deadline Staff")).toBeVisible()
-    await expect(page.getByText(/Initial password:/)).toBeVisible()
+    await expect(page.getByText(/Mật khẩu tạm thời:/)).toBeVisible()
   })
 
   test("Admin manages full user lifecycle from template workspace", async ({
@@ -117,8 +120,9 @@ test.describe("Admin Dashboard Flow", () => {
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
 
-    await expect(page.getByRole("heading", { name: "Directory" })).toBeVisible()
-    await expect(page.getByRole("heading", { name: "Role Editor" })).toBeVisible()
+    await expect(page.getByText("Tài khoản hệ thống").first()).toBeVisible()
+
+    await page.getByRole("button", { name: "Thêm người dùng" }).click()
 
     const unique = Date.now()
     await page.getByTestId("user-create-name").fill("Template Staff E2E")
@@ -128,6 +132,9 @@ test.describe("Admin Dashboard Flow", () => {
     await page.getByTestId("user-create-phone").fill("0900000555")
     await page.getByTestId("user-create-submit").click()
 
+    // Wait for creation toast to ensure mutation completed and query invalidation triggered
+    await expect(page.getByText(/User created:/)).toBeVisible()
+
     await page
       .getByTestId("admin-user-directory-item")
       .filter({ hasText: "Template Staff E2E" })
@@ -135,19 +142,22 @@ test.describe("Admin Dashboard Flow", () => {
     await page.getByTestId("user-edit-name").fill("Template Staff Lead E2E")
     await page.getByTestId("user-edit-submit").click()
 
-    await expect(page.getByText("User profile updated")).toBeVisible()
+    await expect(page.getByText("Đã cập nhật thông tin người dùng")).toBeVisible()
     await expect(page.getByText("Template Staff Lead E2E").first()).toBeVisible()
 
     await page.getByTestId("user-toggle-lock-button").click()
-    await expect(page.getByText("User locked")).toBeVisible()
-    await expect(page.getByText("Locked").first()).toBeVisible()
+    await expect(page.getByText("Đã khóa tài khoản")).toBeVisible()
+    await expect(page.getByText("Đã khóa").first()).toBeVisible()
+
+    // Select the security (Bảo mật) tab to expose reset password and delete buttons
+    await page.getByRole("tab", { name: "Bảo mật" }).click()
 
     await page.getByTestId("user-reset-password-button").click()
-    await expect(page.getByText("Temporary password generated")).toBeVisible()
-    await expect(page.getByText(/Temporary password:/)).toBeVisible()
+    await expect(page.getByText("Đã tạo mật khẩu tạm thời")).toBeVisible()
+    await expect(page.getByText(/Mật khẩu tạm thời:/)).toBeVisible()
 
     await page.getByTestId("user-delete-button").click()
-    await expect(page.getByText("User deactivated")).toBeVisible()
+    await expect(page.getByText("Đã vô hiệu hóa tài khoản")).toBeVisible()
     await expect(page.getByText("Template Staff Lead E2E")).toHaveCount(0)
   })
 
@@ -183,6 +193,8 @@ test.describe("Admin Dashboard Flow", () => {
     )
     await expect(page.getByText("Quản lý hội viên").first()).toBeVisible()
 
+    await page.getByRole("button", { name: "Thêm hội viên" }).click()
+
     await page.getByTestId("member-create-name").fill("Deadline Member E2E")
     await page
       .getByTestId("member-create-email")
@@ -194,7 +206,7 @@ test.describe("Admin Dashboard Flow", () => {
     await page
       .locator("tr")
       .filter({ hasText: "Deadline Member E2E" })
-      .getByRole("button", { name: /delete/i })
+      .getByRole("button", { name: /xóa/i })
       .click()
     await expect(page.getByText("Deadline Member E2E")).toHaveCount(0)
   })

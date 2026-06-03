@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:screenshots": "playwright test src/tests/e2e/visual-screenshots.spec.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

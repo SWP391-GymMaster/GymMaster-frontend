@@ -23,7 +23,7 @@ export default function WelcomePage() {
       }}
     >
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_24%_42%,hsl(var(--primary)/0.18),transparent_26%),radial-gradient(circle_at_74%_54%,hsl(var(--primary)/0.12),transparent_24%)]" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-background/20 to-transparent" />
+      {/* <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-background/20 to-transparent" /> */}
 
       <section className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 md:grid-cols-[minmax(0,1fr)_390px] md:items-end">
         <div>

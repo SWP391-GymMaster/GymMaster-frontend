@@ -20,13 +20,13 @@ const fallbackError: ApiError = {
 }
 
 export function normalizeApiPath(path: string) {
-  if (path.startsWith("/api") || !path.startsWith("/api/v1")) {
+  if (!path.startsWith("/api") || path.startsWith("/api/v1")) {
     return path
   }
 
   const nextChar = path.at(4)
   if (nextChar === undefined || nextChar === "/" || nextChar === "?") {
-    return `/api${path.slice(4)}`
+    return `/api/v1${path.slice(4)}`
   }
 
   return path

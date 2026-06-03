@@ -114,7 +114,7 @@ export function AdminDashboardContent() {
 
   const chartData = monthlyRevenueRatio.map((ratio, index) => ({
     month: ["T1", "T2", "T3", "T4", "T5"][index],
-    Revenue: Math.round(revenue * ratio),
+    "Doanh thu": Math.round(revenue * ratio),
   }))
 
   return (
@@ -146,7 +146,7 @@ export function AdminDashboardContent() {
         <DashboardMetricCard
           className="min-h-[190px] rounded-2xl border-border bg-card shadow-sm"
           icon={Users}
-          label="HỘI VIÊN ACTIVE"
+          label="HỘI VIÊN HOẠT ĐỘNG"
           trend={{ direction: "up", label: "+4.2% duy trì" }}
           value={data?.activeCount ?? 0}
         />
@@ -219,7 +219,7 @@ export function AdminDashboardContent() {
                     labelFormatter={(label) => `Tháng ${String(label).replace("T", "")}`}
                   />
                   <Bar
-                    dataKey="Revenue"
+                    dataKey="Doanh thu"
                     fill="hsl(var(--primary))"
                     maxBarSize={52}
                     radius={[8, 8, 0, 0]}

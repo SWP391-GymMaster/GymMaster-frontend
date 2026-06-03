@@ -71,7 +71,7 @@ describe("AuditLogTable", () => {
     )
 
     expect(
-      screen.getByText("No audit logs found for the selected filters."),
+      screen.getByText("Không có audit log phù hợp với bộ lọc."),
     ).toBeInTheDocument()
   })
 
@@ -86,9 +86,9 @@ describe("AuditLogTable", () => {
       />,
     )
 
-    expect(screen.getByText(/Page 1 of 10/)).toBeInTheDocument()
-    expect(screen.getByText("Next")).toBeInTheDocument()
-    expect(screen.getByText("Previous")).toBeInTheDocument()
+    expect(screen.getByText(/Trang 1 \/ 10/)).toBeInTheDocument()
+    expect(screen.getByText("Sau")).toBeInTheDocument()
+    expect(screen.getByText("Trước")).toBeInTheDocument()
   })
 
   it("hides pagination when single page", () => {

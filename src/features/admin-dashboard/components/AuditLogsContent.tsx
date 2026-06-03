@@ -218,7 +218,6 @@ function AuditLogDetailPanel({ log }: { log: AuditLogEntry | null }) {
 
   const severity = getAuditSeverity(log.action)
   const severityLabel = getSeverityLabel(severity)
-  const ActionIcon = getActionIcon(log.action)
 
   return (
     <aside className="sticky top-24 self-start overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
@@ -232,7 +231,7 @@ function AuditLogDetailPanel({ log }: { log: AuditLogEntry | null }) {
           </h3>
         </div>
         <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <ActionIcon aria-hidden="true" className="size-5" />
+          <ActionIcon action={log.action} className="size-5" />
         </span>
       </header>
 
@@ -391,13 +390,23 @@ function getSeverityClass(severity: AuditSeverity) {
   }
 }
 
-function getActionIcon(action: string) {
-  if (action.includes("PAYMENT") || action.includes("MEMBERSHIP")) return CheckCircle2
-  if (action.includes("LOCK")) return LockKeyhole
-  if (action.includes("STAFF") || action.includes("PT")) return Users
-  if (action.includes("WORKOUT") || action.includes("NOTE")) return Activity
-  if (action.includes("CHECK_IN")) return ShieldCheck
-  return FileText
+function ActionIcon({ action, className }: { action: string; className?: string }) {
+  if (action.includes("PAYMENT") || action.includes("MEMBERSHIP")) {
+    return <CheckCircle2 aria-hidden="true" className={className} />
+  }
+  if (action.includes("LOCK")) {
+    return <LockKeyhole aria-hidden="true" className={className} />
+  }
+  if (action.includes("STAFF") || action.includes("PT")) {
+    return <Users aria-hidden="true" className={className} />
+  }
+  if (action.includes("WORKOUT") || action.includes("NOTE")) {
+    return <Activity aria-hidden="true" className={className} />
+  }
+  if (action.includes("CHECK_IN")) {
+    return <ShieldCheck aria-hidden="true" className={className} />
+  }
+  return <FileText aria-hidden="true" className={className} />
 }
 
 function getActionDescription(action: string) {

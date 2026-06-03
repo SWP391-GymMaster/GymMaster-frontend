@@ -54,9 +54,10 @@ describe("getAdminActions", () => {
   it("returns admin actions for a member", () => {
     const actions = getAdminActions(101)
 
-    expect(actions).toHaveLength(2)
+    expect(actions).toHaveLength(3)
     expect(actions[0].label).toBe("Phân công PT")
     expect(actions[1].label).toBe("Quản lý hội viên")
+    expect(actions[2].label).toBe("Gia hạn gói")
   })
 })
 

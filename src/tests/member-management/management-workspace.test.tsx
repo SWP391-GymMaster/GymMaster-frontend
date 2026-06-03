@@ -42,14 +42,15 @@ describe("ManagementWorkspace", () => {
   it("renders member management records from backend contract", async () => {
     renderWithRole("staff")
 
-    expect(await screen.findByText("Nguyen Minh Anh")).toBeInTheDocument()
-    expect(screen.getByText("GM-101")).toBeInTheDocument()
-    expect(screen.getByTestId("staff-member-search-input")).toBeInTheDocument()
+    expect((await screen.findAllByText("Nguyen Minh Anh")).length).toBeGreaterThan(0)
+    expect(screen.getAllByText("GM-101").length).toBeGreaterThan(0)
+    expect(screen.getByTestId("management-search-input")).toBeInTheDocument()
   })
 
   it("creates a member profile for staff workflows", async () => {
     renderWithRole("staff")
 
+    fireEvent.click(screen.getByRole("button", { name: "Thêm hội viên" }))
     fireEvent.change(screen.getByTestId("member-create-name"), {
       target: { value: "Deadline Member" },
     })
@@ -68,7 +69,7 @@ describe("ManagementWorkspace", () => {
     renderWithRole("admin")
 
     expect(await screen.findByText("Tran Bao Long")).toBeInTheDocument()
-    const deleteButtons = await screen.findAllByRole("button", { name: /delete/i })
+    const deleteButtons = await screen.findAllByRole("button", { name: /xóa/i })
     fireEvent.click(deleteButtons[1])
 
     await waitFor(() => {
@@ -79,9 +80,11 @@ describe("ManagementWorkspace", () => {
   it("renders the staff template with access control and create feedback", async () => {
     renderWithRole("admin", "staff")
 
-    expect(await screen.findByText("Staff Directory")).toBeInTheDocument()
-    expect(screen.getByText("Access Control")).toBeInTheDocument()
+    expect(await screen.findByText("Quản lý nhân sự")).toBeInTheDocument()
+    expect((await screen.findAllByText("Front Desk Staff")).length).toBeGreaterThan(0)
+    expect(screen.getByText("Quyền truy cập & thao tác")).toBeInTheDocument()
 
+    fireEvent.click(screen.getByRole("button", { name: "Thêm nhân sự" }))
     fireEvent.change(screen.getByTestId("user-create-name"), {
       target: { value: "Template Staff Component" },
     })
@@ -94,15 +97,17 @@ describe("ManagementWorkspace", () => {
     fireEvent.click(screen.getByTestId("user-create-submit"))
 
     expect(await screen.findByText("Template Staff Component")).toBeInTheDocument()
-    expect(await screen.findByText(/Initial password:/)).toBeInTheDocument()
+    expect(await screen.findByText(/Mật khẩu tạm thời:/)).toBeInTheDocument()
   })
 
   it("renders the trainer roster template and creates a PT profile", async () => {
     renderWithRole("admin", "trainers")
 
-    expect(await screen.findByText("PT Management")).toBeInTheDocument()
-    expect(screen.getByText("Today's Schedule")).toBeInTheDocument()
+    expect(await screen.findByText("Quản lý huấn luyện viên")).toBeInTheDocument()
+    expect((await screen.findAllByText("Coach PT")).length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Lịch dạy hôm nay").length).toBeGreaterThan(0)
 
+    fireEvent.click(screen.getByRole("button", { name: "Thêm PT" }))
     fireEvent.change(screen.getByTestId("trainer-create-name"), {
       target: { value: "Template Trainer Component" },
     })

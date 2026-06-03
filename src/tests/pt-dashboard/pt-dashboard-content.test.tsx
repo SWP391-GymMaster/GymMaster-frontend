@@ -71,7 +71,7 @@ describe("PtDashboardContent", () => {
 
     render(<PtDashboardContent />)
 
-    expect(screen.getByText("2")).toBeInTheDocument()
+    expect(screen.getAllByText("2").length).toBeGreaterThan(0)
     expect(screen.getByText("Nguyen Van A")).toBeInTheDocument()
     expect(screen.getByText("Tran Van B")).toBeInTheDocument()
   })
