@@ -19,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Settings,
+  UtensilsCrossed,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion } from "motion/react";
@@ -93,7 +94,11 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
     {
       title: "Giáo án & Ghi chú",
       items: [
-        { href: "/pt/members/101/workout", icon: ClipboardList, label: "Giáo án" },
+        {
+          href: "/pt/members/101/workout",
+          icon: ClipboardList,
+          label: "Giáo án",
+        },
         { href: "/pt/members/101/notes", icon: FileClock, label: "Ghi chú" },
       ],
     },
@@ -110,9 +115,22 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
     {
       title: "Dinh dưỡng & Gói tập",
       items: [
-        { href: "/member/nutrition/summary", icon: Activity, label: "Calo" },
-        { href: "/member/nutrition/meal-journal", icon: Salad, label: "Nhật ký ăn" },
-        { href: "/member/membership", icon: CreditCard, label: "Gói tập & Hóa đơn" },
+        {
+          href: "/member/nutrition/summary",
+          icon: UtensilsCrossed,
+          label: "Calo",
+        },
+        {
+          href: "/member/nutrition/meal-journal",
+          icon: Salad,
+          label: "Nhật ký ăn",
+        },
+        {
+          href: "/member/membership",
+          icon: CreditCard,
+          label: "Gói tập & Hóa đơn",
+        },
+        { href: "/member/progress", icon: Activity, label: "Tiến độ" },
       ],
     },
   ],
@@ -151,7 +169,12 @@ export function CommandRail({ role }: CommandRailProps) {
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* Brand Header */}
-      <div className={cn("flex items-center gap-3 px-2 pb-6 shrink-0 border-b border-white/5", isCollapsed ? "justify-center" : "")}>
+      <div
+        className={cn(
+          "flex items-center gap-3 px-2 pb-6 shrink-0 border-b border-white/5",
+          isCollapsed ? "justify-center" : "",
+        )}
+      >
         <span
           aria-hidden="true"
           className="size-12 rounded-xl bg-contain bg-center bg-no-repeat shadow-md ring-1 ring-white/10 shrink-0"
@@ -189,10 +212,12 @@ export function CommandRail({ role }: CommandRailProps) {
       )}
 
       {/* Navigation Groups */}
-      <nav className={cn(
-        "flex-1 flex flex-col gap-5 overflow-y-auto overflow-x-hidden pr-1 py-4 w-full",
-        isCollapsed ? "items-center px-0" : ""
-      )}>
+      <nav
+        className={cn(
+          "flex-1 flex flex-col gap-5 overflow-y-auto overflow-x-hidden pr-1 py-4 w-full",
+          isCollapsed ? "items-center px-0" : "",
+        )}
+      >
         {navGroups.map((group, idx) => (
           <div key={idx} className="w-full flex flex-col gap-1 shrink-0">
             {/* Group Title */}
@@ -213,10 +238,12 @@ export function CommandRail({ role }: CommandRailProps) {
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "flex min-h-10 items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98] relative",
-                        isCollapsed ? "justify-center size-10 mx-auto" : "gap-3 px-3 w-full",
+                        isCollapsed
+                          ? "justify-center size-10 mx-auto"
+                          : "gap-3 px-3 w-full",
                         active
                           ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
-                          : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground"
+                          : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground",
                       )}
                       href={item.href}
                     >
@@ -246,7 +273,7 @@ export function CommandRail({ role }: CommandRailProps) {
           type="button"
           className={cn(
             "flex h-10 items-center rounded-lg text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground transition-all duration-200 active:scale-[0.98] w-full relative group",
-            isCollapsed ? "justify-center size-10 mx-auto px-0" : "gap-3 px-3"
+            isCollapsed ? "justify-center size-10 mx-auto px-0" : "gap-3 px-3",
           )}
           title={isCollapsed ? "Cấu hình giao diện" : undefined}
         >

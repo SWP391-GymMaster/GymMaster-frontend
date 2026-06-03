@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useParams } from "next/navigation"
+import { useParams } from "next/navigation";
 import {
   ArrowRight,
   CalendarDays,
@@ -13,29 +13,29 @@ import {
   Plus,
   Search,
   Sparkles,
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-import { StateBlock } from "@/components/feedback/StateBlock"
-import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
-import { Button } from "@/components/ui/button"
-import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
-import { useMember360Data } from "@/features/member-360/api/member-360.queries"
+import { StateBlock } from "@/components/feedback/StateBlock";
+import { WorkspaceShell } from "@/components/layout/WorkspaceShell";
+import { Button } from "@/components/ui/button";
+import { PermissionGuard } from "@/features/auth/components/PermissionGuard";
+import { useMember360Data } from "@/features/member-360/api/member-360.queries";
 import {
   useCreateMemberWorkoutPlan,
   useMemberWorkoutPlans,
-} from "@/features/pt-training/api/pt-training.queries"
-import { TrainingMemberContext } from "@/features/pt-training/components/TrainingMemberContext"
-import { WorkoutPlanForm } from "@/features/pt-training/components/WorkoutPlanForm"
+} from "@/features/pt-training/api/pt-training.queries";
+import { TrainingMemberContext } from "@/features/pt-training/components/TrainingMemberContext";
+import { WorkoutPlanForm } from "@/features/pt-training/components/WorkoutPlanForm";
 import {
   WorkoutPlanList,
   WorkoutPlanListHeader,
-} from "@/features/pt-training/components/WorkoutPlanList"
+} from "@/features/pt-training/components/WorkoutPlanList";
 import {
   getWorkoutAssetForExercise,
   getWorkoutCategoryLabel,
-} from "@/features/pt-training/data/workout-assets"
-import type { WorkoutPlanDraft } from "@/features/pt-training/types/pt-training.types"
+} from "@/features/pt-training/data/workout-assets";
+import type { WorkoutPlanDraft } from "@/features/pt-training/types/pt-training.types";
 
 const libraryPreview = [
   {
@@ -58,22 +58,23 @@ const libraryPreview = [
     name: "Overhead Press",
     tags: ["Vai", "Tay sau", "Core"],
   },
-]
+];
 
 export function PtWorkoutPlanWorkspace() {
-  const params = useParams<{ id: string }>()
-  const memberId = Number(params.id)
-  const validMemberId = Number.isFinite(memberId) && memberId > 0 ? memberId : null
-  const memberQuery = useMember360Data(validMemberId)
-  const plansQuery = useMemberWorkoutPlans(validMemberId)
-  const createPlan = useCreateMemberWorkoutPlan(validMemberId ?? 0)
+  const params = useParams<{ id: string }>();
+  const memberId = Number(params.id);
+  const validMemberId =
+    Number.isFinite(memberId) && memberId > 0 ? memberId : null;
+  const memberQuery = useMember360Data(validMemberId);
+  const plansQuery = useMemberWorkoutPlans(validMemberId);
+  const createPlan = useCreateMemberWorkoutPlan(validMemberId ?? 0);
 
-  const plansCount = plansQuery.data?.length ?? 0
-  const latestPlan = plansQuery.data?.[0]
-  const latestExercisesCount = latestPlan?.exercises.length ?? 0
+  const plansCount = plansQuery.data?.length ?? 0;
+  const latestPlan = plansQuery.data?.[0];
+  const latestExercisesCount = latestPlan?.exercises.length ?? 0;
 
   async function handleCreatePlan(draft: WorkoutPlanDraft) {
-    await createPlan.mutateAsync(draft)
+    await createPlan.mutateAsync(draft);
   }
 
   return (
@@ -111,7 +112,8 @@ export function PtWorkoutPlanWorkspace() {
                   Thiết kế giáo án có minh họa bài tập
                 </h2>
                 <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  PT chọn preset, kiểm tra thư viện bài tập và xem ảnh minh họa ngay trong workspace trước khi lưu giáo án.
+                  PT chọn preset, kiểm tra thư viện bài tập và xem ảnh minh họa
+                  ngay trong workspace trước khi lưu giáo án.
                 </p>
               </div>
 
@@ -165,13 +167,17 @@ export function PtWorkoutPlanWorkspace() {
                       Thông tin giáo án
                     </h3>
                     <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      Form bên phải vẫn giữ toàn bộ logic tạo giáo án, preset và submit hiện tại.
+                      Form bên phải vẫn giữ toàn bộ logic tạo giáo án, preset và
+                      submit hiện tại.
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-5 grid gap-3">
-                  <SideField label="Tên giáo án" value="Hypertrophy Program · Phase 1" />
+                  <SideField
+                    label="Tên giáo án"
+                    value="Hypertrophy Program · Phase 1"
+                  />
                   <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                     <SideField label="Tuần" value="04 tuần" />
                     <SideField label="Mục tiêu" value="Tăng cơ" />
@@ -183,7 +189,8 @@ export function PtWorkoutPlanWorkspace() {
                         className="mt-0.5 size-5 shrink-0 text-primary"
                       />
                       <p className="text-sm leading-6 text-foreground">
-                        Gợi ý: 4-6 buổi/tuần, tập trung nhóm cơ chính và progressive overload.
+                        Gợi ý: 4-6 buổi/tuần, tập trung nhóm cơ chính và
+                        progressive overload.
                       </p>
                     </div>
                   </div>
@@ -222,20 +229,22 @@ export function PtWorkoutPlanWorkspace() {
                   />
                 </label>
 
-                <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-                  {["Tất cả", "Ngực", "Lưng", "Vai", "Chân", "Core"].map((tab, index) => (
-                    <button
-                      className={`min-h-9 shrink-0 rounded-full px-3 text-sm font-semibold transition ${
-                        index === 0
-                          ? "bg-primary text-primary-foreground"
-                          : "border border-border bg-background text-foreground hover:bg-muted"
-                      }`}
-                      key={tab}
-                      type="button"
-                    >
-                      {tab}
-                    </button>
-                  ))}
+                <div className="mt-4 flex gap-2 overflow-x-auto custom-scrollbar pb-1">
+                  {["Tất cả", "Ngực", "Lưng", "Vai", "Chân", "Core"].map(
+                    (tab, index) => (
+                      <button
+                        className={`min-h-9 shrink-0 rounded-full px-3 text-sm font-semibold transition ${
+                          index === 0
+                            ? "bg-primary text-primary-foreground"
+                            : "border border-border bg-background text-foreground hover:bg-muted"
+                        }`}
+                        key={tab}
+                        type="button"
+                      >
+                        {tab}
+                      </button>
+                    ),
+                  )}
                 </div>
 
                 <div className="mt-4 grid gap-3">
@@ -269,11 +278,15 @@ export function PtWorkoutPlanWorkspace() {
                       Tạo giáo án mới
                     </h3>
                     <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                      Wizard bên dưới xử lý preset, môi trường tập và danh sách bài tập; cột trái chỉ đóng vai trò preview nhanh.
+                      Wizard bên dưới xử lý preset, môi trường tập và danh sách
+                      bài tập; cột trái chỉ đóng vai trò preview nhanh.
                     </p>
                   </div>
                   <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground">
-                    <Sparkles aria-hidden="true" className="size-4 text-primary" />
+                    <Sparkles
+                      aria-hidden="true"
+                      className="size-4 text-primary"
+                    />
                     Clean stepper
                   </div>
                 </div>
@@ -304,19 +317,27 @@ export function PtWorkoutPlanWorkspace() {
                   <div>
                     <WorkoutPlanListHeader />
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                      Giáo án đã lưu có ảnh minh họa để PT kiểm tra lại bài tập nhanh hơn, nhưng không làm layout quá nặng.
+                      Giáo án đã lưu có ảnh minh họa để PT kiểm tra lại bài tập
+                      nhanh hơn, nhưng không làm layout quá nặng.
                     </p>
                   </div>
                   <div className="grid grid-cols-3 gap-2 sm:w-[360px]">
                     <MiniStat label="Giáo án" value={String(plansCount)} />
-                    <MiniStat label="Bài tập" value={String(latestExercisesCount)} />
+                    <MiniStat
+                      label="Bài tập"
+                      value={String(latestExercisesCount)}
+                    />
                     <MiniStat label="Tần suất" value="4 buổi" />
                   </div>
                 </div>
 
                 <div className="mt-5">
                   <WorkoutPlanList
-                    error={plansQuery.error instanceof Error ? plansQuery.error : null}
+                    error={
+                      plansQuery.error instanceof Error
+                        ? plansQuery.error
+                        : null
+                    }
                     isLoading={plansQuery.isLoading}
                     mediaMode="coach"
                     plans={plansQuery.data}
@@ -349,7 +370,7 @@ export function PtWorkoutPlanWorkspace() {
         </div>
       </WorkspaceShell>
     </PermissionGuard>
-  )
+  );
 }
 
 function BuilderStep({
@@ -358,10 +379,10 @@ function BuilderStep({
   label,
   title,
 }: {
-  active?: boolean
-  index: number
-  label: string
-  title: string
+  active?: boolean;
+  index: number;
+  label: string;
+  title: string;
 }) {
   return (
     <div className="flex items-center gap-3">
@@ -387,7 +408,7 @@ function BuilderStep({
         </span>
       </span>
     </div>
-  )
+  );
 }
 
 function SideField({ label, value }: { label: string; value: string }) {
@@ -398,17 +419,11 @@ function SideField({ label, value }: { label: string; value: string }) {
       </p>
       <p className="mt-2 text-sm font-semibold text-foreground">{value}</p>
     </div>
-  )
+  );
 }
 
-function ExerciseLibraryItem({
-  name,
-  tags,
-}: {
-  name: string
-  tags: string[]
-}) {
-  const asset = getWorkoutAssetForExercise(name)
+function ExerciseLibraryItem({ name, tags }: { name: string; tags: string[] }) {
+  const asset = getWorkoutAssetForExercise(name);
 
   return (
     <article className="flex items-center gap-3 rounded-xl border border-border bg-background p-2 transition hover:border-primary/40 hover:bg-primary/5">
@@ -442,7 +457,7 @@ function ExerciseLibraryItem({
         Thêm
       </Button>
     </article>
-  )
+  );
 }
 
 function MiniStat({ label, value }: { label: string; value: string }) {
@@ -451,7 +466,7 @@ function MiniStat({ label, value }: { label: string; value: string }) {
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
     </div>
-  )
+  );
 }
 
 function CoachWorkflowCard({
@@ -460,10 +475,10 @@ function CoachWorkflowCard({
   label,
   title,
 }: {
-  description: string
-  icon: LucideIcon
-  label: string
-  title: string
+  description: string;
+  icon: LucideIcon;
+  label: string;
+  title: string;
 }) {
   return (
     <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -482,5 +497,5 @@ function CoachWorkflowCard({
         </div>
       </div>
     </section>
-  )
+  );
 }

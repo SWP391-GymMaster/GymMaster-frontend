@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import Link from "next/link"
+import Link from "next/link";
 import {
   CalendarCheck,
   CheckCircle2,
@@ -9,16 +9,16 @@ import {
   Salad,
   TrendingUp,
   Utensils,
-} from "lucide-react"
+} from "lucide-react";
 
-import { StatusPill } from "@/components/data/StatusPill"
-import { Button } from "@/components/ui/button"
-import { NutritionSummaryCard } from "@/features/member-nutrition/components/NutritionSummaryCard"
-import { useMemberCalorieSummary } from "@/features/member-nutrition/api/member-nutrition.queries"
-import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters"
-import { gymMasterAssets } from "@/lib/gymmaster-assets"
+import { StatusPill } from "@/components/data/StatusPill";
+import { Button } from "@/components/ui/button";
+import { NutritionSummaryCard } from "@/features/member-nutrition/components/NutritionSummaryCard";
+import { useMemberCalorieSummary } from "@/features/member-nutrition/api/member-nutrition.queries";
+import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters";
+import { gymMasterAssets } from "@/lib/gymmaster-assets";
 
-const today = getTodayDate()
+const today = getTodayDate();
 
 const todayActions = [
   {
@@ -45,58 +45,82 @@ const todayActions = [
     description: "Ghi nhận cân nặng, tỷ lệ mỡ và xem biểu đồ cơ thể.",
     icon: TrendingUp,
   },
-]
+];
 
 export function MemberDashboardContent() {
-  const summary = useMemberCalorieSummary(today)
+  const summary = useMemberCalorieSummary(today);
 
   return (
     <div className="grid gap-6">
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm">
-          <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/10 blur-3xl" />
-          <div className="relative">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Utensils aria-hidden="true" className="size-5" />
-              </span>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-                Today Command Center
+        <div className="relative min-h-[410px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-950 shadow-xl">
+          <div
+            className="absolute inset-0 scale-[1.03]"
+            style={{
+              backgroundImage: `url(${gymMasterAssets.operationsCover})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(34,197,94,0.32),transparent_34%),linear-gradient(90deg,rgba(3,7,6,0.96)_0%,rgba(3,7,6,0.84)_38%,rgba(3,7,6,0.48)_68%,rgba(3,7,6,0.28)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 to-transparent" />
+
+          <div className="relative flex min-h-[410px] flex-col justify-between p-6 md:p-7">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="flex size-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-primary shadow-sm backdrop-blur-md">
+                  <Utensils aria-hidden="true" className="size-5" />
+                </span>
+                <p className="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-primary backdrop-blur-md">
+                  Today Command Center
+                </p>
+                <StatusPill
+                  className="border-primary/25 bg-primary/15 text-primary shadow-sm backdrop-blur-md"
+                  label="Gói active"
+                  status="active"
+                />
+              </div>
+
+              <h2 className="mt-7 max-w-3xl text-4xl font-semibold tracking-tight text-white md:text-5xl">
+                Hôm nay tập gì, ăn gì và còn bao nhiêu calo?
+              </h2>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-200/90">
+                Theo dõi nhanh giáo án, dinh dưỡng và trạng thái hội viên trong
+                một màn hình, ưu tiên đúng hành động tiếp theo.
               </p>
-              <StatusPill
-                className="border-primary/20 bg-primary/10 text-primary"
-                label="Gói active"
-                status="active"
-              />
             </div>
 
-            <h2 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-              Hôm nay tập gì, ăn gì và còn bao nhiêu calo?
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
-              Theo dõi nhanh giáo án, dinh dưỡng và trạng thái hội viên trong một màn hình, ưu tiên đúng hành động tiếp theo.
-            </p>
+            <div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <HeroChip label="Mục tiêu" value="2.200 kcal" variant="glass" />
+                <HeroChip label="Buổi tiếp theo" value="18:30" variant="glass" />
+                <HeroChip label="Check-in" value="Sẵn sàng" variant="glass" />
+              </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <HeroChip label="Mục tiêu" value="2.200 kcal" />
-              <HeroChip label="Buổi tiếp theo" value="18:30" />
-              <HeroChip label="Check-in" value="Sẵn sàng" />
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              <Button asChild className="rounded-xl active:scale-[0.98]">
-                <Link href="/member/nutrition/meal-journal">Thêm bữa ăn</Link>
-              </Button>
-              <Button asChild className="rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]" variant="outline">
-                <Link href="/member/workout">Xem giáo án</Link>
-              </Button>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Button
+                  asChild
+                  className="rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-95 active:scale-[0.98]"
+                >
+                  <Link href="/member/nutrition/meal-journal">Thêm bữa ăn</Link>
+                </Button>
+                <Button
+                  asChild
+                  className="rounded-xl border-white/15 bg-white/10 text-white backdrop-blur-md hover:bg-white/15 active:scale-[0.98]"
+                  variant="outline"
+                >
+                  <Link href="/member/workout">Xem giáo án</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
 
         <aside className="grid gap-3">
           {todayActions.map((action) => {
-            const Icon = action.icon
+            const Icon = action.icon;
 
             return (
               <Link
@@ -120,7 +144,7 @@ export function MemberDashboardContent() {
                   className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary"
                 />
               </Link>
-            )
+            );
           })}
         </aside>
       </section>
@@ -150,10 +174,29 @@ export function MemberDashboardContent() {
         </aside>
       </section>
     </div>
-  )
+  );
 }
 
-function HeroChip({ label, value }: { label: string; value: string }) {
+function HeroChip({
+  label,
+  value,
+  variant = "default",
+}: {
+  label: string;
+  value: string;
+  variant?: "default" | "glass";
+}) {
+  if (variant === "glass") {
+    return (
+      <div className="rounded-2xl border border-white/15 bg-white/[0.14] p-4 shadow-sm backdrop-blur-md">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-300">
+          {label}
+        </p>
+        <p className="mt-1 text-base font-semibold text-white">{value}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl border border-border bg-background p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
@@ -161,7 +204,7 @@ function HeroChip({ label, value }: { label: string; value: string }) {
       </p>
       <p className="mt-1 text-base font-semibold text-foreground">{value}</p>
     </div>
-  )
+  );
 }
 
 function SupportCard({
@@ -171,11 +214,11 @@ function SupportCard({
   image,
   title,
 }: {
-  description: string
-  href: string
-  icon: typeof CalendarCheck
-  image: string
-  title: string
+  description: string;
+  href: string;
+  icon: typeof CalendarCheck;
+  image: string;
+  title: string;
 }) {
   return (
     <Link
@@ -198,5 +241,5 @@ function SupportCard({
         </p>
       </div>
     </Link>
-  )
+  );
 }
