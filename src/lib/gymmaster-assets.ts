@@ -16,14 +16,14 @@ export const gymMasterAssets = {
 
   // Keep optional page-level aliases pointing to the canonical covers.
   backgrounds: {
-    welcomeGymHero: "/assets/gymmaster/covers/gym-operations-cover.png",
-    authPremiumDark: "/assets/gymmaster/covers/gym-operations-cover.png",
-    adminOperations: "/assets/gymmaster/covers/gym-operations-cover.png",
-    staffFrontdesk: "/assets/gymmaster/covers/gym-operations-cover.png",
-    ptCoachHub: "/assets/gymmaster/workout-equipment-cover.webp",
-    memberToday: "/assets/gymmaster/workout-equipment-cover.webp",
-    nutritionMeal: "/assets/gymmaster/covers/nutrition-cover.png",
-    calorieSummary: "/assets/gymmaster/covers/nutrition-cover.png",
+    welcomeGymHero: "/assets/gymmaster/covers/welcome-hero-cover.png",
+    authPremiumDark: "/assets/gymmaster/covers/welcome-hero-cover.png",
+    adminOperations: "/assets/gymmaster/covers/admin-operations-cover.png",
+    staffFrontdesk: "/assets/gymmaster/covers/staff-frontdesk-cover.png",
+    ptCoachHub: "/assets/gymmaster/covers/pt-coach-cover.png",
+    memberToday: "/assets/gymmaster/covers/member-today-cover.png",
+    nutritionMeal: "/assets/gymmaster/covers/nutrition-meal-cover.png",
+    calorieSummary: "/assets/gymmaster/covers/calorie-summary-cover.png",
   },
 
   notes: [

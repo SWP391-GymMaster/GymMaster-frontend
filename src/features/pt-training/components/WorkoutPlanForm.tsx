@@ -12,9 +12,32 @@ import {
   Sparkles,
   Trash2,
 } from "lucide-react"
-import { useMemo, useState, type ReactNode } from "react"
+import { useMemo, useState, useEffect, type ReactNode } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
+
+const LOCAL_STORAGE_KEY_RECENT_EXERCISES = "gymmaster-recent-exercises"
+
+function getRecentExercises(): string[] {
+  if (typeof window === "undefined") return []
+  try {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY_RECENT_EXERCISES)
+    return data ? JSON.parse(data) : []
+  } catch {
+    return []
+  }
+}
+
+function saveRecentExercises(names: string[]) {
+  if (typeof window === "undefined") return
+  try {
+    const current = getRecentExercises()
+    const merged = Array.from(new Set([...names, ...current])).slice(0, 5)
+    localStorage.setItem(LOCAL_STORAGE_KEY_RECENT_EXERCISES, JSON.stringify(merged))
+  } catch (e) {
+    console.warn(e)
+  }
+}
 
 import { Button } from "@/components/ui/button"
 import {
@@ -79,6 +102,11 @@ export function WorkoutPlanForm({
   const [split, setSplit] = useState<TrainingSplit>("full_body")
   const [daysPerWeek, setDaysPerWeek] = useState<number>(3)
   const [presetId, setPresetId] = useState("")
+  const [recentExercises, setRecentExercises] = useState<string[]>([])
+
+  useEffect(() => {
+    setRecentExercises(getRecentExercises())
+  }, [activeStep])
 
   const form = useForm<WorkoutPlanFormValues>({
     resolver: zodResolver(workoutPlanSchema),
@@ -170,6 +198,14 @@ export function WorkoutPlanForm({
         orderIndex: index,
       })),
     })
+
+    // Cache exercise names
+    const namesToSave = values.exercises.map((e) => e.name.trim()).filter(Boolean)
+    if (namesToSave.length > 0) {
+      saveRecentExercises(namesToSave)
+      setRecentExercises(getRecentExercises())
+    }
+
     form.reset({ title: "", exercises: [defaultExercise] })
     setPresetId("")
     setActiveStep(0)
@@ -369,6 +405,7 @@ export function WorkoutPlanForm({
             form={form}
             remove={remove}
             selectExerciseOptions={selectExerciseOptions}
+            recentExercises={recentExercises}
           />
         ) : null}
 
@@ -659,6 +696,7 @@ function ExerciseEditorStep({
   form,
   remove,
   selectExerciseOptions,
+  recentExercises,
 }: {
   append: () => void
   applyExercise: (index: number, exerciseId: string) => void
@@ -667,6 +705,7 @@ function ExerciseEditorStep({
   form: ReturnType<typeof useForm<WorkoutPlanFormValues>>
   remove: (index: number) => void
   selectExerciseOptions: typeof exerciseLibrary
+  recentExercises: string[]
 }) {
   return (
     <section>
@@ -777,12 +816,35 @@ function ExerciseEditorStep({
                   </select>
 
                   {selectedExerciseId === "__custom__" ? (
-                    <input
-                      className="mt-2 min-h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-                      id={`exercise-name-${index}`}
-                      placeholder="Tên bài tập custom"
-                      {...form.register(`exercises.${index}.name`)}
-                    />
+                    <>
+                      <input
+                        className="mt-2 min-h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                        id={`exercise-name-${index}`}
+                        placeholder="Tên bài tập custom"
+                        {...form.register(`exercises.${index}.name`)}
+                      />
+                      {recentExercises.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {recentExercises.map((name) => (
+                            <button
+                              key={name}
+                              type="button"
+                              onClick={() => {
+                                form.setValue(`exercises.${index}.name`, name, { shouldValidate: true })
+                              }}
+                              className={cn(
+                                "px-2.5 py-0.5 text-xs rounded-full border transition active:scale-95",
+                                currentName === name
+                                  ? "border-primary bg-primary/10 text-primary font-semibold"
+                                  : "border-border bg-card hover:bg-muted text-muted-foreground"
+                              )}
+                            >
+                              {name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
                   ) : null}
 
                   {errors.exercises?.[index]?.name ? (

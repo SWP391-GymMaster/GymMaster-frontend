@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { useParams } from "next/navigation"
-import { MessageSquareText, NotebookPen, ShieldCheck } from "lucide-react"
+import { MessageSquareText, NotebookPen, ShieldCheck, Plus } from "lucide-react"
 
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 import { StateBlock } from "@/components/feedback/StateBlock"
+import { Button } from "@/components/ui/button"
 import { useMember360Data } from "@/features/member-360/api/member-360.queries"
 import {
   useCreateMemberTrainerNote,
@@ -27,8 +29,11 @@ export function PtTrainerNotesWorkspace() {
   const notesQuery = useMemberTrainerNotes(validMemberId)
   const createNote = useCreateMemberTrainerNote(validMemberId ?? 0)
 
+  const [activeView, setActiveView] = useState<"list" | "create">("list")
+
   async function handleCreateNote(draft: TrainerNoteDraft) {
     await createNote.mutateAsync(draft)
+    setActiveView("list")
   }
 
   return (
@@ -62,43 +67,75 @@ export function PtTrainerNotesWorkspace() {
             <NoteMetric icon={ShieldCheck} label="Theo dõi" value="Active" />
           </section>
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)]">
-            <section className="space-y-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-                  Coach Notes
-                </p>
-                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-                  Thêm ghi chú huấn luyện
-                </h2>
+          {activeView === "list" ? (
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <TrainerNoteListHeader />
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Xem lịch sử và cue luyện tập chi tiết của hội viên.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setActiveView("create")}
+                  className="rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/95 active:scale-[0.98]"
+                >
+                  <Plus className="mr-2 size-4" />
+                  Thêm ghi chú mới
+                </Button>
               </div>
-              <TrainerNoteForm
-                isPending={createNote.isPending}
-                onSubmit={handleCreateNote}
-              />
-              {createNote.error ? (
-                <StateBlock
-                  className="mt-3"
-                  description="Kiểm tra quyền phụ trách hội viên và nội dung ghi chú trước khi lưu lại."
-                  title={
-                    createNote.error instanceof Error
-                      ? createNote.error.message
-                      : "Không thể lưu ghi chú PT."
-                  }
-                  tone="error"
-                />
-              ) : null}
-            </section>
 
-            <section className="space-y-3">
-              <TrainerNoteListHeader />
-              <TrainerNoteList
-                error={notesQuery.error instanceof Error ? notesQuery.error : null}
-                isLoading={notesQuery.isLoading}
-                notes={notesQuery.data}
-              />
+              <div className="mt-5">
+                <TrainerNoteList
+                  error={notesQuery.error instanceof Error ? notesQuery.error : null}
+                  isLoading={notesQuery.isLoading}
+                  notes={notesQuery.data}
+                />
+              </div>
             </section>
-          </div>
+          ) : (
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                    Coach Notes
+                  </p>
+                  <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+                    Thêm ghi chú huấn luyện
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Ghi lại các đánh giá kỹ thuật và ghi chú điều chỉnh qua từng buổi tập.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setActiveView("list")}
+                  variant="outline"
+                  className="rounded-xl border-border hover:bg-muted text-xs font-semibold"
+                >
+                  ← Quay lại danh sách ghi chú
+                </Button>
+              </div>
+
+              <div className="mt-4 max-w-2xl">
+                <TrainerNoteForm
+                  isPending={createNote.isPending}
+                  onSubmit={handleCreateNote}
+                />
+                {createNote.error ? (
+                  <StateBlock
+                    className="mt-3"
+                    description="Kiểm tra quyền phụ trách hội viên và nội dung ghi chú trước khi lưu lại."
+                    title={
+                      createNote.error instanceof Error
+                        ? createNote.error.message
+                        : "Không thể lưu ghi chú PT."
+                    }
+                    tone="error"
+                  />
+                ) : null}
+              </div>
+            </section>
+          )}
         </div>
       </WorkspaceShell>
     </PermissionGuard>

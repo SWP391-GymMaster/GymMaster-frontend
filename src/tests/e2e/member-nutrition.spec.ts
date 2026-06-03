@@ -24,6 +24,8 @@ test("Member adds a meal and sees calorie summary update", async ({ page }) => {
   await page.getByRole("link", { name: /Ghi bữa ăn/ }).click()
   await expect(page).toHaveURL(/\/member\/nutrition\/meal-journal$/)
 
+  await page.getByRole("button", { name: "Thêm bữa ăn mới" }).click()
+
   await page.getByTestId("member-food-search-input").fill("banana")
   await page.getByText("Banana").click()
   await page.getByTestId("member-meal-quantity-input").fill("2")
@@ -54,6 +56,8 @@ test("Member creates custom food and logs it successfully", async ({ page }) => 
 
   await page.goto("/member/nutrition/meal-journal")
   await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
+
+  await page.getByRole("button", { name: "Thêm bữa ăn mới" }).click()
 
   // Search for non-existent food
   await page.getByTestId("member-food-search-input").fill("Táo Nhật Bản E2E")

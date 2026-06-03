@@ -14,6 +14,7 @@ import {
 import { StatusPill } from "@/components/data/StatusPill";
 import { Button } from "@/components/ui/button";
 import { NutritionSummaryCard } from "@/features/member-nutrition/components/NutritionSummaryCard";
+import { WaterTrackerCard } from "@/features/member-nutrition/components/WaterTrackerCard";
 import { useMemberCalorieSummary } from "@/features/member-nutrition/api/member-nutrition.queries";
 import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
@@ -164,13 +165,7 @@ export function MemberDashboardContent() {
             title="Tổng kết calo"
             description="Xem calo đã ăn, còn lại và macro trong ngày."
           />
-          <SupportCard
-            href="/member/workout"
-            icon={CalendarCheck}
-            image={gymMasterAssets.workoutCover}
-            title="Lịch tập & gói hội viên"
-            description="Premium 30 đang active và giáo án PT đã sẵn sàng."
-          />
+          <WaterTrackerCard />
         </aside>
       </section>
     </div>

@@ -41,6 +41,6 @@ describe("NutritionSummaryCard", () => {
     expect(screen.getAllByText("425 kcal").length).toBeGreaterThan(0)
     expect(screen.getByText("2.200 kcal")).toBeInTheDocument()
     expect(screen.getByText("Còn 1.775 kcal")).toBeInTheDocument()
-    expect(screen.getAllByText("Chưa có")).toHaveLength(3)
+    expect(screen.getAllByText("Chưa có dữ liệu")).toHaveLength(3)
   })
 })

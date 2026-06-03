@@ -4,10 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { CreditCard, PackagePlus, UserPlus, WalletCards } from "lucide-react"
+import { CreditCard, PackagePlus, WalletCards } from "lucide-react"
 
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
+import { Button } from "@/components/ui/button"
 import {
   useSellStaffMembership,
   useStaffMemberSearch,
@@ -111,166 +112,246 @@ export function SellPackageWizard() {
         steps={["Hội viên", "Gói tập", "Thanh toán", "Xác nhận"]}
       />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
-        <div className="space-y-5">
-          <StaffSearchPanel
-            error={searchErrors.query?.message}
-            id="sell-member-search"
-            label="1. Chọn hội viên"
-            onSubmit={handleSearchSubmit(onSearch)}
-            placeholder="Tên, email, số điện thoại hoặc mã hội viên"
-            registerInput={registerSearch("query")}
-            testId="staff-sell-member-search"
-          >
-            {!submittedQuery ? (
-              <StateBlock
-                description="Tìm theo mã hội viên, số điện thoại, email hoặc tên trước khi tạo giao dịch bán gói."
-                title="Tìm để chọn hội viên."
-                tone="empty"
-              />
-            ) : null}
-            {members.isLoading ? (
-              <StateBlock
-                description="Đang tải hồ sơ hội viên đủ điều kiện trước khi bán gói."
-                title="Đang tải hội viên..."
-                tone="loading"
-              />
-            ) : null}
-            {members.data?.items.map((member) => (
-              <StaffMemberCard
-                key={member.id}
-                member={member}
-                onSelect={() => {
-                  setSelectedMember(member)
-                  setSaleResult(null)
-                  setPaymentResult(null)
-                  setValue("memberId", member.id, { shouldValidate: true })
-                }}
-                selected={selectedMember?.id === member.id}
-              />
-            ))}
-          </StaffSearchPanel>
-
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-semibold tracking-tight text-foreground">
-                  2. Chọn gói tập
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Gợi ý các gói tập phù hợp với nhu cầu của hội viên.
-                </p>
-              </div>
-              <StatusPill status={selectedPackage ? "active" : "pending"} />
-            </div>
-
-            <div className="mt-5 grid gap-4 lg:grid-cols-3">
-              {packages.data?.map((gymPackage, index) => (
-                <PackageCard
-                  gymPackage={gymPackage}
-                  key={gymPackage.id}
-                  onSelect={() => {
-                    setSelectedPackageId(gymPackage.id)
-                    setSaleResult(null)
-                    setPaymentResult(null)
-                    setValue("packageId", gymPackage.id, {
-                      shouldValidate: true,
-                    })
-                  }}
-                  recommended={index === 1}
-                  selected={selectedPackageId === gymPackage.id}
-                />
-              ))}
-            </div>
-
-            {selectedPackage ? (
-              <div className="mt-5 rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm font-medium text-foreground">
-                Gợi ý: {selectedPackage.name} phù hợp để bắt đầu hoặc duy trì lịch tập ổn định.
-              </div>
-            ) : null}
-          </section>
-        </div>
-
-        <OrderSummaryShell
-          footer={
-            <>
-              <form onSubmit={handleSaleSubmit(onSubmitSale)}>
-                {saleErrors.memberId ||
-                saleErrors.packageId ||
-                saleErrors.startDate ? (
-                  <p className="mt-3 text-sm font-medium text-destructive">
-                    {saleErrors.memberId?.message ??
-                      saleErrors.packageId?.message ??
-                      saleErrors.startDate?.message}
-                  </p>
-                ) : null}
-                <button
-                  className="mt-4 min-h-12 w-full rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-                  data-testid="staff-sell-submit-button"
-                  disabled={sell.isPending}
-                  type="submit"
-                >
-                  {sell.isPending ? "Đang tạo..." : "Xác nhận bán gói"}
-                </button>
-              </form>
-
-              {operationError ? (
+      <div className="min-h-[400px]">
+        {activeStep === 0 && (
+          <div className="space-y-5">
+            <StaffSearchPanel
+              error={searchErrors.query?.message}
+              id="sell-member-search"
+              label="1. Chọn hội viên"
+              onSubmit={handleSearchSubmit(onSearch)}
+              placeholder="Tên, email, số điện thoại hoặc mã hội viên"
+              registerInput={registerSearch("query")}
+              testId="staff-sell-member-search"
+            >
+              {!submittedQuery ? (
                 <StateBlock
-                  className="mt-3"
-                  description="Kiểm tra lại hội viên và gói đã chọn, sau đó thử lại."
-                  title={operationError.message}
-                  tone="error"
+                  description="Tìm theo mã hội viên, số điện thoại, email hoặc tên trước khi tạo giao dịch bán gói."
+                  title="Tìm để chọn hội viên."
+                  tone="empty"
                 />
               ) : null}
-            </>
-          }
-          member={selectedMember}
-          title="Tóm tắt giao dịch"
-        >
-          <SummaryRow
-            label="Gói tập"
-            value={selectedPackage?.name ?? "Chưa chọn"}
-          />
-          <SummaryRow label="Ngày bắt đầu" value={today} />
-          <SummaryRow
-            label="Tổng tiền"
-            value={
-              selectedPackage
-                ? `${selectedPackage.price.toLocaleString("vi-VN")} VND`
-                : "Đang chờ"
-            }
-          />
-        </OrderSummaryShell>
-      </div>
-
-      {saleResult ? (
-        <section
-          className="rounded-2xl border border-border bg-card p-5 shadow-sm"
-          data-testid="staff-sell-result"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="font-semibold text-foreground">
-                Đã tạo bán gói {saleResult.packageName}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Gói hội viên đang chờ cho đến khi ghi nhận thanh toán.
-              </p>
-            </div>
-            <StatusPill status={paymentResult ? "paid" : "pending"} />
+              {members.isLoading ? (
+                <StateBlock
+                  description="Đang tải hồ sơ hội viên đủ điều kiện trước khi bán gói."
+                  title="Đang tải hội viên..."
+                  tone="loading"
+                />
+              ) : null}
+              {members.data?.items.map((member) => (
+                <StaffMemberCard
+                  key={member.id}
+                  member={member}
+                  onSelect={() => {
+                    setSelectedMember(member)
+                    setSaleResult(null)
+                    setPaymentResult(null)
+                    setValue("memberId", member.id, { shouldValidate: true })
+                  }}
+                  selected={selectedMember?.id === member.id}
+                />
+              ))}
+            </StaffSearchPanel>
           </div>
-          {paymentResult ? (
-            <PaymentCompleteBanner message={paymentResult.message} />
-          ) : (
-            <div className="mt-4">
-              <ManualPaymentPanel
-                membership={saleResult}
-                onRecorded={setPaymentResult}
-              />
+        )}
+
+        {activeStep === 1 && (
+          <div className="space-y-5">
+            <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Hội viên đang chọn</p>
+                  <h3 className="text-lg font-bold text-foreground mt-0.5">{selectedMember?.fullName}</h3>
+                  <p className="text-xs text-muted-foreground">{selectedMember?.phone} | {selectedMember?.email}</p>
+                </div>
+                <Button
+                  onClick={() => {
+                    setSelectedMember(null)
+                    setValue("memberId", 0)
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl border-border hover:bg-muted text-xs font-semibold"
+                >
+                  ← Chọn hội viên khác
+                </Button>
+              </div>
             </div>
-          )}
-        </section>
-      ) : null}
+
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-semibold tracking-tight text-foreground">
+                    2. Chọn gói tập
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Gợi ý các gói tập phù hợp với nhu cầu của hội viên.
+                  </p>
+                </div>
+                <StatusPill status={selectedPackage ? "active" : "pending"} />
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-3">
+                {packages.data?.map((gymPackage, index) => (
+                  <PackageCard
+                    gymPackage={gymPackage}
+                    key={gymPackage.id}
+                    onSelect={() => {
+                      setSelectedPackageId(gymPackage.id)
+                      setSaleResult(null)
+                      setPaymentResult(null)
+                      setValue("packageId", gymPackage.id, {
+                        shouldValidate: true,
+                      })
+                    }}
+                    recommended={index === 1}
+                    selected={selectedPackageId === gymPackage.id}
+                  />
+                ))}
+              </div>
+
+              {selectedPackage ? (
+                <div className="mt-5 rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm font-medium text-foreground">
+                  Gợi ý: {selectedPackage.name} phù hợp để bắt đầu hoặc duy trì lịch tập ổn định.
+                </div>
+              ) : null}
+            </section>
+          </div>
+        )}
+
+        {activeStep === 2 && (
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+                <h3 className="text-lg font-bold text-foreground">Thông tin đơn hàng</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-xl bg-muted/50 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Hội viên</p>
+                    <p className="text-sm font-bold text-foreground mt-1">{selectedMember?.fullName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{selectedMember?.phone}</p>
+                  </div>
+                  <div className="rounded-xl bg-muted/50 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Gói tập</p>
+                    <p className="text-sm font-bold text-foreground mt-1">{selectedPackage?.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{selectedPackage?.durationDays} ngày | {selectedPackage?.price.toLocaleString("vi-VN")} VND</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => {
+                      setSelectedPackageId(null)
+                      setValue("packageId", 0)
+                    }}
+                    variant="outline"
+                    className="rounded-xl border-border text-xs font-semibold"
+                  >
+                    ← Chọn gói tập khác
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <OrderSummaryShell
+              footer={
+                <>
+                  <form onSubmit={handleSaleSubmit(onSubmitSale)}>
+                    {saleErrors.memberId ||
+                    saleErrors.packageId ||
+                    saleErrors.startDate ? (
+                      <p className="mt-3 text-sm font-medium text-destructive">
+                        {saleErrors.memberId?.message ??
+                          saleErrors.packageId?.message ??
+                          saleErrors.startDate?.message}
+                      </p>
+                    ) : null}
+                    <button
+                      className="mt-4 min-h-12 w-full rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                      data-testid="staff-sell-submit-button"
+                      disabled={sell.isPending}
+                      type="submit"
+                    >
+                      {sell.isPending ? "Đang tạo..." : "Xác nhận bán gói"}
+                    </button>
+                  </form>
+
+                  {operationError ? (
+                    <StateBlock
+                      className="mt-3"
+                      description="Kiểm tra lại hội viên và gói đã chọn, sau đó thử lại."
+                      title={operationError.message}
+                      tone="error"
+                    />
+                  ) : null}
+                </>
+              }
+              member={selectedMember}
+              title="Tóm tắt giao dịch"
+            >
+              <SummaryRow
+                label="Gói tập"
+                value={selectedPackage?.name ?? "Chưa chọn"}
+              />
+              <SummaryRow label="Ngày bắt đầu" value={today} />
+              <SummaryRow
+                label="Tổng tiền"
+                value={
+                  selectedPackage
+                    ? `${selectedPackage.price.toLocaleString("vi-VN")} VND`
+                    : "Đang chờ"
+                }
+              />
+            </OrderSummaryShell>
+          </div>
+        )}
+
+        {activeStep === 3 && saleResult && (
+          <div className="space-y-5">
+            <section
+              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+              data-testid="staff-sell-result"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="font-semibold text-foreground">
+                    Đã tạo bán gói {saleResult.packageName}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Gói hội viên đang chờ cho đến khi ghi nhận thanh toán.
+                  </p>
+                </div>
+                <StatusPill status={paymentResult ? "paid" : "pending"} />
+              </div>
+              {paymentResult ? (
+                <PaymentCompleteBanner message={paymentResult.message} />
+              ) : (
+                <div className="mt-4">
+                  <ManualPaymentPanel
+                    membership={saleResult}
+                    onRecorded={setPaymentResult}
+                  />
+                </div>
+              )}
+            </section>
+
+            <div className="flex justify-end">
+              <Button
+                onClick={() => {
+                  setSelectedMember(null)
+                  setSelectedPackageId(null)
+                  setSaleResult(null)
+                  setPaymentResult(null)
+                  setValue("memberId", 0)
+                  setValue("packageId", 0)
+                }}
+                className="rounded-xl bg-foreground text-background hover:bg-foreground/90 font-bold active:scale-[0.98]"
+              >
+                Tạo đơn bán mới
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

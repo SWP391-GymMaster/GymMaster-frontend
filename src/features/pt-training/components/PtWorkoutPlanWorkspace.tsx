@@ -1,14 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import {
-  ArrowRight,
   CalendarDays,
   CheckCircle2,
-  ClipboardList,
   Dumbbell,
   Filter,
-  MoreHorizontal,
   NotebookPen,
   Plus,
   Search,
@@ -33,7 +31,6 @@ import {
 } from "@/features/pt-training/components/WorkoutPlanList";
 import {
   getWorkoutAssetForExercise,
-  getWorkoutCategoryLabel,
 } from "@/features/pt-training/data/workout-assets";
 import type { WorkoutPlanDraft } from "@/features/pt-training/types/pt-training.types";
 
@@ -69,12 +66,15 @@ export function PtWorkoutPlanWorkspace() {
   const plansQuery = useMemberWorkoutPlans(validMemberId);
   const createPlan = useCreateMemberWorkoutPlan(validMemberId ?? 0);
 
+  const [activeView, setActiveView] = useState<"list" | "create">("list");
+
   const plansCount = plansQuery.data?.length ?? 0;
   const latestPlan = plansQuery.data?.[0];
   const latestExercisesCount = latestPlan?.exercises.length ?? 0;
 
   async function handleCreatePlan(draft: WorkoutPlanDraft) {
     await createPlan.mutateAsync(draft);
+    setActiveView("list");
   }
 
   return (
@@ -102,232 +102,32 @@ export function PtWorkoutPlanWorkspace() {
             />
           ) : null}
 
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-                  Workout Builder
-                </p>
-                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-                  Thiết kế giáo án có minh họa bài tập
-                </h2>
-                <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  PT chọn preset, kiểm tra thư viện bài tập và xem ảnh minh họa
-                  ngay trong workspace trước khi lưu giáo án.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  className="rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
-                  type="button"
-                  variant="outline"
-                >
-                  Hủy
-                </Button>
-                <Button
-                  className="rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-[0.98]"
-                  type="button"
-                >
-                  Tiếp tục
-                  <ArrowRight aria-hidden="true" className="size-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-3 lg:grid-cols-3">
-              <BuilderStep
-                active
-                index={1}
-                label="Thông tin giáo án"
-                title="Mục tiêu & lịch tập"
-              />
-              <BuilderStep
-                index={2}
-                label="Xây dựng buổi tập"
-                title="Bài tập & cue"
-              />
-              <BuilderStep
-                index={3}
-                label="Tổng kết & lưu"
-                title="Kiểm tra lần cuối"
-              />
-            </div>
-          </section>
-
-          <section className="grid gap-6 xl:grid-cols-[390px_minmax(0,1fr)]">
-            <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
-              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <div className="flex items-start gap-3">
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <NotebookPen aria-hidden="true" className="size-5" />
-                  </span>
-                  <div>
-                    <h3 className="text-lg font-semibold tracking-tight text-foreground">
-                      Thông tin giáo án
-                    </h3>
-                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                      Form bên phải vẫn giữ toàn bộ logic tạo giáo án, preset và
-                      submit hiện tại.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5 grid gap-3">
-                  <SideField
-                    label="Tên giáo án"
-                    value="Hypertrophy Program · Phase 1"
-                  />
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                    <SideField label="Tuần" value="04 tuần" />
-                    <SideField label="Mục tiêu" value="Tăng cơ" />
-                  </div>
-                  <div className="rounded-xl border border-primary/20 bg-primary/10 p-4">
-                    <div className="flex items-start gap-3">
-                      <CheckCircle2
-                        aria-hidden="true"
-                        className="mt-0.5 size-5 shrink-0 text-primary"
-                      />
-                      <p className="text-sm leading-6 text-foreground">
-                        Gợi ý: 4-6 buổi/tuần, tập trung nhóm cơ chính và
-                        progressive overload.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg font-semibold tracking-tight text-foreground">
-                      Thư viện bài tập
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Xem nhanh ảnh minh họa trước khi thêm vào giáo án.
-                    </p>
-                  </div>
-                  <Button
-                    className="size-10 rounded-xl border-border bg-card text-foreground hover:bg-muted"
-                    type="button"
-                    variant="outline"
-                  >
-                    <Filter aria-hidden="true" className="size-4" />
-                  </Button>
-                </div>
-
-                <label className="relative mt-4 block">
-                  <span className="sr-only">Tìm bài tập</span>
-                  <Search
-                    aria-hidden="true"
-                    className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                  />
-                  <input
-                    className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
-                    placeholder="Tìm bài tập: squat, bench press..."
-                    readOnly
-                  />
-                </label>
-
-                <div className="mt-4 flex gap-2 overflow-x-auto custom-scrollbar pb-1">
-                  {["Tất cả", "Ngực", "Lưng", "Vai", "Chân", "Core"].map(
-                    (tab, index) => (
-                      <button
-                        className={`min-h-9 shrink-0 rounded-full px-3 text-sm font-semibold transition ${
-                          index === 0
-                            ? "bg-primary text-primary-foreground"
-                            : "border border-border bg-background text-foreground hover:bg-muted"
-                        }`}
-                        key={tab}
-                        type="button"
-                      >
-                        {tab}
-                      </button>
-                    ),
-                  )}
-                </div>
-
-                <div className="mt-4 grid gap-3">
-                  {libraryPreview.map((exercise) => (
-                    <ExerciseLibraryItem
-                      key={exercise.name}
-                      name={exercise.name}
-                      tags={exercise.tags}
-                    />
-                  ))}
-                </div>
-
-                <Button
-                  className="mt-4 min-h-11 w-full rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
-                  type="button"
-                  variant="outline"
-                >
-                  Xem thêm bài tập
-                </Button>
-              </section>
-            </aside>
-
-            <main className="min-w-0 space-y-6">
-              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-                      Plan Builder
-                    </p>
-                    <h3 className="mt-1 text-xl font-semibold tracking-tight text-foreground">
-                      Tạo giáo án mới
-                    </h3>
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                      Wizard bên dưới xử lý preset, môi trường tập và danh sách
-                      bài tập; cột trái chỉ đóng vai trò preview nhanh.
-                    </p>
-                  </div>
-                  <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground">
-                    <Sparkles
-                      aria-hidden="true"
-                      className="size-4 text-primary"
-                    />
-                    Clean stepper
-                  </div>
-                </div>
-
-                <div className="mt-5">
-                  <WorkoutPlanForm
-                    isPending={createPlan.isPending}
-                    onSubmit={handleCreatePlan}
-                  />
-                </div>
-
-                {createPlan.error ? (
-                  <StateBlock
-                    className="mt-4"
-                    description="Kiểm tra quyền phụ trách hội viên và các dòng bài tập trước khi lưu lại."
-                    title={
-                      createPlan.error instanceof Error
-                        ? createPlan.error.message
-                        : "Không thể lưu giáo án."
-                    }
-                    tone="error"
-                  />
-                ) : null}
-              </section>
-
+          {activeView === "list" ? (
+            <div className="space-y-6">
               <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <WorkoutPlanListHeader />
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                      Giáo án đã lưu có ảnh minh họa để PT kiểm tra lại bài tập
-                      nhanh hơn, nhưng không làm layout quá nặng.
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground font-medium">
+                      Danh sách giáo án đã thiết kế cho hội viên này. Bấm nút bên phải để bắt đầu tạo giáo án mới.
                     </p>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 sm:w-[360px]">
-                    <MiniStat label="Giáo án" value={String(plansCount)} />
-                    <MiniStat
-                      label="Bài tập"
-                      value={String(latestExercisesCount)}
-                    />
-                    <MiniStat label="Tần suất" value="4 buổi" />
+                  <div className="flex flex-col gap-4 sm:w-[360px] shrink-0">
+                    <div className="grid grid-cols-3 gap-2">
+                      <MiniStat label="Giáo án" value={String(plansCount)} />
+                      <MiniStat
+                        label="Bài tập"
+                        value={String(latestExercisesCount)}
+                      />
+                      <MiniStat label="Tần suất" value="4 buổi" />
+                    </div>
+                    <Button
+                      onClick={() => setActiveView("create")}
+                      className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/95 active:scale-[0.98] font-bold"
+                    >
+                      <Plus className="mr-2 size-4" />
+                      Tạo giáo án mới
+                    </Button>
                   </div>
                 </div>
 
@@ -365,8 +165,216 @@ export function PtWorkoutPlanWorkspace() {
                   title="Tổng kết"
                 />
               </section>
-            </main>
-          </section>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                      Workout Builder
+                    </p>
+                    <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+                      Thiết kế giáo án có minh họa bài tập
+                    </h2>
+                    <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+                      PT chọn preset, kiểm tra thư viện bài tập và xem ảnh minh họa
+                      ngay trong workspace trước khi lưu giáo án.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={() => setActiveView("list")}
+                      className="rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+                      type="button"
+                      variant="outline"
+                    >
+                      ← Quay lại danh sách giáo án
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-3 lg:grid-cols-3">
+                  <BuilderStep
+                    active
+                    index={1}
+                    label="Thông tin giáo án"
+                    title="Mục tiêu & lịch tập"
+                  />
+                  <BuilderStep
+                    index={2}
+                    label="Xây dựng buổi tập"
+                    title="Bài tập & cue"
+                  />
+                  <BuilderStep
+                    index={3}
+                    label="Tổng kết & lưu"
+                    title="Kiểm tra lần cuối"
+                  />
+                </div>
+              </section>
+
+              <section className="grid gap-6 xl:grid-cols-[390px_minmax(0,1fr)]">
+                <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
+                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <NotebookPen aria-hidden="true" className="size-5" />
+                      </span>
+                      <div>
+                        <h3 className="text-lg font-semibold tracking-tight text-foreground">
+                          Thông tin giáo án
+                        </h3>
+                        <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                          Form bên phải vẫn giữ toàn bộ logic tạo giáo án, preset và
+                          submit hiện tại.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 grid gap-3">
+                      <SideField
+                        label="Tên giáo án"
+                        value="Hypertrophy Program · Phase 1"
+                      />
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                        <SideField label="Tuần" value="04 tuần" />
+                        <SideField label="Mục tiêu" value="Tăng cơ" />
+                      </div>
+                      <div className="rounded-xl border border-primary/20 bg-primary/10 p-4">
+                        <div className="flex items-start gap-3">
+                          <CheckCircle2
+                            aria-hidden="true"
+                            className="mt-0.5 size-5 shrink-0 text-primary"
+                          />
+                          <p className="text-sm leading-6 text-foreground">
+                            Gợi ý: 4-6 buổi/tuần, tập trung nhóm cơ chính và
+                            progressive overload.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-semibold tracking-tight text-foreground">
+                          Thư viện bài tập
+                        </h3>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Xem nhanh ảnh minh họa trước khi thêm vào giáo án.
+                        </p>
+                      </div>
+                      <Button
+                        className="size-10 rounded-xl border-border bg-card text-foreground hover:bg-muted"
+                        type="button"
+                        variant="outline"
+                      >
+                        <Filter aria-hidden="true" className="size-4" />
+                      </Button>
+                    </div>
+
+                    <label className="relative mt-4 block">
+                      <span className="sr-only">Tìm bài tập</span>
+                      <Search
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                      />
+                      <input
+                        className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                        placeholder="Tìm bài tập: squat, bench press..."
+                        readOnly
+                      />
+                    </label>
+
+                    <div className="mt-4 flex gap-2 overflow-x-auto custom-scrollbar pb-1">
+                      {["Tất cả", "Ngực", "Lưng", "Vai", "Chân", "Core"].map(
+                        (tab, index) => (
+                          <button
+                            className={`min-h-9 shrink-0 rounded-full px-3 text-sm font-semibold transition ${
+                              index === 0
+                                ? "bg-primary text-primary-foreground"
+                                : "border border-border bg-background text-foreground hover:bg-muted"
+                            }`}
+                            key={tab}
+                            type="button"
+                          >
+                            {tab}
+                          </button>
+                        ),
+                      )}
+                    </div>
+
+                    <div className="mt-4 grid gap-3">
+                      {libraryPreview.map((exercise) => (
+                        <ExerciseLibraryItem
+                          key={exercise.name}
+                          name={exercise.name}
+                          tags={exercise.tags}
+                        />
+                      ))}
+                    </div>
+
+                    <Button
+                      className="mt-4 min-h-11 w-full rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+                      type="button"
+                      variant="outline"
+                    >
+                      Xem thêm bài tập
+                    </Button>
+                  </section>
+                </aside>
+
+                <main className="min-w-0 space-y-6">
+                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                          Plan Builder
+                        </p>
+                        <h3 className="mt-1 text-xl font-semibold tracking-tight text-foreground">
+                          Tạo giáo án mới
+                        </h3>
+                        <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+                          Wizard bên dưới xử lý preset, môi trường tập và danh sách
+                          bài tập; cột trái chỉ đóng vai trò preview nhanh.
+                        </p>
+                      </div>
+                      <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground">
+                        <Sparkles
+                          aria-hidden="true"
+                          className="size-4 text-primary"
+                        />
+                        Clean stepper
+                      </div>
+                    </div>
+
+                    <div className="mt-5">
+                      <WorkoutPlanForm
+                        isPending={createPlan.isPending}
+                        onSubmit={handleCreatePlan}
+                      />
+                    </div>
+
+                    {createPlan.error ? (
+                      <StateBlock
+                        className="mt-4"
+                        description="Kiểm tra quyền phụ trách hội viên và các dòng bài tập trước khi lưu lại."
+                        title={
+                          createPlan.error instanceof Error
+                            ? createPlan.error.message
+                            : "Không thể lưu giáo án."
+                        }
+                        tone="error"
+                      />
+                    ) : null}
+                  </section>
+                </main>
+              </section>
+            </div>
+          )}
         </div>
       </WorkspaceShell>
     </PermissionGuard>

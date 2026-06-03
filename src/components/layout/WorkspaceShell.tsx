@@ -10,12 +10,13 @@ import {
 } from "@/components/layout/CommandRail";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/auth";
-import { useSidebarStore } from "@/stores/sidebar-store";
+import { useSidebarStore } from "@/stores/useSideBarStore";
 import { SpotlightSearch } from "@/features/billing/components/SpotlightSearch";
 import { NotificationsDrawer } from "@/components/feedback/NotificationsDrawer";
 import { SettingsDialog } from "@/features/billing/components/SettingsDialog";
 import { RouteProgressBar } from "@/components/feedback/RouteProgressBar";
 import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper";
+import { RestTimerOverlay } from "@/components/premium/RestTimerOverlay";
 
 export type WorkspaceShellMetric = {
   label: string;
@@ -88,17 +89,20 @@ export function WorkspaceShell({
       <RouteProgressBar />
 
       {/* Sidebars */}
-      <CommandRail role={role} />
-      <MobileCommandHeader role={role} />
+      <div className="print:hidden">
+        <CommandRail role={role} />
+        <MobileCommandHeader role={role} />
+      </div>
 
       {/* Main content shell layout wrapper */}
       <div
         className={cn(
           "min-h-screen bg-[linear-gradient(135deg,hsl(var(--muted)/0.55),hsl(var(--background))_42%,hsl(var(--muted)/0.35))] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
           isCollapsed ? "lg:ml-[80px]" : "lg:ml-[280px]",
+          "print:ml-0 print:bg-none"
         )}
       >
-        <header className="sticky top-0 z-20 hidden min-h-[72px] items-center justify-between gap-6 border-b border-border/70 bg-background/85 px-8 backdrop-blur-xl lg:flex">
+        <header className="sticky top-0 z-20 hidden min-h-[72px] items-center justify-between gap-6 border-b border-border/70 bg-background/85 px-8 backdrop-blur-xl lg:flex print:hidden">
           {/* Spotlight Search Trigger */}
           <div
             className="relative w-full max-w-sm cursor-pointer"
@@ -228,6 +232,7 @@ export function WorkspaceShell({
         onClose={() => setIsNotificationsOpen(false)}
       />
       <SettingsDialog open={isSettingsOpen} onOpenChange={setSettingsOpen} />
+      <RestTimerOverlay />
     </main>
   );
 }

@@ -7,8 +7,10 @@ import {
   Copy,
   MoreVertical,
   Trash2,
+  Printer,
 } from "lucide-react"
 
+import { useRestTimerStore } from "@/stores/useRestTimerStore"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
 import {
@@ -298,11 +300,12 @@ function ExerciseRow({
   mediaMode: "none" | "member"
 }) {
   const asset = getWorkoutAssetForExercise(exercise.name)
+  const startTimer = useRestTimerStore((s) => s.startTimer)
 
   if (mediaMode === "member") {
     return (
       <div className="grid gap-4 rounded-2xl border border-border bg-background p-3 md:grid-cols-[180px_minmax(0,1fr)]">
-        <div className="relative min-h-36 overflow-hidden rounded-xl border border-border bg-muted">
+        <div className="relative min-h-36 overflow-hidden rounded-xl border border-border bg-muted print:hidden">
           <img
             alt={`Minh họa bài tập ${exercise.name}`}
             className="absolute inset-0 size-full object-cover"
@@ -318,7 +321,7 @@ function ExerciseRow({
           <div>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground print:bg-zinc-200 print:text-zinc-950">
                   {index + 1}
                 </span>
                 <div>
@@ -332,17 +335,37 @@ function ExerciseRow({
                   ) : null}
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary print:hidden">
                 <CheckCircle2 aria-hidden="true" className="size-3.5" />
                 Sẵn sàng
               </span>
             </div>
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-3">
-            <ExerciseStat label="Sets" value={`${exercise.sets}`} />
-            <ExerciseStat label="Reps" value={exercise.reps} />
-            <ExerciseStat label="Cue" value={exercise.note ? "Có" : "Chưa có"} />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="grid gap-2 grid-cols-3 flex-1">
+              <ExerciseStat label="Sets" value={`${exercise.sets}`} />
+              <ExerciseStat label="Reps" value={exercise.reps} />
+              <ExerciseStat label="Cue" value={exercise.note ? "Có" : "Chưa có"} />
+            </div>
+            <div className="flex items-center gap-2 print:hidden">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 rounded-xl text-xs active:scale-95 transition"
+                onClick={() => startTimer(60, exercise.name, "Hội viên")}
+              >
+                Nghỉ 60s
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 rounded-xl text-xs active:scale-95 transition"
+                onClick={() => startTimer(90, exercise.name, "Hội viên")}
+              >
+                Nghỉ 90s
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -402,12 +425,29 @@ function SummaryItem({ label, value }: { label: string; value: string }) {
 }
 
 export function WorkoutPlanListHeader() {
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print()
+    }
+  }
+
   return (
-    <div className="flex items-center gap-2">
-      <ClipboardList aria-hidden="true" className="size-5 text-primary" />
-      <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-        Giáo án luyện tập
-      </h2>
+    <div className="flex items-center justify-between gap-2 w-full">
+      <div className="flex items-center gap-2">
+        <ClipboardList aria-hidden="true" className="size-5 text-primary" />
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+          Giáo án luyện tập
+        </h2>
+      </div>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={handlePrint}
+        className="rounded-xl flex items-center gap-1.5 print:hidden bg-card border-border hover:bg-muted text-foreground font-medium h-9"
+      >
+        <Printer className="size-4" />
+        In giáo án
+      </Button>
     </div>
   )
 }

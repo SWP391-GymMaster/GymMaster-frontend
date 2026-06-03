@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useSidebarStore, Theme, ColorPreset } from "@/stores/sidebar-store";
+import { useSidebarStore, Theme, ColorPreset } from "@/stores/useSideBarStore";
 
 interface SettingsDialogProps {
   open: boolean;
@@ -28,9 +28,21 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   if (!mounted) return null;
 
   const presets: { id: ColorPreset; name: string; colorClass: string }[] = [
-    { id: "lime", name: "Lime (Mặc định)", colorClass: "bg-[oklch(0.66_0.19_142)]" },
-    { id: "steel", name: "Steel Blue", colorClass: "bg-[oklch(0.58_0.095_210)]" },
-    { id: "orange", name: "Active Orange", colorClass: "bg-[oklch(0.6_0.2_35)]" },
+    {
+      id: "lime",
+      name: "Lime (Mặc định)",
+      colorClass: "bg-[oklch(0.66_0.19_142)]",
+    },
+    {
+      id: "steel",
+      name: "Steel Blue",
+      colorClass: "bg-[oklch(0.58_0.095_210)]",
+    },
+    {
+      id: "orange",
+      name: "Active Orange",
+      colorClass: "bg-[oklch(0.6_0.2_35)]",
+    },
   ];
 
   return (
@@ -41,7 +53,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             Cấu hình giao diện
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Tùy chỉnh chế độ sáng/tối và tông màu nhấn cho không gian làm việc của bạn.
+            Tùy chỉnh chế độ sáng/tối và tông màu nhấn cho không gian làm việc
+            của bạn.
           </DialogDescription>
         </DialogHeader>
 
@@ -101,10 +114,14 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className={`size-5 rounded-full ring-2 ring-background shadow-inner shrink-0 ${preset.colorClass}`} />
+                      <span
+                        className={`size-5 rounded-full ring-2 ring-background shadow-inner shrink-0 ${preset.colorClass}`}
+                      />
                       <span>{preset.name}</span>
                     </div>
-                    {isActive && <Check className="size-4 text-primary shrink-0" />}
+                    {isActive && (
+                      <Check className="size-4 text-primary shrink-0" />
+                    )}
                   </button>
                 );
               })}

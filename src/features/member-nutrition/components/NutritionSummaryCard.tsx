@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -33,6 +34,20 @@ export function NutritionSummaryCard({
   isError = false,
   compact = false,
 }: NutritionSummaryCardProps) {
+  const [localTarget, setLocalTarget] = useState(summary?.target ?? 2200);
+
+  useEffect(() => {
+    const targetVal = summary?.target ?? 2200;
+    const override = localStorage.getItem("gymmaster-calorie-goal");
+    const val = override ? Number(override) : targetVal;
+
+    const timer = setTimeout(() => {
+      setLocalTarget(val);
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, [summary?.target]);
+
   if (isLoading) {
     return (
       <StateBlock
@@ -63,11 +78,15 @@ export function NutritionSummaryCard({
     );
   }
 
+  const target = localTarget;
+  const consumed = summary.consumed;
+  const remaining = target - consumed;
+
   const consumedPercent = Math.min(
     100,
     Math.max(
       0,
-      Math.round((summary.consumed / Math.max(summary.target, 1)) * 100),
+      Math.round((consumed / Math.max(target, 1)) * 100),
     ),
   );
 
@@ -133,7 +152,7 @@ export function NutritionSummaryCard({
                 {consumedPercent}%
               </span>
               <span className="mt-2 text-3xl font-black tracking-tight text-foreground">
-                {summary.remaining}
+                {remaining}
               </span>
               <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Kcal còn
@@ -161,7 +180,7 @@ export function NutritionSummaryCard({
                 Dinh dưỡng hôm nay
               </p>
               <h3 className="mt-2 text-2xl font-bold tracking-tight text-foreground">
-                {getRemainingLabel(summary.remaining)} cho hôm nay
+                {getRemainingLabel(remaining)} cho hôm nay
               </h3>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                 {hasFoodLogged
@@ -187,14 +206,14 @@ export function NutritionSummaryCard({
               featured
               icon={Utensils}
               label="Còn lại"
-              value={getRemainingLabel(summary.remaining)}
+              value={getRemainingLabel(remaining)}
               subValue={`${remainingPercent}% còn lại`}
               tone="green"
             />
             <MetricCard
               icon={Target}
               label="Mục tiêu"
-              value={formatCalories(summary.target)}
+              value={formatCalories(target)}
               subValue="Mục tiêu ngày"
               tone="blue"
             />

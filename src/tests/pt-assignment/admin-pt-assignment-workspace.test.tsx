@@ -8,6 +8,8 @@ describe("AdminPtAssignmentWorkspace", () => {
   it("starts with disabled confirm until member and trainer are selected", async () => {
     renderWithAdminSession(<AdminPtAssignmentWorkspace />)
 
+    fireEvent.click(await screen.findByText("Bắt đầu phân công PT"))
+
     expect(await screen.findByText("Hội viên cần phân công")).toBeInTheDocument()
     expect(screen.getAllByText("PT khả dụng").length).toBeGreaterThan(0)
     expect(screen.getByTestId("assignment-confirm-button")).toBeDisabled()
@@ -15,6 +17,8 @@ describe("AdminPtAssignmentWorkspace", () => {
 
   it("assigns an unassigned member to a trainer and shows audit evidence", async () => {
     renderWithAdminSession(<AdminPtAssignmentWorkspace />)
+
+    fireEvent.click(await screen.findByText("Bắt đầu phân công PT"))
 
     fireEvent.click(await screen.findByText("Tran Bao Long"))
     fireEvent.click(await screen.findByText("Jessica Vance"))
@@ -30,6 +34,8 @@ describe("AdminPtAssignmentWorkspace", () => {
 
   it("blocks duplicate active assignment with final 422 rule", async () => {
     renderWithAdminSession(<AdminPtAssignmentWorkspace />)
+
+    fireEvent.click(await screen.findByText("Bắt đầu phân công PT"))
 
     fireEvent.click(await screen.findByText("Nguyen Minh Anh"))
     fireEvent.click(await screen.findByText("Marcus Cole"))

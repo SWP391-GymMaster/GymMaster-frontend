@@ -49,6 +49,8 @@ test.describe("PT Dashboard Flow", () => {
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
 
+    await page.getByRole("button", { name: "Tạo giáo án mới" }).click()
+
     await expect(page.getByText("Trình tạo giáo án").first()).toBeVisible()
 
     // Click step 2 'Bài tập' to fill the inputs
@@ -77,6 +79,9 @@ test.describe("PT Dashboard Flow", () => {
     )
 
     await expect(page.getByText("Ghi chú PT").first()).toBeVisible()
+
+    await page.getByRole("button", { name: "Thêm ghi chú mới" }).click()
+
     await page
       .getByLabel("Ghi chú huấn luyện")
       .fill("Keep shoulder warm-up before pressing.")

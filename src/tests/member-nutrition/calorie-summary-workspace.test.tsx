@@ -8,7 +8,7 @@ describe("CalorieSummaryWorkspace", () => {
   it("renders daily calorie summary for the current member", async () => {
     renderWithMemberSession(<CalorieSummaryWorkspace />)
 
-    expect(await screen.findByText("Tổng kết calo ngày")).toBeInTheDocument()
+    expect(await screen.findByText("Dinh dưỡng hôm nay")).toBeInTheDocument()
     expect(screen.getAllByText("Đã ăn").length).toBeGreaterThan(0)
     expect(screen.getByText("Mục tiêu")).toBeInTheDocument()
     expect(screen.getByText("Còn lại")).toBeInTheDocument()

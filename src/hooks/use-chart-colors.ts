@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSidebarStore } from "@/stores/sidebar-store";
+import { useSidebarStore } from "@/stores/useSideBarStore";
 
 /**
  * Resolves a CSS value string (which may contain var() references) to the
@@ -14,7 +14,7 @@ function resolveColor(cssValue: string): string {
   const el = document.createElement("span");
   el.setAttribute(
     "style",
-    `color: ${cssValue}; position: absolute; width: 0; height: 0; visibility: hidden; pointer-events: none;`
+    `color: ${cssValue}; position: absolute; width: 0; height: 0; visibility: hidden; pointer-events: none;`,
   );
   document.body.appendChild(el);
   const resolved = getComputedStyle(el).color;
@@ -85,7 +85,7 @@ export function useChartColors(): ChartColorPalette {
   const { theme, colorPreset } = useSidebarStore();
 
   const [palette, setPalette] = useState<ChartColorPalette>(() =>
-    typeof window !== "undefined" ? buildPalette() : SSR_DEFAULTS
+    typeof window !== "undefined" ? buildPalette() : SSR_DEFAULTS,
   );
 
   useEffect(() => {

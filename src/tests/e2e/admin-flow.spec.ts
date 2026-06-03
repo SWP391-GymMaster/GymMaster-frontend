@@ -172,6 +172,8 @@ test.describe("Admin Dashboard Flow", () => {
       page.getByRole("heading", { name: "Phân công PT" }).first(),
     ).toBeVisible()
 
+    await page.getByRole("button", { name: "Bắt đầu phân công PT" }).click()
+
     await page.getByText("Tran Bao Long").click()
     await page.getByText("Jessica Vance").click()
     await page.getByTestId("assignment-confirm-button").click()

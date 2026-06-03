@@ -2,10 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { CalendarDays, CheckCircle2, Scale, Utensils } from "lucide-react"
-import { useState, type ReactNode } from "react"
+import { useState, useEffect, type ReactNode } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
+import { cn } from "@/lib/utils"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,15 +26,45 @@ import {
   formatMealType,
 } from "@/features/member-nutrition/utils/nutrition-formatters"
 
-type MealLogFormProps = {
-  date: string
+const LOCAL_STORAGE_KEY_RECENT_FOODS = "gymmaster-recent-foods"
+
+function getRecentFoods(): FoodItem[] {
+  if (typeof window === "undefined") return []
+  try {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY_RECENT_FOODS)
+    return data ? JSON.parse(data) : []
+  } catch {
+    return []
+  }
 }
 
-export function MealLogForm({ date }: MealLogFormProps) {
+function saveRecentFood(food: FoodItem) {
+  if (typeof window === "undefined") return
+  try {
+    const current = getRecentFoods()
+    const filtered = current.filter((f) => f.id !== food.id)
+    const updated = [food, ...filtered].slice(0, 5)
+    localStorage.setItem(LOCAL_STORAGE_KEY_RECENT_FOODS, JSON.stringify(updated))
+  } catch (e) {
+    console.warn(e)
+  }
+}
+
+type MealLogFormProps = {
+  date: string
+  onSuccess?: () => void
+}
+
+export function MealLogForm({ date, onSuccess }: MealLogFormProps) {
   const memberId = useCurrentMemberProfileId()
   const createMealLog = useCreateMemberMealLog()
   const [foodQuery, setFoodQuery] = useState("")
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null)
+  const [recentFoods, setRecentFoods] = useState<FoodItem[]>([])
+
+  useEffect(() => {
+    setRecentFoods(getRecentFoods())
+  }, [selectedFood])
   const {
     formState: { errors },
     handleSubmit,
@@ -79,6 +110,9 @@ export function MealLogForm({ date }: MealLogFormProps) {
       ],
     })
     toast.success("Đã thêm bữa ăn")
+    if (selectedFood) {
+      saveRecentFood(selectedFood)
+    }
     reset({
       foodItemId: 0,
       logDate: date,
@@ -86,6 +120,7 @@ export function MealLogForm({ date }: MealLogFormProps) {
       quantity: 1,
     })
     setSelectedFood(null)
+    onSuccess?.()
   }
 
   return (
@@ -111,6 +146,31 @@ export function MealLogForm({ date }: MealLogFormProps) {
             </p>
           </div>
         </div>
+
+        {recentFoods.length > 0 && (
+          <div className="mt-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground mb-2">
+              Gợi ý gần đây:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {recentFoods.map((food) => (
+                <button
+                  key={food.id}
+                  type="button"
+                  onClick={() => selectFood(food)}
+                  className={cn(
+                    "px-3 py-1 text-xs rounded-full border transition active:scale-95",
+                    selectedFood?.id === food.id
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-border bg-background hover:bg-muted text-muted-foreground"
+                  )}
+                >
+                  {food.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {selectedFood ? (
           <div className="mt-5 rounded-xl border border-primary/20 bg-primary/10 p-4">

@@ -31,7 +31,7 @@ import { RoleBadge } from "@/components/data/RoleBadge";
 import { LogoutButton } from "@/features/auth/components/LogoutButton";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
 import { cn } from "@/lib/utils";
-import { useSidebarStore } from "@/stores/sidebar-store";
+import { useSidebarStore } from "@/stores/useSideBarStore";
 import type { UserRole } from "@/types/auth";
 
 type CommandRailItem = {

@@ -40,6 +40,7 @@ function initials(name: string) {
 const cardClass = "rounded-2xl border border-border bg-card shadow-sm"
 
 export function AdminPtAssignmentWorkspace() {
+  const [activeView, setActiveView] = useState<"list" | "assign">("list")
   const [memberQuery, setMemberQuery] = useState("")
   const [trainerQuery, setTrainerQuery] = useState("")
   const [specialty, setSpecialty] = useState("all")
@@ -122,13 +123,30 @@ export function AdminPtAssignmentWorkspace() {
           </div>
         </div>
 
-        <Button
-          className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted"
-          type="button"
-          variant="outline"
-        >
-          Hướng dẫn phân công
-        </Button>
+        {activeView === "list" ? (
+          <Button
+            onClick={() => setActiveView("assign")}
+            className="min-h-11 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/95"
+            type="button"
+          >
+            Bắt đầu phân công PT
+          </Button>
+        ) : (
+          <Button
+            onClick={() => {
+              setActiveView("list")
+              setSelectedMemberId(null)
+              setSelectedTrainerId(null)
+              setResult(null)
+              setAssignmentError(null)
+            }}
+            className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted"
+            type="button"
+            variant="outline"
+          >
+            ← Quay lại danh sách
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -155,141 +173,214 @@ export function AdminPtAssignmentWorkspace() {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.88fr)_minmax(360px,1.08fr)_minmax(340px,0.74fr)]">
-        <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
-          <PanelHeader
-            badge={`${needsPtCount} cần PT`}
-            icon={<Users aria-hidden="true" className="size-4" />}
-            title="Hội viên chờ phân công"
-          />
-
-          <div className="space-y-3 border-b border-border p-4">
-            <SearchInput
-              dataTestId="assignment-member-search"
-              onChange={setMemberQuery}
-              placeholder="Tìm hội viên..."
-              value={memberQuery}
-            />
-          </div>
-
-          <div className="flex-1 space-y-3 overflow-y-auto p-4">
-            <AssignmentQueryState
-              emptyTitle="Chưa có hội viên phù hợp"
-              error={membersQuery.error}
-              isLoading={membersQuery.isLoading}
-              itemCount={members.length}
-              loadingTitle="Đang tải hội viên..."
-            />
-            {members.map((member) => (
-              <MemberCard
-                key={member.id}
-                member={member}
-                onSelect={() => {
-                  setSelectedMemberId(member.id)
-                  setResult(null)
-                  setAssignmentError(null)
-                }}
-                selected={selectedMemberId === member.id}
-              />
-            ))}
-          </div>
-        </section>
-
-        <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
-          <PanelHeader
-            action={
+      {activeView === "list" ? (
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">Danh sách phân công hiện tại</h3>
+                <p className="text-sm text-muted-foreground">
+                  Quản lý và theo dõi các cặp huấn luyện viên - hội viên đang hoạt động.
+                </p>
+              </div>
               <Button
-                className="rounded-xl text-primary hover:bg-primary/10"
-                type="button"
-                variant="ghost"
+                onClick={() => setActiveView("assign")}
+                className="rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/95 active:scale-[0.98]"
               >
-                <Filter aria-hidden="true" className="size-4" />
-                Lọc
+                Tạo phân công mới
               </Button>
-            }
-            badge={`${trainers.length} PT`}
-            icon={<Dumbbell aria-hidden="true" className="size-4" />}
-            title="PT khả dụng"
-          />
+            </div>
 
-          <div className="space-y-3 border-b border-border p-4">
-            <SearchInput
-              dataTestId="assignment-trainer-search"
-              onChange={setTrainerQuery}
-              placeholder="Tìm PT..."
-              value={trainerQuery}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left text-sm text-foreground">
+                <thead>
+                  <tr className="border-b border-border text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    <th className="pb-3 pt-2">Hội viên</th>
+                    <th className="pb-3 pt-2">Huấn luyện viên (PT)</th>
+                    <th className="pb-3 pt-2">Mục tiêu</th>
+                    <th className="pb-3 pt-2">Ưu tiên</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {members.filter((m) => m.currentTrainerName).length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center text-muted-foreground">
+                        Chưa có phân công hoạt động nào.
+                      </td>
+                    </tr>
+                  ) : (
+                    members
+                      .filter((m) => m.currentTrainerName)
+                      .map((member) => (
+                        <tr key={member.id} className="hover:bg-muted/30">
+                          <td className="py-3.5">
+                            <span className="font-semibold text-foreground">{member.fullName}</span>
+                            <span className="block text-xs text-muted-foreground mt-0.5">{member.memberCode}</span>
+                          </td>
+                          <td className="py-3.5">
+                            <span className="font-semibold text-primary">{member.currentTrainerName}</span>
+                          </td>
+                          <td className="py-3.5 text-muted-foreground">
+                            {member.goal ?? "Thể lực tổng quát"}
+                          </td>
+                          <td className="py-3.5">
+                            {member.priority === "high" ? (
+                              <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-bold text-orange-600">
+                                Cao
+                              </span>
+                            ) : (
+                              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                                Thường
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      ) : (
+        <div className="grid gap-6 xl:grid-cols-[minmax(320px,0.88fr)_minmax(360px,1.08fr)_minmax(340px,0.74fr)]">
+          <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
+            <PanelHeader
+              badge={`${needsPtCount} cần PT`}
+              icon={<Users aria-hidden="true" className="size-4" />}
+              title="Hội viên chờ phân công"
             />
 
-            <div className="flex flex-wrap gap-2">
-              {["all", "Weight Loss", "Strength", "Cardio", "Mobility"].map((item) => (
-                <button
-                  className={cn(
-                    "min-h-9 rounded-full border px-4 text-sm font-semibold transition active:scale-[0.98]",
-                    specialty === item
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
-                  )}
-                  key={item}
-                  onClick={() => setSpecialty(item)}
-                  type="button"
-                >
-                  {item === "all" ? "Tất cả" : displaySpecialty(item)}
-                </button>
+            <div className="space-y-3 border-b border-border p-4">
+              <SearchInput
+                dataTestId="assignment-member-search"
+                onChange={setMemberQuery}
+                placeholder="Tìm hội viên..."
+                value={memberQuery}
+              />
+            </div>
+
+            <div className="flex-1 space-y-3 overflow-y-auto p-4">
+              <AssignmentQueryState
+                emptyTitle="Chưa có hội viên phù hợp"
+                error={membersQuery.error}
+                isLoading={membersQuery.isLoading}
+                itemCount={members.length}
+                loadingTitle="Đang tải hội viên..."
+              />
+              {members.map((member) => (
+                <MemberCard
+                  key={member.id}
+                  member={member}
+                  onSelect={() => {
+                    setSelectedMemberId(member.id)
+                    setResult(null)
+                    setAssignmentError(null)
+                  }}
+                  selected={selectedMemberId === member.id}
+                />
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="flex-1 space-y-3 overflow-y-auto p-4">
-            <AssignmentQueryState
-              emptyTitle="Chưa có PT phù hợp"
-              error={trainersQuery.error}
-              isLoading={trainersQuery.isLoading}
-              itemCount={trainers.length}
-              loadingTitle="Đang tải PT..."
+          <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
+            <PanelHeader
+              action={
+                <Button
+                  className="rounded-xl text-primary hover:bg-primary/10"
+                  type="button"
+                  variant="ghost"
+                >
+                  <Filter aria-hidden="true" className="size-4" />
+                  Lọc
+                </Button>
+              }
+              badge={`${trainers.length} PT`}
+              icon={<Dumbbell aria-hidden="true" className="size-4" />}
+              title="PT khả dụng"
             />
-            {trainers.map((trainer) => (
-              <TrainerCard
-                key={trainer.id}
-                onSelect={() => {
-                  setSelectedTrainerId(trainer.id)
-                  setResult(null)
-                  setAssignmentError(null)
-                }}
-                selected={selectedTrainerId === trainer.id}
-                trainer={trainer}
+
+            <div className="space-y-3 border-b border-border p-4">
+              <SearchInput
+                dataTestId="assignment-trainer-search"
+                onChange={setTrainerQuery}
+                placeholder="Tìm PT..."
+                value={trainerQuery}
               />
-            ))}
-          </div>
-        </section>
 
-        <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
-          <PanelHeader
-            icon={<Handshake aria-hidden="true" className="size-4" />}
-            title="Xem trước phân công"
-          />
+              <div className="flex flex-wrap gap-2">
+                {["all", "Weight Loss", "Strength", "Cardio", "Mobility"].map((item) => (
+                  <button
+                    className={cn(
+                      "min-h-9 rounded-full border px-4 text-sm font-semibold transition active:scale-[0.98]",
+                      specialty === item
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+                    )}
+                    key={item}
+                    onClick={() => setSpecialty(item)}
+                    type="button"
+                  >
+                    {item === "all" ? "Tất cả" : displaySpecialty(item)}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          <AssignmentPreview
-            assignmentError={assignmentError}
-            mode={mode}
-            result={result}
-            selectedMember={selectedMember}
-            selectedTrainer={selectedTrainer}
-          />
+            <div className="flex-1 space-y-3 overflow-y-auto p-4">
+              <AssignmentQueryState
+                emptyTitle="Chưa có PT phù hợp"
+                error={trainersQuery.error}
+                isLoading={trainersQuery.isLoading}
+                itemCount={trainers.length}
+                loadingTitle="Đang tải PT..."
+              />
+              {trainers.map((trainer) => (
+                <TrainerCard
+                  key={trainer.id}
+                  onSelect={() => {
+                    setSelectedTrainerId(trainer.id)
+                    setResult(null)
+                    setAssignmentError(null)
+                  }}
+                  selected={selectedTrainerId === trainer.id}
+                  trainer={trainer}
+                />
+              ))}
+            </div>
+          </section>
 
-          <div className="border-t border-border p-4">
-            <Button
-              className="min-h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:brightness-95 active:scale-[0.98]"
-              data-testid="assignment-confirm-button"
-              disabled={!canConfirm || assignTrainer.isPending}
-              onClick={onConfirm}
-              type="button"
-            >
-              <CheckCircle2 aria-hidden="true" className="size-5" />
-              {mode === "reassign" ? "Gửi yêu cầu phân công" : "Xác nhận phân công"}
-            </Button>
-          </div>
-        </section>
-      </div>
+          <section className={cn(cardClass, "flex min-h-[640px] flex-col overflow-hidden")}>
+            <PanelHeader
+              icon={<Handshake aria-hidden="true" className="size-4" />}
+              title="Xem trước phân công"
+            />
+
+            <div className="flex-1 overflow-y-auto">
+              <AssignmentPreview
+                assignmentError={assignmentError}
+                mode={mode}
+                result={result}
+                selectedMember={selectedMember}
+                selectedTrainer={selectedTrainer}
+              />
+            </div>
+
+            <div className="border-t border-border p-4">
+              <Button
+                className="min-h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+                data-testid="assignment-confirm-button"
+                disabled={!canConfirm || assignTrainer.isPending}
+                onClick={onConfirm}
+                type="button"
+              >
+                <CheckCircle2 aria-hidden="true" className="size-5" />
+                {mode === "reassign" ? "Gửi yêu cầu phân công" : "Xác nhận phân công"}
+              </Button>
+            </div>
+          </section>
+        </div>
+      )}
     </section>
   )
 }

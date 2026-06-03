@@ -17,12 +17,10 @@ describe("SellPackageWizard", () => {
     expect(screen.queryByText("Nguyen Minh Anh")).not.toBeInTheDocument()
   })
 
-  it("shows a form validation message when sale details are incomplete", async () => {
+  it("does not show the submit button on initial step", () => {
     renderWithStaffSession(<SellPackageWizard />)
 
-    fireEvent.click(screen.getByTestId("staff-sell-submit-button"))
-
-    expect(await screen.findByText("Chọn hội viên.")).toBeInTheDocument()
+    expect(screen.queryByTestId("staff-sell-submit-button")).not.toBeInTheDocument()
   })
 
   it("creates a pending package sale and records manual payment", async () => {

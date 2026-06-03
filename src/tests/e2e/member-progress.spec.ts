@@ -67,6 +67,9 @@ test("PT can view assigned member progress in read-only mode", async ({ page }) 
   // Verify quick stats show member progress metrics
   await expect(page.getByTestId("member-360-container").or(page.locator("body"))).toContainText("Cân nặng")
 
+  // Wait for the quick action link to be visible
+  await expect(page.getByRole("link", { name: /Xem tiến độ/ })).toBeVisible()
+
   // Click "Xem tiến độ" quick action in trainer workspace
   await page.getByRole("link", { name: /Xem tiến độ/ }).click()
   await expect(page).toHaveURL(/\/pt\/members\/101\/progress$/)
