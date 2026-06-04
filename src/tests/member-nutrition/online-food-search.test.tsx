@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { FoodSearchPanel } from "@/features/member-nutrition/components/FoodSearchPanel"
 import { resetAuthSessionForTest } from "@/features/auth/session/auth-session"
 import { renderWithMemberSession } from "@/tests/member-nutrition/test-utils"
+import { AppProviders } from "@/app/providers"
 
 // Mock sonner toast preserving Toaster export
 vi.mock("sonner", async (importOriginal) => {
@@ -128,4 +129,90 @@ describe("FoodSearchPanel Online Search", () => {
       expect(onSelectFood).toHaveBeenCalled()
     })
   })
+
+  it("enforces cooldown timer on the online search button after query changes", async () => {
+    const onQueryChange = vi.fn()
+    const onSelectFood = vi.fn()
+
+    const { rerender } = renderWithMemberSession(
+      <FoodSearchPanel
+        query="mì tôm"
+        onQueryChange={onQueryChange}
+        onSelectFood={onSelectFood}
+      />
+    )
+
+    const btn = await screen.findByTestId("online-search-trigger-btn")
+    expect(btn).toBeInTheDocument()
+
+    // Click to trigger online search
+    fireEvent.click(btn)
+
+    // Change the query prop so the button is rendered again (since onlineSearchTriggered is reset to false)
+    rerender(
+      <AppProviders>
+        <FoodSearchPanel
+          query="xyzabc"
+          onQueryChange={onQueryChange}
+          onSelectFood={onSelectFood}
+        />
+      </AppProviders>
+    )
+
+    // Find the new button and verify it is disabled and shows cooldown text
+    const newBtn = await screen.findByTestId("online-search-trigger-btn")
+    expect(newBtn).toBeDisabled()
+    expect(screen.getByText(/Chờ \d+s để tìm trực tuyến.../i)).toBeInTheDocument()
+  })
+
+  it("displays amber warning banner and OFF source badge on online search results", async () => {
+    const onQueryChange = vi.fn()
+    const onSelectFood = vi.fn()
+
+    renderWithMemberSession(
+      <FoodSearchPanel
+        query="sữa"
+        onQueryChange={onQueryChange}
+        onSelectFood={onSelectFood}
+      />
+    )
+
+    const link = await screen.findByTestId("online-search-link")
+    fireEvent.click(link)
+
+    // Wait for the online search results heading to render (ensuring loading is finished)
+    expect(await screen.findByText("Kết quả trực tuyến từ Open Food Facts")).toBeInTheDocument()
+
+    // Verify amber warning banner is visible
+    expect(screen.getByText(/dữ liệu cộng đồng quốc tế/i)).toBeInTheDocument()
+
+    // Verify source badge is shown (it has "OFF" text)
+    const badges = await screen.findAllByText("OFF")
+    expect(badges.length).toBeGreaterThan(0)
+    expect(badges[0]).toBeInTheDocument()
+  })
+
+  it("handles HTTP 429 Rate Limit error gracefully", async () => {
+    const onQueryChange = vi.fn()
+    const onSelectFood = vi.fn()
+
+    renderWithMemberSession(
+      <FoodSearchPanel
+        query="rate-limit"
+        onQueryChange={onQueryChange}
+        onSelectFood={onSelectFood}
+      />
+    )
+
+    const btn = await screen.findByTestId("online-search-trigger-btn")
+    fireEvent.click(btn)
+
+    // Wait for Rate Limit warning state block to be displayed
+    expect(await screen.findByText("Đạt giới hạn tần suất (Rate Limit)")).toBeInTheDocument()
+    expect(screen.getByText(/Đã đạt giới hạn tra cứu. Hệ thống Open Food Facts giới hạn 10 lần tìm kiếm\/phút/i)).toBeInTheDocument()
+    
+    // Custom food action is present under the error state
+    expect(screen.getByRole("button", { name: /Tự tạo món ăn/i })).toBeInTheDocument()
+  })
 })
+

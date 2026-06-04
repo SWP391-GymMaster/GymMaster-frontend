@@ -173,6 +173,13 @@ export const nutritionHandlers = [
     const url = new URL(request.url)
     const terms = url.searchParams.get("search_terms")?.toLowerCase() || ""
 
+    if (terms.includes("rate-limit")) {
+      return new HttpResponse(null, {
+        status: 429,
+        statusText: "Too Many Requests",
+      })
+    }
+
     if (terms.includes("sữa")) {
       return HttpResponse.json({
         products: [

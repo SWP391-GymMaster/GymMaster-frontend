@@ -157,5 +157,6 @@ export function useFoodOnlineSearch(query: string, enabled = false) {
     queryFn: () => searchFoodOnline(normalizedQuery),
     enabled: enabled && normalizedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // cache 5 mins
+    retry: false,
   })
 }

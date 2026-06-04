@@ -151,7 +151,10 @@ export async function searchFoodOnline(query: string): Promise<CreateCustomFoodI
     )
     console.log(`[DEBUG] searchFoodOnline response status: ${response.status}, ok: ${response.ok}`)
     if (!response.ok) {
-      return []
+      if (response.status === 429) {
+        throw new Error("Too Many Requests (429)")
+      }
+      throw new Error(`HTTP Error ${response.status}`)
     }
     const data = await response.json()
     if (!data.products || !Array.isArray(data.products)) {
@@ -193,7 +196,7 @@ export async function searchFoodOnline(query: string): Promise<CreateCustomFoodI
     })
   } catch (error) {
     console.error("Open Food Facts online search failed:", error)
-    return []
+    throw error
   }
 }
 

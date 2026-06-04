@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Search, Utensils, History, Heart, Scan } from "lucide-react"
+import { Plus, Search, Utensils, History, Heart, Scan, Info, AlertTriangle, Globe } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -93,6 +93,23 @@ export function FoodSearchPanel({
 
   // Online search states
   const [onlineSearchTriggered, setOnlineSearchTriggered] = useState(false)
+  const [cooldownSecs, setCooldownSecs] = useState(0)
+
+  // Cooldown countdown effect
+  useEffect(() => {
+    if (cooldownSecs <= 0) return
+    const timer = setInterval(() => {
+      setCooldownSecs((prev) => prev - 1)
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [cooldownSecs])
+
+  const triggerOnlineSearch = () => {
+    if (cooldownSecs > 0) return
+    setOnlineSearchTriggered(true)
+    setCooldownSecs(60)
+  }
+
   
   // Edited values inside preview
   const [previewName, setPreviewName] = useState("")
@@ -395,15 +412,28 @@ export function FoodSearchPanel({
               {/* If local has results but online search is not triggered yet */}
               {canSearch && foods.data && foods.data.items.length > 0 && !onlineSearchTriggered && (
                 <div className="mt-2 text-center">
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="text-xs font-semibold text-primary hover:underline h-auto p-0"
-                    onClick={() => setOnlineSearchTriggered(true)}
-                    data-testid="online-search-link"
-                  >
-                    Không tìm thấy món bạn cần? Thử tìm kiếm trực tuyến cho &quot;{query}&quot;
-                  </Button>
+                  <div className="inline-flex items-center gap-1 group relative">
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="text-xs font-semibold text-primary hover:underline h-auto p-0"
+                      onClick={triggerOnlineSearch}
+                      disabled={cooldownSecs > 0}
+                      data-testid="online-search-link"
+                    >
+                      {cooldownSecs > 0
+                        ? `Chờ ${cooldownSecs}s để tìm trực tuyến cho "${query}"`
+                        : `Không tìm thấy món bạn cần? Thử tìm kiếm trực tuyến cho "${query}"`}
+                    </Button>
+                    {cooldownSecs === 0 && (
+                      <div className="relative flex items-center">
+                        <Info className="size-3.5 text-primary/60 cursor-help" />
+                        <span className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 rounded bg-zinc-950 p-2 text-[10px] text-zinc-100 shadow-md z-10 text-center pointer-events-none">
+                          Tìm kiếm từ cơ sở dữ liệu Open Food Facts mở rộng. Giới hạn 10 requests/phút.
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -416,15 +446,26 @@ export function FoodSearchPanel({
                     tone="empty"
                   />
                   <div className="flex flex-col gap-2">
-                    <Button
-                      type="button"
-                      onClick={() => setOnlineSearchTriggered(true)}
-                      className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98] flex items-center justify-center gap-2"
-                      data-testid="online-search-trigger-btn"
-                    >
-                      <Search className="size-4" />
-                      Tìm kiếm trực tuyến cho &quot;{query}&quot;
-                    </Button>
+                    <div className="relative group w-full">
+                      <Button
+                        type="button"
+                        onClick={triggerOnlineSearch}
+                        disabled={cooldownSecs > 0}
+                        className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98] flex items-center justify-center gap-2"
+                        data-testid="online-search-trigger-btn"
+                      >
+                        <Search className="size-4" />
+                        {cooldownSecs > 0
+                          ? `Chờ ${cooldownSecs}s để tìm trực tuyến...`
+                          : `Tìm kiếm trực tuyến cho "${query}"`}
+                        {cooldownSecs === 0 && <Info className="size-3.5 opacity-80" />}
+                      </Button>
+                      {cooldownSecs === 0 && (
+                        <span className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded bg-zinc-950 p-2 text-xs text-zinc-100 shadow-md z-10 text-center pointer-events-none">
+                          Tra cứu dữ liệu Open Food Facts mở rộng. Yêu cầu kích hoạt thủ công do giới hạn 10 lần/phút của API.
+                        </span>
+                      )}
+                    </div>
                     <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
                   </div>
                 </div>
@@ -442,11 +483,22 @@ export function FoodSearchPanel({
               )}
               {onlineSearchTriggered && !onlineSearch.isFetching && onlineSearch.isError && (
                 <div className="mt-4">
-                  <StateBlock
-                    description="Tìm kiếm trực tuyến tạm thời thất bại do sự cố kết nối mạng."
-                    title="Tìm kiếm trực tuyến thất bại"
-                    tone="error"
-                  />
+                  {onlineSearch.error?.message?.includes("429") || onlineSearch.error?.message?.includes("Too Many") ? (
+                    <div className="space-y-4">
+                      <StateBlock
+                        description="Đã đạt giới hạn tra cứu. Hệ thống Open Food Facts giới hạn 10 lần tìm kiếm/phút. Vui lòng đợi 1–2 phút rồi thử lại, hoặc tự tạo món ăn tùy chỉnh."
+                        title="Đạt giới hạn tần suất (Rate Limit)"
+                        tone="error"
+                      />
+                      <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
+                    </div>
+                  ) : (
+                    <StateBlock
+                      description="Tìm kiếm trực tuyến tạm thời thất bại do sự cố kết nối mạng."
+                      title="Tìm kiếm trực tuyến thất bại"
+                      tone="error"
+                    />
+                  )}
                 </div>
               )}
               {onlineSearchTriggered && !onlineSearch.isFetching && !onlineSearch.isError && onlineSearch.data?.length === 0 && (
@@ -465,6 +517,12 @@ export function FoodSearchPanel({
               {/* Online Search Results Display */}
               {onlineSearchTriggered && !onlineSearch.isFetching && !onlineSearch.isError && onlineSearch.data && onlineSearch.data.length > 0 && (
                 <div className="mt-4 space-y-3">
+                  <div className="flex items-start gap-2 rounded-xl border border-amber-200/60 bg-amber-50/60 px-3 py-2.5 text-xs text-amber-700">
+                    <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+                    <span>
+                      Kết quả từ <strong>Open Food Facts</strong> — dữ liệu cộng đồng quốc tế. Giới hạn 10 lần tra cứu/phút. Sản phẩm Việt Nam có thể thiếu.
+                    </span>
+                  </div>
                   <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
                     Kết quả trực tuyến từ Open Food Facts
                   </h3>
@@ -483,7 +541,12 @@ export function FoodSearchPanel({
                             <Utensils aria-hidden="true" className="size-4" />
                           </span>
                           <span className="min-w-0">
-                            <span className="block truncate font-semibold">{food.name}</span>
+                            <span className="flex items-center gap-1.5 min-w-0">
+                              <span className="block truncate font-semibold">{food.name}</span>
+                              <span className="inline-flex items-center gap-0.5 shrink-0 rounded-full bg-cyan-100 px-2 py-0.5 text-[10px] font-semibold text-cyan-700">
+                                <Globe className="size-2.5" /> OFF
+                              </span>
+                            </span>
                             <span className="mt-1 block text-xs text-muted-foreground">
                               {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
                               {food.proteinG !== undefined && ` · P: ${food.proteinG}g C: ${food.carbsG}g F: ${food.fatG}g`}
