@@ -10,6 +10,7 @@ import {
   searchFoodItems,
   createCustomFoodItem,
   fetchFoodByBarcode,
+  searchFoodOnline,
 } from "@/features/member-nutrition/api/member-nutrition.api"
 import type { CreateMealLogDraft, CreateCustomFoodInput } from "@/features/member-nutrition/types/member-nutrition.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
@@ -18,6 +19,7 @@ export const memberNutritionKeys = {
   all: ["member-nutrition"] as const,
   foods: (query: string) => [...memberNutritionKeys.all, "foods", query] as const,
   barcode: (barcode: string) => [...memberNutritionKeys.all, "barcode", barcode] as const,
+  onlineSearch: (query: string) => [...memberNutritionKeys.all, "online-search", query] as const,
   mealLogs: (memberId: number, date: string) =>
     [...memberNutritionKeys.all, "meal-logs", memberId, date] as const,
   summary: (memberId: number, date: string) =>
@@ -143,6 +145,17 @@ export function useFoodBarcodeLookup(barcode: string) {
     queryKey: memberNutritionKeys.barcode(normalizedBarcode),
     queryFn: () => fetchFoodByBarcode(normalizedBarcode),
     enabled: normalizedBarcode.length > 0,
+    staleTime: 5 * 60 * 1000, // cache 5 mins
+  })
+}
+
+export function useFoodOnlineSearch(query: string, enabled = false) {
+  const normalizedQuery = query.trim()
+
+  return useQuery({
+    queryKey: memberNutritionKeys.onlineSearch(normalizedQuery),
+    queryFn: () => searchFoodOnline(normalizedQuery),
+    enabled: enabled && normalizedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // cache 5 mins
   })
 }

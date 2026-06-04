@@ -23,6 +23,7 @@ import {
   useFoodSearch,
   useCreateCustomFoodItem,
   useFoodBarcodeLookup,
+  useFoodOnlineSearch,
 } from "@/features/member-nutrition/api/member-nutrition.queries"
 import { searchFoodItems } from "@/features/member-nutrition/api/member-nutrition.api"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
@@ -31,7 +32,10 @@ import {
   type CustomFoodFormInput,
   type CustomFoodFormValues,
 } from "@/features/member-nutrition/schemas/custom-food.schemas"
-import type { FoodItem } from "@/features/member-nutrition/types/member-nutrition.types"
+import type {
+  FoodItem,
+  CreateCustomFoodInput,
+} from "@/features/member-nutrition/types/member-nutrition.types"
 import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
 
 const BarcodeScannerDialog = dynamic(
@@ -86,6 +90,9 @@ export function FoodSearchPanel({
   const [barcode, setBarcode] = useState("")
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [isSavingProduct, setIsSavingProduct] = useState(false)
+
+  // Online search states
+  const [onlineSearchTriggered, setOnlineSearchTriggered] = useState(false)
   
   // Edited values inside preview
   const [previewName, setPreviewName] = useState("")
@@ -100,6 +107,7 @@ export function FoodSearchPanel({
   const canSearch = query.trim().length >= 2
 
   const barcodeLookup = useFoodBarcodeLookup(barcode)
+  const onlineSearch = useFoodOnlineSearch(query, onlineSearchTriggered)
   const createFood = useCreateCustomFoodItem()
 
   // Handle Barcode Query response
@@ -110,6 +118,24 @@ export function FoodSearchPanel({
       toast.dismiss("barcode-loading")
     }
   }, [barcodeLookup.isFetching])
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  // Reset online search when keyword changes
+  useEffect(() => {
+    setOnlineSearchTriggered(false)
+  }, [query])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Handle online search product selection
+  const handleSelectOnlineFood = (food: CreateCustomFoodInput) => {
+    setPreviewName(food.name)
+    setPreviewUnit(food.unit)
+    setPreviewCalories(food.caloriesPerUnit)
+    setPreviewProtein(food.proteinG || 0)
+    setPreviewCarbs(food.carbsG || 0)
+    setPreviewFat(food.fatG || 0)
+    setIsPreviewOpen(true)
+  }
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -336,16 +362,8 @@ export function FoodSearchPanel({
                   tone="error"
                 />
               )}
-              {canSearch && foods.data?.items.length === 0 && (
-                <div className="space-y-4">
-                  <StateBlock
-                    description="Không tìm thấy món phù hợp trong 30,000+ món ăn giả lập. Bạn có thể tự tạo món mới."
-                    title="Không tìm thấy món phù hợp."
-                    tone="empty"
-                  />
-                  <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
-                </div>
-              )}
+
+              {/* Local results rendering */}
               {canSearch && foods.data?.items.map((food) => (
                 <Button
                   className="h-auto justify-between gap-4 rounded-xl border-border bg-background p-4 text-left text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98] data-[selected=true]:border-primary data-[selected=true]:bg-primary/10"
@@ -373,6 +391,119 @@ export function FoodSearchPanel({
                   </span>
                 </Button>
               ))}
+
+              {/* If local has results but online search is not triggered yet */}
+              {canSearch && foods.data && foods.data.items.length > 0 && !onlineSearchTriggered && (
+                <div className="mt-2 text-center">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-xs font-semibold text-primary hover:underline h-auto p-0"
+                    onClick={() => setOnlineSearchTriggered(true)}
+                    data-testid="online-search-link"
+                  >
+                    Không tìm thấy món bạn cần? Thử tìm kiếm trực tuyến cho &quot;{query}&quot;
+                  </Button>
+                </div>
+              )}
+
+              {/* If local is empty and online search is not triggered yet */}
+              {canSearch && foods.data?.items.length === 0 && !onlineSearchTriggered && (
+                <div className="space-y-4">
+                  <StateBlock
+                    description="Không tìm thấy món phù hợp trong cơ sở dữ liệu. Bạn có thể tra cứu trực tuyến hoặc tự tạo món mới."
+                    title="Không tìm thấy món phù hợp"
+                    tone="empty"
+                  />
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      type="button"
+                      onClick={() => setOnlineSearchTriggered(true)}
+                      className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98] flex items-center justify-center gap-2"
+                      data-testid="online-search-trigger-btn"
+                    >
+                      <Search className="size-4" />
+                      Tìm kiếm trực tuyến cho &quot;{query}&quot;
+                    </Button>
+                    <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
+                  </div>
+                </div>
+              )}
+
+              {/* Online Search State Blocks */}
+              {onlineSearchTriggered && onlineSearch.isFetching && (
+                <div className="mt-4">
+                  <StateBlock
+                    description="Đang kết nối và tải kết quả từ cơ sở dữ liệu Open Food Facts..."
+                    title="Đang tìm kiếm trực tuyến..."
+                    tone="loading"
+                  />
+                </div>
+              )}
+              {onlineSearchTriggered && !onlineSearch.isFetching && onlineSearch.isError && (
+                <div className="mt-4">
+                  <StateBlock
+                    description="Tìm kiếm trực tuyến tạm thời thất bại do sự cố kết nối mạng."
+                    title="Tìm kiếm trực tuyến thất bại"
+                    tone="error"
+                  />
+                </div>
+              )}
+              {onlineSearchTriggered && !onlineSearch.isFetching && !onlineSearch.isError && onlineSearch.data?.length === 0 && (
+                <div className="mt-4 space-y-4">
+                  <StateBlock
+                    description={`Không tìm thấy kết quả nào trên hệ thống Open Food Facts với từ khóa "${query}".`}
+                    title="Không tìm thấy kết quả trực tuyến"
+                    tone="empty"
+                  />
+                  {foods.data?.items.length === 0 && (
+                    <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
+                  )}
+                </div>
+              )}
+
+              {/* Online Search Results Display */}
+              {onlineSearchTriggered && !onlineSearch.isFetching && !onlineSearch.isError && onlineSearch.data && onlineSearch.data.length > 0 && (
+                <div className="mt-4 space-y-3">
+                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
+                    Kết quả trực tuyến từ Open Food Facts
+                  </h3>
+                  <div className="grid gap-2">
+                    {onlineSearch.data.map((food, idx) => (
+                      <Button
+                        className="h-auto justify-between gap-4 rounded-xl border-border bg-background p-4 text-left text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98]"
+                        key={`online-${idx}`}
+                        data-testid="online-food-result"
+                        onClick={() => handleSelectOnlineFood(food)}
+                        type="button"
+                        variant="outline"
+                      >
+                        <span className="flex min-w-0 items-center gap-3">
+                          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-cyan-500/10 text-cyan-600">
+                            <Utensils aria-hidden="true" className="size-4" />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block truncate font-semibold">{food.name}</span>
+                            <span className="mt-1 block text-xs text-muted-foreground">
+                              {formatCalories(food.caloriesPerUnit)} mỗi {food.unit}
+                              {food.proteinG !== undefined && ` · P: ${food.proteinG}g C: ${food.carbsG}g F: ${food.fatG}g`}
+                            </span>
+                          </span>
+                        </span>
+                        <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-600">
+                          Chọn
+                        </span>
+                      </Button>
+                    ))}
+                  </div>
+                  {foods.data?.items.length === 0 && (
+                    <div className="pt-2 border-t border-border">
+                      <p className="text-xs text-muted-foreground mb-2 px-1">Vẫn không tìm thấy món phù hợp?</p>
+                      <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

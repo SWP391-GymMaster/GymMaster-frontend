@@ -141,3 +141,60 @@ export async function fetchFoodByBarcode(barcode: string): Promise<CreateCustomF
   }
 }
 
+export async function searchFoodOnline(query: string): Promise<CreateCustomFoodInput[]> {
+  try {
+    console.log(`[DEBUG] searchFoodOnline called for query: ${query}`)
+    const response = await fetch(
+      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
+        query
+      )}&search_simple=1&action=process&json=1`
+    )
+    console.log(`[DEBUG] searchFoodOnline response status: ${response.status}, ok: ${response.ok}`)
+    if (!response.ok) {
+      return []
+    }
+    const data = await response.json()
+    if (!data.products || !Array.isArray(data.products)) {
+      return []
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return data.products.slice(0, 10).map((p: any) => {
+      let name = p.product_name_vi || p.product_name || "Sản phẩm không tên"
+      if (p.brands) {
+        name = `${name} (${p.brands})`.trim()
+      }
+      if (name.length > 100) {
+        name = name.slice(0, 97) + "..."
+      }
+
+      let unit = p.serving_size || "100g"
+      if (unit.length > 30) {
+        unit = unit.slice(0, 27) + "..."
+      }
+
+      const nut = p.nutriments || {}
+      const caloriesPerUnit = Math.max(
+        0,
+        Math.round(nut["energy-kcal_100g"] || nut["energy-kcal_serving"] || 0)
+      )
+      const proteinG = Math.max(0, Number(nut.proteins_100g || nut.proteins_serving || 0))
+      const carbsG = Math.max(0, Number(nut.carbohydrates_100g || nut.carbohydrates_serving || 0))
+      const fatG = Math.max(0, Number(nut.fat_100g || nut.fat_serving || 0))
+
+      return {
+        name,
+        unit,
+        caloriesPerUnit,
+        carbsG: Number(carbsG.toFixed(1)),
+        proteinG: Number(proteinG.toFixed(1)),
+        fatG: Number(fatG.toFixed(1)),
+      }
+    })
+  } catch (error) {
+    console.error("Open Food Facts online search failed:", error)
+    return []
+  }
+}
+
+

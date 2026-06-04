@@ -169,6 +169,62 @@ export const nutritionHandlers = [
 
     return ok(daily)
   }),
+  http.get("https://world.openfoodfacts.org/cgi/search.pl", ({ request }) => {
+    const url = new URL(request.url)
+    const terms = url.searchParams.get("search_terms")?.toLowerCase() || ""
+
+    if (terms.includes("sữa")) {
+      return HttpResponse.json({
+        products: [
+          {
+            product_name_vi: "Sữa tươi TH True Milk ít đường",
+            product_name: "Sữa tươi TH True Milk ít đường 180ml",
+            brands: "TH True Milk",
+            serving_size: "180ml",
+            nutriments: {
+              "energy-kcal_100g": 70,
+              proteins_100g: 3,
+              carbohydrates_100g: 7.5,
+              fat_100g: 3.3,
+            },
+          },
+          {
+            product_name_vi: "Sữa đậu nành Fami nguyên chất",
+            product_name: "Sữa đậu nành Fami nguyên chất 200ml",
+            brands: "Fami",
+            serving_size: "200ml",
+            nutriments: {
+              "energy-kcal_100g": 54,
+              proteins_100g: 2.1,
+              carbohydrates_100g: 7.2,
+              fat_100g: 1.8,
+            },
+          },
+        ],
+      })
+    }
+
+    if (terms.includes("mì tôm") || terms.includes("mì hảo hảo")) {
+      return HttpResponse.json({
+        products: [
+          {
+            product_name_vi: "Mì Hảo Hảo chua cay",
+            product_name: "Mì tôm Hảo Hảo chua cay",
+            brands: "Acecook",
+            serving_size: "75g",
+            nutriments: {
+              "energy-kcal_100g": 466,
+              proteins_100g: 9.2,
+              carbohydrates_100g: 62.4,
+              fat_100g: 20.1,
+            },
+          },
+        ],
+      })
+    }
+
+    return passthrough()
+  }),
   http.get("https://world.openfoodfacts.org/api/v2/product/*", ({ request }) => {
     const url = new URL(request.url)
     const match = url.pathname.match(/\/product\/(\d+)\.json$/)
