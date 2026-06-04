@@ -30,4 +30,6 @@ export type AuditLogFilters = {
   action?: string
   from?: string
   to?: string
+  search?: string
 }
+

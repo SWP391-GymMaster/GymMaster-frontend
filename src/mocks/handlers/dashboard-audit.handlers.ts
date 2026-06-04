@@ -49,6 +49,7 @@ export const dashboardAuditHandlers = [
     const actionParam = url.searchParams.get("action")
     const fromParam = url.searchParams.get("from")
     const toParam = url.searchParams.get("to")
+    const searchParam = url.searchParams.get("search")?.toLowerCase()
 
     let filtered = [...auditLogs]
 
@@ -69,6 +70,21 @@ export const dashboardAuditHandlers = [
 
     if (toParam) {
       filtered = filtered.filter((item) => item.createdAt <= toParam)
+    }
+
+    if (searchParam) {
+      filtered = filtered.filter((item) => {
+        const actionFormatted = item.action.replace(/_/g, " ").toLowerCase()
+        return (
+          item.userDisplayName?.toLowerCase().includes(searchParam) ||
+          item.action.toLowerCase().includes(searchParam) ||
+          actionFormatted.includes(searchParam) ||
+          item.entityType.toLowerCase().includes(searchParam) ||
+          String(item.entityId).includes(searchParam) ||
+          String(item.userId).includes(searchParam) ||
+          String(item.id).includes(searchParam)
+        )
+      })
     }
 
     return paged(filtered, getPage(request.url))

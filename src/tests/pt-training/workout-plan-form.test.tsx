@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { WorkoutPlanForm } from "@/features/pt-training/components/WorkoutPlanForm"
 import { resetAuthSessionForTest } from "@/features/auth/session/auth-session"
 import { renderWithPtSession } from "@/tests/pt-training/test-utils"
+import { AppProviders } from "@/app/providers"
 
 afterEach(() => {
   resetAuthSessionForTest()
@@ -63,5 +64,31 @@ describe("WorkoutPlanForm", () => {
         },
       ],
     })
+  })
+
+  it("adds exercise externally via props", async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    const onAdded = vi.fn()
+    const { rerender } = renderWithPtSession(
+      <WorkoutPlanForm
+        onSubmit={onSubmit}
+        externalExerciseToAdd={undefined}
+        onExternalExerciseAdded={onAdded}
+      />
+    )
+
+    rerender(
+      <AppProviders>
+        <WorkoutPlanForm
+          onSubmit={onSubmit}
+          externalExerciseToAdd="Back Squat"
+          onExternalExerciseAdded={onAdded}
+        />
+      </AppProviders>
+    )
+
+    expect(await screen.findByText("Đã thêm bài tập: Back Squat")).toBeInTheDocument()
+    expect(screen.getByDisplayValue("Back Squat")).toBeInTheDocument()
+    expect(onAdded).toHaveBeenCalled()
   })
 })

@@ -6,7 +6,6 @@ import {
   CalendarDays,
   CheckCircle2,
   Dumbbell,
-  Filter,
   NotebookPen,
   Plus,
   Search,
@@ -32,30 +31,8 @@ import {
 import {
   getWorkoutAssetForExercise,
 } from "@/features/pt-training/data/workout-assets";
+import { exerciseLibrary } from "@/features/pt-training/data/exercise-library";
 import type { WorkoutPlanDraft } from "@/features/pt-training/types/pt-training.types";
-
-const libraryPreview = [
-  {
-    name: "Back Squat",
-    tags: ["Chân", "Mông", "Lưng dưới"],
-  },
-  {
-    name: "Bench Press",
-    tags: ["Ngực", "Vai trước", "Tay sau"],
-  },
-  {
-    name: "Deadlift",
-    tags: ["Lưng", "Mông", "Chân sau"],
-  },
-  {
-    name: "Lat Pulldown",
-    tags: ["Lưng", "Tay trước"],
-  },
-  {
-    name: "Overhead Press",
-    tags: ["Vai", "Tay sau", "Core"],
-  },
-];
 
 export function PtWorkoutPlanWorkspace() {
   const params = useParams<{ id: string }>();
@@ -67,10 +44,36 @@ export function PtWorkoutPlanWorkspace() {
   const createPlan = useCreateMemberWorkoutPlan(validMemberId ?? 0);
 
   const [activeView, setActiveView] = useState<"list" | "create">("list");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("Tất cả");
+  const [visibleCount, setVisibleCount] = useState(5);
+  const [externalExerciseToAdd, setExternalExerciseToAdd] = useState<string | undefined>(undefined);
 
   const plansCount = plansQuery.data?.length ?? 0;
   const latestPlan = plansQuery.data?.[0];
   const latestExercisesCount = latestPlan?.exercises.length ?? 0;
+
+  const categoryMapping: Record<string, string[]> = {
+    "Tất cả": [],
+    "Ngực": ["Chest"],
+    "Lưng": ["Back"],
+    "Vai": ["Shoulders"],
+    "Chân": ["Legs", "Glutes"],
+    "Core": ["Core"],
+  };
+
+  const filteredExercises = exerciseLibrary.filter((exercise) => {
+    const matchesSearch = exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      exercise.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      exercise.muscleGroups.some(m => m.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const targetCategories = categoryMapping[activeCategory] || [];
+    const matchesCategory = targetCategories.length === 0 || targetCategories.includes(exercise.category);
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const displayedExercises = filteredExercises.slice(0, visibleCount);
 
   async function handleCreatePlan(draft: WorkoutPlanDraft) {
     await createPlan.mutateAsync(draft);
@@ -267,13 +270,6 @@ export function PtWorkoutPlanWorkspace() {
                           Xem nhanh ảnh minh họa trước khi thêm vào giáo án.
                         </p>
                       </div>
-                      <Button
-                        className="size-10 rounded-xl border-border bg-card text-foreground hover:bg-muted"
-                        type="button"
-                        variant="outline"
-                      >
-                        <Filter aria-hidden="true" className="size-4" />
-                      </Button>
                     </div>
 
                     <label className="relative mt-4 block">
@@ -285,45 +281,66 @@ export function PtWorkoutPlanWorkspace() {
                       <input
                         className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
                         placeholder="Tìm bài tập: squat, bench press..."
-                        readOnly
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                          setVisibleCount(5);
+                        }}
                       />
                     </label>
 
                     <div className="mt-4 flex gap-2 overflow-x-auto custom-scrollbar pb-1">
                       {["Tất cả", "Ngực", "Lưng", "Vai", "Chân", "Core"].map(
-                        (tab, index) => (
-                          <button
-                            className={`min-h-9 shrink-0 rounded-full px-3 text-sm font-semibold transition ${
-                              index === 0
-                                ? "bg-primary text-primary-foreground"
-                                : "border border-border bg-background text-foreground hover:bg-muted"
-                            }`}
-                            key={tab}
-                            type="button"
-                          >
-                            {tab}
-                          </button>
-                        ),
+                        (tab) => {
+                          const isActive = activeCategory === tab;
+                          return (
+                            <button
+                              className={`min-h-9 shrink-0 rounded-full px-3 text-sm font-semibold transition ${
+                                isActive
+                                  ? "bg-primary text-primary-foreground"
+                                  : "border border-border bg-background text-foreground hover:bg-muted"
+                              }`}
+                              key={tab}
+                              onClick={() => {
+                                setActiveCategory(tab);
+                                setVisibleCount(5);
+                              }}
+                              type="button"
+                            >
+                              {tab}
+                            </button>
+                          );
+                        }
                       )}
                     </div>
 
                     <div className="mt-4 grid gap-3">
-                      {libraryPreview.map((exercise) => (
-                        <ExerciseLibraryItem
-                          key={exercise.name}
-                          name={exercise.name}
-                          tags={exercise.tags}
-                        />
-                      ))}
+                      {displayedExercises.length > 0 ? (
+                        displayedExercises.map((exercise) => (
+                          <ExerciseLibraryItem
+                            key={exercise.id}
+                            name={exercise.name}
+                            tags={exercise.muscleGroups}
+                            onAdd={() => setExternalExerciseToAdd(exercise.name)}
+                          />
+                        ))
+                      ) : (
+                        <p className="text-center py-4 text-sm text-muted-foreground">
+                          Không tìm thấy bài tập phù hợp.
+                        </p>
+                      )}
                     </div>
 
-                    <Button
-                      className="mt-4 min-h-11 w-full rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
-                      type="button"
-                      variant="outline"
-                    >
-                      Xem thêm bài tập
-                    </Button>
+                    {filteredExercises.length > visibleCount && (
+                      <Button
+                        className="mt-4 min-h-11 w-full rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+                        type="button"
+                        variant="outline"
+                        onClick={() => setVisibleCount((prev) => prev + 5)}
+                      >
+                        Xem thêm bài tập ({filteredExercises.length - visibleCount})
+                      </Button>
+                    )}
                   </section>
                 </aside>
 
@@ -355,6 +372,8 @@ export function PtWorkoutPlanWorkspace() {
                       <WorkoutPlanForm
                         isPending={createPlan.isPending}
                         onSubmit={handleCreatePlan}
+                        externalExerciseToAdd={externalExerciseToAdd}
+                        onExternalExerciseAdded={() => setExternalExerciseToAdd(undefined)}
                       />
                     </div>
 
@@ -430,7 +449,7 @@ function SideField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ExerciseLibraryItem({ name, tags }: { name: string; tags: string[] }) {
+function ExerciseLibraryItem({ name, tags, onAdd }: { name: string; tags: string[]; onAdd: () => void }) {
   const asset = getWorkoutAssetForExercise(name);
 
   return (
@@ -457,9 +476,10 @@ function ExerciseLibraryItem({ name, tags }: { name: string; tags: string[] }) {
         </div>
       </div>
       <Button
-        className="h-9 rounded-xl border-border bg-card px-3 text-primary hover:bg-primary/10"
+        className="h-9 rounded-xl border-border bg-card px-3 text-primary hover:bg-primary/10 font-bold active:scale-[0.95]"
         type="button"
         variant="outline"
+        onClick={onAdd}
       >
         <Plus aria-hidden="true" className="size-4" />
         Thêm

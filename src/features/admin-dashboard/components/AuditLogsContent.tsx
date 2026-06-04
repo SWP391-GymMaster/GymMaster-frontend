@@ -30,13 +30,15 @@ export function AuditLogsContent() {
     action: "",
     from: "",
     to: "",
+    search: "",
   })
 
-  const queryFilters: AuditLogFilterParams & { page: number } = {
+  const queryFilters: AuditLogFilterParams & { page: number; search?: string } = {
     page,
     ...(activeFilters.action ? { action: activeFilters.action } : {}),
     ...(activeFilters.from ? { from: activeFilters.from } : {}),
     ...(activeFilters.to ? { to: activeFilters.to } : {}),
+    ...(activeFilters.search ? { search: activeFilters.search } : {}),
   }
 
   const { data, isLoading, error, refetch } = useAuditLogs(queryFilters)

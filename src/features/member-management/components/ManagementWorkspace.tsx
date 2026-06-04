@@ -285,13 +285,22 @@ function SearchToolbar({
   onSearch,
   placeholder,
   value,
+  statusFilter,
+  onStatusFilterChange,
+  statusOptions,
 }: {
   action: ReactNode
   filterLabel?: string
   onSearch: (value: string) => void
   placeholder: string
   value: string
+  statusFilter?: string
+  onStatusFilterChange?: (value: string) => void
+  statusOptions?: { value: string; label: string }[]
 }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const activeOptionLabel = statusOptions?.find((opt) => opt.value === statusFilter)?.label
+
   return (
     <div className="flex flex-col gap-3 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
       <label className="relative w-full sm:max-w-md">
@@ -311,14 +320,71 @@ function SearchToolbar({
       </label>
 
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Button
-          className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
-          type="button"
-          variant="outline"
-        >
-          <Filter aria-hidden="true" className="size-4" />
-          {filterLabel}
-        </Button>
+        {statusOptions && onStatusFilterChange ? (
+          <div className="relative">
+            <Button
+              className={cn(
+                "min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98] w-full sm:w-auto",
+                statusFilter && statusFilter !== "" ? "border-primary text-primary" : "",
+              )}
+              onClick={() => setIsOpen(!isOpen)}
+              type="button"
+              variant="outline"
+            >
+              <Filter aria-hidden="true" className="size-4" />
+              {activeOptionLabel ? `${filterLabel}: ${activeOptionLabel}` : filterLabel}
+            </Button>
+
+            {isOpen ? (
+              <>
+                <div
+                  className="fixed inset-0 z-30"
+                  onClick={() => setIsOpen(false)}
+                />
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border bg-card/95 p-2 shadow-xl backdrop-blur-md z-40 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="py-1">
+                    <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                      Lọc theo trạng thái
+                    </p>
+                    {statusOptions.map((option) => {
+                      const selected = statusFilter === option.value
+                      return (
+                        <button
+                          className={cn(
+                            "flex min-h-11 w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors active:scale-[0.99]",
+                            selected
+                              ? "bg-primary/10 font-semibold text-primary"
+                              : "text-foreground hover:bg-muted",
+                          )}
+                          key={option.value}
+                          onClick={() => {
+                            onStatusFilterChange(option.value)
+                            setIsOpen(false)
+                          }}
+                          type="button"
+                        >
+                          <span>{option.label}</span>
+                          {selected ? (
+                            <Check className="size-4 text-primary" />
+                          ) : null}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </>
+            ) : null}
+          </div>
+        ) : (
+          <Button
+            className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+            type="button"
+            variant="outline"
+          >
+            <Filter aria-hidden="true" className="size-4" />
+            {filterLabel}
+          </Button>
+        )}
         {action}
       </div>
     </div>
@@ -348,9 +414,23 @@ function MemberDirectoryTemplate({
   setQuery: (value: string) => void
   total: number
 }) {
+  const [statusFilter, setStatusFilter] = useState("")
   const [selectedId, setSelectedId] = useState<number | null>(null)
+
+  const statusOptions = [
+    { value: "", label: "Tất cả" },
+    { value: "active", label: "Hoạt động" },
+    { value: "expired", label: "Hết hạn" },
+    { value: "pending", label: "Chờ kích hoạt" },
+  ]
+
+  const filteredMembers = useMemo(() => {
+    if (!statusFilter) return members
+    return members.filter((member) => member.status === statusFilter)
+  }, [members, statusFilter])
+
   const selectedMember =
-    members.find((member) => member.id === selectedId) ?? members[0] ?? null
+    filteredMembers.find((member) => member.id === selectedId) ?? filteredMembers[0] ?? null
 
   const activeMembers = members.filter((member) => member.status === "active").length
   const expiredMembers = members.filter((member) => member.status === "expired").length
@@ -409,6 +489,9 @@ function MemberDirectoryTemplate({
             onSearch={setQuery}
             placeholder="Tìm hội viên theo tên, email, SĐT, mã hội viên..."
             value={query}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            statusOptions={statusOptions}
           />
 
           <div className="p-5">
@@ -426,18 +509,18 @@ function MemberDirectoryTemplate({
                 tone="error"
               />
             ) : null}
-            {!isLoading && !error && members.length === 0 ? (
+            {!isLoading && !error && filteredMembers.length === 0 ? (
               <StateBlock
                 description="Tạo hồ sơ mới hoặc điều chỉnh bộ lọc tìm kiếm."
                 title="Không tìm thấy hội viên."
                 tone="empty"
               />
             ) : null}
-            {members.length > 0 ? (
+            {filteredMembers.length > 0 ? (
               <MemberTable
                 canDelete={canDeleteMembers}
                 detailBasePath={detailBasePath}
-                members={members}
+                members={filteredMembers}
                 onSelect={setSelectedId}
                 selectedId={selectedMember?.id ?? null}
                 total={total}
@@ -775,9 +858,22 @@ function StaffDirectoryTemplate({
   total: number
   users: ManagedUser[]
 }) {
+  const [statusFilter, setStatusFilter] = useState("")
   const [selectedId, setSelectedId] = useState<number | null>(null)
+
+  const statusOptions = [
+    { value: "", label: "Tất cả" },
+    { value: "active", label: "Hoạt động" },
+    { value: "locked", label: "Đã khóa" },
+  ]
+
+  const filteredStaff = useMemo(() => {
+    if (!statusFilter) return users
+    return users.filter((user) => user.status === statusFilter)
+  }, [users, statusFilter])
+
   const selectedStaff =
-    users.find((user) => user.userId === selectedId) ?? users[0] ?? null
+    filteredStaff.find((user) => user.userId === selectedId) ?? filteredStaff[0] ?? null
 
   const activeStaff = users.filter((user) => user.status === "active").length
   const lockedStaff = users.filter((user) => user.status === "locked").length
@@ -833,6 +929,9 @@ function StaffDirectoryTemplate({
             onSearch={setQuery}
             placeholder="Tìm nhân sự theo tên, email, SĐT..."
             value={query}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            statusOptions={statusOptions}
           />
 
           <div className="space-y-2 p-3">
@@ -840,10 +939,10 @@ function StaffDirectoryTemplate({
               emptyTitle="Không tìm thấy nhân sự."
               error={error}
               isLoading={isLoading}
-              itemCount={users.length}
+              itemCount={filteredStaff.length}
               loadingTitle="Đang tải danh sách nhân sự..."
             />
-            {users.map((user) => {
+            {filteredStaff.map((user) => {
               const active = selectedStaff?.userId === user.userId
 
               return (
@@ -1028,9 +1127,22 @@ function TrainerRosterTemplate({
   total: number
   trainers: ManagedTrainer[]
 }) {
+  const [statusFilter, setStatusFilter] = useState("")
   const [selectedId, setSelectedId] = useState<number | null>(null)
+
+  const statusOptions = [
+    { value: "", label: "Tất cả" },
+    { value: "active", label: "Hoạt động" },
+    { value: "locked", label: "Đã khóa" },
+  ]
+
+  const filteredTrainers = useMemo(() => {
+    if (!statusFilter) return trainers
+    return trainers.filter((trainer) => trainer.status === statusFilter)
+  }, [trainers, statusFilter])
+
   const selectedTrainer =
-    trainers.find((trainer) => trainer.id === selectedId) ?? trainers[0] ?? null
+    filteredTrainers.find((trainer) => trainer.id === selectedId) ?? filteredTrainers[0] ?? null
   const activeTrainers = trainers.filter((trainer) => trainer.status === "active").length
   const lockedTrainers = trainers.filter((trainer) => trainer.status === "locked").length
 
@@ -1085,6 +1197,9 @@ function TrainerRosterTemplate({
             onSearch={setQuery}
             placeholder="Tìm PT theo tên hoặc chuyên môn..."
             value={query}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            statusOptions={statusOptions}
           />
 
           <div className="space-y-2 p-3">
@@ -1092,10 +1207,10 @@ function TrainerRosterTemplate({
               emptyTitle="Không tìm thấy huấn luyện viên."
               error={error}
               isLoading={isLoading}
-              itemCount={trainers.length}
+              itemCount={filteredTrainers.length}
               loadingTitle="Đang tải danh sách huấn luyện viên..."
             />
-            {trainers.map((trainer, index) => {
+            {filteredTrainers.map((trainer, index) => {
               const active = selectedTrainer?.id === trainer.id
               const capacity = index === 0 ? 80 : index === 1 ? 70 : index === 2 ? 55 : 88
 
@@ -1367,6 +1482,19 @@ function UserRoleDirectoryTemplate({
   total: number
   users: ManagedUser[]
 }) {
+  const [statusFilter, setStatusFilter] = useState("")
+
+  const statusOptions = [
+    { value: "", label: "Tất cả" },
+    { value: "active", label: "Hoạt động" },
+    { value: "locked", label: "Đã khóa" },
+  ]
+
+  const filteredUsers = useMemo(() => {
+    if (!statusFilter) return users
+    return users.filter((user) => user.status === statusFilter)
+  }, [users, statusFilter])
+
   return (
     <section className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
@@ -1398,16 +1526,19 @@ function UserRoleDirectoryTemplate({
           onSearch={setQuery}
           placeholder="Tìm người dùng theo tên, email, số điện thoại hoặc vai trò..."
           value={query}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          statusOptions={statusOptions}
         />
         <div className="p-5">
           <ManagementStateBlock
             emptyTitle="Không tìm thấy tài khoản."
             error={error}
             isLoading={isLoading}
-            itemCount={users.length}
+            itemCount={filteredUsers.length}
             loadingTitle="Đang tải danh sách quản trị..."
           />
-          {users.length > 0 ? <UserList users={users} /> : null}
+          {filteredUsers.length > 0 ? <UserList users={filteredUsers} /> : null}
         </div>
       </div>
     </section>

@@ -32,6 +32,7 @@ export function getAuditLogs(
   if (filters.action) params.set("action", filters.action)
   if (filters.from) params.set("from", filters.from)
   if (filters.to) params.set("to", filters.to)
+  if (filters.search) params.set("search", filters.search)
 
   const qs = params.toString()
 

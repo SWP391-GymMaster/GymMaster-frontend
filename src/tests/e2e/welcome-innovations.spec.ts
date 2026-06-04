@@ -51,7 +51,8 @@ test("Demo sandbox copy-to-clipboard works for account credentials", async ({
   context,
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"])
-  await goToWelcome(page)
+  await page.goto("/about")
+  await page.waitForLoadState("domcontentloaded")
 
   // Scroll to demo section
   await page.evaluate(() => window.scrollBy(0, document.body.scrollHeight))
@@ -86,7 +87,7 @@ test("Member can open BMI Calculator modal from dashboard", async ({ page }) => 
 
   // Modal title should appear
   await expect(
-    page.getByText(/Bộ đo Chỉ số Cơ thể|BMI/i),
+    page.getByRole("heading", { name: /Bộ đo Chỉ số Cơ thể|BMI/i }),
   ).toBeVisible({ timeout: 5_000 })
 })
 
@@ -95,7 +96,7 @@ test("BMI Calculator computes values when sliders are moved", async ({ page }) =
 
   // Open BMI modal
   await page.getByRole("button", { name: /Đo BMI|BMI/i }).click()
-  await expect(page.getByText(/Bộ đo Chỉ số Cơ thể|BMI/i)).toBeVisible({
+  await expect(page.getByRole("heading", { name: /Bộ đo Chỉ số Cơ thể|BMI/i })).toBeVisible({
     timeout: 5_000,
   })
 
@@ -109,14 +110,14 @@ test("BMI Calculator computes values when sliders are moved", async ({ page }) =
   expect(bmiVal).toBeGreaterThan(0)
 
   // Body fat percentage should be shown
-  await expect(page.getByText(/%/)).toBeVisible()
+  await expect(page.getByRole("dialog").getByText(/%/)).toBeVisible()
 })
 
 test("BMI Calculator switches between male and female gender", async ({ page }) => {
   await loginAsMember(page)
 
   await page.getByRole("button", { name: /Đo BMI|BMI/i }).click()
-  await expect(page.getByText(/Bộ đo Chỉ số Cơ thể/i)).toBeVisible({
+  await expect(page.getByRole("heading", { name: /Bộ đo Chỉ số Cơ thể/i })).toBeVisible({
     timeout: 5_000,
   })
 
@@ -133,13 +134,13 @@ test("BMI Calculator modal can be closed", async ({ page }) => {
   await loginAsMember(page)
 
   await page.getByRole("button", { name: /Đo BMI|BMI/i }).click()
-  await expect(page.getByText(/Bộ đo Chỉ số Cơ thể/i)).toBeVisible({
+  await expect(page.getByRole("heading", { name: /Bộ đo Chỉ số Cơ thể/i })).toBeVisible({
     timeout: 5_000,
   })
 
   // Press Escape to close
   await page.keyboard.press("Escape")
-  await expect(page.getByText(/Bộ đo Chỉ số Cơ thể/i)).not.toBeVisible({
+  await expect(page.getByRole("heading", { name: /Bộ đo Chỉ số Cơ thể/i })).not.toBeVisible({
     timeout: 3_000,
   })
 })
@@ -154,12 +155,12 @@ test("Global '?' shortcut opens keyboard shortcuts help overlay", async ({ page 
 
   // Overlay heading should appear
   await expect(
-    page.getByText(/Phím tắt|Shortcuts/i),
+    page.getByRole("heading", { name: /Phím tắt|Shortcuts/i }),
   ).toBeVisible({ timeout: 3_000 })
 
   // Close with Escape
   await page.keyboard.press("Escape")
   await expect(
-    page.getByText(/Phím tắt|Shortcuts/i),
+    page.getByRole("heading", { name: /Phím tắt|Shortcuts/i }),
   ).not.toBeVisible({ timeout: 2_000 })
 })

@@ -23,6 +23,7 @@ export type AuditLogFilterValues = {
   action: string
   from: string
   to: string
+  search: string
 }
 
 type AuditLogFiltersProps = {
@@ -34,17 +35,19 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
   const [action, setAction] = useState("")
   const [from, setFrom] = useState("")
   const [to, setTo] = useState("")
+  const [search, setSearch] = useState("")
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    onApply({ action, from, to })
+    onApply({ action, from, to, search })
   }
 
   function handleReset() {
     setAction("")
     setFrom("")
     setTo("")
-    onApply({ action: "", from: "", to: "" })
+    setSearch("")
+    onApply({ action: "", from: "", to: "", search: "" })
   }
 
   return (
@@ -148,7 +151,8 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
         <input
           className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
           placeholder="Tìm theo tên, hành động, đối tượng, ID..."
-          readOnly
+          onChange={(event) => setSearch(event.target.value)}
+          value={search}
         />
       </label>
     </form>

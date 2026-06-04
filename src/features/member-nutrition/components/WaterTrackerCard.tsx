@@ -167,10 +167,10 @@ export function WaterTrackerCard() {
           )}
           <button
             onClick={handleReset}
-            className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition"
+            className="rounded-full size-11 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition"
             title="Reset hôm nay"
           >
-            <RotateCcw className="size-3.5" />
+            <RotateCcw className="size-4" />
           </button>
         </div>
       </div>
@@ -217,16 +217,16 @@ export function WaterTrackerCard() {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => handleAddWater(250)}
-              className="flex items-center justify-center gap-1 rounded-xl border border-border bg-background py-2 text-xs font-semibold text-foreground transition hover:bg-muted active:scale-[0.96]"
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background min-h-11 py-2.5 text-xs font-bold text-foreground transition hover:bg-muted active:scale-[0.96]"
             >
-              <Plus className="size-3 text-cyan-500" />
+              <Plus className="size-3.5 text-cyan-500" />
               250ml
             </button>
             <button
               onClick={() => handleAddWater(500)}
-              className="flex items-center justify-center gap-1 rounded-xl border border-border bg-background py-2 text-xs font-semibold text-foreground transition hover:bg-muted active:scale-[0.96]"
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background min-h-11 py-2.5 text-xs font-bold text-foreground transition hover:bg-muted active:scale-[0.96]"
             >
-              <Plus className="size-3 text-cyan-500" />
+              <Plus className="size-3.5 text-cyan-500" />
               500ml
             </button>
           </div>

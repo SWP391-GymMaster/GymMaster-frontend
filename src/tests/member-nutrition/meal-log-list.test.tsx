@@ -8,7 +8,8 @@ describe("MealLogList", () => {
   it("shows empty state", () => {
     renderWithMemberSession(<MealLogList logs={[]} />)
 
-    expect(screen.getByText("Hôm nay chưa có bữa ăn.")).toBeInTheDocument()
+    expect(screen.getByText("Bữa sáng")).toBeInTheDocument()
+    expect(screen.getAllByText("Chưa ghi nhận món ăn nào cho buổi này.").length).toBe(4)
   })
 
   it("renders meal entries", () => {
@@ -36,6 +37,6 @@ describe("MealLogList", () => {
 
     expect(screen.getByText("Bữa trưa")).toBeInTheDocument()
     expect(screen.getByText(/Chicken breast/)).toBeInTheDocument()
-    expect(screen.getByText("248 kcal")).toBeInTheDocument()
+    expect(screen.getAllByText("248 kcal").length).toBe(2)
   })
 })

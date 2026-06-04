@@ -369,7 +369,7 @@ export function CommandRail({ role }: CommandRailProps) {
 
 export function MobileCommandHeader({ role }: CommandRailProps) {
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between border-b border-zinc-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl lg:hidden">
+    <header className="fixed inset-x-0 top-0 z-30 flex items-center justify-between border-b border-zinc-200/80 bg-white/85 px-4 py-3 backdrop-blur-xl lg:hidden">
       <div className="flex min-w-0 items-center gap-3">
         <span
           aria-hidden="true"
@@ -404,7 +404,7 @@ function MobileCommandNav({ role }: CommandRailProps) {
     <>
       <nav
         aria-label={`Điều hướng nhanh ${roleWorkspaceLabels[role]}`}
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200/80 bg-white/90 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-16px_40px_rgba(15,23,42,0.10)] backdrop-blur-2xl lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 transform-gpu will-change-transform border-t border-zinc-200/80 bg-white/90 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 shadow-[0_-16px_40px_rgba(15,23,42,0.10)] backdrop-blur-2xl lg:hidden"
         data-testid="mobile-command-nav"
       >
         <div className="mx-auto grid max-w-md grid-cols-5 gap-1">
@@ -486,7 +486,7 @@ function MobileCommandNav({ role }: CommandRailProps) {
                 ))}
               </div>
 
-              <div className="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 p-2">
+              <div className="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 p-2 space-y-1">
                 <button
                   className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-zinc-800 transition hover:bg-white active:scale-[0.98]"
                   onClick={() => {
@@ -495,14 +495,12 @@ function MobileCommandNav({ role }: CommandRailProps) {
                   }}
                   type="button"
                 >
-                  <span className="flex size-10 items-center justify-center rounded-xl bg-white text-primary shadow-sm">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white text-primary shadow-sm">
                     <Settings aria-hidden="true" className="size-4" />
                   </span>
                   Cấu hình giao diện
                 </button>
-                <div className="mt-1 rounded-xl px-1">
-                  <LogoutButton isCollapsed={false} />
-                </div>
+                <LogoutButton variant="menuItem" />
               </div>
             </div>
           </motion.div>

@@ -265,7 +265,7 @@ export function CalorieSummaryWorkspace() {
             <div className="mt-6 flex flex-wrap gap-2">
               <Link
                 href="/member/nutrition/meal-journal?view=add"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-foreground px-4 text-sm font-semibold text-background transition hover:bg-foreground/90 active:scale-[0.98]"
+                className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-foreground px-6 text-sm font-semibold text-background transition hover:bg-foreground/90 active:scale-[0.98] w-full sm:w-auto"
               >
                 <Plus className="size-4" />
                 Thêm bữa ăn
@@ -517,10 +517,10 @@ function CategoryCard({
         </span>
         <Link
           href={`/member/nutrition/meal-journal?view=add&type=${type}`}
-          className="inline-flex size-8 items-center justify-center rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground text-muted-foreground transition active:scale-90"
+          className="inline-flex size-11 items-center justify-center rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground text-muted-foreground transition active:scale-90"
           title={`Thêm món vào ${title}`}
         >
-          <Plus className="size-4" />
+          <Plus className="size-5" />
         </Link>
       </div>
     </div>

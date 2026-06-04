@@ -10,7 +10,7 @@ describe("CalorieSummaryWorkspace", () => {
 
     expect(await screen.findByText("Dinh dưỡng hôm nay")).toBeInTheDocument()
     expect(screen.getAllByText("Đã ăn").length).toBeGreaterThan(0)
-    expect(screen.getByText("Mục tiêu")).toBeInTheDocument()
-    expect(screen.getByText("Còn lại")).toBeInTheDocument()
+    expect(screen.getAllByText("Mục tiêu").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Còn lại").length).toBeGreaterThan(0)
   })
 })

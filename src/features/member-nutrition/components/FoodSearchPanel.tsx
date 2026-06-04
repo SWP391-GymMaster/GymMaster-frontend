@@ -115,39 +115,39 @@ export function FoodSearchPanel({
           type="button"
           onClick={() => setActiveTab("search")}
           className={cn(
-            "flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
+            "flex-1 py-3 min-h-11 text-sm font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
             activeTab === "search"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           )}
         >
-          <Search className="size-3.5" />
+          <Search className="size-4" />
           Tra cứu
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("recent")}
           className={cn(
-            "flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
+            "flex-1 py-3 min-h-11 text-sm font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
             activeTab === "recent"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           )}
         >
-          <History className="size-3.5" />
+          <History className="size-4" />
           Gần đây
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("custom")}
           className={cn(
-            "flex-1 pb-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
+            "flex-1 py-3 min-h-11 text-sm font-bold uppercase tracking-wider border-b-2 transition-all flex items-center justify-center gap-2",
             activeTab === "custom"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           )}
         >
-          <Heart className="size-3.5" />
+          <Heart className="size-4" />
           Tự tạo
         </button>
       </div>
@@ -221,7 +221,7 @@ export function FoodSearchPanel({
                 <div className="space-y-4">
                   <StateBlock
                     description="Không tìm thấy món phù hợp trong 30,000+ món ăn giả lập. Bạn có thể tự tạo món mới."
-                    title="Không tìm thấy kết quả"
+                    title="Không tìm thấy món phù hợp."
                     tone="empty"
                   />
                   <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />

@@ -141,7 +141,7 @@ export function WorkspaceShell({
       {/* Main content shell layout wrapper */}
       <div
         className={cn(
-          "min-h-screen bg-[linear-gradient(135deg,hsl(var(--muted)/0.55),hsl(var(--background))_42%,hsl(var(--muted)/0.35))] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          "min-h-screen bg-[linear-gradient(135deg,hsl(var(--muted)/0.55),hsl(var(--background))_42%,hsl(var(--muted)/0.35))] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] pt-16 lg:pt-0",
           isCollapsed ? "lg:ml-[80px]" : "lg:ml-[280px]",
           "print:ml-0 print:bg-none"
         )}

@@ -111,7 +111,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
         },
       ],
     })
-    toast.success("Đã thêm bữa ăn thành công")
+    toast.success("Đã thêm bữa ăn")
     if (selectedFood) {
       saveRecentFood(selectedFood)
     }
@@ -198,26 +198,26 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
                   }}
                 >
                   <div className="absolute size-20 rounded-full bg-card flex flex-col items-center justify-center text-center">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Calo</span>
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Calo</span>
                     <span className="text-lg font-black text-foreground">{estimatedCalories}</span>
                   </div>
                 </div>
 
                 <div className="flex-1 grid grid-cols-3 gap-2 w-full text-center">
                   <div className="rounded-xl bg-background border border-border/80 p-2">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-green-500">Carbs</p>
-                    <p className="mt-1 text-base font-bold text-foreground">{cG}g</p>
-                    <p className="text-[9px] text-muted-foreground/80 mt-0.5">{carbsPct}% calo</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.1em] text-green-500">Carbs</p>
+                    <p className="mt-1 text-sm font-bold text-foreground">{cG}g</p>
+                    <p className="text-[11px] text-muted-foreground/80 mt-0.5">{carbsPct}% calo</p>
                   </div>
                   <div className="rounded-xl bg-background border border-border/80 p-2">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-sky-500">Protein</p>
-                    <p className="mt-1 text-base font-bold text-foreground">{pG}g</p>
-                    <p className="text-[9px] text-muted-foreground/80 mt-0.5">{proteinPct}% calo</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.1em] text-sky-500">Protein</p>
+                    <p className="mt-1 text-sm font-bold text-foreground">{pG}g</p>
+                    <p className="text-[11px] text-muted-foreground/80 mt-0.5">{proteinPct}% calo</p>
                   </div>
                   <div className="rounded-xl bg-background border border-border/80 p-2">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-amber-500">Fat</p>
-                    <p className="mt-1 text-base font-bold text-foreground">{fG}g</p>
-                    <p className="text-[9px] text-muted-foreground/80 mt-0.5">{fatPct}% calo</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.1em] text-amber-500">Fat</p>
+                    <p className="mt-1 text-sm font-bold text-foreground">{fG}g</p>
+                    <p className="text-[11px] text-muted-foreground/80 mt-0.5">{fatPct}% calo</p>
                   </div>
                 </div>
               </div>
@@ -251,7 +251,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
                       type="button"
                       onClick={() => setValue("mealType", t, { shouldValidate: true })}
                       className={cn(
-                        "flex flex-col sm:flex-row items-center justify-center gap-1.5 p-2.5 rounded-xl border text-xs font-semibold transition active:scale-95",
+                        "flex flex-col sm:flex-row items-center justify-center gap-1.5 min-h-11 p-2 rounded-xl border text-xs font-semibold transition active:scale-95",
                         isActive
                           ? "border-primary bg-primary/10 text-primary shadow-sm"
                           : "border-border bg-background hover:bg-muted text-muted-foreground"
@@ -298,16 +298,16 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
                     {...register("quantity")}
                   />
                 </Field>
-                <div className="flex gap-1.5 flex-wrap">
+                <div className="flex gap-2 flex-wrap">
                   {[0.5, 1, 1.5, 2, 3].map((mult) => (
                     <button
                       key={mult}
                       type="button"
                       onClick={() => setValue("quantity", mult, { shouldValidate: true })}
                       className={cn(
-                        "px-2.5 py-1 text-[11px] rounded-lg border transition active:scale-95",
+                        "min-h-11 px-3 py-2 text-xs rounded-xl border transition active:scale-95 flex items-center justify-center font-bold min-w-[48px]",
                         quantity === mult
-                          ? "border-primary bg-primary/10 text-primary font-semibold"
+                          ? "border-primary bg-primary/10 text-primary font-bold shadow-sm"
                           : "border-border bg-background hover:bg-muted text-muted-foreground"
                       )}
                     >
@@ -338,9 +338,9 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
             </div>
 
             <Button
-              className="min-h-12 rounded-xl bg-foreground text-background hover:bg-foreground/90 w-full mt-2"
+              className="min-h-[52px] rounded-xl bg-foreground text-background hover:bg-foreground/90 w-full mt-2"
               data-testid="member-add-meal-button"
-              disabled={createMealLog.isPending || !selectedFood}
+              disabled={createMealLog.isPending}
               type="submit"
             >
               <CheckCircle2 aria-hidden="true" className="size-4" />

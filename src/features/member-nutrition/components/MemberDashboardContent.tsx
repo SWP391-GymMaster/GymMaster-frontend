@@ -57,7 +57,7 @@ export function MemberDashboardContent() {
   return (
     <div className="grid gap-6">
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="relative min-h-[410px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-950 shadow-xl">
+        <div className="relative min-h-[260px] lg:min-h-[410px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-950 shadow-xl">
           <div
             className="absolute inset-0 scale-[1.03]"
             style={{
@@ -71,7 +71,7 @@ export function MemberDashboardContent() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(34,197,94,0.32),transparent_34%),linear-gradient(90deg,rgba(3,7,6,0.96)_0%,rgba(3,7,6,0.84)_38%,rgba(3,7,6,0.48)_68%,rgba(3,7,6,0.28)_100%)]" />
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 to-transparent" />
 
-          <div className="relative flex min-h-[410px] flex-col justify-between p-6 md:p-7">
+          <div className="relative flex min-h-[260px] lg:min-h-[410px] flex-col justify-between p-5 lg:p-7">
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="flex size-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-primary shadow-sm backdrop-blur-md">
@@ -87,10 +87,10 @@ export function MemberDashboardContent() {
                 />
               </div>
 
-              <h2 className="mt-7 max-w-3xl text-4xl font-semibold tracking-tight text-white md:text-5xl">
+              <h2 className="mt-4 lg:mt-7 max-w-3xl text-2xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
                 Hôm nay tập gì, ăn gì và còn bao nhiêu calo?
               </h2>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-200/90">
+              <p className="mt-2 lg:mt-4 max-w-2xl text-xs lg:text-base leading-relaxed text-zinc-200/90 line-clamp-2 lg:line-clamp-none">
                 Theo dõi nhanh giáo án, dinh dưỡng và trạng thái hội viên trong
                 một màn hình, ưu tiên đúng hành động tiếp theo.
               </p>
@@ -103,7 +103,7 @@ export function MemberDashboardContent() {
                 <HeroChip label="Check-in" value="Sẵn sàng" variant="glass" />
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-4 lg:mt-5 flex flex-wrap gap-2">
                 <Button
                   asChild
                   className="rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-95 active:scale-[0.98]"
@@ -130,30 +130,30 @@ export function MemberDashboardContent() {
           </div>
         </div>
 
-        <aside className="grid gap-3">
+        <aside className="grid gap-2.5 grid-cols-2 lg:grid-cols-1 lg:gap-3">
           {todayActions.map((action) => {
             const Icon = action.icon;
 
             return (
               <Link
-                className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
+                className="group flex items-center gap-2.5 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98] lg:gap-4 lg:p-4"
                 href={action.href}
                 key={action.href}
               >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Icon aria-hidden="true" className="size-5" />
+                <span className="flex size-9 lg:size-11 shrink-0 items-center justify-center rounded-xl lg:rounded-full bg-primary/10 text-primary">
+                  <Icon aria-hidden="true" className="size-4.5 lg:size-5" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block font-semibold text-foreground">
+                  <span className="block font-semibold text-xs lg:text-sm text-foreground truncate">
                     {action.title}
                   </span>
-                  <span className="mt-1 block text-sm leading-6 text-muted-foreground">
+                  <span className="mt-0.5 hidden lg:block text-xs leading-5 text-muted-foreground line-clamp-2">
                     {action.description}
                   </span>
                 </span>
                 <ChevronRight
                   aria-hidden="true"
-                  className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary"
+                  className="size-3.5 lg:size-4 text-muted-foreground/60 transition group-hover:translate-x-0.5 group-hover:text-primary"
                 />
               </Link>
             );

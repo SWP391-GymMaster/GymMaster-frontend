@@ -117,16 +117,37 @@ export function NutritionSummaryCard({
       data-testid="member-nutrition-summary-card"
     >
       <div className="grid gap-0 lg:grid-cols-[250px_minmax(0,1fr)] h-full">
-        <aside className="relative flex flex-col items-center justify-center border-b border-border bg-primary/5 p-6 text-center lg:border-b-0 lg:border-r">
+        <aside className="relative flex flex-row lg:flex-col items-center justify-center gap-5 lg:gap-0 border-b border-border bg-primary/5 p-5 lg:p-6 text-center lg:border-b-0 lg:border-r shrink-0">
           <div className="pointer-events-none absolute -bottom-16 -left-16 size-48 rounded-full bg-primary/10 blur-3xl" />
 
-          <div className="relative flex size-44 items-center justify-center">
+          <div className="relative flex size-36 lg:size-44 shrink-0 items-center justify-center">
             <svg className="size-full -rotate-90">
+              <circle
+                cx="72"
+                cy="72"
+                r={radius - 12}
+                className="stroke-primary/10 lg:hidden"
+                strokeWidth="10"
+                fill="transparent"
+              />
+              <circle
+                cx="72"
+                cy="72"
+                r={radius - 12}
+                className="stroke-primary lg:hidden"
+                strokeWidth="10"
+                fill="transparent"
+                strokeDasharray={2 * Math.PI * (radius - 12)}
+                strokeDashoffset={2 * Math.PI * (radius - 12) - (consumedPercent / 100) * 2 * Math.PI * (radius - 12)}
+                strokeLinecap="round"
+                style={{ transition: "stroke-dashoffset 0.5s ease" }}
+              />
+              
               <circle
                 cx="88"
                 cy="88"
                 r={radius}
-                className="stroke-primary/10"
+                className="stroke-primary/10 hidden lg:block"
                 strokeWidth="12"
                 fill="transparent"
               />
@@ -134,7 +155,7 @@ export function NutritionSummaryCard({
                 cx="88"
                 cy="88"
                 r={radius}
-                className="stroke-primary"
+                className="stroke-primary hidden lg:block"
                 strokeWidth="12"
                 fill="transparent"
                 strokeDasharray={circumference}
@@ -145,27 +166,27 @@ export function NutritionSummaryCard({
             </svg>
 
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-xs font-bold text-muted-foreground">
+              <span className="text-[10px] lg:text-xs font-bold text-muted-foreground">
                 {consumedPercent}%
               </span>
-              <span className="mt-2 text-3xl font-black tracking-tight text-foreground">
+              <span className="mt-1 lg:mt-2 text-2xl lg:text-3xl font-black tracking-tight text-foreground">
                 {remaining}
               </span>
-              <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <span className="text-[8px] lg:text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Kcal còn
               </span>
             </div>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
-            <p className="flex items-center justify-center gap-1.5 text-xs font-semibold text-muted-foreground">
+          <div className="flex flex-col justify-center text-left lg:text-center lg:mt-5 rounded-2xl border border-border bg-card px-3.5 py-2.5 lg:px-4 lg:py-3 shadow-sm max-w-[180px]">
+            <p className="flex items-center lg:justify-center gap-1.5 text-[11px] lg:text-xs font-semibold text-muted-foreground">
               <Info className="size-3.5 text-primary" />
-              Tiến độ ăn: {consumedPercent}%
+              Tiến độ ăn
             </p>
-            <p className="mt-2 text-sm font-semibold text-foreground">
+            <p className="mt-1 text-xs lg:text-sm font-semibold text-foreground whitespace-nowrap">
               {hasFoodLogged
                 ? `Đã ăn ${formatCalories(summary.consumed)}`
-                : "Chưa có bữa nào"}
+                : "Chưa có bữa"}
             </p>
           </div>
         </aside>
@@ -191,7 +212,7 @@ export function NutritionSummaryCard({
             </span>
           </div>
 
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
+          <div className="mt-5 grid gap-2 grid-cols-3 lg:gap-3">
             <MetricCard
               icon={Flame}
               label="Đã ăn"
@@ -217,7 +238,7 @@ export function NutritionSummaryCard({
           </div>
 
           {!compact ? (
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="mt-4 grid gap-2 grid-cols-3 lg:gap-3">
               <MacroBar
                 icon="🍖"
                 label="Đạm"
@@ -251,7 +272,7 @@ export function NutritionSummaryCard({
           <div className="mt-5 flex flex-wrap gap-2">
             <Button
               asChild
-              className="rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-[0.98]"
+              className="rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-[0.98] min-h-[52px] w-full sm:w-auto px-6"
             >
               <Link href="/member/nutrition/meal-journal?view=add">
                 <Plus aria-hidden="true" className="size-4" />
@@ -298,30 +319,30 @@ function MetricCard({
 
   return (
     <div
-      className={`rounded-2xl border p-3.5 shadow-sm ${
+      className={`rounded-2xl border p-2 lg:p-3.5 shadow-sm ${
         featured
           ? "border-primary/25 bg-primary/5"
           : "border-border bg-background"
       }`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex flex-col lg:flex-row items-center lg:items-start gap-1.5 lg:gap-3 text-center lg:text-left">
         <span
-          className={`flex size-10 shrink-0 items-center justify-center rounded-xl border ${toneClasses}`}
+          className={`flex size-8 lg:size-10 shrink-0 items-center justify-center rounded-lg lg:rounded-xl border ${toneClasses}`}
         >
-          <Icon aria-hidden="true" className="size-5" />
+          <Icon aria-hidden="true" className="size-4 lg:size-5" />
         </span>
-        <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+        <div className="min-w-0 flex-1">
+          <p className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
             {label}
           </p>
           <p
-            className={`mt-1 truncate font-black tracking-tight ${
-              featured ? "text-xl text-primary" : "text-lg text-foreground"
+            className={`mt-0.5 lg:mt-1 truncate font-semibold tracking-tight text-xs lg:text-lg ${
+              featured ? "text-primary font-black" : "text-foreground"
             }`}
           >
             {value}
           </p>
-          <p className="mt-2 w-fit rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
+          <p className="mt-2 hidden lg:inline-block rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
             {subValue}
           </p>
         </div>
@@ -350,22 +371,22 @@ function MacroBar({
   const hasValue = Boolean(value && value > 0);
 
   return (
-    <div className="rounded-2xl border border-border bg-background p-3.5">
-      <div className="flex items-start gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm">
+    <div className="rounded-2xl border border-border bg-background p-2.5 lg:p-3.5">
+      <div className="flex items-start gap-2 lg:gap-3">
+        <span className="hidden lg:flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-sm">
           {icon}
         </span>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-foreground">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-0.5 lg:gap-2">
+            <span className="text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.12em] text-foreground truncate">
               {label}
             </span>
-            <span className="text-xs font-bold text-muted-foreground">
+            <span className="text-[10px] lg:text-xs font-bold text-muted-foreground truncate">
               {hasValue ? valueLabel : "Chưa có dữ liệu"}
             </span>
           </div>
 
-          <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-muted">
+          <div className="mt-2 h-1 lg:h-1.5 overflow-hidden rounded-full bg-muted">
             <div
               className={`h-full rounded-full transition-all duration-300 ${colorClass}`}
               style={{
@@ -373,8 +394,8 @@ function MacroBar({
               }}
             />
           </div>
-          <p className="mt-1.5 text-right text-[10px] font-semibold text-muted-foreground/70">
-            {hasValue ? `${percent}% mục tiêu` : `0g / ${target}g`}
+          <p className="mt-1 text-right text-[8px] lg:text-[10px] font-semibold text-muted-foreground/70">
+            {hasValue ? `${percent}%` : `${target}g`}
           </p>
         </div>
       </div>

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import type { MealLog } from "@/features/member-nutrition/types/member-nutrition.types"
+import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
 
 type MealLogListProps = {
   logs?: MealLog[]
@@ -116,7 +117,7 @@ export function MealLogList({
                 <Icon className="size-4.5 text-primary" />
                 <span className="font-bold text-foreground text-sm">{label}</span>
               </div>
-              <span className="font-black text-sm text-foreground">{sum} Kcal</span>
+              <span className="font-black text-sm text-foreground">{formatCalories(sum)}</span>
             </div>
 
             {/* Food items list */}
@@ -137,19 +138,19 @@ export function MealLogList({
                         Lượng: {item.quantity} {item.unit || "phần"}
                       </p>
                     </div>
-                    <span className="font-bold text-foreground">{item.calories} Kcal</span>
+                    <span className="font-bold text-foreground">{formatCalories(item.calories)}</span>
                   </div>
                 ))
               )}
             </div>
 
             {/* Footer with link */}
-            <div className="bg-muted/10 px-4 py-2 border-t border-border/40 text-left">
+            <div className="bg-muted/10 border-t border-border/40 text-left">
               <Link
                 href={`/member/nutrition/meal-journal?view=add&type=${key}`}
-                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary hover:brightness-95 active:scale-95 transition"
+                className="flex min-h-11 w-full items-center gap-1.5 px-4 text-xs font-bold uppercase tracking-wider text-primary hover:brightness-95 active:scale-95 transition"
               >
-                <Plus className="size-3" />
+                <Plus className="size-3.5" />
                 Thêm thực phẩm
               </Link>
             </div>
@@ -165,19 +166,19 @@ export function MealLogList({
         <div className="grid grid-cols-5 items-center text-center gap-1">
           <div>
             <span className="block text-lg font-black text-foreground">{calorieTarget}</span>
-            <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wide">Mục tiêu</span>
+            <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-wide">Mục tiêu</span>
           </div>
           <div className="text-muted-foreground text-sm font-bold">-</div>
           <div>
             <span className="block text-lg font-black text-primary">{totalConsumed}</span>
-            <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wide">Đã ăn</span>
+            <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-wide">Đã ăn</span>
           </div>
           <div className="text-muted-foreground text-sm font-bold">=</div>
           <div>
             <span className={cn("block text-lg font-black", remaining >= 0 ? "text-foreground" : "text-destructive")}>
               {remaining}
             </span>
-            <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wide">Còn lại</span>
+            <span className="text-[11px] text-muted-foreground uppercase font-bold tracking-wide">Còn lại</span>
           </div>
         </div>
       </div>

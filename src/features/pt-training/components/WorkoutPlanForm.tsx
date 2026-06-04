@@ -5,9 +5,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
-  ClipboardList,
   Dumbbell,
-  PencilLine,
   Plus,
   Sparkles,
   Trash2,
@@ -64,6 +62,8 @@ import { cn } from "@/lib/utils"
 type WorkoutPlanFormProps = {
   isPending?: boolean
   onSubmit: (draft: WorkoutPlanDraft) => Promise<void>
+  externalExerciseToAdd?: string
+  onExternalExerciseAdded?: () => void
 }
 
 const defaultExercise = {
@@ -95,6 +95,8 @@ const steps = [
 export function WorkoutPlanForm({
   isPending,
   onSubmit,
+  externalExerciseToAdd,
+  onExternalExerciseAdded,
 }: WorkoutPlanFormProps) {
   const [activeStep, setActiveStep] = useState(0)
   const [environment, setEnvironment] = useState<TrainingEnvironment>("gym")
@@ -120,6 +122,31 @@ export function WorkoutPlanForm({
     control: form.control,
     name: "exercises",
   })
+
+  useEffect(() => {
+    if (externalExerciseToAdd) {
+      const exercise = exerciseLibrary.find((e) => e.name === externalExerciseToAdd)
+      if (exercise) {
+        const currentExercises = form.getValues("exercises")
+        if (currentExercises.length === 1 && currentExercises[0].name === "") {
+          form.setValue("exercises.0.name", exercise.name, { shouldValidate: true })
+          form.setValue("exercises.0.sets", exercise.defaultSets, { shouldValidate: true })
+          form.setValue("exercises.0.reps", exercise.defaultReps, { shouldValidate: true })
+          form.setValue("exercises.0.note", exercise.defaultNote, { shouldValidate: true })
+        } else {
+          append({
+            name: exercise.name,
+            sets: exercise.defaultSets,
+            reps: exercise.defaultReps,
+            note: exercise.defaultNote || "",
+          })
+        }
+        toast.success(`Đã thêm bài tập: ${exercise.name}`)
+        setActiveStep(2) // Switch to step 3 (index 2: "Bài tập")
+      }
+      onExternalExerciseAdded?.()
+    }
+  }, [externalExerciseToAdd, onExternalExerciseAdded, append, form])
 
   const currentTitle = form.watch("title")
   const currentExercises = form.watch("exercises")

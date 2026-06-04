@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useMemo, useState } from "react"
 import {
   ArrowRight,
   CalendarDays,
@@ -28,7 +29,21 @@ function initials(name: string) {
 }
 
 export function PtDashboardContent() {
+  const [search, setSearch] = useState("")
   const { data, isLoading, error, refetch } = usePtAssignedMembers()
+
+  const members = data ?? []
+
+  const filteredMembers = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return members
+    return members.filter(
+      (member) =>
+        member.fullName.toLowerCase().includes(query) ||
+        member.memberCode.toLowerCase().includes(query) ||
+        (member.phone && member.phone.includes(query)),
+    )
+  }, [members, search])
 
   if (error) {
     return (
@@ -69,7 +84,6 @@ export function PtDashboardContent() {
     )
   }
 
-  const members = data ?? []
   const activeCount = members.filter((member) => member.status === "active").length
   const followUpCount = Math.max(members.length - activeCount, 0)
 
@@ -168,44 +182,51 @@ export function PtDashboardContent() {
               <input
                 className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
                 placeholder="Tìm học viên..."
-                readOnly
+                onChange={(event) => setSearch(event.target.value)}
+                value={search}
               />
             </label>
           </div>
 
           <div className="grid gap-4 p-5 xl:grid-cols-2">
-            {members.map((member) => (
-              <Link
-                className="group rounded-2xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
-                href={`/pt/members/${member.id}`}
-                key={member.id}
-              >
-                <div className="flex items-center gap-4">
-                  <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-base font-semibold text-primary">
-                    {initials(member.fullName)}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-base font-semibold text-foreground">
-                      {member.fullName}
+            {filteredMembers.length > 0 ? (
+              filteredMembers.map((member) => (
+                <Link
+                  className="group rounded-2xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
+                  href={`/pt/members/${member.id}`}
+                  key={member.id}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-base font-semibold text-primary">
+                      {initials(member.fullName)}
                     </span>
-                    <span className="mt-1 block text-sm text-muted-foreground">
-                      {member.memberCode} · {member.phone}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-base font-semibold text-foreground">
+                        {member.fullName}
+                      </span>
+                      <span className="mt-1 block text-sm text-muted-foreground">
+                        {member.memberCode} · {member.phone}
+                      </span>
                     </span>
-                  </span>
-                  <StatusPill status={member.status} />
-                  <ArrowRight
-                    aria-hidden="true"
-                    className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary"
-                  />
-                </div>
+                    <StatusPill status={member.status} />
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary"
+                    />
+                  </div>
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <RosterStat label="Buổi còn lại" value="12" />
-                  <RosterStat label="Tuần này" value="3/4" />
-                  <RosterStat label="Ghi chú" value="2 mới" />
-                </div>
-              </Link>
-            ))}
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <RosterStat label="Buổi còn lại" value="12" />
+                    <RosterStat label="Tuần này" value="3/4" />
+                    <RosterStat label="Ghi chú" value="2 mới" />
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-full py-8 text-center text-sm text-muted-foreground">
+                Không tìm thấy hội viên nào khớp với từ khóa tìm kiếm.
+              </div>
+            )}
           </div>
         </section>
       ) : (
