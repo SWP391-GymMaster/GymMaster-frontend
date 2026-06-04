@@ -33,7 +33,7 @@ export function AuthOSShell({
 }: AuthOSShellProps) {
   return (
     <main
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-8 text-foreground"
+      className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-8 text-foreground"
       style={{
         backgroundImage: `linear-gradient(115deg, color-mix(in oklch, var(--background) 94%, transparent), color-mix(in oklch, var(--background) 75%, transparent) 55%, color-mix(in oklch, var(--background) 35%, transparent)), url(${gymMasterAssets.operationsCover})`,
         backgroundPosition: "center",

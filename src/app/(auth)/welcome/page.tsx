@@ -157,7 +157,7 @@ export default function WelcomePage() {
 
     return (
       <main
-        className="relative isolate flex min-h-screen flex-col overflow-hidden bg-zinc-950 text-white px-6 py-6 select-none transition-all duration-500 ease-in-out"
+        className="relative isolate flex h-dvh flex-col overflow-hidden bg-zinc-950 text-white px-6 py-6 select-none transition-all duration-500 ease-in-out"
         style={{
           backgroundImage: `linear-gradient(to bottom, rgba(8,10,15,0.7), rgba(8,10,15,0.95)), url(${activeSlide.image})`,
           backgroundPosition: "center",
