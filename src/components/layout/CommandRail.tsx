@@ -2,7 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { usePtActiveMemberStore, type ActiveMemberContext } from "@/stores/usePtActiveMemberStore";
 import {
   Activity,
   ChevronLeft,
@@ -38,6 +40,7 @@ type CommandRailItem = {
   href: string;
   icon: LucideIcon;
   label: string;
+  disabled?: boolean;
 };
 
 type SidebarGroup = {
@@ -91,6 +94,7 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
       title: "Làm việc",
       items: [
         { href: "/pt/dashboard", icon: Home, label: "Coach hub" },
+        { href: "/pt/members", icon: Users, label: "Học viên" },
         { href: "/pt/members/101", icon: Dumbbell, label: "Hội viên 360" },
       ],
     },
@@ -154,6 +158,7 @@ const mobilePrimaryHrefsByRole: Record<UserRole, string[]> = {
   ],
   pt: [
     "/pt/dashboard",
+    "/pt/members",
     "/pt/members/101",
     "/pt/members/101/workout",
     "/pt/members/101/notes",
@@ -184,9 +189,63 @@ function flattenNavGroups(groups: SidebarGroup[]) {
   return groups.flatMap((group) => group.items);
 }
 
-function getMobileNavItems(role: UserRole) {
-  const allItems = flattenNavGroups(navGroupsByRole[role] || []);
-  const priorityHrefs = mobilePrimaryHrefsByRole[role];
+function getMobileNavItems(role: UserRole, activeMember: ActiveMemberContext) {
+  const rawGroups = navGroupsByRole[role] || [];
+  const groups = (role === "pt") 
+    ? rawGroups.map((group) => {
+        if (group.title === "Làm việc") {
+          return {
+            ...group,
+            items: group.items.map((item) => {
+              if (item.label === "Hội viên 360") {
+                return {
+                  ...item,
+                  href: activeMember ? `/pt/members/${activeMember.id}` : "#",
+                  disabled: !activeMember,
+                };
+              }
+              return item;
+            }),
+          };
+        }
+        if (group.title === "Giáo án & Ghi chú") {
+          return {
+            ...group,
+            items: group.items.map((item) => {
+              if (item.label === "Giáo án") {
+                return {
+                  ...item,
+                  href: activeMember ? `/pt/members/${activeMember.id}/workout` : "#",
+                  disabled: !activeMember,
+                };
+              }
+              if (item.label === "Ghi chú") {
+                return {
+                  ...item,
+                  href: activeMember ? `/pt/members/${activeMember.id}/notes` : "#",
+                  disabled: !activeMember,
+                };
+              }
+              return item;
+            }),
+          };
+        }
+        return group;
+      })
+    : rawGroups;
+
+  const allItems = flattenNavGroups(groups);
+  const priorityHrefs = mobilePrimaryHrefsByRole[role].map((href) => {
+    if (role === "pt" && activeMember) {
+      return href.replace("/101", `/${activeMember.id}`);
+    }
+    if (role === "pt" && !activeMember) {
+      if (href === "/pt/members/101" || href === "/pt/members/101/workout" || href === "/pt/members/101/notes") {
+        return "#";
+      }
+    }
+    return href;
+  });
 
   const primaryItems = priorityHrefs
     .map((href) => allItems.find((item) => item.href === href))
@@ -208,8 +267,67 @@ type CommandRailProps = {
 
 export function CommandRail({ role }: CommandRailProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { isCollapsed, toggleSidebar, setSettingsOpen } = useSidebarStore();
-  const navGroups = navGroupsByRole[role] || [];
+  const { activeMember, clearActiveMember } = usePtActiveMemberStore();
+
+  const handleClearContext = () => {
+    clearActiveMember();
+    toast.info("Đã đóng ngữ cảnh học viên");
+    if (pathname.startsWith("/pt/members/")) {
+      const segments = pathname.split("/");
+      const idSegment = segments[3];
+      if (idSegment && /^\d+$/.test(idSegment)) {
+        router.push("/pt/members");
+      }
+    }
+  };
+
+  const navGroups = useMemo(() => {
+    const rawGroups = navGroupsByRole[role] || [];
+    if (role !== "pt") return rawGroups;
+
+    return rawGroups.map((group) => {
+      if (group.title === "Làm việc") {
+        return {
+          ...group,
+          items: group.items.map((item) => {
+            if (item.label === "Hội viên 360") {
+              return {
+                ...item,
+                href: activeMember ? `/pt/members/${activeMember.id}` : "#",
+                disabled: !activeMember,
+              };
+            }
+            return item;
+          }),
+        };
+      }
+      if (group.title === "Giáo án & Ghi chú") {
+        return {
+          ...group,
+          items: group.items.map((item) => {
+            if (item.label === "Giáo án") {
+              return {
+                ...item,
+                href: activeMember ? `/pt/members/${activeMember.id}/workout` : "#",
+                disabled: !activeMember,
+              };
+            }
+            if (item.label === "Ghi chú") {
+              return {
+                ...item,
+                href: activeMember ? `/pt/members/${activeMember.id}/notes` : "#",
+                disabled: !activeMember,
+              };
+            }
+            return item;
+          }),
+        };
+      }
+      return group;
+    });
+  }, [role, activeMember]);
 
   return (
     <>
@@ -273,6 +391,38 @@ export function CommandRail({ role }: CommandRailProps) {
         >
           {navGroups.map((group, idx) => (
             <div key={idx} className="flex w-full shrink-0 flex-col gap-1">
+              {/* PT Active Member Context Card */}
+              {role === "pt" && group.title === "Giáo án & Ghi chú" && !isCollapsed && (
+                <div className="mx-3 mb-3 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-md">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-primary/80">
+                        Học viên đang chọn
+                      </p>
+                      {activeMember ? (
+                        <p className="mt-1 truncate text-xs font-semibold text-white">
+                          🟢 {activeMember.fullName}
+                        </p>
+                      ) : (
+                        <p className="mt-1 truncate text-xs font-medium text-sidebar-foreground/45 italic">
+                          ⚠️ Chưa chọn học viên
+                        </p>
+                      )}
+                    </div>
+                    {activeMember && (
+                      <button
+                        onClick={handleClearContext}
+                        type="button"
+                        className="rounded-md p-1 hover:bg-white/10 text-sidebar-foreground/50 hover:text-white transition"
+                        title="Xóa ngữ cảnh"
+                      >
+                        <X className="size-3" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Group Title */}
               {!isCollapsed && (
                 <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40">
@@ -286,23 +436,39 @@ export function CommandRail({ role }: CommandRailProps) {
                   const Icon = item.icon;
 
                   return (
-                    <div key={item.href} className="group relative w-full">
-                      <Link
-                        aria-current={active ? "page" : undefined}
-                        className={cn(
-                          "relative flex min-h-10 items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98]",
-                          isCollapsed
-                            ? "mx-auto size-10 justify-center"
-                            : "w-full gap-3 px-3",
-                          active
-                            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
-                            : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground",
-                        )}
-                        href={item.href}
-                      >
-                        <Icon aria-hidden="true" className="size-4 shrink-0" />
-                        {!isCollapsed && <span>{item.label}</span>}
-                      </Link>
+                    <div key={item.label} className="group relative w-full">
+                      {item.disabled ? (
+                        <button
+                          onClick={() => toast.warning("Vui lòng chọn học viên từ danh sách để tiếp tục.")}
+                          type="button"
+                          className={cn(
+                            "relative flex min-h-10 w-full items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98] text-sidebar-foreground/35 cursor-not-allowed",
+                            isCollapsed
+                              ? "mx-auto size-10 justify-center"
+                              : "gap-3 px-3",
+                          )}
+                        >
+                          <Icon aria-hidden="true" className="size-4 shrink-0" />
+                          {!isCollapsed && <span>{item.label}</span>}
+                        </button>
+                      ) : (
+                        <Link
+                          aria-current={active ? "page" : undefined}
+                          className={cn(
+                            "relative flex min-h-10 items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98]",
+                            isCollapsed
+                              ? "mx-auto size-10 justify-center"
+                              : "w-full gap-3 px-3",
+                            active
+                              ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
+                              : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground",
+                          )}
+                          href={item.href}
+                        >
+                          <Icon aria-hidden="true" className="size-4 shrink-0" />
+                          {!isCollapsed && <span>{item.label}</span>}
+                        </Link>
+                      )}
 
                       {/* Premium CSS Absolute Tooltip on Collapse */}
                       {isCollapsed && (
@@ -394,10 +560,11 @@ function MobileCommandNav({ role }: CommandRailProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
   const { setSettingsOpen } = useSidebarStore();
+  const { activeMember } = usePtActiveMemberStore();
 
   const { primaryItems, moreItems } = useMemo(
-    () => getMobileNavItems(role),
-    [role],
+    () => getMobileNavItems(role, activeMember),
+    [role, activeMember],
   );
 
   return (
@@ -412,7 +579,7 @@ function MobileCommandNav({ role }: CommandRailProps) {
             <MobileNavItem
               active={isActivePath(pathname, item.href)}
               item={item}
-              key={item.href}
+              key={item.label}
               onClick={() => setMoreOpen(false)}
             />
           ))}
@@ -480,7 +647,7 @@ function MobileCommandNav({ role }: CommandRailProps) {
                   <MobileMoreItem
                     active={isActivePath(pathname, item.href)}
                     item={item}
-                    key={item.href}
+                    key={item.label}
                     onClick={() => setMoreOpen(false)}
                   />
                 ))}
@@ -516,10 +683,26 @@ function MobileNavItem({
   onClick,
 }: {
   active: boolean;
-  item: CommandRailItem;
+  item: CommandRailItem & { disabled?: boolean };
   onClick: () => void;
 }) {
   const Icon = item.icon;
+
+  if (item.disabled) {
+    return (
+      <button
+        className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[10px] font-bold text-zinc-300 cursor-not-allowed"
+        onClick={() => {
+          toast.warning("Vui lòng chọn học viên từ danh sách để tiếp tục.");
+          onClick();
+        }}
+        type="button"
+      >
+        <Icon aria-hidden="true" className="size-5" />
+        <span className="max-w-full truncate text-zinc-400">{item.label}</span>
+      </button>
+    );
+  }
 
   return (
     <Link
@@ -545,10 +728,29 @@ function MobileMoreItem({
   onClick,
 }: {
   active: boolean;
-  item: CommandRailItem;
+  item: CommandRailItem & { disabled?: boolean };
   onClick: () => void;
 }) {
   const Icon = item.icon;
+
+  if (item.disabled) {
+    return (
+      <button
+        className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-zinc-100 bg-white text-zinc-300 cursor-not-allowed px-3 text-sm font-semibold"
+        onClick={() => {
+          toast.warning("Vui lòng chọn học viên từ danh sách để tiếp tục.");
+          onClick();
+        }}
+        type="button"
+      >
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-zinc-50 text-zinc-300">
+          <Icon aria-hidden="true" className="size-4" />
+        </span>
+        <span className="min-w-0 flex-1 truncate text-left text-zinc-400">{item.label}</span>
+        <ChevronRight aria-hidden="true" className="size-4 text-zinc-200" />
+      </button>
+    );
+  }
 
   return (
     <Link

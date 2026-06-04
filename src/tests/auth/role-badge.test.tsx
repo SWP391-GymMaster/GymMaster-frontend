@@ -8,8 +8,8 @@ describe("RoleBadge", () => {
     render(<RoleBadge role="member" />)
 
     expect(screen.getByText("Hội viên")).toBeInTheDocument()
-    expect(screen.queryByText("Quản trị")).not.toBeInTheDocument()
-    expect(screen.queryByText("Lễ tân")).not.toBeInTheDocument()
-    expect(screen.queryByText("PT")).not.toBeInTheDocument()
+    expect(screen.queryByText("Quản trị viên")).not.toBeInTheDocument()
+    expect(screen.queryByText("Nhân viên lễ tân")).not.toBeInTheDocument()
+    expect(screen.queryByText("Huấn luyện viên PT")).not.toBeInTheDocument()
   })
 })

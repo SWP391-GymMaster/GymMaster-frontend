@@ -36,7 +36,7 @@ describe("AdminPageFrame", () => {
       </AdminPageFrame>,
     )
 
-    expect((await screen.findAllByText("Quản trị")).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText("Quản trị viên")).length).toBeGreaterThan(0)
   })
 
   it("renders without children", async () => {
