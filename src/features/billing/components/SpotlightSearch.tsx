@@ -194,11 +194,11 @@ export function SpotlightSearch({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTitle className="sr-only">Spotlight Search</DialogTitle>
-      <DialogDescription className="sr-only">
-        Tìm kiếm trang, chức năng hoặc hóa đơn.
-      </DialogDescription>
       <DialogContent className="p-0 sm:max-w-[550px] overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
+        <DialogTitle className="sr-only">Spotlight Search</DialogTitle>
+        <DialogDescription className="sr-only">
+          Tìm kiếm trang, chức năng hoặc hóa đơn.
+        </DialogDescription>
         <div className="flex items-center border-b px-4 py-3 bg-muted/20">
           <Search className="size-5 text-muted-foreground mr-3 shrink-0" />
           <input

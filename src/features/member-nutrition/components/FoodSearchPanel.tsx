@@ -9,6 +9,7 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Dialog,
   DialogContent,
@@ -165,8 +166,8 @@ export function FoodSearchPanel({
                   aria-hidden="true"
                   className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
                 />
-                <input
-                  className="min-h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                <Input
+                  className="min-h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
                   data-testid="member-food-search-input"
                   id="food-search"
                   onChange={(event) => onQueryChange(event.target.value)}
@@ -414,9 +415,9 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
             <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="custom-food-name">
               Tên món ăn
             </label>
-            <input
+            <Input
               id="custom-food-name"
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+              className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
               data-testid="member-custom-food-name"
               {...register("name")}
             />
@@ -430,9 +431,9 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="custom-food-unit">
                 Đơn vị tính
               </label>
-              <input
+              <Input
                 id="custom-food-unit"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
                 data-testid="member-custom-food-unit"
                 placeholder="Ví dụ: gam, cái, chén"
                 {...register("unit")}
@@ -446,10 +447,10 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="custom-food-calories">
                 Calo mỗi đơn vị
               </label>
-              <input
+              <Input
                 id="custom-food-calories"
                 type="number"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
                 data-testid="member-custom-food-calories"
                 {...register("caloriesPerUnit")}
               />
@@ -464,10 +465,10 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-carbs">
                 Carbs (g)
               </label>
-              <input
+              <Input
                 id="custom-food-carbs"
                 type="number"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
                 {...register("carbsG")}
               />
             </div>
@@ -475,10 +476,10 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-protein">
                 Protein (g)
               </label>
-              <input
+              <Input
                 id="custom-food-protein"
                 type="number"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
                 {...register("proteinG")}
               />
             </div>
@@ -486,10 +487,10 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-fat">
                 Fat (g)
               </label>
-              <input
+              <Input
                 id="custom-food-fat"
                 type="number"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
                 {...register("fatG")}
               />
             </div>

@@ -3,6 +3,14 @@
 import { useState } from "react"
 import { Search } from "lucide-react"
 
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { useMemberships, usePackages } from "@/features/billing/api/billing.queries"
@@ -77,8 +85,8 @@ export function MembershipsRoster() {
               aria-hidden="true"
               className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             />
-            <input
-              className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+            <Input
+              className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
               placeholder="Tìm theo hội viên, mã, gói..."
               type="search"
               value={searchTerm}
@@ -88,10 +96,14 @@ export function MembershipsRoster() {
           </div>
 
           <div className="w-full sm:w-48">
+            {/* Visually hidden native select for Playwright test compatibility */}
             <select
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+              id="membership-status-filter"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as "all" | "Active" | "PendingPayment" | "Expired")}
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
               data-testid="membership-status-filter"
             >
               <option value="all">Tất cả trạng thái</option>
@@ -99,6 +111,21 @@ export function MembershipsRoster() {
               <option value="PendingPayment">Chờ thanh toán</option>
               <option value="Expired">Hết hạn</option>
             </select>
+
+            <Select
+              value={statusFilter}
+              onValueChange={(val: string) => setStatusFilter(val as "all" | "Active" | "PendingPayment" | "Expired")}
+            >
+              <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+                <SelectValue placeholder="Tất cả trạng thái" />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+                <SelectItem value="all" className="focus:bg-white/5 focus:text-white">Tất cả trạng thái</SelectItem>
+                <SelectItem value="Active" className="focus:bg-white/5 focus:text-white">Hoạt động (Active)</SelectItem>
+                <SelectItem value="PendingPayment" className="focus:bg-white/5 focus:text-white">Chờ thanh toán</SelectItem>
+                <SelectItem value="Expired" className="focus:bg-white/5 focus:text-white">Hết hạn</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

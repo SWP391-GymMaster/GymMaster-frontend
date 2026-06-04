@@ -36,6 +36,14 @@ import type { LucideIcon } from "lucide-react"
 import { StatusPill, type Status } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -309,8 +317,8 @@ function SearchToolbar({
           aria-hidden="true"
           className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         />
-        <input
-          className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+        <Input
+          className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
           data-testid="management-search-input"
           data-shortcut-search
           onChange={(event) => onSearch(event.target.value)}
@@ -1748,16 +1756,16 @@ function CreateMemberPanel({ onCreated }: { onCreated?: () => void }) {
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
       <Field error={errors.fullName?.message} label="Họ và tên">
-        <input className={inputClass} data-testid="member-create-name" {...register("fullName")} />
+        <Input className={inputClass} data-testid="member-create-name" {...register("fullName")} />
       </Field>
       <Field error={errors.email?.message} label="Email">
-        <input className={inputClass} data-testid="member-create-email" type="email" {...register("email")} />
+        <Input className={inputClass} data-testid="member-create-email" type="email" {...register("email")} />
       </Field>
       <Field error={errors.phone?.message} label="Số điện thoại">
-        <input className={inputClass} data-testid="member-create-phone" {...register("phone")} />
+        <Input className={inputClass} data-testid="member-create-phone" {...register("phone")} />
       </Field>
       <Field label="Địa chỉ">
-        <input className={inputClass} {...register("address")} />
+        <Input className={inputClass} {...register("address")} />
       </Field>
       <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="member-create-submit" disabled={isSubmitting || createMember.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
@@ -1780,6 +1788,8 @@ function CreateUserPanel({
     handleSubmit,
     register,
     reset,
+    setValue,
+    watch,
   } = useForm<CreateUserFormValues>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
@@ -1810,25 +1820,44 @@ function CreateUserPanel({
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
       <Field error={errors.fullName?.message} label="Họ và tên">
-        <input className={inputClass} data-testid="user-create-name" {...register("fullName")} />
+        <Input className={inputClass} data-testid="user-create-name" {...register("fullName")} />
       </Field>
       <Field error={errors.email?.message} label="Email">
-        <input className={inputClass} data-testid="user-create-email" type="email" {...register("email")} />
+        <Input className={inputClass} data-testid="user-create-email" type="email" {...register("email")} />
       </Field>
       <Field label="Số điện thoại">
-        <input className={inputClass} data-testid="user-create-phone" {...register("phone")} />
+        <Input className={inputClass} data-testid="user-create-phone" {...register("phone")} />
       </Field>
       {!fixedRole ? (
         <Field error={errors.role?.message} label="Vai trò">
-          <select className={inputClass} data-testid="user-create-role" {...register("role")}>
+          {/* Visually hidden native select for Playwright test compatibility & React Hook Form registration */}
+          <select
+            className="sr-only"
+            data-testid="user-create-role"
+            {...register("role")}
+          >
             <option value="staff">Lễ tân</option>
             <option value="pt">PT</option>
             <option value="member">Hội viên</option>
           </select>
+
+          <Select
+            value={watch("role")}
+            onValueChange={(val: string) => setValue("role", val as "staff" | "pt" | "member", { shouldValidate: true })}
+          >
+            <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+              <SelectValue placeholder="Chọn vai trò" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+              <SelectItem value="staff" className="focus:bg-white/5 focus:text-white">Lễ tân</SelectItem>
+              <SelectItem value="pt" className="focus:bg-white/5 focus:text-white">PT</SelectItem>
+              <SelectItem value="member" className="focus:bg-white/5 focus:text-white">Hội viên</SelectItem>
+            </SelectContent>
+          </Select>
         </Field>
       ) : null}
       <Field error={errors.password?.message} label="Mật khẩu">
-        <input className={inputClass} data-testid="user-create-password" placeholder="Để trống để sử dụng mật khẩu tạm thời" type="password" {...register("password")} />
+        <Input className={inputClass} data-testid="user-create-password" placeholder="Để trống để sử dụng mật khẩu tạm thời" type="password" {...register("password")} />
       </Field>
       <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="user-create-submit" disabled={isSubmitting || createUser.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
@@ -1871,13 +1900,13 @@ function CreateTrainerPanel({ onCreated }: { onCreated?: () => void }) {
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
       <Field error={errors.fullName?.message} label="Họ và tên">
-        <input className={inputClass} data-testid="trainer-create-name" {...register("fullName")} />
+        <Input className={inputClass} data-testid="trainer-create-name" {...register("fullName")} />
       </Field>
       <Field error={errors.specialty?.message} label="Chuyên môn">
-        <input className={inputClass} data-testid="trainer-create-specialty" {...register("specialty")} />
+        <Input className={inputClass} data-testid="trainer-create-specialty" {...register("specialty")} />
       </Field>
       <Field label="ID người dùng liên kết">
-        <input className={inputClass} type="number" {...register("userId")} />
+        <Input className={inputClass} type="number" {...register("userId")} />
       </Field>
       <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="trainer-create-submit" disabled={isSubmitting || createTrainer.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />

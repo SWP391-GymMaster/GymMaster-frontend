@@ -5,6 +5,32 @@
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
+  /* Custom scrollbars globally using token colors */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+    transition: background 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+
+  /* Support for Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
   /* Ẩn scrollbar cho Chrome, Safari và Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -41,16 +67,12 @@
 
   /* Cục cuộn (Thumb) */
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(
-      --gym-chalk
-    ); /* Màu của cục cuộn (Ví dụ: màu xanh blue-500) */
+    background: var(--border);
     border-radius: 10px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(
-      --gym-chalk
-    ); /* Màu của cục cuộn khi di chuột trực tiếp vào nó */
+    background: var(--muted-foreground);
   }
 }
 
@@ -217,6 +239,8 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--background);
   }
   body {
     @apply bg-background text-foreground;
@@ -225,6 +249,24 @@
   html {
     @apply font-sans;
     overscroll-behavior-y: none;
+  }
+
+  /* Custom Global Scrollbar for Webkit Browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 9999px;
+    border: 2px solid var(--background);
+    transition: background 0.15s ease;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
   }
 }
 

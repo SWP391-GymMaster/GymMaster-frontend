@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ArrowRight,
   Flame,
@@ -34,6 +35,8 @@ export function NutritionSummaryCard({
   isError = false,
   compact = false,
 }: NutritionSummaryCardProps) {
+  const pathname = usePathname();
+  const isOnSummaryPage = pathname === "/member/nutrition/summary";
   const [localTarget, setLocalTarget] = useState(summary?.target ?? 2200);
 
   useEffect(() => {
@@ -138,11 +141,14 @@ export function NutritionSummaryCard({
                 strokeWidth="10"
                 fill="transparent"
                 strokeDasharray={2 * Math.PI * (radius - 12)}
-                strokeDashoffset={2 * Math.PI * (radius - 12) - (consumedPercent / 100) * 2 * Math.PI * (radius - 12)}
+                strokeDashoffset={
+                  2 * Math.PI * (radius - 12) -
+                  (consumedPercent / 100) * 2 * Math.PI * (radius - 12)
+                }
                 strokeLinecap="round"
                 style={{ transition: "stroke-dashoffset 0.5s ease" }}
               />
-              
+
               <circle
                 cx="88"
                 cy="88"
@@ -279,16 +285,17 @@ export function NutritionSummaryCard({
                 Thêm bữa ăn
               </Link>
             </Button>
-            <Button
-              asChild
-              className="rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
-              variant="outline"
-            >
-              <Link href="/member/nutrition/summary">
-                Xem chi tiết
-                <ArrowRight aria-hidden="true" className="size-4" />
-              </Link>
-            </Button>
+            {!isOnSummaryPage && (
+              <Button
+                asChild
+                className="rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98] min-h-[52px] w-full sm:w-auto px-6"
+              >
+                <Link href="/member/nutrition/summary">
+                  Xem chi tiết
+                  <ArrowRight aria-hidden="true" className="size-4" />
+                </Link>
+              </Button>
+            )}
           </div>
         </main>
       </div>

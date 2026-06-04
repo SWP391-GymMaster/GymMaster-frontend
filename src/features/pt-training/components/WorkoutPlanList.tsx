@@ -1,24 +1,60 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   CheckCircle2,
-  ChevronDown,
   ClipboardList,
   Copy,
   MoreVertical,
   Trash2,
   Printer,
+  Search,
+  Pencil,
 } from "lucide-react"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core"
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { toast } from "sonner"
 
 import { useRestTimerStore } from "@/stores/useRestTimerStore"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import {
   getWorkoutAssetForExercise,
   getWorkoutCategoryLabel,
 } from "@/features/pt-training/data/workout-assets"
-import type { WorkoutPlan } from "@/features/pt-training/types/pt-training.types"
+import { exerciseLibrary } from "@/features/pt-training/data/exercise-library"
+import type { WorkoutPlan, WorkoutExercise } from "@/features/pt-training/types/pt-training.types"
 import { cn } from "@/lib/utils"
 
 type WorkoutPlanListProps = {
@@ -44,6 +80,14 @@ export function WorkoutPlanList({
   mediaMode = "none",
   plans,
 }: WorkoutPlanListProps) {
+  const [prevPlans, setPrevPlans] = useState<WorkoutPlan[] | undefined>(plans)
+  const [localPlans, setLocalPlans] = useState<WorkoutPlan[]>(plans || [])
+
+  if (plans !== prevPlans) {
+    setPrevPlans(plans)
+    setLocalPlans(plans || [])
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-3" data-testid="workout-plan-loading">
@@ -67,7 +111,7 @@ export function WorkoutPlanList({
     )
   }
 
-  if (!plans?.length) {
+  if (!localPlans?.length) {
     return (
       <StateBlock
         description="Tạo giáo án với ít nhất một bài tập để hội viên có hướng dẫn luyện tập."
@@ -79,9 +123,104 @@ export function WorkoutPlanList({
 
   return (
     <div className="space-y-5">
-      {plans.map((plan, planIndex) =>
+      {localPlans.map((plan, planIndex) =>
         mediaMode === "coach" ? (
-          <CoachWorkoutPlanCard key={plan.id} plan={plan} planIndex={planIndex} />
+          <CoachWorkoutPlanCard
+            key={plan.id}
+            plan={plan}
+            planIndex={planIndex}
+            onCopyExercise={(idx) => {
+              const exToCopy = plan.exercises[idx]
+              if (!exToCopy) return
+              const newEx = {
+                ...exToCopy,
+                id: undefined,
+                name: `${exToCopy.name} (Bản sao)`,
+              }
+              const updatedExercises = [
+                ...plan.exercises.slice(0, idx + 1),
+                newEx,
+                ...plan.exercises.slice(idx + 1),
+              ].map((ex, exIdx) => ({
+                ...ex,
+                orderIndex: exIdx + 1,
+              }))
+              setLocalPlans((prev) =>
+                prev.map((p) => (p.id === plan.id ? { ...p, exercises: updatedExercises } : p))
+              )
+              toast.success(`Đã nhân bản bài tập "${exToCopy.name}"!`)
+            }}
+            onDeleteExercise={(idx) => {
+              const exToDelete = plan.exercises[idx]
+              const updatedExercises = plan.exercises
+                .filter((_, exIdx) => exIdx !== idx)
+                .map((ex, exIdx) => ({
+                  ...ex,
+                  orderIndex: exIdx + 1,
+                }))
+              setLocalPlans((prev) =>
+                prev.map((p) => (p.id === plan.id ? { ...p, exercises: updatedExercises } : p))
+              )
+              toast.success(exToDelete ? `Đã xóa bài tập "${exToDelete.name}"!` : "Đã xóa bài tập!")
+            }}
+            onUpdateExercise={(idx, field, value) => {
+              const updatedExercises = plan.exercises.map((ex, exIdx) => {
+                if (exIdx !== idx) return ex
+                return {
+                  ...ex,
+                  [field]: value,
+                }
+              })
+              setLocalPlans((prev) =>
+                prev.map((p) => (p.id === plan.id ? { ...p, exercises: updatedExercises } : p))
+              )
+            }}
+            onAddExercise={(name, sets, reps, note) => {
+              const defaultEx: WorkoutExercise = {
+                name,
+                sets,
+                reps,
+                note,
+                orderIndex: plan.exercises.length + 1,
+              }
+              const updatedExercises = [...plan.exercises, defaultEx]
+              setLocalPlans((prev) =>
+                prev.map((p) => (p.id === plan.id ? { ...p, exercises: updatedExercises } : p))
+              )
+            }}
+            onReorderExercises={(newExs) => {
+              setLocalPlans((prev) =>
+                prev.map((p) => (p.id === plan.id ? { ...p, exercises: newExs } : p))
+              )
+              toast.success("Đã sắp xếp lại bài tập!")
+            }}
+            onRenamePlan={(newTitle) => {
+              setLocalPlans((prev) =>
+                prev.map((p) => (p.id === plan.id ? { ...p, title: newTitle } : p))
+              )
+            }}
+            onCopyPlan={() => {
+              const maxId = Math.max(...localPlans.map((p) => p.id), 0)
+              const newPlan: WorkoutPlan = {
+                ...plan,
+                id: maxId + 1,
+                title: `${plan.title} (Bản sao)`,
+                exercises: plan.exercises.map((ex) => ({ ...ex, id: undefined })),
+              }
+              setLocalPlans((prev) => {
+                const idx = prev.findIndex((p) => p.id === plan.id)
+                if (idx === -1) return [...prev, newPlan]
+                const next = [...prev]
+                next.splice(idx + 1, 0, newPlan)
+                return next
+              })
+              toast.success(`Đã nhân bản giáo án "${plan.title}"!`)
+            }}
+            onDeletePlan={() => {
+              setLocalPlans((prev) => prev.filter((p) => p.id !== plan.id))
+              toast.success(`Đã xóa giáo án "${plan.title}"!`)
+            }}
+          />
         ) : (
           <DefaultWorkoutPlanCard
             key={plan.id}
@@ -97,20 +236,113 @@ export function WorkoutPlanList({
 function CoachWorkoutPlanCard({
   plan,
   planIndex,
+  onCopyExercise,
+  onDeleteExercise,
+  onUpdateExercise,
+  onAddExercise,
+  onReorderExercises,
+  onRenamePlan,
+  onCopyPlan,
+  onDeletePlan,
 }: {
   plan: WorkoutPlan
   planIndex: number
+  onCopyExercise: (idx: number) => void
+  onDeleteExercise: (idx: number) => void
+  onUpdateExercise: (idx: number, field: "name" | "sets" | "reps" | "note", value: string | number) => void
+  onAddExercise: (name: string, sets: number, reps: string, note: string) => void
+  onReorderExercises: (newExs: WorkoutExercise[]) => void
+  onRenamePlan: (newTitle: string) => void
+  onCopyPlan: () => void
+  onDeletePlan: () => void
 }) {
   const isFirstPlan = planIndex === 0
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [prevTitle, setPrevTitle] = useState(plan.title)
+  const [tempTitle, setTempTitle] = useState(plan.title)
+
+  if (plan.title !== prevTitle) {
+    setPrevTitle(plan.title)
+    setTempTitle(plan.title)
+  }
+
+  const handleSaveTitle = () => {
+    const trimmed = tempTitle.trim()
+    if (!trimmed) {
+      toast.error("Tên giáo án không được để trống!")
+      setTempTitle(plan.title)
+      setIsEditingTitle(false)
+      return
+    }
+    if (trimmed !== plan.title) {
+      onRenamePlan(trimmed)
+      toast.success(`Đã cập nhật tên giáo án thành "${trimmed}"!`)
+    }
+    setIsEditingTitle(false)
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = plan.exercises.findIndex((ex, idx) => {
+      const id = ex.id ? String(ex.id) : `${ex.name}-${idx}`
+      return id === active.id
+    })
+    const newIndex = plan.exercises.findIndex((ex, idx) => {
+      const id = ex.id ? String(ex.id) : `${ex.name}-${idx}`
+      return id === over.id
+    })
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newExs = arrayMove(plan.exercises, oldIndex, newIndex).map((ex, idx) => ({
+        ...ex,
+        orderIndex: idx + 1,
+      }))
+      onReorderExercises(newExs)
+    }
+  }
+
+  const exerciseIds = plan.exercises.map((ex, idx) => (ex.id ? String(ex.id) : `${ex.name}-${idx}`))
 
   return (
     <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
+        <div className="flex-1">
           <div className="flex flex-wrap items-center gap-3">
-            <h3 className="text-xl font-semibold tracking-tight text-foreground">
-              {isFirstPlan ? `Buổi tập 1: ${plan.title}` : plan.title}
-            </h3>
+            {isEditingTitle ? (
+              <Input
+                value={tempTitle}
+                onChange={(e) => setTempTitle(e.target.value)}
+                className="max-w-[320px] h-9 text-base font-semibold"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSaveTitle()
+                  } else if (e.key === "Escape") {
+                    setIsEditingTitle(false)
+                    setTempTitle(plan.title)
+                  }
+                }}
+                onBlur={handleSaveTitle}
+              />
+            ) : (
+              <h3 className="text-xl font-semibold tracking-tight text-foreground">
+                {isFirstPlan ? `Buổi tập 1: ${plan.title}` : plan.title}
+              </h3>
+            )}
             <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
               {plan.exercises.length} bài tập
             </span>
@@ -121,31 +353,69 @@ function CoachWorkoutPlanCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            className="size-10 rounded-xl border-border bg-card text-foreground hover:bg-muted"
-            type="button"
-            variant="outline"
-          >
-            <MoreVertical aria-hidden="true" className="size-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className="size-10 rounded-xl border-border bg-card text-foreground hover:bg-muted"
+                type="button"
+                variant="outline"
+              >
+                <MoreVertical aria-hidden="true" className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem onClick={() => setIsEditingTitle(true)}>
+                <Pencil className="mr-2 size-4" />
+                <span>Sửa tên giáo án</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onCopyPlan}>
+                <Copy className="mr-2 size-4" />
+                <span>Nhân bản giáo án</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={onDeletePlan}
+              >
+                <Trash2 className="mr-2 size-4" />
+                <span>Xóa giáo án</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      <div className="divide-y divide-border">
-        {plan.exercises.map((exercise, index) => (
-          <CoachExerciseRow
-            exercise={exercise}
-            index={index}
-            key={`${plan.id}-${exercise.orderIndex}-${exercise.name}`}
-          />
-        ))}
-      </div>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={exerciseIds}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="divide-y divide-border">
+            {plan.exercises.map((exercise, index) => (
+              <SortableCoachExerciseRow
+                key={exercise.id ? String(exercise.id) : `${exercise.name}-${index}`}
+                exercise={exercise}
+                index={index}
+                planId={plan.id}
+                onCopy={() => onCopyExercise(index)}
+                onDelete={() => onDeleteExercise(index)}
+                onUpdate={(field, val) => onUpdateExercise(index, field, val)}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-background/60 p-4">
         <Button
-          className="rounded-xl border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 active:scale-[0.98]"
+          className="rounded-xl border-primary/30 bg-primary/10 text-primary hover:bg-primary/15 active:scale-[0.98] font-bold"
           type="button"
           variant="outline"
+          onClick={() => setIsAddDialogOpen(true)}
         >
           Thêm bài tập
         </Button>
@@ -155,22 +425,205 @@ function CoachWorkoutPlanCard({
           <SummaryItem label="Tần suất" value="4 buổi/tuần" />
         </div>
       </div>
+
+      <AddExerciseDialog
+        isOpen={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onAdd={(name, sets, reps, note) => {
+          onAddExercise(name, sets, reps, note)
+        }}
+      />
     </article>
   )
 }
 
-function CoachExerciseRow({
+type AddExerciseDialogProps = {
+  isOpen: boolean
+  onClose: () => void
+  onAdd: (exerciseName: string, defaultSets: number, defaultReps: string, defaultNote: string) => void
+}
+
+function AddExerciseDialog({ isOpen, onClose, onAdd }: AddExerciseDialogProps) {
+  const [search, setSearch] = useState("")
+  const [category, setCategory] = useState<string>("Tất cả")
+
+  const categoryMapping: Record<string, string[]> = {
+    "Tất cả": [],
+    "Ngực": ["Chest"],
+    "Lưng": ["Back"],
+    "Vai": ["Shoulders"],
+    "Chân": ["Legs", "Glutes"],
+    "Core": ["Core"],
+  }
+
+  const filteredExercises = useMemo(() => {
+    let result = exerciseLibrary
+
+    // Filter by category
+    const targetCats = categoryMapping[category] || []
+    if (targetCats.length > 0) {
+      result = result.filter((e) => targetCats.includes(e.category))
+    }
+
+    // Filter by search
+    const query = search.trim().toLowerCase()
+    if (query) {
+      result = result.filter(
+        (e) =>
+          e.name.toLowerCase().includes(query) ||
+          e.muscleGroups.some((m) => m.toLowerCase().includes(query))
+      )
+    }
+
+    return result
+  }, [search, category])
+
+  return (
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-xl bg-zinc-950 border border-white/10 text-white rounded-2xl max-h-[85vh] flex flex-col focus:outline-none">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-xl font-bold text-white">Thư viện bài tập</DialogTitle>
+          <DialogDescription className="text-zinc-400">
+            Tìm kiếm và thêm bài tập phù hợp vào giáo án của hội viên.
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Search Input */}
+        <div className="relative my-2 shrink-0">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Tìm kiếm bài tập (ví dụ: Bench Press, Squat...)"
+            className="pl-9 bg-zinc-900 border-white/10 text-white placeholder:text-zinc-500 rounded-xl min-h-10 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary"
+          />
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex gap-1.5 overflow-x-auto pb-2 shrink-0 scrollbar-none">
+          {["Tất cả", "Ngực", "Lưng", "Vai", "Chân", "Core"].map((cat) => {
+            const active = category === cat
+            return (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setCategory(cat)}
+                className={cn(
+                  "px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition active:scale-95",
+                  active
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-zinc-900 hover:bg-zinc-800 text-zinc-300"
+                )}
+              >
+                {cat}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Exercises Scroll List */}
+        <div className="flex-1 overflow-y-auto min-h-0 py-2 divide-y divide-white/5 pr-1 scrollbar-thin">
+          {filteredExercises.length > 0 ? (
+            filteredExercises.map((ex) => {
+              const asset = getWorkoutAssetForExercise(ex.name)
+              return (
+                <div
+                  key={ex.id}
+                  className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+                >
+                  <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-zinc-900 border border-white/5">
+                    <img
+                      alt={ex.name}
+                      src={asset.src}
+                      className="absolute inset-0 size-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm text-white truncate">{ex.name}</p>
+                      <span className="rounded-full bg-primary/10 px-2 py-0.2 text-[10px] font-bold text-primary whitespace-nowrap">
+                        {getWorkoutCategoryLabel(asset.category)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-400 truncate mt-0.5">
+                      {ex.muscleGroups.join(", ")}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 rounded-xl border-white/10 hover:bg-primary/10 hover:text-primary active:scale-[0.96] text-xs font-bold text-white shrink-0"
+                    onClick={() => {
+                      onAdd(ex.name, ex.defaultSets, ex.defaultReps, ex.defaultNote)
+                      toast.success(`Đã thêm bài tập "${ex.name}"!`)
+                    }}
+                  >
+                    Thêm
+                  </Button>
+                </div>
+              )
+            })
+          ) : (
+            <div className="text-center py-8 text-zinc-400">
+              Không tìm thấy bài tập nào phù hợp.
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function SortableCoachExerciseRow({
   exercise,
   index,
+  planId,
+  onCopy,
+  onDelete,
+  onUpdate,
 }: {
-  exercise: WorkoutPlan["exercises"][number]
+  exercise: WorkoutExercise
   index: number
+  planId: number
+  onCopy: () => void
+  onDelete: () => void
+  onUpdate: (field: "name" | "sets" | "reps" | "note", value: string | number) => void
 }) {
+  const id = exercise.id ? String(exercise.id) : `${exercise.name}-${index}`
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
   const asset = getWorkoutAssetForExercise(exercise.name)
 
   return (
-    <div className="grid gap-4 p-4 lg:grid-cols-[24px_96px_minmax(0,1fr)_86px_96px_84px_92px_auto] lg:items-center">
-      <div className="hidden cursor-grab text-muted-foreground lg:block">::</div>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "grid gap-4 p-4 lg:grid-cols-[24px_96px_minmax(0,1fr)_86px_96px_84px_92px_auto] lg:items-center bg-card",
+        isDragging && "z-50 shadow-lg border border-primary/20 rounded-xl"
+      )}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="hidden cursor-grab active:cursor-grabbing text-muted-foreground lg:block px-2 py-4 select-none hover:text-foreground"
+      >
+        ::
+      </div>
 
       <div className="relative h-16 overflow-hidden rounded-lg border border-border bg-muted">
         <img
@@ -183,35 +636,52 @@ function CoachExerciseRow({
 
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-semibold text-foreground">{exercise.name}</p>
+          <Input
+            value={exercise.name}
+            onChange={(e) => onUpdate("name", e.target.value)}
+            className="h-8 font-semibold text-foreground bg-transparent border-none p-0 focus-visible:ring-1 focus-visible:ring-primary w-fit max-w-[200px]"
+          />
           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
             {getWorkoutCategoryLabel(asset.category)}
           </span>
         </div>
-        {exercise.note ? (
-          <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">
-            {exercise.note}
-          </p>
-        ) : null}
+        <Input
+          value={exercise.note || ""}
+          placeholder="Thêm ghi chú kỹ thuật..."
+          onChange={(e) => onUpdate("note", e.target.value)}
+          className="h-7 mt-1 text-sm text-muted-foreground bg-transparent border-none p-0 focus-visible:ring-1 focus-visible:ring-primary"
+        />
       </div>
 
-      <CoachInlineField label="Sets" value={String(exercise.sets)} />
-      <CoachInlineField label="Reps" value={exercise.reps} />
+      <CoachInlineField
+        label="Sets"
+        value={String(exercise.sets)}
+        onChange={(val) => onUpdate("sets", Number(val) || 0)}
+      />
+      <CoachInlineField
+        label="Reps"
+        value={exercise.reps}
+        onChange={(val) => onUpdate("reps", val)}
+      />
       <CoachInlineField label="RPE" value="7-8" />
       <CoachInlineField label="Nghỉ" value="90s" />
 
       <div className="flex items-center gap-2">
         <Button
-          className="size-9 rounded-xl border-border bg-card text-foreground hover:bg-muted"
+          className="size-9 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.95]"
           type="button"
           variant="outline"
+          onClick={onCopy}
+          title="Sao chép"
         >
           <Copy aria-hidden="true" className="size-4" />
         </Button>
         <Button
-          className="size-9 rounded-xl border-destructive/20 bg-card text-destructive hover:bg-destructive/10"
+          className="size-9 rounded-xl border-destructive/20 bg-card text-destructive hover:bg-destructive/10 active:scale-[0.95]"
           type="button"
           variant="outline"
+          onClick={onDelete}
+          title="Xóa"
         >
           <Trash2 aria-hidden="true" className="size-4" />
         </Button>
@@ -223,17 +693,19 @@ function CoachExerciseRow({
 function CoachInlineField({
   label,
   value,
+  onChange,
 }: {
   label: string
   value: string
+  onChange?: (val: string) => void
 }) {
   return (
     <label className="grid gap-1">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
-      <input
-        className="min-h-10 w-full rounded-xl border border-border bg-background px-3 text-sm font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-        readOnly
+      <Input
         value={value}
+        onChange={(e) => onChange?.(e.target.value)}
+        readOnly={!onChange}
       />
     </label>
   )
@@ -471,30 +943,24 @@ export function WorkoutPlanListHeader() {
       <div className="flex flex-wrap items-center gap-4 print:hidden">
         {/* Print Customizer Checkboxes */}
         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground border-r border-border/60 pr-4">
-          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition">
-            <input
-              type="checkbox"
+          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition select-none">
+            <Checkbox
               checked={hideNotes}
-              onChange={() => toggleOption('notes')}
-              className="size-3.5 rounded border-border bg-muted/40 accent-primary"
+              onCheckedChange={() => toggleOption('notes')}
             />
             Ẩn ghi chú
           </label>
-          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition">
-            <input
-              type="checkbox"
+          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition select-none">
+            <Checkbox
               checked={hidePT}
-              onChange={() => toggleOption('pt')}
-              className="size-3.5 rounded border-border bg-muted/40 accent-primary"
+              onCheckedChange={() => toggleOption('pt')}
             />
             Ẩn tên PT
           </label>
-          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition">
-            <input
-              type="checkbox"
+          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition select-none">
+            <Checkbox
               checked={largeText}
-              onChange={() => toggleOption('text')}
-              className="size-3.5 rounded border-border bg-muted/40 accent-primary"
+              onCheckedChange={() => toggleOption('text')}
             />
             Chữ to (+2px)
           </label>

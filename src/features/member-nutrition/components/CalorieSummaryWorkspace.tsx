@@ -270,13 +270,6 @@ export function CalorieSummaryWorkspace() {
                 <Plus className="size-4" />
                 Thêm bữa ăn
               </Link>
-              <Link
-                href="/member/nutrition/summary"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
-              >
-                Xem chi tiết
-                <ArrowRight className="size-4" />
-              </Link>
             </div>
           </main>
 

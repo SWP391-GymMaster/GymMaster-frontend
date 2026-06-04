@@ -41,6 +41,7 @@ type CommandRailItem = {
   icon: LucideIcon;
   label: string;
   disabled?: boolean;
+  originalHref?: string;
 };
 
 type SidebarGroup = {
@@ -94,19 +95,20 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
       title: "Làm việc",
       items: [
         { href: "/pt/dashboard", icon: Home, label: "Coach hub" },
-        { href: "/pt/members", icon: Users, label: "Học viên" },
-        { href: "/pt/members/101", icon: Dumbbell, label: "Hội viên 360" },
+        { href: "/pt/members", icon: Users, label: "Hội viên" },
+        { href: "/pt/members/:id", icon: Dumbbell, label: "Hội viên 360" },
       ],
     },
     {
       title: "Giáo án & Ghi chú",
       items: [
         {
-          href: "/pt/members/101/workout",
+          href: "/pt/members/:id/workout",
           icon: ClipboardList,
           label: "Giáo án",
         },
-        { href: "/pt/members/101/notes", icon: FileClock, label: "Ghi chú" },
+        { href: "/pt/members/:id/notes", icon: FileClock, label: "Ghi chú" },
+        { href: "/pt/members/:id/progress", icon: Activity, label: "Tiến độ" },
       ],
     },
   ],
@@ -159,9 +161,8 @@ const mobilePrimaryHrefsByRole: Record<UserRole, string[]> = {
   pt: [
     "/pt/dashboard",
     "/pt/members",
-    "/pt/members/101",
-    "/pt/members/101/workout",
-    "/pt/members/101/notes",
+    "/pt/members/:id",
+    "/pt/members/:id/workout",
   ],
   member: [
     "/member/dashboard",
@@ -193,66 +194,44 @@ function getMobileNavItems(role: UserRole, activeMember: ActiveMemberContext) {
   const rawGroups = navGroupsByRole[role] || [];
   const groups = (role === "pt") 
     ? rawGroups.map((group) => {
-        if (group.title === "Làm việc") {
-          return {
-            ...group,
-            items: group.items.map((item) => {
-              if (item.label === "Hội viên 360") {
-                return {
-                  ...item,
-                  href: activeMember ? `/pt/members/${activeMember.id}` : "#",
-                  disabled: !activeMember,
-                };
-              }
-              return item;
-            }),
-          };
-        }
-        if (group.title === "Giáo án & Ghi chú") {
-          return {
-            ...group,
-            items: group.items.map((item) => {
-              if (item.label === "Giáo án") {
-                return {
-                  ...item,
-                  href: activeMember ? `/pt/members/${activeMember.id}/workout` : "#",
-                  disabled: !activeMember,
-                };
-              }
-              if (item.label === "Ghi chú") {
-                return {
-                  ...item,
-                  href: activeMember ? `/pt/members/${activeMember.id}/notes` : "#",
-                  disabled: !activeMember,
-                };
-              }
-              return item;
-            }),
-          };
-        }
-        return group;
+        return {
+          ...group,
+          items: group.items.map((item) => {
+            if (item.href.includes("/:id")) {
+              return {
+                ...item,
+                originalHref: item.href,
+                href: activeMember ? item.href.replace("/:id", `/${activeMember.id}`) : "#",
+                disabled: !activeMember,
+              };
+            }
+            return item;
+          }),
+        };
       })
     : rawGroups;
 
   const allItems = flattenNavGroups(groups);
   const priorityHrefs = mobilePrimaryHrefsByRole[role].map((href) => {
     if (role === "pt" && activeMember) {
-      return href.replace("/101", `/${activeMember.id}`);
+      return href.replace("/:id", `/${activeMember.id}`);
     }
     if (role === "pt" && !activeMember) {
-      if (href === "/pt/members/101" || href === "/pt/members/101/workout" || href === "/pt/members/101/notes") {
+      if (href.includes("/:id")) {
         return "#";
       }
     }
     return href;
   });
 
-  const primaryItems = priorityHrefs
-    .map((href) => allItems.find((item) => item.href === href))
+  const primaryItems = mobilePrimaryHrefsByRole[role]
+    .map((rawHref) => {
+      return allItems.find((item) => (item.originalHref || item.href) === rawHref);
+    })
     .filter((item): item is CommandRailItem => Boolean(item));
 
   const moreItems = allItems.filter(
-    (item) => !priorityHrefs.includes(item.href),
+    (item) => !mobilePrimaryHrefsByRole[role].includes(item.originalHref || item.href),
   );
 
   return {
@@ -271,6 +250,12 @@ export function CommandRail({ role }: CommandRailProps) {
   const { isCollapsed, toggleSidebar, setSettingsOpen } = useSidebarStore();
   const { activeMember, clearActiveMember } = usePtActiveMemberStore();
 
+  const urlMemberId = useMemo(() => {
+    if (!pathname) return null;
+    const match = pathname.match(/^\/pt\/members\/(\d+)/);
+    return match ? Number(match[1]) : null;
+  }, [pathname]);
+
   const handleClearContext = () => {
     clearActiveMember();
     toast.info("Đã đóng ngữ cảnh học viên");
@@ -287,47 +272,24 @@ export function CommandRail({ role }: CommandRailProps) {
     const rawGroups = navGroupsByRole[role] || [];
     if (role !== "pt") return rawGroups;
 
+    const memberId = activeMember?.id || urlMemberId;
+
     return rawGroups.map((group) => {
-      if (group.title === "Làm việc") {
-        return {
-          ...group,
-          items: group.items.map((item) => {
-            if (item.label === "Hội viên 360") {
-              return {
-                ...item,
-                href: activeMember ? `/pt/members/${activeMember.id}` : "#",
-                disabled: !activeMember,
-              };
-            }
-            return item;
-          }),
-        };
-      }
-      if (group.title === "Giáo án & Ghi chú") {
-        return {
-          ...group,
-          items: group.items.map((item) => {
-            if (item.label === "Giáo án") {
-              return {
-                ...item,
-                href: activeMember ? `/pt/members/${activeMember.id}/workout` : "#",
-                disabled: !activeMember,
-              };
-            }
-            if (item.label === "Ghi chú") {
-              return {
-                ...item,
-                href: activeMember ? `/pt/members/${activeMember.id}/notes` : "#",
-                disabled: !activeMember,
-              };
-            }
-            return item;
-          }),
-        };
-      }
-      return group;
+      return {
+        ...group,
+        items: group.items.map((item) => {
+          if (item.href.includes("/:id")) {
+            return {
+              ...item,
+              href: memberId ? item.href.replace("/:id", `/${memberId}`) : "#",
+              disabled: !memberId,
+            };
+          }
+          return item;
+        }),
+      };
     });
-  }, [role, activeMember]);
+  }, [role, activeMember, urlMemberId]);
 
   return (
     <>
@@ -562,9 +524,23 @@ function MobileCommandNav({ role }: CommandRailProps) {
   const { setSettingsOpen } = useSidebarStore();
   const { activeMember } = usePtActiveMemberStore();
 
+  const urlMemberId = useMemo(() => {
+    if (!pathname) return null;
+    const match = pathname.match(/^\/pt\/members\/(\d+)/);
+    return match ? Number(match[1]) : null;
+  }, [pathname]);
+
+  const effectiveMember = useMemo(() => {
+    if (activeMember) return activeMember;
+    if (urlMemberId) {
+      return { id: urlMemberId, memberCode: "", fullName: "" };
+    }
+    return null;
+  }, [activeMember, urlMemberId]);
+
   const { primaryItems, moreItems } = useMemo(
-    () => getMobileNavItems(role, activeMember),
-    [role, activeMember],
+    () => getMobileNavItems(role, effectiveMember),
+    [role, effectiveMember],
   );
 
   return (

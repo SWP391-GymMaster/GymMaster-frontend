@@ -1,92 +1,101 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { CalendarDays, Plus, Utensils } from "lucide-react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react";
+import { CalendarDays, Plus, Target, Utensils } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { Button } from "@/components/ui/button"
-import { MealLogForm } from "@/features/member-nutrition/components/MealLogForm"
-import { MealLogList } from "@/features/member-nutrition/components/MealLogList"
-import { NutritionSummaryCard } from "@/features/member-nutrition/components/NutritionSummaryCard"
-import { TdeeCalculator } from "@/features/member-nutrition/components/TdeeCalculator"
+import { Button } from "@/components/ui/button";
+import { MealLogForm } from "@/features/member-nutrition/components/MealLogForm";
+import { MealLogList } from "@/features/member-nutrition/components/MealLogList";
+import { NutritionSummaryCard } from "@/features/member-nutrition/components/NutritionSummaryCard";
+import { TdeeCalculator } from "@/features/member-nutrition/components/TdeeCalculator";
 import {
   useMemberCalorieSummary,
   useMemberMealLogs,
-} from "@/features/member-nutrition/api/member-nutrition.queries"
-import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters"
-import { gymMasterAssets } from "@/lib/gymmaster-assets"
+} from "@/features/member-nutrition/api/member-nutrition.queries";
+import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters";
+import { gymMasterAssets } from "@/lib/gymmaster-assets";
 
-const today = getTodayDate()
+const today = getTodayDate();
 
 export function MealJournalWorkspace() {
-  const summary = useMemberCalorieSummary(today)
-  const logs = useMemberMealLogs(today)
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const summary = useMemberCalorieSummary(today);
+  const logs = useMemberMealLogs(today);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [activeView, setActiveView] = useState<"list" | "add">("list")
-  const [defaultMealType, setDefaultMealType] = useState<"breakfast" | "lunch" | "dinner" | "snack">("lunch")
-  const [calorieTarget, setCalorieTarget] = useState(2200)
-  const [isTdeeOpen, setIsTdeeOpen] = useState(false)
+  const [activeView, setActiveView] = useState<"list" | "add">("list");
+  const [defaultMealType, setDefaultMealType] = useState<
+    "breakfast" | "lunch" | "dinner" | "snack"
+  >("lunch");
+  const [calorieTarget, setCalorieTarget] = useState(2200);
+  const [isTdeeOpen, setIsTdeeOpen] = useState(false);
 
   useEffect(() => {
     const handleLocationChange = () => {
-      if (typeof window === "undefined") return
-      const hash = window.location.hash
-      const viewParam = searchParams.get("view")
-      const typeParam = searchParams.get("type")
+      if (typeof window === "undefined") return;
+      const hash = window.location.hash;
+      const viewParam = searchParams.get("view");
+      const typeParam = searchParams.get("type");
 
       if (viewParam === "add" || hash.startsWith("#add-meal")) {
-        setActiveView("add")
-        
-        let mealType: "breakfast" | "lunch" | "dinner" | "snack" = "lunch"
-        if (typeParam && ["breakfast", "lunch", "dinner", "snack"].includes(typeParam)) {
-          mealType = typeParam as "breakfast" | "lunch" | "dinner" | "snack"
+        setActiveView("add");
+
+        let mealType: "breakfast" | "lunch" | "dinner" | "snack" = "lunch";
+        if (
+          typeParam &&
+          ["breakfast", "lunch", "dinner", "snack"].includes(typeParam)
+        ) {
+          mealType = typeParam as "breakfast" | "lunch" | "dinner" | "snack";
         } else if (hash.includes("breakfast")) {
-          mealType = "breakfast"
+          mealType = "breakfast";
         } else if (hash.includes("lunch")) {
-          mealType = "lunch"
+          mealType = "lunch";
         } else if (hash.includes("dinner")) {
-          mealType = "dinner"
+          mealType = "dinner";
         } else if (hash.includes("snack")) {
-          mealType = "snack"
+          mealType = "snack";
         }
-        
-        setDefaultMealType(mealType)
+
+        setDefaultMealType(mealType);
 
         // Clean up hash to prevent double-hash loops
         if (hash.startsWith("#add-meal")) {
-          router.replace(`/member/nutrition/meal-journal?view=add&type=${mealType}`)
+          router.replace(
+            `/member/nutrition/meal-journal?view=add&type=${mealType}`,
+          );
         }
       } else {
-        setActiveView("list")
+        setActiveView("list");
       }
-    }
+    };
 
-    handleLocationChange()
+    handleLocationChange();
 
-    window.addEventListener("hashchange", handleLocationChange)
-    return () => window.removeEventListener("hashchange", handleLocationChange)
-  }, [searchParams, router])
+    window.addEventListener("hashchange", handleLocationChange);
+    return () => window.removeEventListener("hashchange", handleLocationChange);
+  }, [searchParams, router]);
 
   useEffect(() => {
-    const override = localStorage.getItem("gymmaster-calorie-goal")
-    const targetVal = override ? Number(override) : (summary.data?.target ?? 2200)
+    const override = localStorage.getItem("gymmaster-calorie-goal");
+    const targetVal = override
+      ? Number(override)
+      : (summary.data?.target ?? 2200);
 
     const timer = setTimeout(() => {
-      setCalorieTarget(targetVal)
-    }, 0)
+      setCalorieTarget(targetVal);
+    }, 0);
 
-    return () => clearTimeout(timer)
-  }, [summary.data?.target])
+    return () => clearTimeout(timer);
+  }, [summary.data?.target]);
 
   function handleTargetApplied(newTarget: number) {
-    setCalorieTarget(newTarget)
-    summary.refetch()
+    setCalorieTarget(newTarget);
+    summary.refetch();
   }
 
   function handleBackToList() {
-    router.push("/member/nutrition/meal-journal")
+    router.push("/member/nutrition/meal-journal");
   }
 
   return (
@@ -116,7 +125,10 @@ export function MealJournalWorkspace() {
                     Nhật ký hôm nay
                   </span>
                   <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-zinc-200 backdrop-blur-md">
-                    <CalendarDays aria-hidden="true" className="size-3.5 text-primary" />
+                    <CalendarDays
+                      aria-hidden="true"
+                      className="size-3.5 text-primary"
+                    />
                     {today}
                   </span>
                 </div>
@@ -125,21 +137,33 @@ export function MealJournalWorkspace() {
                   Ghi bữa nhanh, giữ calo đúng nhịp.
                 </h2>
                 <p className="mt-4 max-w-xl text-sm leading-6 text-zinc-200/90 md:text-base">
-                  Tìm món, chọn khẩu phần và cập nhật nhật ký ăn trong ngày với dữ liệu calo rõ ràng.
+                  Tìm món, chọn khẩu phần và cập nhật nhật ký ăn trong ngày với
+                  dữ liệu calo rõ ràng.
                 </p>
               </div>
 
               <div className="mt-6 flex flex-wrap items-center gap-3">
                 <Button
-                  onClick={() => router.push("/member/nutrition/meal-journal?view=add")}
+                  onClick={() =>
+                    router.push("/member/nutrition/meal-journal?view=add")
+                  }
                   className="min-h-12 rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:brightness-95 active:scale-[0.98]"
                 >
                   <Plus aria-hidden="true" className="size-4" />
                   Thêm bữa ăn mới
                 </Button>
-                
+
+                <Button
+                  onClick={() => setIsTdeeOpen(true)}
+                  className="min-h-12 rounded-xl border-white/15 bg-white/10 text-white backdrop-blur-md hover:bg-white/15 active:scale-[0.98]"
+                  variant="outline"
+                >
+                  <Target aria-hidden="true" className="size-4" />
+                  Tính TDEE
+                </Button>
+
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="rounded-2xl border border-white/15 bg-white/[0.13] px-4 py-3 shadow-sm backdrop-blur-md">
+                  <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 shadow-sm backdrop-blur-md">
                     <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-300">
                       Mục tiêu hôm nay
                     </p>
@@ -147,14 +171,6 @@ export function MealJournalWorkspace() {
                       {calorieTarget.toLocaleString("vi-VN")} kcal
                     </p>
                   </div>
-                  
-                  <Button
-                    onClick={() => setIsTdeeOpen(true)}
-                    className="min-h-12 rounded-xl border-white/15 bg-white/10 text-white backdrop-blur-md hover:bg-white/15 active:scale-[0.98]"
-                    variant="outline"
-                  >
-                    Tính TDEE
-                  </Button>
                 </div>
               </div>
             </div>
@@ -188,7 +204,11 @@ export function MealJournalWorkspace() {
                 Ghi bữa ăn mới
               </h2>
             </div>
-            <MealLogForm date={today} defaultMealType={defaultMealType} onSuccess={handleBackToList} />
+            <MealLogForm
+              date={today}
+              defaultMealType={defaultMealType}
+              onSuccess={handleBackToList}
+            />
           </div>
         </div>
       )}
@@ -199,5 +219,5 @@ export function MealJournalWorkspace() {
         onTargetApplied={handleTargetApplied}
       />
     </div>
-  )
+  );
 }

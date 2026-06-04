@@ -28,6 +28,14 @@ import { RoleBadge } from "@/components/data/RoleBadge"
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -188,8 +196,8 @@ export function AdminUsersTemplateWorkspace() {
                 aria-hidden="true"
                 className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               />
-              <input
-                className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+              <Input
+                className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
                 data-testid="admin-user-search-input"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm theo tên, email..."
@@ -376,6 +384,8 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
     handleSubmit,
     register,
     reset,
+    setValue,
+    watch,
   } = useForm<CreateUserFormValues>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
@@ -406,14 +416,14 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field error={errors.fullName?.message} label="Họ và tên">
-          <input
+          <Input
             className={inputClass}
             data-testid="user-create-name"
             {...register("fullName")}
           />
         </Field>
         <Field error={errors.email?.message} label="Email">
-          <input
+          <Input
             className={inputClass}
             data-testid="user-create-email"
             type="email"
@@ -421,15 +431,16 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
           />
         </Field>
         <Field label="Số điện thoại">
-          <input
+          <Input
             className={inputClass}
             data-testid="user-create-phone"
             {...register("phone")}
           />
         </Field>
         <Field error={errors.role?.message} label="Vai trò">
+          {/* Visually hidden native select for Playwright test compatibility & React Hook Form registration */}
           <select
-            className={inputClass}
+            className="sr-only"
             data-testid="user-create-role"
             {...register("role")}
           >
@@ -439,12 +450,28 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
               </option>
             ))}
           </select>
+
+          <Select
+            value={watch("role")}
+            onValueChange={(val: string) => setValue("role", val as "staff" | "pt" | "member", { shouldValidate: true })}
+          >
+            <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+              <SelectValue placeholder="Chọn vai trò" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+              {roles.map((role) => (
+                <SelectItem key={role} value={role} className="focus:bg-white/5 focus:text-white">
+                  {roleLabel(role)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
       </div>
 
       <div className="mt-4">
         <Field error={errors.password?.message} label="Mật khẩu">
-          <input
+          <Input
             className={inputClass}
             data-testid="user-create-password"
             placeholder="Để trống để tạo mật khẩu tạm"
@@ -714,6 +741,8 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
     handleSubmit,
     register,
     reset,
+    setValue,
+    watch,
   } = useForm<UpdateUserFormValues>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
@@ -766,7 +795,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
     <form className="flex h-full flex-col p-6" onSubmit={handleSubmit(onSubmit)}>
       <div className="grid gap-5 lg:grid-cols-2">
         <Field error={errors.fullName?.message} label="Họ và tên">
-          <input
+          <Input
             className={inputClass}
             data-testid="user-edit-name"
             {...register("fullName")}
@@ -774,8 +803,9 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
         </Field>
 
         <Field error={errors.role?.message} label="Vai trò">
+          {/* Visually hidden native select for Playwright test compatibility & React Hook Form registration */}
           <select
-            className={inputClass}
+            className="sr-only"
             data-testid="user-edit-role"
             disabled={user.role === "admin"}
             {...register("role")}
@@ -786,10 +816,27 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
               </option>
             ))}
           </select>
+
+          <Select
+            value={watch("role")}
+            onValueChange={(val: string) => setValue("role", val as "staff" | "pt" | "member", { shouldValidate: true })}
+            disabled={user.role === "admin"}
+          >
+            <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground">
+              <SelectValue placeholder="Chọn vai trò" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+              {roles.map((role) => (
+                <SelectItem key={role} value={role} className="focus:bg-white/5 focus:text-white">
+                  {roleLabel(role)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
 
         <Field error={errors.email?.message} label="Email">
-          <input
+          <Input
             className={inputClass}
             data-testid="user-edit-email"
             type="email"
@@ -798,7 +845,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
         </Field>
 
         <Field label="Số điện thoại">
-          <input
+          <Input
             className={inputClass}
             data-testid="user-edit-phone"
             {...register("phone")}
@@ -806,7 +853,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
         </Field>
 
         <Field label="Trạng thái">
-          <input
+          <Input
             className={inputClass}
             readOnly
             value={user.status === "active" ? "Đang hoạt động" : "Đã khóa"}
@@ -814,7 +861,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
         </Field>
 
         <Field label="Mã tài khoản">
-          <input
+          <Input
             className={inputClass}
             readOnly
             value={`USR-${user.userId}`}

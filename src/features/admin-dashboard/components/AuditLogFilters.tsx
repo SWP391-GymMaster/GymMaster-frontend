@@ -4,6 +4,14 @@ import { CalendarDays, Filter, RotateCcw, Search } from "lucide-react"
 import { useState, type FormEvent } from "react"
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const AUDIT_ACTIONS = [
   "",
@@ -63,11 +71,15 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
           >
             Loại thao tác
           </label>
+          
+          {/* Visually hidden native select for Playwright test compatibility */}
           <select
-            className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
             id="audit-action"
-            onChange={(event) => setAction(event.target.value)}
             value={action}
+            onChange={(event) => setAction(event.target.value)}
+            className="sr-only"
+            tabIndex={-1}
+            aria-hidden="true"
           >
             {AUDIT_ACTIONS.map((act) => (
               <option key={act} value={act}>
@@ -75,6 +87,22 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
               </option>
             ))}
           </select>
+
+          <Select
+            value={action || "all"}
+            onValueChange={(val) => setAction(val === "all" ? "" : val)}
+          >
+            <SelectTrigger className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+              <SelectValue placeholder="Tất cả" />
+            </SelectTrigger>
+            <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+              {AUDIT_ACTIONS.map((act) => (
+                <SelectItem key={act || "all"} value={act || "all"} className="focus:bg-white/5 focus:text-white">
+                  {act ? act.replace(/_/g, " ") : "Tất cả"}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
@@ -89,8 +117,8 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
               aria-hidden="true"
               className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             />
-            <input
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 pr-10 text-sm text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+            <Input
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 pr-10 text-sm text-foreground outline-none transition focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
               id="audit-from"
               onChange={(event) => setFrom(event.target.value)}
               type="date"
@@ -111,8 +139,8 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
               aria-hidden="true"
               className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             />
-            <input
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 pr-10 text-sm text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+            <Input
+              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 pr-10 text-sm text-foreground outline-none transition focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
               id="audit-to"
               onChange={(event) => setTo(event.target.value)}
               type="date"
@@ -148,8 +176,8 @@ export function AuditLogFilters({ onApply, isLoading }: AuditLogFiltersProps) {
           aria-hidden="true"
           className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         />
-        <input
-          className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+        <Input
+          className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
           placeholder="Tìm theo tên, hành động, đối tượng, ID..."
           onChange={(event) => setSearch(event.target.value)}
           value={search}

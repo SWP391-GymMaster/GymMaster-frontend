@@ -29,6 +29,9 @@ function enrichMealLog(log: (typeof mealLogs)[number]) {
         foodName: food?.name,
         unit: food?.unit,
         calories: (food?.caloriesPerUnit ?? 0) * item.quantity,
+        proteinG: food?.proteinG != null ? Number(((food.proteinG) * item.quantity).toFixed(1)) : undefined,
+        carbsG: food?.carbsG != null ? Number(((food.carbsG) * item.quantity).toFixed(1)) : undefined,
+        fatG: food?.fatG != null ? Number(((food.fatG) * item.quantity).toFixed(1)) : undefined,
       }
     }),
   }

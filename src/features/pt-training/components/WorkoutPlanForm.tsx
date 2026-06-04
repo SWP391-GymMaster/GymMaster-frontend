@@ -38,6 +38,16 @@ function saveRecentExercises(names: string[]) {
 }
 
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   exerciseLibrary,
   getExerciseById,
@@ -628,8 +638,8 @@ function PresetStep({
             className={cn(
               "rounded-2xl border p-4",
               recommendedPresets.mode === "exact"
-                ? "border-primary/20 bg-primary/5"
-                : "border-orange-200 bg-orange-50",
+                ? "border-primary/20 bg-primary/5 dark:border-primary/10 dark:bg-primary/5"
+                : "border-orange-200 bg-orange-50 dark:border-orange-500/20 dark:bg-orange-950/20",
             )}
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -642,7 +652,7 @@ function PresetStep({
                     "mt-1 text-xs leading-5",
                     recommendedPresets.mode === "exact"
                       ? "text-muted-foreground"
-                      : "text-orange-800",
+                      : "text-orange-800 dark:text-orange-300",
                   )}
                 >
                   {recommendedPresets.message}
@@ -653,7 +663,7 @@ function PresetStep({
                   "w-fit rounded-full px-3 py-1 text-xs font-semibold",
                   recommendedPresets.mode === "exact"
                     ? "bg-primary/10 text-primary"
-                    : "bg-orange-100 text-orange-700",
+                    : "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300",
                 )}
               >
                 {recommendedPresets.items.length} preset
@@ -665,17 +675,15 @@ function PresetStep({
                 label="Chọn preset"
                 onChange={onPresetSelect}
                 value={presetId}
-              >
-                <option value="">Chọn preset để tự điền giáo án</option>
-                {recommendedPresets.items.map((preset) => (
-                  <option key={preset.id} value={preset.id}>
-                    {preset.name}
-                  </option>
-                ))}
-              </FilterSelect>
+                options={recommendedPresets.items.map((preset) => ({
+                  value: preset.id,
+                  label: preset.name,
+                }))}
+                placeholder="Chọn preset để tự điền giáo án"
+              />
 
               <Button
-                className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+                className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted dark:bg-zinc-900 dark:hover:bg-zinc-800 active:scale-[0.98]"
                 disabled={!recommendedPresets.items.length}
                 onClick={onQuickApply}
                 type="button"
@@ -760,8 +768,8 @@ function ExerciseEditorStep({
         >
           Tên giáo án
         </label>
-        <input
-          className="mt-2 min-h-12 w-full rounded-xl border border-border bg-background px-4 text-sm font-semibold text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+        <Input
+          className="mt-2"
           id="workout-title"
           placeholder="Ví dụ: PPL Push Day - Strength"
           {...form.register("title")}
@@ -824,28 +832,32 @@ function ExerciseEditorStep({
                   >
                     Chọn bài tập
                   </label>
-                  <select
-                    className="mt-2 min-h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-                    id={`exercise-select-${index}`}
-                    onChange={(event) => applyExercise(index, event.target.value)}
+                  <Select
                     value={selectedExerciseId}
+                    onValueChange={(val: string) => applyExercise(index, val)}
                   >
-                    <option value="__custom__">Custom / nhập tay</option>
-                    {groupExercisesByCategory(selectExerciseOptions).map((group) => (
-                      <optgroup key={group.category} label={group.category}>
-                        {group.items.map((exercise) => (
-                          <option key={exercise.id} value={exercise.id}>
-                            {exercise.name}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
+                    <SelectTrigger className="mt-2 w-full bg-card border border-border px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+                      <SelectValue placeholder="Custom / nhập tay" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl max-h-[300px] overflow-y-auto">
+                      <SelectItem value="__custom__" className="focus:bg-white/5 focus:text-white">Custom / nhập tay</SelectItem>
+                      {groupExercisesByCategory(selectExerciseOptions).map((group) => (
+                        <SelectGroup key={group.category}>
+                          <SelectLabel className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.category}</SelectLabel>
+                          {group.items.map((exercise) => (
+                            <SelectItem key={exercise.id} value={exercise.id} className="focus:bg-white/5 focus:text-white">
+                              {exercise.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
                   {selectedExerciseId === "__custom__" ? (
                     <>
-                      <input
-                        className="mt-2 min-h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                      <Input
+                        className="mt-2"
                         id={`exercise-name-${index}`}
                         placeholder="Tên bài tập custom"
                         {...form.register(`exercises.${index}.name`)}
@@ -882,8 +894,7 @@ function ExerciseEditorStep({
                 </div>
 
                 <FieldShell label="Sets">
-                  <input
-                    className="min-h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                  <Input
                     id={`exercise-sets-${index}`}
                     min={1}
                     type="number"
@@ -894,8 +905,7 @@ function ExerciseEditorStep({
                 </FieldShell>
 
                 <FieldShell label="Reps / Time">
-                  <input
-                    className="min-h-11 w-full rounded-xl border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                  <Input
                     id={`exercise-reps-${index}`}
                     placeholder="8-10"
                     {...form.register(`exercises.${index}.reps`)}
@@ -1084,28 +1094,51 @@ function SelectableCard({
 }
 
 function FilterSelect({
-  children,
   label,
   onChange,
   value,
+  options,
+  placeholder,
 }: {
-  children: ReactNode
   label: string
   onChange: (value: string) => void
   value: string
+  options: { value: string; label: string }[]
+  placeholder: string
 }) {
   return (
     <label className="grid gap-2">
       <span className="text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </span>
+      
       <select
-        className="min-h-11 rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden="true"
         onChange={(event) => onChange(event.target.value)}
         value={value}
       >
-        {children}
+        <option value="">{placeholder}</option>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
       </select>
+
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="w-full bg-card border border-border px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+          {options.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value} className="focus:bg-white/5 focus:text-white">
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </label>
   )
 }

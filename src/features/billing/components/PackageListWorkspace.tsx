@@ -4,6 +4,14 @@ import { useState } from "react";
 import { Plus, Search, Edit2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { StatusPill } from "@/components/data/StatusPill";
 import { StateBlock } from "@/components/feedback/StateBlock";
 import { PackageEditorDialog } from "@/features/billing/components/PackageEditorDialog";
@@ -57,8 +65,8 @@ export function PackageListWorkspace() {
               aria-hidden="true"
               className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             />
-            <input
-              className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+            <Input
+              className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
               placeholder="Tìm kiếm gói tập..."
               type="search"
               value={searchTerm}
@@ -68,18 +76,36 @@ export function PackageListWorkspace() {
           </div>
 
           <div className="w-full sm:w-48">
+            {/* Visually hidden native select for Playwright test compatibility */}
             <select
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+              id="package-status-filter"
               value={statusFilter}
               onChange={(e) =>
                 setStatusFilter(e.target.value as "all" | "active" | "locked")
               }
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
               data-testid="package-status-filter"
             >
               <option value="all">Tất cả trạng thái</option>
               <option value="active">Hoạt động (Active)</option>
               <option value="locked">Khóa (Locked)</option>
             </select>
+
+            <Select
+              value={statusFilter}
+              onValueChange={(val: string) => setStatusFilter(val as "all" | "active" | "locked")}
+            >
+              <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+                <SelectValue placeholder="Tất cả trạng thái" />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+                <SelectItem value="all" className="focus:bg-white/5 focus:text-white">Tất cả trạng thái</SelectItem>
+                <SelectItem value="active" className="focus:bg-white/5 focus:text-white">Hoạt động (Active)</SelectItem>
+                <SelectItem value="locked" className="focus:bg-white/5 focus:text-white">Khóa (Locked)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

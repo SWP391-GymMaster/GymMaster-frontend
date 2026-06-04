@@ -2,6 +2,14 @@
 
 import Link from "next/link"
 import { useMemo, useState } from "react"
+import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Search,
   ArrowRight,
@@ -10,12 +18,9 @@ import {
   Activity,
   Users,
   CheckCircle2,
-  AlertCircle,
   Copy,
   Check,
-  User,
   Phone,
-  Mail,
   SlidersHorizontal,
 } from "lucide-react"
 
@@ -124,9 +129,9 @@ export function PtMembersContent() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           {/* Search box */}
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              className="min-h-11 w-full rounded-2xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground z-10" />
+            <Input
+              className="pl-11"
               placeholder="Tìm theo tên, mã hội viên, số điện thoại..."
               onChange={(e) => setSearch(e.target.value)}
               value={search}
@@ -139,14 +144,30 @@ export function PtMembersContent() {
               <SlidersHorizontal className="size-3.5" />
               <span>Sắp xếp:</span>
             </div>
+            
             <select
-              className="min-h-10 rounded-xl border border-border bg-background px-3 text-xs font-medium text-foreground outline-none focus:border-primary/50"
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as "name" | "code")}
             >
               <option value="name">Tên hội viên (A-Z)</option>
               <option value="code">Mã hội viên</option>
             </select>
+
+            <Select
+              value={sortBy}
+              onValueChange={(val: string) => setSortBy(val as "name" | "code")}
+            >
+              <SelectTrigger className="min-h-10 rounded-xl border border-border bg-background px-3 text-xs font-medium text-foreground outline-none focus-visible:ring-primary/20 focus-visible:border-primary">
+                <SelectValue placeholder="Chọn kiểu sắp xếp" />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+                <SelectItem value="name" className="focus:bg-white/5 focus:text-white">Tên hội viên (A-Z)</SelectItem>
+                <SelectItem value="code" className="focus:bg-white/5 focus:text-white">Mã hội viên</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

@@ -27,6 +27,9 @@ export type MealLogItem = MealLogItemInput & {
   foodName?: string
   unit?: string
   calories?: number
+  proteinG?: number
+  carbsG?: number
+  fatG?: number
 }
 
 export type MealLog = {

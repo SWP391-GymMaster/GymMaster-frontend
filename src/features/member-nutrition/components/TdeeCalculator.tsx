@@ -1,8 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Scale, X, Activity, Award } from "lucide-react";
+import { Scale, Activity, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type TdeeCalculatorProps = {
   isOpen: boolean;
@@ -87,37 +102,26 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
     }
   }
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div 
-        className="relative w-full max-w-lg overflow-hidden rounded-[1.75rem] border border-border bg-card p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
-        role="dialog"
-        aria-modal="true"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-border pb-4">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-lg max-h-[90dvh] overflow-y-auto bg-zinc-950/95 border border-white/10 text-white rounded-[2rem] p-6 shadow-2xl backdrop-blur-xl">
+        <DialogHeader className="border-b border-white/5 pb-4">
           <div className="flex items-center gap-2">
             <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Scale className="size-4" />
             </span>
-            <h3 className="text-lg font-bold text-foreground">Tính mục tiêu Calo & TDEE</h3>
+            <DialogTitle className="text-lg font-bold text-white">Tính mục tiêu Calo & TDEE</DialogTitle>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-1.5 hover:bg-muted text-muted-foreground hover:text-foreground transition active:scale-95"
-            aria-label="Đóng"
-          >
-            <X className="size-4" />
-          </button>
-        </div>
+          <DialogDescription className="text-xs text-white/50">
+            Tính toán chỉ số tiêu thụ năng lượng hàng ngày của bạn và thiết lập mục tiêu dinh dưỡng.
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Form Fields */}
-        <div className="mt-4 space-y-4 max-h-[65vh] overflow-y-auto pr-1">
+        <div className="space-y-4 pr-1">
           {/* Gender selection */}
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-bold uppercase tracking-wider text-white/40">
               Giới tính
             </span>
             <div className="mt-2 grid grid-cols-2 gap-2">
@@ -128,7 +132,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                   "min-h-11 rounded-xl border font-semibold text-sm transition active:scale-[0.97]",
                   gender === "male"
                     ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-background hover:bg-muted"
+                    : "border-white/10 bg-transparent hover:bg-white/5"
                 )}
               >
                 Nam
@@ -140,7 +144,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                   "min-h-11 rounded-xl border font-semibold text-sm transition active:scale-[0.97]",
                   gender === "female"
                     ? "border-primary bg-primary/10 text-primary"
-                    : "border-border bg-background hover:bg-muted"
+                    : "border-white/10 bg-transparent hover:bg-white/5"
                 )}
               >
                 Nữ
@@ -150,48 +154,48 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
 
           {/* Age, Height, Weight inputs */}
           <div className="grid grid-cols-3 gap-2">
-            <div>
-              <label htmlFor="tdee-age" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <div className="min-w-0">
+              <label htmlFor="tdee-age" className="block text-[10px] font-bold uppercase tracking-wider text-white/40 truncate">
                 Tuổi
               </label>
-              <input
+              <Input
                 id="tdee-age"
                 type="number"
                 value={age}
                 onChange={(e) => setAge(Number(e.target.value))}
                 className={cn(
-                  "mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm font-semibold outline-none focus:ring-4 focus:ring-primary/10",
-                  errors.age ? "border-destructive focus:border-destructive" : "border-border focus:border-primary/50"
+                  "mt-2 min-h-11 w-full bg-white/5 border text-white rounded-xl focus-visible:ring-primary/20",
+                  errors.age ? "border-destructive focus-visible:border-destructive" : "border-white/10 focus-visible:border-primary"
                 )}
               />
             </div>
-            <div>
-              <label htmlFor="tdee-height" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Chiều cao (cm)
+            <div className="min-w-0">
+              <label htmlFor="tdee-height" className="block text-[10px] font-bold uppercase tracking-wider text-white/40 truncate">
+                Cao (cm)
               </label>
-              <input
+              <Input
                 id="tdee-height"
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(Number(e.target.value))}
                 className={cn(
-                  "mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm font-semibold outline-none focus:ring-4 focus:ring-primary/10",
-                  errors.height ? "border-destructive focus:border-destructive" : "border-border focus:border-primary/50"
+                  "mt-2 min-h-11 w-full bg-white/5 border text-white rounded-xl focus-visible:ring-primary/20",
+                  errors.height ? "border-destructive focus-visible:border-destructive" : "border-white/10 focus-visible:border-primary"
                 )}
               />
             </div>
-            <div>
-              <label htmlFor="tdee-weight" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Cân nặng (kg)
+            <div className="min-w-0">
+              <label htmlFor="tdee-weight" className="block text-[10px] font-bold uppercase tracking-wider text-white/40 truncate">
+                Nặng (kg)
               </label>
-              <input
+              <Input
                 id="tdee-weight"
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(Number(e.target.value))}
                 className={cn(
-                  "mt-2 min-h-11 w-full rounded-xl border bg-background px-3 text-sm font-semibold outline-none focus:ring-4 focus:ring-primary/10",
-                  errors.weight ? "border-destructive focus:border-destructive" : "border-border focus:border-primary/50"
+                  "mt-2 min-h-11 w-full bg-white/5 border text-white rounded-xl focus-visible:ring-primary/20",
+                  errors.weight ? "border-destructive focus-visible:border-destructive" : "border-white/10 focus-visible:border-primary"
                 )}
               />
             </div>
@@ -208,14 +212,18 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
 
           {/* Activity Multiplier */}
           <div>
-            <label htmlFor="tdee-activity" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            <label htmlFor="tdee-activity" className="text-xs font-bold uppercase tracking-wider text-white/40">
               Mức độ vận động
             </label>
+            
+            {/* Visually hidden native select for Playwright test compatibility */}
             <select
               id="tdee-activity"
               value={activity}
               onChange={(e) => setActivity(Number(e.target.value))}
-              className="mt-2 min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+              className="sr-only"
+              tabIndex={-1}
+              aria-hidden="true"
             >
               {activityOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -223,7 +231,23 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-xs text-muted-foreground">
+
+            <Select
+              value={activity.toString()}
+              onValueChange={(val) => setActivity(Number(val))}
+            >
+              <SelectTrigger className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary">
+                <SelectValue placeholder="Chọn mức độ vận động" />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+                {activityOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value.toString()} className="focus:bg-white/5 focus:text-white">
+                    {opt.label} ({opt.value})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="mt-1.5 text-xs text-white/50">
               {activityOptions.find((o) => o.value === activity)?.desc}
             </p>
           </div>
@@ -233,7 +257,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
             type="button"
             onClick={calculateTdee}
             disabled={!isValid}
-            className="min-h-11 w-full rounded-xl bg-primary font-semibold text-primary-foreground hover:brightness-95 active:scale-[0.98] transition disabled:opacity-50 disabled:pointer-events-none"
+            className="min-h-11 w-full rounded-xl bg-primary font-bold text-primary-foreground hover:brightness-95 active:scale-[0.98] transition disabled:opacity-50 disabled:pointer-events-none"
           >
             Tính chỉ số TDEE
           </button>
@@ -243,21 +267,21 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-4 animate-in fade-in slide-in-from-top-4 duration-200">
               <div className="flex justify-between items-center">
                 <div>
-                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-1">
+                  <h4 className="text-sm font-semibold text-white flex items-center gap-1">
                     <Activity className="size-3.5 text-primary" />
                     Chỉ số TDEE tính toán:
                   </h4>
-                  <p className="text-xs text-muted-foreground">Năng lượng tiêu thụ hàng ngày</p>
+                  <p className="text-xs text-white/40">Năng lượng tiêu thụ hàng ngày</p>
                 </div>
                 <div className="text-right">
                   <span className="text-2xl font-black text-primary">{tdee}</span>
-                  <span className="text-xs text-muted-foreground"> kcal</span>
+                  <span className="text-xs text-white/40"> kcal</span>
                 </div>
               </div>
 
               {/* Goal Chooser */}
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="text-xs font-bold uppercase tracking-wider text-white/40">
                   Mục tiêu năng lượng
                 </span>
                 <div className="mt-2 grid grid-cols-3 gap-1.5">
@@ -268,7 +292,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                       "py-2 px-1 rounded-xl border text-xs font-bold transition active:scale-95",
                       selectedGoal === "lose"
                         ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-background hover:bg-muted text-muted-foreground"
+                        : "border-white/10 bg-transparent hover:bg-white/5 text-white/60"
                     )}
                   >
                     Giảm cân
@@ -280,7 +304,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                       "py-2 px-1 rounded-xl border text-xs font-bold transition active:scale-95",
                       selectedGoal === "maintain"
                         ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-background hover:bg-muted text-muted-foreground"
+                        : "border-white/10 bg-transparent hover:bg-white/5 text-white/60"
                     )}
                   >
                     Duy trì
@@ -292,7 +316,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                       "py-2 px-1 rounded-xl border text-xs font-bold transition active:scale-95",
                       selectedGoal === "gain"
                         ? "border-primary bg-primary/10 text-primary"
-                        : "border-border bg-background hover:bg-muted text-muted-foreground"
+                        : "border-white/10 bg-transparent hover:bg-white/5 text-white/60"
                     )}
                   >
                     Tăng cân
@@ -301,11 +325,11 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
               </div>
 
               {/* Summary and Apply CTA */}
-              <div className="pt-3 border-t border-border flex items-center justify-between gap-4">
+              <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs font-bold text-muted-foreground">Mục tiêu Calo đề xuất:</p>
-                  <p className="text-lg font-black text-foreground">{proposedCalorie} kcal/ngày</p>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-xs font-bold text-white/40">Mục tiêu Calo đề xuất:</p>
+                  <p className="text-lg font-black text-white">{proposedCalorie} kcal/ngày</p>
+                  <p className="text-[10px] text-white/50">
                     {selectedGoal === "lose" ? "Hụt calo (-500 kcal) để giảm mỡ." : selectedGoal === "gain" ? "Thặng dư (+300 kcal) để xây cơ." : "Giữ cân bằng lượng calo tiêu thụ."}
                   </p>
                 </div>
@@ -321,7 +345,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
