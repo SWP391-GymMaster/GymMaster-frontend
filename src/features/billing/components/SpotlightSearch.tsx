@@ -111,6 +111,14 @@ export function SpotlightSearch({
       item.category.toLowerCase().includes(query.toLowerCase());
 
     // Role access boundaries
+    if (role === "admin") {
+      return (
+        matchesQuery &&
+        !item.href.startsWith("/member") &&
+        !item.href.startsWith("/staff") &&
+        !item.href.startsWith("/pt")
+      );
+    }
     if (role === "member") {
       return (
         matchesQuery &&
@@ -131,7 +139,8 @@ export function SpotlightSearch({
       return (
         matchesQuery &&
         !item.href.startsWith("/admin") &&
-        !item.href.startsWith("/pt")
+        !item.href.startsWith("/pt") &&
+        !item.href.startsWith("/member")
       );
     }
     return matchesQuery;
