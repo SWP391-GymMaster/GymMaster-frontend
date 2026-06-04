@@ -9,6 +9,7 @@ import {
   getMemberMealLogs,
   searchFoodItems,
   createCustomFoodItem,
+  fetchFoodByBarcode,
 } from "@/features/member-nutrition/api/member-nutrition.api"
 import type { CreateMealLogDraft, CreateCustomFoodInput } from "@/features/member-nutrition/types/member-nutrition.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
@@ -16,6 +17,7 @@ import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 export const memberNutritionKeys = {
   all: ["member-nutrition"] as const,
   foods: (query: string) => [...memberNutritionKeys.all, "foods", query] as const,
+  barcode: (barcode: string) => [...memberNutritionKeys.all, "barcode", barcode] as const,
   mealLogs: (memberId: number, date: string) =>
     [...memberNutritionKeys.all, "meal-logs", memberId, date] as const,
   summary: (memberId: number, date: string) =>
@@ -131,5 +133,16 @@ export function useCreateCustomFoodItem() {
         queryKey: [...memberNutritionKeys.all, "foods"],
       })
     },
+  })
+}
+
+export function useFoodBarcodeLookup(barcode: string) {
+  const normalizedBarcode = barcode.trim()
+
+  return useQuery({
+    queryKey: memberNutritionKeys.barcode(normalizedBarcode),
+    queryFn: () => fetchFoodByBarcode(normalizedBarcode),
+    enabled: normalizedBarcode.length > 0,
+    staleTime: 5 * 60 * 1000, // cache 5 mins
   })
 }

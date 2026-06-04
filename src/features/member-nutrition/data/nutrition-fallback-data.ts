@@ -85,3 +85,17 @@ export function searchFallbackNutritionFoods(query: string, limit = 20) {
     })
     .slice(0, limit)
 }
+
+export type SampleBarcode = {
+  barcode: string
+  name: string
+  description: string
+}
+
+export const sampleBarcodes: SampleBarcode[] = [
+  { barcode: "8936079015707", name: "Sữa TH True Milk ít đường 180ml", description: "Mã vạch sữa tươi TH True Milk ít đường 180ml" },
+  { barcode: "8934563138061", name: "Mì ăn liền Hảo Hảo tôm chua cay", description: "Mã vạch mì tôm Hảo Hảo chua cay Acecook" },
+  { barcode: "8934822903102", name: "Nước ngọt Coca-Cola 320ml", description: "Mã vạch Coca-Cola lon 320ml" },
+  { barcode: "748927028660", name: "Whey Gold Standard Vanilla", description: "Mã vạch Whey Gold Standard Optimum Nutrition" },
+]
+

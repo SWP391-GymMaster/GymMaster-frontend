@@ -21,6 +21,8 @@
     "@tabler/icons-react": "^3.44.0",
     "@tanstack/react-query": "^5.100.14",
     "@tanstack/react-table": "^8.21.3",
+    "@zxing/browser": "^0.2.0",
+    "@zxing/library": "^0.22.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.17.0",
@@ -40,6 +42,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@fission-ai/openspec": "latest",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",

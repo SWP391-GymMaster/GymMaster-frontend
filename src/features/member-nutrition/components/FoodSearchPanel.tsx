@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Search, Utensils, History, Heart } from "lucide-react"
+import { Plus, Search, Utensils, History, Heart, Scan } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
+import dynamic from "next/dynamic"
 
 import { cn } from "@/lib/utils"
 import { StateBlock } from "@/components/feedback/StateBlock"
@@ -21,7 +22,10 @@ import {
 import {
   useFoodSearch,
   useCreateCustomFoodItem,
+  useFoodBarcodeLookup,
 } from "@/features/member-nutrition/api/member-nutrition.queries"
+import { searchFoodItems } from "@/features/member-nutrition/api/member-nutrition.api"
+import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 import {
   customFoodSchema,
   type CustomFoodFormInput,
@@ -29,6 +33,11 @@ import {
 } from "@/features/member-nutrition/schemas/custom-food.schemas"
 import type { FoodItem } from "@/features/member-nutrition/types/member-nutrition.types"
 import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
+
+const BarcodeScannerDialog = dynamic(
+  () => import("./BarcodeScannerDialog").then((m) => m.BarcodeScannerDialog),
+  { ssr: false }
+)
 
 const quickSearches = ["ức gà", "cơm", "chuối", "trứng", "sữa", "yến mạch"]
 
@@ -72,8 +81,106 @@ export function FoodSearchPanel({
   const [recentFoods, setRecentFoods] = useState<FoodItem[]>([])
   const [customFoods, setCustomFoods] = useState<FoodItem[]>([])
 
+  // Barcode Lookup States
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
+  const [barcode, setBarcode] = useState("")
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [isSavingProduct, setIsSavingProduct] = useState(false)
+  
+  // Edited values inside preview
+  const [previewName, setPreviewName] = useState("")
+  const [previewUnit, setPreviewUnit] = useState("")
+  const [previewCalories, setPreviewCalories] = useState(0)
+  const [previewProtein, setPreviewProtein] = useState(0)
+  const [previewCarbs, setPreviewCarbs] = useState(0)
+  const [previewFat, setPreviewFat] = useState(0)
+
+  const accessToken = useAuthSessionStore((state) => state.session?.accessToken)
   const foods = useFoodSearch(query)
   const canSearch = query.trim().length >= 2
+
+  const barcodeLookup = useFoodBarcodeLookup(barcode)
+  const createFood = useCreateCustomFoodItem()
+
+  // Handle Barcode Query response
+  useEffect(() => {
+    if (barcodeLookup.isFetching) {
+      toast.loading("Đang tìm kiếm thông tin sản phẩm...", { id: "barcode-loading" })
+    } else {
+      toast.dismiss("barcode-loading")
+    }
+  }, [barcodeLookup.isFetching])
+
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (barcodeLookup.data) {
+      const prod = barcodeLookup.data
+      setPreviewName(prod.name)
+      setPreviewUnit(prod.unit)
+      setPreviewCalories(prod.caloriesPerUnit)
+      setPreviewProtein(prod.proteinG || 0)
+      setPreviewCarbs(prod.carbsG || 0)
+      setPreviewFat(prod.fatG || 0)
+
+      setIsPreviewOpen(true)
+      setIsScannerOpen(false)
+      setBarcode("") // Reset query triggers
+    } else if (barcodeLookup.data === null && !barcodeLookup.isFetching && barcode !== "") {
+      toast.error("Không tìm thấy thông tin sản phẩm cho mã vạch này.")
+      setBarcode("")
+    }
+  }, [barcodeLookup.data, barcodeLookup.isFetching, barcode])
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Save or Select the scanned product
+  const handleConfirmProduct = async () => {
+    if (!previewName.trim() || !previewUnit.trim()) {
+      toast.error("Vui lòng điền đầy đủ tên và đơn vị.")
+      return
+    }
+
+    setIsSavingProduct(true)
+    try {
+      // 1. Search if the food item with the exact name already exists in database (UQ_FoodItems_Name check)
+      const searchResults = await searchFoodItems(accessToken ?? "", previewName)
+      const exactMatch = searchResults.items.find(
+        (item) => item.name.toLowerCase() === previewName.toLowerCase()
+      )
+
+      if (exactMatch) {
+        toast.success(`Tìm thấy món ăn có sẵn: ${exactMatch.name}`)
+        onSelectFood(exactMatch)
+        setIsPreviewOpen(false)
+        return
+      }
+
+      // 2. Not found, create it as a new Custom Food Item
+      const newFood = await createFood.mutateAsync({
+        name: previewName,
+        unit: previewUnit,
+        caloriesPerUnit: previewCalories,
+        proteinG: previewProtein,
+        carbsG: previewCarbs,
+        fatG: previewFat,
+      })
+
+      toast.success(`Đã lưu thực phẩm mới: ${newFood.name}`)
+      
+      // Sync with Local Custom List
+      const existing = getCustomFoods()
+      const updated = [newFood, ...existing]
+      localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOM_FOODS, JSON.stringify(updated))
+      setCustomFoods(updated)
+
+      onSelectFood(newFood)
+      setIsPreviewOpen(false)
+    } catch (err) {
+      console.error("Save product from barcode failed:", err)
+      toast.error("Không thể lưu sản phẩm. Vui lòng thử lại.")
+    } finally {
+      setIsSavingProduct(false)
+    }
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -161,19 +268,30 @@ export function FoodSearchPanel({
               <label className="block text-sm font-semibold text-foreground" htmlFor="food-search">
                 Tên thực phẩm hoặc món ăn
               </label>
-              <div className="relative mt-2">
-                <Search
-                  aria-hidden="true"
-                  className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                />
-                <Input
-                  className="min-h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
-                  data-testid="member-food-search-input"
-                  id="food-search"
-                  onChange={(event) => onQueryChange(event.target.value)}
-                  placeholder="Gõ 'ức gà', 'cơm trắng', 'phở bò'..."
-                  value={query}
-                />
+              <div className="flex gap-2 mt-2">
+                <div className="relative flex-1">
+                  <Search
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <Input
+                    className="min-h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+                    data-testid="member-food-search-input"
+                    id="food-search"
+                    onChange={(event) => onQueryChange(event.target.value)}
+                    placeholder="Gõ 'ức gà', 'cơm trắng', 'phở bò'..."
+                    value={query}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => setIsScannerOpen(true)}
+                  className="min-h-12 aspect-square rounded-xl border border-border bg-background hover:bg-muted text-muted-foreground transition active:scale-[0.98] shrink-0"
+                  variant="outline"
+                  title="Quét mã vạch sản phẩm"
+                >
+                  <Scan className="size-5 text-primary" />
+                </Button>
               </div>
             </div>
 
@@ -340,6 +458,129 @@ export function FoodSearchPanel({
           </div>
         )}
       </div>
+
+      {/* Barcode scanner dialog */}
+      <BarcodeScannerDialog
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onDetected={(code) => setBarcode(code)}
+      />
+
+      {/* Nutrition preview & confirm dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-md rounded-3xl p-0 border border-white/20 bg-background/95 backdrop-blur-xl shadow-2xl">
+          <DialogHeader className="border-b border-border p-6">
+            <DialogTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Utensils aria-hidden="true" className="size-4" />
+              </span>
+              Xem trước dinh dưỡng sản phẩm
+            </DialogTitle>
+            <DialogDescription className="mt-1">
+              Sản phẩm tìm thấy từ cơ sở dữ liệu mã vạch. Bạn có thể chỉnh sửa lại trước khi thêm.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 p-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-name">
+                Tên sản phẩm
+              </label>
+              <Input
+                id="preview-name"
+                className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                value={previewName}
+                onChange={(e) => setPreviewName(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-unit">
+                  Đơn vị tính (Serving size)
+                </label>
+                <Input
+                  id="preview-unit"
+                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  value={previewUnit}
+                  onChange={(e) => setPreviewUnit(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-calories">
+                  Calo mỗi đơn vị
+                </label>
+                <Input
+                  id="preview-calories"
+                  type="number"
+                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  value={previewCalories}
+                  onChange={(e) => setPreviewCalories(Math.max(0, Number(e.target.value)))}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-carbs">
+                  Carbs (g)
+                </label>
+                <Input
+                  id="preview-carbs"
+                  type="number"
+                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  value={previewCarbs}
+                  onChange={(e) => setPreviewCarbs(Math.max(0, Number(e.target.value)))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-protein">
+                  Protein (g)
+                </label>
+                <Input
+                  id="preview-protein"
+                  type="number"
+                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  value={previewProtein}
+                  onChange={(e) => setPreviewProtein(Math.max(0, Number(e.target.value)))}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-fat">
+                  Fat (g)
+                </label>
+                <Input
+                  id="preview-fat"
+                  type="number"
+                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  value={previewFat}
+                  onChange={(e) => setPreviewFat(Math.max(0, Number(e.target.value)))}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-border">
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-xl"
+                onClick={() => {
+                  setIsPreviewOpen(false)
+                }}
+              >
+                Hủy
+              </Button>
+              <Button
+                type="button"
+                disabled={isSavingProduct}
+                className="rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+                onClick={handleConfirmProduct}
+              >
+                {isSavingProduct ? "Đang lưu..." : "Xác nhận và Chọn"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

@@ -28,6 +28,10 @@
 # misc
 .DS_Store
 *.pem
+.understand-anything/
+
+# docs/specs
+/docs/workflow-guide/
 
 # debug
 npm-debug.log*

@@ -1,4 +1,4 @@
-import { http } from "msw"
+import { http, HttpResponse, passthrough } from "msw"
 
 import { foodItems, mealLogs } from "@/mocks/data/gymmaster.mock-data"
 import {
@@ -168,5 +168,46 @@ export const nutritionHandlers = [
     }))
 
     return ok(daily)
+  }),
+  http.get("https://world.openfoodfacts.org/api/v2/product/*", ({ request }) => {
+    const url = new URL(request.url)
+    const match = url.pathname.match(/\/product\/(\d+)\.json$/)
+    const barcode = match ? match[1] : ""
+
+    if (barcode === "8936079015707") {
+      return HttpResponse.json({
+        status: 1,
+        product: {
+          product_name_vi: "Sữa tươi TH True Milk ít đường",
+          product_name: "Sữa tươi TH True Milk ít đường 180ml",
+          brands: "TH True Milk",
+          serving_size: "180ml",
+          nutriments: {
+            "energy-kcal_100g": 70,
+            proteins_100g: 3,
+            carbohydrates_100g: 7.5,
+            fat_100g: 3.3,
+          },
+        },
+      })
+    }
+    if (barcode === "8934822903102") {
+      return HttpResponse.json({
+        status: 1,
+        product: {
+          product_name_vi: "Nước ngọt Coca-Cola 320ml",
+          product_name: "Coca-Cola 320ml",
+          brands: "Coca-Cola",
+          serving_size: "320ml",
+          nutriments: {
+            "energy-kcal_100g": 42,
+            proteins_100g: 0,
+            carbohydrates_100g: 10.6,
+            fat_100g: 0,
+          },
+        },
+      })
+    }
+    return passthrough()
   }),
 ]

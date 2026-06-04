@@ -119,7 +119,8 @@ Vitest
 React Testing Library
 Playwright
 Context7
-GitHub Spec Kit
+OpenSpec
+Understand-Anything
 ```
 
 Package manager:
@@ -1067,37 +1068,19 @@ if package API correctness matters.
 
 ---
 
-## 26. GitHub Spec Kit Rules
+## 26. OpenSpec & Understand-Anything Rules
 
-For large features, do not implement directly.
+Mỗi thay đổi hoặc tính năng lớn đều phải tuân thủ quy trình Spec-Driven Development (SDD) thông qua OpenSpec & Understand-Anything:
 
-Use:
+1. **Hiểu (Understand)**: Sử dụng các kỹ năng và câu lệnh `/understand-chat` hoặc `/understand-explain` để truy vấn kiến trúc, dependency và phân tích mã nguồn trước khi đưa ra đề xuất. Luôn ưu tiên cách này thay vì tự đọc thủ công hàng loạt file để tối ưu hóa lượng token tiêu thụ.
+2. **Đề xuất (Propose)**: Tạo đề xuất thay đổi bằng lệnh `openspec create "tên-tính-năng"`. Việc này sẽ tạo ra cấu trúc:
+   - `openspec/proposals/tên-tính-năng/proposal.md` (Đặc tả chi tiết UI/UX, API contracts, business rules)
+   - `openspec/proposals/tên-tính-năng/tasks.md` (Danh sách checklist các file cần sửa/tạo)
+3. **Phê duyệt (Approve)**: Điền đầy đủ thông tin giải pháp kỹ thuật vào `proposal.md`. Phải nhận được sự đồng ý từ User/Owner trước khi bắt đầu viết code.
+4. **Thực thi (Apply)**: Agent triển khai code và liên tục cập nhật trạng thái các task trong `tasks.md` (sử dụng `- [/]` cho đang làm, `- [x]` cho đã hoàn thành).
+5. **Lưu trữ (Archive)**: Khi code đã hoàn thành, vượt qua các bài kiểm thử tự động, chạy lệnh `openspec archive "tên-tính-năng"` để lưu trữ proposal vào thư mục tài liệu lịch sử, giữ cho codebase luôn gọn gàng.
 
-```text
-spec
-plan
-tasks
-implementation
-tests
-review
-```
-
-Recommended folder:
-
-```text
-specs/
-├── fe-check-in-terminal/
-│   ├── spec.md
-│   ├── plan.md
-│   ├── tasks.md
-│   └── contracts.md
-├── fe-sell-package-wizard/
-├── fe-member-360/
-├── fe-meal-journal/
-└── fe-admin-dashboard/
-```
-
-Small bug fixes may skip full spec, but still need a clear PR checklist.
+Các sửa lỗi nhỏ (bug fixes) có thể bỏ qua bước tạo proposal đầy đủ, nhưng vẫn bắt buộc phải có một PR checklist rõ ràng.
 
 ---
 
