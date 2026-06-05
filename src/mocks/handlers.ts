@@ -9,6 +9,7 @@ import { nutritionHandlers } from "@/mocks/handlers/nutrition.handlers"
 import { progressHandlers } from "@/mocks/handlers/progress.handlers"
 import { trainingHandlers } from "@/mocks/handlers/training.handlers"
 import { member360Handlers } from "@/mocks/handlers/member-360.handlers"
+import { notificationsHandlers } from "@/mocks/handlers/notifications.handlers"
 
 export const handlers: RequestHandler[] = [
   ...authHandlers,
@@ -20,4 +21,5 @@ export const handlers: RequestHandler[] = [
   ...progressHandlers,
   ...nutritionHandlers,
   ...dashboardAuditHandlers,
+  ...notificationsHandlers,
 ]

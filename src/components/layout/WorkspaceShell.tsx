@@ -13,6 +13,7 @@ import type { UserRole } from "@/types/auth";
 import { useSidebarStore } from "@/stores/useSideBarStore";
 import { SpotlightSearch } from "@/features/billing/components/SpotlightSearch";
 import { NotificationsDrawer } from "@/components/feedback/NotificationsDrawer";
+import { useNotifications } from "@/features/notifications/api/notifications.queries";
 import { SettingsDialog } from "@/features/billing/components/SettingsDialog";
 import { RouteProgressBar } from "@/components/feedback/RouteProgressBar";
 import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper";
@@ -45,6 +46,9 @@ export function WorkspaceShell({
     useSidebarStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  const { data: notifications = [] } = useNotifications(role);
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   // Invoke keyboard shortcuts
   useKeyboardShortcuts();
@@ -187,7 +191,11 @@ export function WorkspaceShell({
               type="button"
             >
               <Bell aria-hidden="true" className="size-5" />
-              <span className="absolute right-2.5 top-2.5 size-2 rounded-full bg-destructive ring-2 ring-background animate-pulse" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[9px] font-bold flex items-center justify-center ring-2 ring-background animate-pulse">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
               <span className="sr-only">Thông báo</span>
             </button>
 
