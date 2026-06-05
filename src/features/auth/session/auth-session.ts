@@ -6,6 +6,7 @@ import {
   login as loginRequest,
   loginWithGoogle as googleLoginRequest,
   logout as logoutRequest,
+  refreshSession,
   registerMember,
 } from "@/features/auth/api/auth.api"
 import { ApiClientError } from "@/lib/api/http-client"
@@ -22,6 +23,7 @@ const storageKey = "gymmaster.auth.session"
 
 type AuthSessionState = {
   session: AuthSession | null
+  ensureFreshSession: () => Promise<AuthSession | null>
   login: (request: LoginRequest) => Promise<string>
   loginWithGoogle: (request: GoogleLoginRequest) => Promise<string>
   signup: (request: RegisterRequest) => Promise<string>
@@ -102,11 +104,48 @@ export function createSessionFromLogin(data: LoginSuccess): AuthSession {
   }
 }
 
+export function isAuthSessionExpired(session: AuthSession | null): boolean {
+  if (!session) {
+    return true
+  }
+
+  if (!session.expiresAt) {
+    return true
+  }
+
+  return Date.parse(session.expiresAt) <= Date.now()
+}
+
 export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
   session: readStoredSession(),
   setSession: (session) => {
     persistSession(session)
     set({ session })
+  },
+  ensureFreshSession: async () => {
+    const session = get().session
+
+    if (!session) {
+      return null
+    }
+
+    if (!isAuthSessionExpired(session)) {
+      return session
+    }
+
+    try {
+      const data = await refreshSession(session.refreshToken)
+      const refreshedSession = createSessionFromLogin(data)
+
+      persistSession(refreshedSession)
+      set({ session: refreshedSession })
+
+      return refreshedSession
+    } catch (error) {
+      persistSession(null)
+      set({ session: null })
+      throw error
+    }
   },
   login: async (request) => {
     const data = await loginRequest(request)

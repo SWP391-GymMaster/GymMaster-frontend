@@ -8,13 +8,13 @@ export const sellPackageSchema = z.object({
   memberId: z.coerce.number().positive("Chọn hội viên."),
   packageId: z.coerce.number().positive("Chọn gói tập."),
   startDate: z.string().min(1, "Chọn ngày bắt đầu."),
-  paymentMethod: z.enum(["cash", "transfer", "card", "other"]),
+  paymentMethod: z.enum(["cash", "transfer", "card"]),
 })
 
 export const manualPaymentSchema = z.object({
   membershipId: z.coerce.number().positive("Thiếu gói hội viên."),
   amount: z.coerce.number().positive("Số tiền phải lớn hơn 0."),
-  paymentMethod: z.enum(["cash", "transfer", "card", "other"]),
+  paymentMethod: z.enum(["cash", "transfer", "card"]),
   paidAt: z.string().min(1, "Chọn thời điểm thanh toán."),
 })
 

@@ -37,8 +37,70 @@ function enrichMealLog(log: (typeof mealLogs)[number]) {
   }
 }
 
+function externalFoodProduct(
+  name: string,
+  brand: string,
+  unit: string,
+  caloriesPerUnit: number,
+  proteinG: number,
+  carbsG: number,
+  fatG: number,
+) {
+  return {
+    name: `${name} (${brand})`,
+    unit,
+    caloriesPerUnit,
+    proteinG,
+    carbsG,
+    fatG,
+  }
+}
+
+function mockOnlineFoodResults(query: string) {
+  const normalizedQuery = query.toLowerCase()
+
+  if (normalizedQuery.includes("sữa")) {
+    return [
+      externalFoodProduct(
+        "Sữa tươi TH True Milk ít đường",
+        "TH True Milk",
+        "180ml",
+        70,
+        3,
+        7.5,
+        3.3,
+      ),
+      externalFoodProduct(
+        "Sữa đậu nành Fami nguyên chất",
+        "Fami",
+        "200ml",
+        54,
+        2.1,
+        7.2,
+        1.8,
+      ),
+    ]
+  }
+
+  if (normalizedQuery.includes("mì tôm") || normalizedQuery.includes("mì hảo hảo")) {
+    return [
+      externalFoodProduct(
+        "Mì Hảo Hảo chua cay",
+        "Acecook",
+        "75g",
+        466,
+        9.2,
+        62.4,
+        20.1,
+      ),
+    ]
+  }
+
+  return []
+}
+
 export const nutritionHandlers = [
-  http.post("/api/members/:id/calorie-target", async ({ params, request }) => {
+  http.post("/api/v1/members/:id/calorie-target", async ({ params, request }) => {
     const role = requireRole(request, ["member", "pt"])
     if (typeof role !== "string") return role
     const body = (await request.json()) as Record<string, unknown>
@@ -48,7 +110,7 @@ export const nutritionHandlers = [
       ...body,
     })
   }),
-  http.get("/api/food-items", ({ request }) => {
+  http.get("/api/v1/food-items", ({ request }) => {
     const role = requireRole(request, ["member", "pt", "admin"])
     if (typeof role !== "string") return role
 
@@ -63,7 +125,7 @@ export const nutritionHandlers = [
 
     return paged(filtered, getPage(request.url))
   }),
-  http.post("/api/food-items", async ({ request }) => {
+  http.post("/api/v1/food-items", async ({ request }) => {
     const role = requireRole(request, ["member"])
     if (typeof role !== "string") return role
 
@@ -81,7 +143,58 @@ export const nutritionHandlers = [
 
     return created(food)
   }),
-  http.get("/api/meal-logs", ({ request }) => {
+  http.get("/api/v1/food-items/online-search", ({ request }) => {
+    const role = requireRole(request, ["member", "pt", "admin"])
+    if (typeof role !== "string") return role
+
+    const url = new URL(request.url)
+    const query = url.searchParams.get("query") ?? ""
+
+    if (query.toLowerCase().includes("rate-limit")) {
+      return fail(
+        "ONLINE_RATE_LIMITED",
+        "Online food provider rate limit reached",
+        429,
+      )
+    }
+
+    return ok(mockOnlineFoodResults(query))
+  }),
+  http.get("/api/v1/food-items/barcode/:barcode", ({ params, request }) => {
+    const role = requireRole(request, ["member", "pt", "admin"])
+    if (typeof role !== "string") return role
+
+    if (params.barcode === "8936079015707") {
+      return ok(
+        externalFoodProduct(
+          "Sữa tươi TH True Milk ít đường",
+          "TH True Milk",
+          "180ml",
+          70,
+          3,
+          7.5,
+          3.3,
+        ),
+      )
+    }
+
+    if (params.barcode === "8934822903102") {
+      return ok(
+        externalFoodProduct(
+          "Nước ngọt Coca-Cola 320ml",
+          "Coca-Cola",
+          "320ml",
+          42,
+          0,
+          10.6,
+          0,
+        ),
+      )
+    }
+
+    return fail("PRODUCT_NOT_FOUND", "Barcode product not found", 404)
+  }),
+  http.get("/api/v1/meal-logs", ({ request }) => {
     const role = requireRole(request, ["member"])
     if (typeof role !== "string") return role
 
@@ -99,7 +212,7 @@ export const nutritionHandlers = [
         .map(enrichMealLog),
     )
   }),
-  http.post("/api/meal-logs", async ({ request }) => {
+  http.post("/api/v1/meal-logs", async ({ request }) => {
     const role = requireRole(request, ["member"])
     if (typeof role !== "string") return role
 
@@ -132,7 +245,7 @@ export const nutritionHandlers = [
 
     return created(enrichMealLog(log))
   }),
-  http.get("/api/members/:id/calorie-summary", ({ params, request }) => {
+  http.get("/api/v1/members/:id/calorie-summary", ({ params, request }) => {
     const role = requireRole(request, ["member", "pt"])
     if (typeof role !== "string") return role
 
@@ -154,7 +267,7 @@ export const nutritionHandlers = [
       remaining: target - consumed,
     })
   }),
-  http.get("/api/members/:id/calorie-history", ({ params, request }) => {
+  http.get("/api/v1/members/:id/calorie-history", ({ params, request }) => {
     const role = requireRole(request, ["member", "pt"])
     if (typeof role !== "string") return role
 

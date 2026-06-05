@@ -27,7 +27,7 @@ test("Member adds a meal and sees calorie summary update", async ({ page }) => {
   await page.getByRole("button", { name: "Thêm bữa ăn mới" }).click()
 
   await page.getByTestId("member-food-search-input").fill("banana")
-  await page.getByText("Banana").click()
+  await page.getByText("Banana", { exact: true }).click()
   await page.getByTestId("member-meal-quantity-input").fill("2")
   await page.getByTestId("member-add-meal-button").click()
 
@@ -63,7 +63,7 @@ test("Member creates custom food and logs it successfully", async ({ page }) => 
   await page.getByTestId("member-food-search-input").fill("Táo Nhật Bản E2E")
 
   // Verify empty state triggers the custom food dialog button
-  await expect(page.getByText("Không tìm thấy món phù hợp.")).toBeVisible()
+  await expect(page.getByText("Không tìm thấy món phù hợp", { exact: true })).toBeVisible()
   await page.getByTestId("member-custom-food-trigger").click()
 
   // Verify Dialog content is open

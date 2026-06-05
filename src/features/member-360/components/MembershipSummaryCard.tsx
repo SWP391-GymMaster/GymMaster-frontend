@@ -9,8 +9,8 @@ type MembershipSummaryCardProps = {
   packageName?: string
   startDate?: string
   endDate?: string
-  paymentStatus?: "paid" | "pending" | "failed"
-  membershipStatus?: "Active" | "PendingPayment" | "Expired"
+  paymentStatus?: "paid" | "pending" | "refunded"
+  membershipStatus?: "active" | "pending_payment" | "expired" | "cancelled"
   isLoading?: boolean
   className?: string
 }
@@ -18,16 +18,7 @@ type MembershipSummaryCardProps = {
 function toStatusPillStatus(
   status: MembershipSummaryCardProps["membershipStatus"],
 ) {
-  switch (status) {
-    case "Active":
-      return "active" as const
-    case "PendingPayment":
-      return "pending" as const
-    case "Expired":
-      return "expired" as const
-    default:
-      return "unknown" as const
-  }
+  return status ?? "unknown"
 }
 
 function formatDate(dateStr?: string) {

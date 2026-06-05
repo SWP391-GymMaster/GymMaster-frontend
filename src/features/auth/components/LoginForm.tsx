@@ -134,7 +134,7 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <GoogleLoginButton />
+      <GoogleLoginButton onError={setFormError} />
     </form>
   )
 }

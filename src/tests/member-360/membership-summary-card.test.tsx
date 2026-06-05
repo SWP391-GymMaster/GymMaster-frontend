@@ -8,7 +8,7 @@ describe("MembershipSummaryCard", () => {
     render(
       <MembershipSummaryCard
         endDate="2026-09-29T00:00:00.000Z"
-        membershipStatus="Active"
+        membershipStatus="active"
         packageName="Strength 90"
         startDate="2026-07-01T00:00:00.000Z"
       />,
@@ -23,7 +23,7 @@ describe("MembershipSummaryCard", () => {
   it("renders payment status pill", () => {
     render(
       <MembershipSummaryCard
-        membershipStatus="Active"
+        membershipStatus="active"
         packageName="Premium 30"
         paymentStatus="paid"
       />,
@@ -35,28 +35,27 @@ describe("MembershipSummaryCard", () => {
   it("renders pending membership and payment status", () => {
     render(
       <MembershipSummaryCard
-        membershipStatus="PendingPayment"
+        membershipStatus="pending_payment"
         packageName="Premium 30"
         paymentStatus="pending"
       />,
     )
 
-    // Both the membership status and payment status show the same pending label.
-    const pendingElements = screen.getAllByText("Đang chờ")
-    expect(pendingElements.length).toBe(2)
+    expect(screen.getByText("Đang chờ")).toBeInTheDocument()
+    expect(screen.getByText("Chờ thanh toán")).toBeInTheDocument()
   })
 
   it("renders expired status", () => {
     render(
       <MembershipSummaryCard
-        membershipStatus="Expired"
+        membershipStatus="expired"
         packageName="Old Plan"
-        paymentStatus="failed"
+        paymentStatus="refunded"
       />,
     )
 
     expect(screen.getByText("Hết hạn")).toBeInTheDocument()
-    expect(screen.getByText("Thất bại")).toBeInTheDocument()
+    expect(screen.getByText("Đã hoàn tiền")).toBeInTheDocument()
   })
 
   it("renders empty state when no membership", () => {

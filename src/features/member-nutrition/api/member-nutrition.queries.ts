@@ -139,22 +139,24 @@ export function useCreateCustomFoodItem() {
 }
 
 export function useFoodBarcodeLookup(barcode: string) {
+  const accessToken = useMemberAccessToken()
   const normalizedBarcode = barcode.trim()
 
   return useQuery({
     queryKey: memberNutritionKeys.barcode(normalizedBarcode),
-    queryFn: () => fetchFoodByBarcode(normalizedBarcode),
+    queryFn: () => fetchFoodByBarcode(normalizedBarcode, accessToken),
     enabled: normalizedBarcode.length > 0,
     staleTime: 5 * 60 * 1000, // cache 5 mins
   })
 }
 
 export function useFoodOnlineSearch(query: string, enabled = false) {
+  const accessToken = useMemberAccessToken()
   const normalizedQuery = query.trim()
 
   return useQuery({
     queryKey: memberNutritionKeys.onlineSearch(normalizedQuery),
-    queryFn: () => searchFoodOnline(normalizedQuery),
+    queryFn: () => searchFoodOnline(normalizedQuery, accessToken),
     enabled: enabled && normalizedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // cache 5 mins
     retry: false,

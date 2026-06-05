@@ -19,7 +19,7 @@ export function PaymentsLogTable() {
   const { data: payments, isLoading, error } = usePayments()
 
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "pending" | "failed">("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "pending" | "refunded">("all")
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -39,10 +39,10 @@ export function PaymentsLogTable() {
     })
   }
 
-  const getStatusLabel = (status: "paid" | "pending" | "failed") => {
+  const getStatusLabel = (status: "paid" | "pending" | "refunded") => {
     if (status === "paid") return "Đã thanh toán"
     if (status === "pending") return "Đang chờ"
-    return "Thất bại"
+    return "Đã hoàn tiền"
   }
 
   const filteredPayments = (payments ?? []).filter((payment) => {
@@ -80,7 +80,7 @@ export function PaymentsLogTable() {
             <select
               id="payment-status-filter"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as "all" | "paid" | "pending" | "failed")}
+              onChange={(e) => setStatusFilter(e.target.value as "all" | "paid" | "pending" | "refunded")}
               className="sr-only"
               tabIndex={-1}
               aria-hidden="true"
@@ -89,12 +89,12 @@ export function PaymentsLogTable() {
               <option value="all">Tất cả trạng thái</option>
               <option value="paid">Đã thanh toán (Paid)</option>
               <option value="pending">Đang chờ (Pending)</option>
-              <option value="failed">Thất bại (Failed)</option>
+              <option value="refunded">Đã hoàn tiền (Refunded)</option>
             </select>
 
             <Select
               value={statusFilter}
-              onValueChange={(val: string) => setStatusFilter(val as "all" | "paid" | "pending" | "failed")}
+              onValueChange={(val: string) => setStatusFilter(val as "all" | "paid" | "pending" | "refunded")}
             >
               <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
                 <SelectValue placeholder="Tất cả trạng thái" />
@@ -103,7 +103,7 @@ export function PaymentsLogTable() {
                 <SelectItem value="all" className="focus:bg-white/5 focus:text-white">Tất cả trạng thái</SelectItem>
                 <SelectItem value="paid" className="focus:bg-white/5 focus:text-white">Đã thanh toán (Paid)</SelectItem>
                 <SelectItem value="pending" className="focus:bg-white/5 focus:text-white">Đang chờ (Pending)</SelectItem>
-                <SelectItem value="failed" className="focus:bg-white/5 focus:text-white">Thất bại (Failed)</SelectItem>
+                <SelectItem value="refunded" className="focus:bg-white/5 focus:text-white">Đã hoàn tiền (Refunded)</SelectItem>
               </SelectContent>
             </Select>
           </div>

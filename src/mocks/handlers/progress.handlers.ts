@@ -1,54 +1,66 @@
 import { http } from "msw"
 
 import {
-  checkins,
-  mealLogs,
-  memberships,
+  assignments,
   progressEntries,
-  workoutPlans,
 } from "@/mocks/data/gymmaster.mock-data"
-import { created, ok, requireRole } from "@/mocks/utils/api-response"
+import { created, fail, ok, requireRole } from "@/mocks/utils/api-response"
+
+function isAssignedToPt(memberId: number) {
+  return assignments.some(
+    (assignment) =>
+      assignment.memberId === memberId && assignment.status === "active",
+  )
+}
 
 export const progressHandlers = [
-  http.post("/api/members/:id/progress", async ({ params, request }) => {
+  http.post("/api/v1/members/:id/progress", async ({ params, request }) => {
     const role = requireRole(request, ["member", "pt"])
     if (typeof role !== "string") return role
 
+    const memberId = Number(params.id)
     const body = (await request.json()) as {
       measuredAt?: string
       weightKg?: number
       bodyFatPct?: number
     }
+
+    if (role === "pt" && !isAssignedToPt(memberId)) {
+      return fail("FORBIDDEN", "PT can only manage assigned members", 403)
+    }
+
+    const weightKg = body.weightKg ?? 0
+
+    if (
+      weightKg <= 0 ||
+      (body.bodyFatPct !== undefined && body.bodyFatPct <= 0) ||
+      (body.measuredAt !== undefined &&
+        body.measuredAt > new Date().toISOString().slice(0, 10))
+    ) {
+      return fail("INVALID_MEASUREMENT", "Progress measurement is invalid", 422)
+    }
+
     const entry = {
       id: Math.max(...progressEntries.map((item) => item.id)) + 1,
-      memberId: Number(params.id),
+      memberId,
       measuredAt: body.measuredAt ?? new Date().toISOString().slice(0, 10),
-      weightKg: body.weightKg ?? 0,
+      weightKg,
       ...(body.bodyFatPct === undefined ? {} : { bodyFatPct: body.bodyFatPct }),
     }
     progressEntries.push(entry)
 
     return created(entry)
   }),
-  http.get("/api/members/:id/progress", ({ params, request }) => {
-    const role = requireRole(request, ["member", "pt", "admin"])
-    if (typeof role !== "string") return role
-
-    return ok(progressEntries.filter((item) => item.memberId === Number(params.id)))
-  }),
-  http.get("/api/members/:id/profile-360", ({ params, request }) => {
+  http.get("/api/v1/members/:id/progress", ({ params, request }) => {
     const role = requireRole(request, ["member", "pt", "admin"])
     if (typeof role !== "string") return role
 
     const memberId = Number(params.id)
 
-    return ok({
-      memberId,
-      membership: memberships.find((item) => item.memberId === memberId) ?? null,
-      checkins: checkins.filter((item) => item.memberId === memberId),
-      progress: progressEntries.filter((item) => item.memberId === memberId),
-      workoutPlans: workoutPlans.filter((item) => item.memberId === memberId),
-      mealLogs: mealLogs.filter((item) => item.memberId === memberId),
-    })
+    if (role === "pt" && !isAssignedToPt(memberId)) {
+      return fail("FORBIDDEN", "PT can only view assigned members", 403)
+    }
+
+    return ok(progressEntries.filter((item) => item.memberId === memberId))
   }),
 ]

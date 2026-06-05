@@ -21,7 +21,7 @@ function authHeaders(accessToken: string) {
 
 export function getManagedMembers(accessToken: string, query = "", page = 1) {
   return apiRequest<PagedResult<ManagedMember>>(
-    `/api/members?query=${encodeURIComponent(query)}&page=${page}`,
+    `/api/v1/members?query=${encodeURIComponent(query)}&page=${page}`,
     {
       headers: authHeaders(accessToken),
     },
@@ -32,7 +32,7 @@ export function createManagedMember(
   accessToken: string,
   input: CreateMemberInput,
 ) {
-  return apiRequest<ManagedMember>("/api/members", {
+  return apiRequest<ManagedMember>("/api/v1/members", {
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify(input),
@@ -44,7 +44,7 @@ export function updateManagedMember(
   memberId: number,
   input: UpdateMemberInput,
 ) {
-  return apiRequest<ManagedMember>(`/api/members/${memberId}`, {
+  return apiRequest<ManagedMember>(`/api/v1/members/${memberId}`, {
     method: "PUT",
     headers: authHeaders(accessToken),
     body: JSON.stringify(input),
@@ -52,7 +52,7 @@ export function updateManagedMember(
 }
 
 export function deleteManagedMember(accessToken: string, memberId: number) {
-  return apiRequest<void>(`/api/members/${memberId}`, {
+  return apiRequest<void>(`/api/v1/members/${memberId}`, {
     method: "DELETE",
     headers: authHeaders(accessToken),
   })
@@ -129,7 +129,7 @@ export function deleteManagedUser(accessToken: string, userId: number) {
 
 export function getManagedTrainers(accessToken: string, query = "", page = 1) {
   return apiRequest<PagedResult<ManagedTrainer>>(
-    `/api/trainers?query=${encodeURIComponent(query)}&page=${page}`,
+    `/api/v1/trainers?query=${encodeURIComponent(query)}&page=${page}`,
     {
       headers: authHeaders(accessToken),
     },
@@ -140,7 +140,7 @@ export function createManagedTrainer(
   accessToken: string,
   input: CreateTrainerInput,
 ) {
-  return apiRequest<ManagedTrainer>("/api/trainers", {
+  return apiRequest<ManagedTrainer>("/api/v1/trainers", {
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify(input),

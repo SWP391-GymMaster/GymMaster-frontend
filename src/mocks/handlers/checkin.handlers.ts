@@ -1,11 +1,11 @@
 import { http } from "msw"
 
-import { checkins, members } from "@/mocks/data/gymmaster.mock-data"
+import { checkins, members, memberships } from "@/mocks/data/gymmaster.mock-data"
 import { created, fail, ok, requireRole } from "@/mocks/utils/api-response"
 import { addNotification } from "@/mocks/handlers/notifications.handlers"
 
 export const checkinHandlers = [
-  http.post("/api/checkins", async ({ request }) => {
+  http.post("/api/v1/checkins", async ({ request }) => {
     const role = requireRole(request, ["staff", "member"])
     if (typeof role !== "string") return role
 
@@ -21,8 +21,24 @@ export const checkinHandlers = [
       return fail("NOT_FOUND", "Member not found", 404)
     }
 
-    if (member.status !== "active") {
-      return fail("MEMBERSHIP_INACTIVE", "Membership is not active", 422)
+    const currentMembership = memberships.find(
+      (item) => item.memberId === member.id && item.status !== "expired",
+    )
+
+    if (currentMembership?.status === "pending_payment") {
+      return fail(
+        "PAYMENT_PENDING",
+        "Membership payment is still pending",
+        422,
+      )
+    }
+
+    if (currentMembership?.status !== "active" || member.status !== "active") {
+      return fail(
+        "NO_ACTIVE_MEMBERSHIP",
+        "Member does not have an active membership",
+        422,
+      )
     }
 
     const checkin = {
@@ -60,13 +76,13 @@ export const checkinHandlers = [
 
     return created(checkin)
   }),
-  http.get("/api/checkins", ({ request }) => {
+  http.get("/api/v1/checkins", ({ request }) => {
     const role = requireRole(request, ["admin", "staff"])
     if (typeof role !== "string") return role
 
     return ok(checkins)
   }),
-  http.get("/api/members/:id/checkins", ({ params, request }) => {
+  http.get("/api/v1/members/:id/checkins", ({ params, request }) => {
     const role = requireRole(request, ["admin", "staff", "pt", "member"])
     if (typeof role !== "string") return role
 

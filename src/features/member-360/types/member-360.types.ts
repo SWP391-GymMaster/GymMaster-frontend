@@ -7,14 +7,14 @@ export type Member360Data = {
     phone: string
     status: "active" | "pending" | "expired" | "locked"
   }
-  currentMembership?: {
-    id: number
-    packageName: string
-    startDate: string
-    endDate: string
-    status: "Active" | "PendingPayment" | "Expired"
-    paymentStatus: "paid" | "pending" | "failed"
-  }
+    currentMembership?: {
+      id: number
+      packageName: string
+      startDate: string
+      endDate: string
+      status: "active" | "pending_payment" | "expired" | "cancelled"
+      paymentStatus: "paid" | "pending" | "refunded"
+    }
   assignedPT?: {
     id: number
     fullName: string

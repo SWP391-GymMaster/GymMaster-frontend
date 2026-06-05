@@ -5,7 +5,7 @@ import {
   members,
   memberships,
 } from "@/mocks/data/gymmaster.mock-data"
-import { getPage, ok, paged, requireRole } from "@/mocks/utils/api-response"
+import { fail, getPage, ok, paged, requireRole } from "@/mocks/utils/api-response"
 
 function generateCheckinsByDay() {
   const today = new Date("2026-06-01")
@@ -24,12 +24,29 @@ function generateCheckinsByDay() {
 }
 
 export const dashboardAuditHandlers = [
-  http.get("/api/dashboard/summary", ({ request }) => {
+  http.get("/api/v1/dashboard/summary", ({ request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
 
+    const url = new URL(request.url)
+    const fromParam = url.searchParams.get("from")
+    const toParam = url.searchParams.get("to")
+
+    if (fromParam && toParam && fromParam > toParam) {
+      return fail("INVALID_RANGE", "Date range is invalid", 422)
+    }
+
+    if (fromParam && fromParam > "2099-01-01") {
+      return ok({
+        revenue: 0,
+        activeCount: 0,
+        expiredCount: 0,
+        checkinsByDay: [],
+      })
+    }
+
     const activeCount = memberships.filter(
-      (item) => item.status === "Active",
+      (item) => item.status === "active",
     ).length
     const expiredCount = members.filter((item) => item.status === "expired").length
 
@@ -40,7 +57,7 @@ export const dashboardAuditHandlers = [
       checkinsByDay: generateCheckinsByDay(),
     })
   }),
-  http.get("/api/audit-logs", ({ request }) => {
+  http.get("/api/v1/audit-logs", ({ request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
 
@@ -52,6 +69,10 @@ export const dashboardAuditHandlers = [
     const searchParam = url.searchParams.get("search")?.toLowerCase()
 
     let filtered = [...auditLogs]
+
+    if (fromParam && toParam && fromParam > toParam) {
+      return fail("INVALID_RANGE", "Date range is invalid", 422)
+    }
 
     if (userIdParam) {
       const uid = Number(userIdParam)

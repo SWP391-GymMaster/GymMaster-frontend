@@ -28,9 +28,11 @@ test("Staff dashboard shows route-aware shell metrics", async ({ page }) => {
 })
 
 test("Staff searches and opens member detail", async ({ page }) => {
+  test.slow()
   await loginAsStaff(page)
 
   await page.goto("/staff/members")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
   await page.getByTestId("management-search-input").fill("0900000101")
   await expect(page.getByText("Nguyen Minh Anh").first()).toBeVisible()
 
@@ -48,6 +50,7 @@ test("Staff creates package sale and records payment", async ({ page }) => {
   await loginAsStaff(page)
 
   await page.goto("/staff/sell-package")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
   await page.getByTestId("staff-sell-member-search").fill("member@gymmaster.local")
   await page.getByRole("button", { name: "Tìm" }).click()
   await page.getByText("Nguyen Minh Anh").click()
@@ -67,6 +70,7 @@ test("Staff renews membership and records payment", async ({ page }) => {
   await loginAsStaff(page)
 
   await page.goto("/staff/renew-package")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
   await page.getByTestId("staff-renew-member-search").fill("member@gymmaster.local")
   await page.getByRole("button", { name: "Tìm" }).click()
   await page.getByText("Nguyen Minh Anh").click()
@@ -90,6 +94,7 @@ test("Staff confirms active member check-in", async ({ page }) => {
   await loginAsStaff(page)
 
   await page.goto("/staff/check-in")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
   await page.getByTestId("staff-checkin-search").fill("GM-101")
   await page.getByRole("button", { name: "Tìm" }).click()
   await page.locator("section").filter({ hasText: "Kết quả tra cứu" }).getByText("Nguyen Minh Anh").click()
@@ -104,6 +109,7 @@ test("Staff sees safe check-in denial for inactive member", async ({ page }) => 
   await loginAsStaff(page)
 
   await page.goto("/staff/check-in")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
   await page.getByTestId("staff-checkin-search").fill("GM-103")
   await page.getByRole("button", { name: "Tìm" }).click()
   await page.locator("section").filter({ hasText: "Kết quả tra cứu" }).getByText("Le Hoang My").click()
@@ -115,11 +121,13 @@ test("Staff sees safe check-in denial for inactive member", async ({ page }) => 
 })
 
 test("Member cannot render Staff operational routes", async ({ page }) => {
+  test.slow()
   await openLogin(page)
   await submitLogin(page, "member@gymmaster.local")
   await expect(page).toHaveURL(/\/member\/dashboard$/)
 
   await page.goto("/staff/members")
+  await page.waitForFunction(() => window.__GYMMASTER_MSW_READY__ === true)
   await expect(page.getByText("Bạn không có quyền truy cập khu vực này.")).toBeVisible()
   await expect(page.getByTestId("staff-member-search-input")).toHaveCount(0)
 })

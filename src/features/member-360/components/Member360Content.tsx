@@ -377,11 +377,11 @@ function MemberAttentionCard({
 }: {
   endDate?: string
   isLoading?: boolean
-  membershipStatus?: "Active" | "PendingPayment" | "Expired"
+  membershipStatus?: "active" | "pending_payment" | "expired" | "cancelled"
 }) {
   if (isLoading) return null
 
-  const isExpired = membershipStatus === "Expired"
+  const isExpired = membershipStatus === "expired"
 
   return (
     <section className="rounded-2xl border border-orange-200 bg-orange-50 p-5 shadow-sm">

@@ -14,6 +14,9 @@ const authErrorMessages: Record<string, string> = {
   PHONE_EXISTS: "Số điện thoại này đã được đăng ký.",
   INVALID_RESET_TOKEN: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
   INVALID_CURRENT_PASSWORD: "Mật khẩu hiện tại không đúng.",
+  GOOGLE_NOT_CONFIGURED:
+    "Đăng nhập Google chưa được cấu hình cho môi trường này.",
+  INVALID_GOOGLE_TOKEN: "Phiên đăng nhập Google không hợp lệ. Vui lòng thử lại.",
   NETWORK_ERROR: "Không thể kết nối dịch vụ GymMaster. Vui lòng thử lại.",
 }
 

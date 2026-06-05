@@ -11,7 +11,7 @@ export function getMember360Data(
   accessToken: string,
   memberId: number,
 ): Promise<Member360Data> {
-  return apiRequest<Member360Data>(`/api/members/${memberId}/360`, {
+  return apiRequest<Member360Data>(`/api/v1/members/${memberId}/profile-360`, {
     headers: authHeaders(accessToken),
   })
 }

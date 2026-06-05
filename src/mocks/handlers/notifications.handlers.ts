@@ -124,7 +124,7 @@ export function addNotification(notification: Omit<Notification, "id" | "created
 
 export const notificationsHandlers = [
   // Get notifications by role
-  http.get("/api/notifications", ({ request }) => {
+  http.get("/api/v1/notifications", ({ request }) => {
     const authRole = requireAuth(request)
     if (typeof authRole !== "string") return authRole
 
@@ -138,7 +138,7 @@ export const notificationsHandlers = [
   }),
 
   // Mark single as read
-  http.post("/api/notifications/:id/read", ({ params, request }) => {
+  http.post("/api/v1/notifications/:id/read", ({ params, request }) => {
     const authRole = requireAuth(request)
     if (typeof authRole !== "string") return authRole
 
@@ -156,7 +156,7 @@ export const notificationsHandlers = [
   }),
 
   // Mark all as read for role
-  http.post("/api/notifications/read-all", ({ request }) => {
+  http.post("/api/v1/notifications/read-all", ({ request }) => {
     const authRole = requireAuth(request)
     if (typeof authRole !== "string") return authRole
 
@@ -179,7 +179,7 @@ export const notificationsHandlers = [
   }),
 
   // Delete notification
-  http.delete("/api/notifications/:id", ({ params, request }) => {
+  http.delete("/api/v1/notifications/:id", ({ params, request }) => {
     const authRole = requireAuth(request)
     if (typeof authRole !== "string") return authRole
 

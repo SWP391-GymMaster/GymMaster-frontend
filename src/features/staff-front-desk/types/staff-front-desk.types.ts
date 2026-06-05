@@ -11,7 +11,7 @@ export type StaffMembershipStatus =
 export type PaymentStatus =
   | "paid"
   | "pending"
-  | "failed"
+  | "refunded"
   | "cancelled"
   | "unknown"
 
@@ -74,20 +74,20 @@ export type SellPackageDraft = {
   memberId: number
   packageId: number
   startDate: string
-  paymentMethod: "cash" | "transfer" | "card" | "other"
+  paymentMethod: "cash" | "transfer" | "card"
 }
 
 export type RenewPackageDraft = {
   membershipId: number
   packageId: number
   startDate: string
-  paymentMethod: "cash" | "transfer" | "card" | "other"
+  paymentMethod: "cash" | "transfer" | "card"
 }
 
 export type ManualPaymentDraft = {
   membershipId: number
   amount: number
-  paymentMethod: "cash" | "transfer" | "card" | "other"
+  paymentMethod: "cash" | "transfer" | "card"
   paidAt: string
 }
 

@@ -27,9 +27,11 @@ export const speechAnnouncer = {
     }
   },
 
-  speakGreeting: (memberName: string, status: "active" | "expired" | "locked") => {
+  speakGreeting: (memberName: string, status: "active" | "expired" | "locked" | "pending") => {
     if (status === "active") {
       speechAnnouncer.announce(`Xin chào ${memberName}, chúc bạn tập luyện vui vẻ!`);
+    } else if (status === "pending") {
+      speechAnnouncer.announce(`Cảnh báo, gói của hội viên ${memberName} đang chờ thanh toán!`);
     } else if (status === "expired") {
       speechAnnouncer.announce(`Cảnh báo, thẻ của hội viên ${memberName} đã hết hạn!`);
     } else {

@@ -15,7 +15,7 @@ export async function getMemberProgress(
   memberId: number,
 ) {
   return apiRequest<MockProgressEntry[]>(
-    `/api/members/${memberId}/progress`,
+    `/api/v1/members/${memberId}/progress`,
     {
       headers: authHeaders(accessToken),
     },
@@ -28,7 +28,7 @@ export async function createProgressEntry(
   input: CreateProgressEntryInput,
 ) {
   return apiRequest<MockProgressEntry>(
-    `/api/members/${memberId}/progress`,
+    `/api/v1/members/${memberId}/progress`,
     {
       method: "POST",
       headers: {

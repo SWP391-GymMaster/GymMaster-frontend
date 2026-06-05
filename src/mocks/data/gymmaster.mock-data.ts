@@ -31,7 +31,7 @@ export type MockPackage = {
   name: string
   durationDays: number
   price: number
-  status: "active" | "locked"
+  status: "active" | "inactive"
 }
 
 export type MockMembership = {
@@ -40,7 +40,7 @@ export type MockMembership = {
   packageId: number
   startDate: string
   endDate: string
-  status: "PendingPayment" | "Active" | "Expired"
+  status: "pending_payment" | "active" | "expired" | "cancelled"
 }
 
 export type MockPayment = {
@@ -50,9 +50,9 @@ export type MockPayment = {
   memberName: string
   packageName: string
   amount: number
-  paymentMethod: string
+  paymentMethod: "cash" | "transfer" | "card"
   paymentDate: string
-  status: "paid" | "pending" | "failed"
+  status: "paid" | "pending" | "refunded"
 }
 
 export type MockTrainer = {
@@ -67,7 +67,7 @@ export type MockTrainerAssignment = {
   id: number
   memberId: number
   trainerId: number
-  status: "active" | "ended"
+  status: "active" | "inactive"
   assignedAt: string
   endedAt?: string
   auditLogId?: number
@@ -190,7 +190,7 @@ export const memberships: MockMembership[] = [
     packageId: 1,
     startDate: "2026-06-01",
     endDate: "2026-06-30",
-    status: "Active",
+    status: "active",
   },
   {
     id: 202,
@@ -198,7 +198,7 @@ export const memberships: MockMembership[] = [
     packageId: 2,
     startDate: "2026-06-01",
     endDate: "2026-08-29",
-    status: "PendingPayment",
+    status: "pending_payment",
   },
 ]
 
@@ -210,7 +210,7 @@ export const payments: MockPayment[] = [
     memberName: "Nguyen Minh Anh",
     packageName: "Premium 30",
     amount: 900000,
-    paymentMethod: "Tiền mặt",
+    paymentMethod: "cash",
     paymentDate: "2026-06-01T09:30:00.000Z",
     status: "paid",
   },
@@ -221,7 +221,7 @@ export const payments: MockPayment[] = [
     memberName: "Tran Bao Long",
     packageName: "Strength 90",
     amount: 2400000,
-    paymentMethod: "Chuyển khoản",
+    paymentMethod: "transfer",
     paymentDate: "2026-06-01T08:45:00.000Z",
     status: "pending",
   },

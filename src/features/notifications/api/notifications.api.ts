@@ -9,7 +9,7 @@ function authHeaders(accessToken: string) {
 
 export async function getNotifications(accessToken: string, role: string) {
   return apiRequest<Notification[]>(
-    `/api/notifications?role=${encodeURIComponent(role)}`,
+    `/api/v1/notifications?role=${encodeURIComponent(role)}`,
     {
       headers: authHeaders(accessToken),
     },
@@ -18,7 +18,7 @@ export async function getNotifications(accessToken: string, role: string) {
 
 export async function markNotificationRead(accessToken: string, id: string) {
   return apiRequest<Notification>(
-    `/api/notifications/${encodeURIComponent(id)}/read`,
+    `/api/v1/notifications/${encodeURIComponent(id)}/read`,
     {
       method: "POST",
       headers: authHeaders(accessToken),
@@ -28,7 +28,7 @@ export async function markNotificationRead(accessToken: string, id: string) {
 
 export async function markAllNotificationsRead(accessToken: string, role: string) {
   return apiRequest<{ count: number }>(
-    `/api/notifications/read-all?role=${encodeURIComponent(role)}`,
+    `/api/v1/notifications/read-all?role=${encodeURIComponent(role)}`,
     {
       method: "POST",
       headers: authHeaders(accessToken),
@@ -38,7 +38,7 @@ export async function markAllNotificationsRead(accessToken: string, role: string
 
 export async function deleteNotification(accessToken: string, id: string) {
   return apiRequest<{ success: boolean }>(
-    `/api/notifications/${encodeURIComponent(id)}`,
+    `/api/v1/notifications/${encodeURIComponent(id)}`,
     {
       method: "DELETE",
       headers: authHeaders(accessToken),

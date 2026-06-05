@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import { LoginForm } from "@/features/auth/components/LoginForm"
+import { GoogleLoginButton } from "@/features/auth/components/GoogleLoginButton"
 import {
   resetAuthSessionForTest,
   useAuthSessionStore,
@@ -67,6 +68,41 @@ describe("LoginForm", () => {
     expect(navigation.push).not.toHaveBeenCalled()
   })
 
+  it("shows locked account and rate-limit backend errors", async () => {
+    const { rerender } = render(<LoginForm />)
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "locked@gymmaster.local" },
+    })
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
+      target: { value: "Password123!" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: /đăng nhập/i }))
+
+    expect(
+      await screen.findByText(
+        "Tài khoản này đã bị khóa. Vui lòng liên hệ nhân viên phòng gym.",
+      ),
+    ).toBeInTheDocument()
+
+    rerender(<LoginForm />)
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "too-many@gymmaster.local" },
+    })
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
+      target: { value: "Password123!" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: /đăng nhập/i }))
+
+    expect(
+      await screen.findByText(
+        "Bạn thử quá nhiều lần. Vui lòng chờ trước khi thử lại.",
+      ),
+    ).toBeInTheDocument()
+    expect(navigation.push).not.toHaveBeenCalled()
+  })
+
   it("shows missing role error without role picker fallback", async () => {
     render(<LoginForm />)
 
@@ -98,5 +134,32 @@ describe("LoginForm", () => {
 
     expect(useAuthSessionStore.getState().session?.role).toBe("member")
     expect(screen.queryByText("Quản trị")).not.toBeInTheDocument()
+  })
+
+  it("surfaces Google config and token backend errors", async () => {
+    const onError = vi.fn()
+    const { rerender } = render(
+      <GoogleLoginButton idToken="google-not-configured" onError={onError} />,
+    )
+
+    fireEvent.click(screen.getByTestId("google-login-button"))
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(
+        "Đăng nhập Google chưa được cấu hình cho môi trường này.",
+      )
+    })
+
+    rerender(
+      <GoogleLoginButton idToken="invalid-google-token" onError={onError} />,
+    )
+    fireEvent.click(screen.getByTestId("google-login-button"))
+
+    await waitFor(() => {
+      expect(onError).toHaveBeenCalledWith(
+        "Phiên đăng nhập Google không hợp lệ. Vui lòng thử lại.",
+      )
+    })
+    expect(navigation.push).not.toHaveBeenCalled()
   })
 })

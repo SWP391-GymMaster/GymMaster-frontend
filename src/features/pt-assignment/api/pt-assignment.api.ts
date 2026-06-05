@@ -33,7 +33,7 @@ export function getAssignmentCandidateMembers(
   includeAssigned = true,
 ) {
   return apiRequest<AssignmentCandidateResponse<AssignmentCandidateMember>>(
-    withSearchParams("/api/assignments/candidates/members", {
+    withSearchParams("/api/v1/assignments/candidates/members", {
       includeAssigned,
       query,
     }),
@@ -49,7 +49,7 @@ export function getAssignmentCandidateTrainers(
   specialty?: string,
 ) {
   return apiRequest<AssignmentCandidateResponse<AssignmentCandidateTrainer>>(
-    withSearchParams("/api/assignments/candidates/trainers", {
+    withSearchParams("/api/v1/assignments/candidates/trainers", {
       query,
       specialty,
     }),
@@ -60,7 +60,7 @@ export function getAssignmentCandidateTrainers(
 }
 
 export function assignTrainer(accessToken: string, input: AssignTrainerInput) {
-  return apiRequest<AssignTrainerResult>("/api/assignments", {
+  return apiRequest<AssignTrainerResult>("/api/v1/assignments", {
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify(input),

@@ -21,7 +21,7 @@ import type { GymPackage } from "@/features/billing/types/billing.types";
 export function PackageListWorkspace() {
   const { data: packages, isLoading, error } = usePackages();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "locked">(
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">(
     "all",
   );
 
@@ -81,7 +81,7 @@ export function PackageListWorkspace() {
               id="package-status-filter"
               value={statusFilter}
               onChange={(e) =>
-                setStatusFilter(e.target.value as "all" | "active" | "locked")
+                setStatusFilter(e.target.value as "all" | "active" | "inactive")
               }
               className="sr-only"
               tabIndex={-1}
@@ -90,12 +90,12 @@ export function PackageListWorkspace() {
             >
               <option value="all">Tất cả trạng thái</option>
               <option value="active">Hoạt động (Active)</option>
-              <option value="locked">Khóa (Locked)</option>
+              <option value="inactive">Tạm dừng (Inactive)</option>
             </select>
 
             <Select
               value={statusFilter}
-              onValueChange={(val: string) => setStatusFilter(val as "all" | "active" | "locked")}
+              onValueChange={(val: string) => setStatusFilter(val as "all" | "active" | "inactive")}
             >
               <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
                 <SelectValue placeholder="Tất cả trạng thái" />
@@ -103,7 +103,7 @@ export function PackageListWorkspace() {
               <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
                 <SelectItem value="all" className="focus:bg-white/5 focus:text-white">Tất cả trạng thái</SelectItem>
                 <SelectItem value="active" className="focus:bg-white/5 focus:text-white">Hoạt động (Active)</SelectItem>
-                <SelectItem value="locked" className="focus:bg-white/5 focus:text-white">Khóa (Locked)</SelectItem>
+                <SelectItem value="inactive" className="focus:bg-white/5 focus:text-white">Tạm dừng (Inactive)</SelectItem>
               </SelectContent>
             </Select>
           </div>

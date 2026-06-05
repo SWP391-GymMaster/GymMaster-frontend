@@ -70,6 +70,31 @@ describe("auth account forms", () => {
     expect(navigation.push).not.toHaveBeenCalled()
   })
 
+  it("shows duplicate phone error on signup", async () => {
+    render(<SignupForm />)
+
+    fireEvent.change(screen.getByLabelText("Họ tên"), {
+      target: { value: "Existing Phone" },
+    })
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "new-phone@gymmaster.local" },
+    })
+    fireEvent.change(screen.getByLabelText(/Số điện thoại/), {
+      target: { value: "0900000000" },
+    })
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
+      target: { value: "Password123!" },
+    })
+    fireEvent.click(
+      screen.getByRole("button", { name: /tạo tài khoản hội viên/i }),
+    )
+
+    expect(
+      await screen.findByText("Số điện thoại này đã được đăng ký."),
+    ).toBeInTheDocument()
+    expect(navigation.push).not.toHaveBeenCalled()
+  })
+
   it("creates a forgot password reset request", async () => {
     render(<ForgotPasswordForm />)
 
@@ -96,6 +121,21 @@ describe("auth account forms", () => {
 
     expect(
       await screen.findByText("Đã đặt lại mật khẩu. Bạn có thể đăng nhập ngay."),
+    ).toBeInTheDocument()
+  })
+
+  it("shows invalid reset token errors", async () => {
+    render(<ResetPasswordForm resetToken="expired-reset-token" />)
+
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
+      target: { value: "NewPassword123!" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: /đặt lại mật khẩu/i }))
+
+    expect(
+      await screen.findByText(
+        "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.",
+      ),
     ).toBeInTheDocument()
   })
 
@@ -126,6 +166,50 @@ describe("auth account forms", () => {
 
     expect(
       await screen.findByText("Mật khẩu hiện tại không đúng."),
+    ).toBeInTheDocument()
+  })
+
+  it("changes password with a valid authenticated session", async () => {
+    useAuthSessionStore.getState().setSession({
+      accessToken: "access-member",
+      refreshToken: "refresh-member",
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      role: "member",
+      user: {
+        email: "member@gymmaster.local",
+        fullName: "Gym Member",
+        role: "member",
+        status: "active",
+        userId: 4,
+      },
+    })
+
+    render(<ChangePasswordForm />)
+
+    fireEvent.change(screen.getByLabelText("Mật khẩu hiện tại"), {
+      target: { value: "Password123!" },
+    })
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
+      target: { value: "NewPassword123!" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
+
+    expect(await screen.findByText("Đã đổi mật khẩu.")).toBeInTheDocument()
+  })
+
+  it("requires an active session before changing password", async () => {
+    render(<ChangePasswordForm />)
+
+    fireEvent.change(screen.getByLabelText("Mật khẩu hiện tại"), {
+      target: { value: "Password123!" },
+    })
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
+      target: { value: "NewPassword123!" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
+
+    expect(
+      await screen.findByText("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."),
     ).toBeInTheDocument()
   })
 })

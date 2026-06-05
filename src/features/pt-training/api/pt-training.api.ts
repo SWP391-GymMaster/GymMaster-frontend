@@ -13,9 +13,12 @@ function authHeaders(accessToken: string) {
 }
 
 export function getMemberWorkoutPlans(accessToken: string, memberId: number) {
-  return apiRequest<WorkoutPlan[]>(`/api/members/${memberId}/workout-plans`, {
-    headers: authHeaders(accessToken),
-  })
+  return apiRequest<WorkoutPlan[]>(
+    `/api/v1/members/${memberId}/workout-plans`,
+    {
+      headers: authHeaders(accessToken),
+    },
+  )
 }
 
 export function createMemberWorkoutPlan(
@@ -23,15 +26,18 @@ export function createMemberWorkoutPlan(
   memberId: number,
   draft: WorkoutPlanDraft,
 ) {
-  return apiRequest<WorkoutPlan>(`/api/members/${memberId}/workout-plans`, {
-    method: "POST",
-    headers: authHeaders(accessToken),
-    body: JSON.stringify(draft),
-  })
+  return apiRequest<WorkoutPlan>(
+    `/api/v1/members/${memberId}/workout-plans`,
+    {
+      method: "POST",
+      headers: authHeaders(accessToken),
+      body: JSON.stringify(draft),
+    },
+  )
 }
 
 export function getMemberTrainerNotes(accessToken: string, memberId: number) {
-  return apiRequest<TrainerNote[]>(`/api/members/${memberId}/notes`, {
+  return apiRequest<TrainerNote[]>(`/api/v1/members/${memberId}/notes`, {
     headers: authHeaders(accessToken),
   })
 }
@@ -41,7 +47,7 @@ export function createMemberTrainerNote(
   memberId: number,
   draft: TrainerNoteDraft,
 ) {
-  return apiRequest<TrainerNote>(`/api/members/${memberId}/notes`, {
+  return apiRequest<TrainerNote>(`/api/v1/members/${memberId}/notes`, {
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify(draft),

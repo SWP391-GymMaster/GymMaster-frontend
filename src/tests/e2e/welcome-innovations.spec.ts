@@ -100,12 +100,15 @@ test("BMI Calculator computes values when sliders are moved", async ({ page }) =
     timeout: 5_000,
   })
 
+  const dialog = page.getByRole("dialog")
+  await dialog.getByRole("button", { name: "Xem kết quả" }).click()
+
   // The SVG gauge and BMI score should render
-  const svg = page.locator("svg").first()
+  const svg = dialog.locator("svg").first()
   await expect(svg).toBeVisible()
 
   // BMI result value should be a number
-  const bmiValueText = await page.locator("span.text-3xl").first().textContent()
+  const bmiValueText = await dialog.locator("span.text-3xl").first().textContent()
   const bmiVal = parseFloat(bmiValueText ?? "0")
   expect(bmiVal).toBeGreaterThan(0)
 

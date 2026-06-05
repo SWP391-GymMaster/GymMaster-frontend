@@ -1,7 +1,13 @@
 import { http, HttpResponse } from "msw"
 
 import type { ApiResponse, AuthUser, LoginSuccess, UserRole } from "@/types/auth"
-import { created, fail, ok } from "@/mocks/utils/api-response"
+import {
+  created,
+  fail,
+  getRoleFromRequest,
+  noContent,
+  ok,
+} from "@/mocks/utils/api-response"
 
 const demoUsers: Record<UserRole, AuthUser> = {
   admin: {
@@ -34,14 +40,50 @@ const demoUsers: Record<UserRole, AuthUser> = {
   },
 }
 
-function loginSuccess(role: UserRole): ApiResponse<LoginSuccess> {
+const userRoles = ["admin", "staff", "pt", "member"] as const
+
+let refreshTokenSequence = 1
+let validRefreshTokens = new Map<string, UserRole>()
+
+export function resetAuthMockState() {
+  refreshTokenSequence = 1
+  validRefreshTokens = new Map(
+    userRoles.map((role) => [`refresh-${role}`, role]),
+  )
+}
+
+resetAuthMockState()
+
+function nextRefreshToken(role: UserRole) {
+  const token = `refresh-${role}-${refreshTokenSequence}`
+
+  refreshTokenSequence += 1
+  validRefreshTokens.set(token, role)
+
+  return token
+}
+
+function revokeRoleRefreshTokens(role: UserRole) {
+  for (const [token, tokenRole] of validRefreshTokens.entries()) {
+    if (tokenRole === role) {
+      validRefreshTokens.delete(token)
+    }
+  }
+}
+
+function loginSuccess(
+  role: UserRole,
+  refreshToken = `refresh-${role}`,
+): ApiResponse<LoginSuccess> {
+  validRefreshTokens.set(refreshToken, role)
+
   return {
     success: true,
     error: null,
     meta: null,
     data: {
       accessToken: `access-${role}`,
-      refreshToken: `refresh-${role}`,
+      refreshToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       user: demoUsers[role],
       role,
@@ -57,6 +99,10 @@ export const authHandlers = [
 
     if (email === "locked@gymmaster.local") {
       return fail("ACCOUNT_LOCKED", "Account is locked", 423)
+    }
+
+    if (email === "too-many@gymmaster.local") {
+      return fail("TOO_MANY_ATTEMPTS", "Too many login attempts", 429)
     }
 
     if (email === "missing-role@gymmaster.local") {
@@ -77,7 +123,7 @@ export const authHandlers = [
       })
     }
 
-    const role = (["admin", "staff", "pt", "member"] as const).find((item) =>
+    const role = userRoles.find((item) =>
       email.startsWith(`${item}@`),
     )
 
@@ -105,13 +151,16 @@ export const authHandlers = [
   }),
   http.post("/api/v1/auth/refresh", async ({ request }) => {
     const body = (await request.json()) as { refreshToken?: string }
-    const role = body.refreshToken?.replace("refresh-", "") as UserRole
+    const refreshToken = body.refreshToken ?? ""
+    const role = validRefreshTokens.get(refreshToken)
 
-    if (!demoUsers[role]) {
+    if (!role) {
       return fail("INVALID_REFRESH_TOKEN", "Invalid refresh token", 401)
     }
 
-    return HttpResponse.json(loginSuccess(role))
+    validRefreshTokens.delete(refreshToken)
+
+    return HttpResponse.json(loginSuccess(role, nextRefreshToken(role)))
   }),
   http.post("/api/v1/auth/register", async ({ request }) => {
     const body = (await request.json()) as {
@@ -164,6 +213,12 @@ export const authHandlers = [
     })
   }),
   http.post("/api/v1/auth/change-password", async ({ request }) => {
+    const role = getRoleFromRequest(request)
+
+    if (!role) {
+      return fail("UNAUTHORIZED", "Unauthorized", 401)
+    }
+
     const body = (await request.json()) as { currentPassword?: string }
 
     if (body.currentPassword !== "Password123!") {
@@ -175,9 +230,25 @@ export const authHandlers = [
     })
   }),
   http.post("/api/v1/auth/google", async ({ request }) => {
-    await request.json()
+    const body = (await request.json()) as { idToken?: string }
+
+    if (body.idToken === "google-not-configured") {
+      return fail("GOOGLE_NOT_CONFIGURED", "Google login is not configured", 500)
+    }
+
+    if (body.idToken === "invalid-google-token") {
+      return fail("INVALID_GOOGLE_TOKEN", "Invalid Google token", 400)
+    }
 
     return HttpResponse.json(loginSuccess("member"))
   }),
-  http.post("/api/v1/auth/logout", () => new HttpResponse(null, { status: 204 })),
+  http.post("/api/v1/auth/logout", ({ request }) => {
+    const role = getRoleFromRequest(request)
+
+    if (role) {
+      revokeRoleRefreshTokens(role)
+    }
+
+    return noContent()
+  }),
 ]

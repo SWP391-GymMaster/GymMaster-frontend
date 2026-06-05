@@ -12,7 +12,7 @@ import {
 } from "@/mocks/utils/api-response"
 
 export const memberHandlers = [
-  http.get("/api/members", ({ request }) => {
+  http.get("/api/v1/members", ({ request }) => {
     const role = requireRole(request, ["admin", "staff"])
     if (typeof role !== "string") return role
 
@@ -28,7 +28,7 @@ export const memberHandlers = [
 
     return paged(filtered, getPage(request.url))
   }),
-  http.post("/api/members", async ({ request }) => {
+  http.post("/api/v1/members", async ({ request }) => {
     const role = requireRole(request, ["admin", "staff"])
     if (typeof role !== "string") return role
 
@@ -59,7 +59,7 @@ export const memberHandlers = [
 
     return created(member)
   }),
-  http.get("/api/members/:id", ({ params, request }) => {
+  http.get("/api/v1/members/:id", ({ params, request }) => {
     const role = requireRole(request, ["admin", "staff", "pt", "member"])
     if (typeof role !== "string") return role
 
@@ -77,7 +77,7 @@ export const memberHandlers = [
 
     return ok(member)
   }),
-  http.put("/api/members/:id", async ({ params, request }) => {
+  http.put("/api/v1/members/:id", async ({ params, request }) => {
     const role = requireRole(request, ["admin", "staff"])
     if (typeof role !== "string") return role
 
@@ -106,7 +106,7 @@ export const memberHandlers = [
 
     return ok(members[index])
   }),
-  http.delete("/api/members/:id", ({ params, request }) => {
+  http.delete("/api/v1/members/:id", ({ params, request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
 
@@ -276,7 +276,7 @@ export const memberHandlers = [
 
     return noContent()
   }),
-  http.get("/api/trainers", ({ request }) => {
+  http.get("/api/v1/trainers", ({ request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
 
@@ -290,7 +290,7 @@ export const memberHandlers = [
 
     return paged(filtered, getPage(request.url))
   }),
-  http.post("/api/trainers", async ({ request }) => {
+  http.post("/api/v1/trainers", async ({ request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
 

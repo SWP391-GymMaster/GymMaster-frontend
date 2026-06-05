@@ -8,7 +8,7 @@ function authHeaders(accessToken: string) {
 export function getPtAssignedMembers(
   accessToken: string,
 ): Promise<PtAssignedMember[]> {
-  return apiRequest<PtAssignedMember[]>("/api/pt/members", {
+  return apiRequest<PtAssignedMember[]>("/api/v1/pt/members", {
     headers: authHeaders(accessToken),
   })
 }

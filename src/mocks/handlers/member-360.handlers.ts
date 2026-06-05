@@ -7,74 +7,91 @@ import {
   assignments,
   checkins,
 } from "@/mocks/data/gymmaster.mock-data"
-import { ok, requireRole } from "@/mocks/utils/api-response"
+import { fail, ok, requireRole } from "@/mocks/utils/api-response"
+
+function buildMember360Response(memberId: number) {
+  const member = members.find((item) => item.id === memberId && !item.isDeleted)
+
+  if (!member) {
+    return null
+  }
+
+  const currentMembership = memberships.find(
+    (item) => item.memberId === memberId && item.status !== "expired",
+  )
+  const activeAssignment = assignments.find(
+    (item) => item.memberId === memberId && item.status === "active",
+  )
+  const assignedPT = activeAssignment
+    ? trainers.find((trainer) => trainer.id === activeAssignment.trainerId)
+    : null
+  const memberCheckIns = checkins
+    .filter((item) => item.memberId === memberId)
+    .sort(
+      (a, b) =>
+        new Date(b.checkInAt).getTime() - new Date(a.checkInAt).getTime(),
+    )
+    .slice(0, 5)
+
+  return {
+    member: {
+      id: member.id,
+      memberCode: member.memberCode,
+      fullName: member.fullName,
+      email: member.email,
+      phone: member.phone,
+      status: member.status,
+    },
+    currentMembership: currentMembership
+      ? {
+          id: currentMembership.id,
+          packageName: `Package #${currentMembership.packageId}`,
+          startDate: currentMembership.startDate,
+          endDate: currentMembership.endDate,
+          status: currentMembership.status,
+          paymentStatus:
+            currentMembership.status === "active" ? "paid" : "pending",
+        }
+      : null,
+    assignedPT: assignedPT
+      ? {
+          id: assignedPT.id,
+          fullName: assignedPT.fullName,
+          specialty: assignedPT.specialty,
+          assignedAt: activeAssignment!.assignedAt,
+        }
+      : null,
+    recentCheckIns: memberCheckIns.map((item) => ({
+      id: item.id,
+      checkInAt: item.checkInAt,
+    })),
+  }
+}
 
 export const member360Handlers = [
-  http.get("/api/members/:id/360", ({ params, request }) => {
-    const role = requireRole(request, ["admin", "staff", "pt", "member"])
+  http.get("/api/v1/members/:id/profile-360", ({ params, request }) => {
+    const role = requireRole(request, ["admin", "pt", "member"])
     if (typeof role !== "string") return role
 
     const memberId = Number(params.id)
-    const member = members.find((item) => item.id === memberId)
+    const data = buildMember360Response(memberId)
 
-    if (!member) {
-      return ok(null)
+    if (!data) {
+      return fail("NOT_FOUND", "Member not found", 404)
     }
 
-    // Find current membership
-    const currentMembership = memberships.find(
-      (item) => item.memberId === memberId && item.status !== "Expired",
-    )
+    return ok(data)
+  }),
+  http.get("/api/v1/members/:id/360", ({ params, request }) => {
+    const role = requireRole(request, ["admin", "pt", "member"])
+    if (typeof role !== "string") return role
 
-    // Find active assignment
-    const activeAssignment = assignments.find(
-      (item) => item.memberId === memberId && item.status === "active",
-    )
-    const assignedPT = activeAssignment
-      ? trainers.find((t) => t.id === activeAssignment.trainerId)
-      : null
+    const data = buildMember360Response(Number(params.id))
 
-    // Find recent check-ins
-    const memberCheckIns = checkins
-      .filter((item) => item.memberId === memberId)
-      .sort(
-        (a, b) =>
-          new Date(b.checkInAt).getTime() - new Date(a.checkInAt).getTime(),
-      )
-      .slice(0, 5)
+    if (!data) {
+      return fail("NOT_FOUND", "Member not found", 404)
+    }
 
-    return ok({
-      member: {
-        id: member.id,
-        memberCode: member.memberCode,
-        fullName: member.fullName,
-        email: member.email,
-        phone: member.phone,
-        status: member.status,
-      },
-      currentMembership: currentMembership
-        ? {
-            id: currentMembership.id,
-            packageName: `Package #${currentMembership.packageId}`,
-            startDate: currentMembership.startDate,
-            endDate: currentMembership.endDate,
-            status: currentMembership.status,
-            paymentStatus:
-              currentMembership.status === "Active" ? "paid" : "pending",
-          }
-        : null,
-      assignedPT: assignedPT
-        ? {
-            id: assignedPT.id,
-            fullName: assignedPT.fullName,
-            specialty: assignedPT.specialty,
-            assignedAt: activeAssignment!.assignedAt,
-          }
-        : null,
-      recentCheckIns: memberCheckIns.map((item) => ({
-        id: item.id,
-        checkInAt: item.checkInAt,
-      })),
-    })
+    return ok(data)
   }),
 ]

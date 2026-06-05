@@ -75,7 +75,7 @@ export function MemberWorkoutWorkspace() {
             <TrainingMetric
               icon={CheckCircle2}
               label="Trạng thái"
-              value={latestPlan?.status ?? "Active"}
+              value={latestPlan?.status ?? "active"}
             />
           </section>
 

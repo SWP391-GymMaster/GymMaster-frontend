@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowRight, KeyRound, Lock } from "lucide-react"
+import Link from "next/link"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -110,11 +111,16 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
       ) : null}
 
       {message ? (
-        <div
-          className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground"
-          role="status"
-        >
-          {message}
+        <div className="space-y-3" role="status">
+          <div className="rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-foreground">
+            {message}
+          </div>
+          <Link
+            className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+            href="/login"
+          >
+            Đến trang đăng nhập
+          </Link>
         </div>
       ) : null}
 

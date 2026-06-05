@@ -22,7 +22,7 @@ export function MembershipsRoster() {
   const { data: membersResult, isLoading: isMembersLoading } = useManagedMembers("")
 
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<"all" | "Active" | "PendingPayment" | "Expired">("all")
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "pending_payment" | "expired" | "cancelled">("all")
 
   const members = membersResult?.items ?? []
 
@@ -45,16 +45,15 @@ export function MembershipsRoster() {
     })
   }
 
-  const toStatusPillStatus = (status: "Active" | "PendingPayment" | "Expired") => {
-    if (status === "Active") return "active"
-    if (status === "PendingPayment") return "pending"
-    return "expired"
+  const toStatusPillStatus = (status: "active" | "pending_payment" | "expired" | "cancelled") => {
+    return status
   }
 
-  const getStatusLabel = (status: "Active" | "PendingPayment" | "Expired") => {
-    if (status === "Active") return "Hoạt động"
-    if (status === "PendingPayment") return "Chờ thanh toán"
-    return "Hết hạn"
+  const getStatusLabel = (status: "active" | "pending_payment" | "expired" | "cancelled") => {
+    if (status === "active") return "Hoạt động"
+    if (status === "pending_payment") return "Chờ thanh toán"
+    if (status === "expired") return "Hết hạn"
+    return "Đã hủy"
   }
 
   const filteredMemberships = (memberships ?? []).filter((ms) => {
@@ -100,30 +99,30 @@ export function MembershipsRoster() {
             <select
               id="membership-status-filter"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as "all" | "Active" | "PendingPayment" | "Expired")}
+              onChange={(e) => setStatusFilter(e.target.value as "all" | "active" | "pending_payment" | "expired" | "cancelled")}
               className="sr-only"
               tabIndex={-1}
               aria-hidden="true"
               data-testid="membership-status-filter"
             >
               <option value="all">Tất cả trạng thái</option>
-              <option value="Active">Hoạt động (Active)</option>
-              <option value="PendingPayment">Chờ thanh toán</option>
-              <option value="Expired">Hết hạn</option>
+              <option value="active">Hoạt động (Active)</option>
+              <option value="pending_payment">Chờ thanh toán</option>
+              <option value="expired">Hết hạn</option>
             </select>
 
             <Select
               value={statusFilter}
-              onValueChange={(val: string) => setStatusFilter(val as "all" | "Active" | "PendingPayment" | "Expired")}
+              onValueChange={(val: string) => setStatusFilter(val as "all" | "active" | "pending_payment" | "expired" | "cancelled")}
             >
               <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
                 <SelectValue placeholder="Tất cả trạng thái" />
               </SelectTrigger>
               <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
                 <SelectItem value="all" className="focus:bg-white/5 focus:text-white">Tất cả trạng thái</SelectItem>
-                <SelectItem value="Active" className="focus:bg-white/5 focus:text-white">Hoạt động (Active)</SelectItem>
-                <SelectItem value="PendingPayment" className="focus:bg-white/5 focus:text-white">Chờ thanh toán</SelectItem>
-                <SelectItem value="Expired" className="focus:bg-white/5 focus:text-white">Hết hạn</SelectItem>
+                <SelectItem value="active" className="focus:bg-white/5 focus:text-white">Hoạt động (Active)</SelectItem>
+                <SelectItem value="pending_payment" className="focus:bg-white/5 focus:text-white">Chờ thanh toán</SelectItem>
+                <SelectItem value="expired" className="focus:bg-white/5 focus:text-white">Hết hạn</SelectItem>
               </SelectContent>
             </Select>
           </div>

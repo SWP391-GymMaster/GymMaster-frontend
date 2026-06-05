@@ -13,7 +13,7 @@ function authHeaders(accessToken: string) {
 }
 
 export async function getPackages(accessToken: string): Promise<GymPackage[]> {
-  return apiRequest<GymPackage[]>("/api/packages", {
+  return apiRequest<GymPackage[]>("/api/v1/packages", {
     headers: authHeaders(accessToken),
   })
 }
@@ -22,7 +22,7 @@ export async function createPackage(
   accessToken: string,
   draft: CreatePackageDraft,
 ): Promise<GymPackage> {
-  return apiRequest<GymPackage>("/api/packages", {
+  return apiRequest<GymPackage>("/api/v1/packages", {
     method: "POST",
     headers: {
       ...authHeaders(accessToken),
@@ -37,7 +37,7 @@ export async function updatePackage(
   packageId: number,
   draft: CreatePackageDraft,
 ): Promise<GymPackage> {
-  return apiRequest<GymPackage>(`/api/packages/${packageId}`, {
+  return apiRequest<GymPackage>(`/api/v1/packages/${packageId}`, {
     method: "PUT",
     headers: {
       ...authHeaders(accessToken),
@@ -48,13 +48,13 @@ export async function updatePackage(
 }
 
 export async function getMemberships(accessToken: string): Promise<Membership[]> {
-  return apiRequest<Membership[]>("/api/memberships", {
+  return apiRequest<Membership[]>("/api/v1/memberships", {
     headers: authHeaders(accessToken),
   })
 }
 
 export async function getPayments(accessToken: string): Promise<Payment[]> {
-  return apiRequest<Payment[]>("/api/payments", {
+  return apiRequest<Payment[]>("/api/v1/payments", {
     headers: authHeaders(accessToken),
   })
 }
@@ -63,7 +63,7 @@ export async function getMemberPayments(
   accessToken: string,
   memberId: number,
 ): Promise<Payment[]> {
-  return apiRequest<Payment[]>(`/api/members/${memberId}/payments`, {
+  return apiRequest<Payment[]>(`/api/v1/members/${memberId}/payments`, {
     headers: authHeaders(accessToken),
   })
 }
@@ -73,7 +73,7 @@ export async function getMemberCheckIns(
   memberId: number,
 ): Promise<Array<{ id: number; checkInAt: string; source: string }>> {
   return apiRequest<Array<{ id: number; checkInAt: string; source: string }>>(
-    `/api/members/${memberId}/checkins`,
+    `/api/v1/members/${memberId}/checkins`,
     {
       headers: authHeaders(accessToken),
     },

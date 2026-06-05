@@ -71,10 +71,10 @@ export function MemberMembershipDetails() {
   const pt = member360?.assignedPT;
   const checkIns = member360?.recentCheckIns ?? [];
 
-  const getStatusLabel = (status: "paid" | "pending" | "failed") => {
+  const getStatusLabel = (status: "paid" | "pending" | "refunded") => {
     if (status === "paid") return "Đã thanh toán";
     if (status === "pending") return "Đang chờ";
-    return "Thất bại";
+    return "Đã hoàn tiền";
   };
 
   return (
@@ -112,14 +112,7 @@ export function MemberMembershipDetails() {
                         Trạng thái thẻ:
                       </span>
                       <StatusPill
-                        status={
-                          membership.status === "Active" ? "active" : "pending"
-                        }
-                        label={
-                          membership.status === "Active"
-                            ? "Hoạt động"
-                            : "Chờ thanh toán"
-                        }
+                        status={membership.status}
                       />
                     </div>
                   </div>

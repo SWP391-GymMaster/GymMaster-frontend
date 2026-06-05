@@ -71,7 +71,10 @@ export function CheckInTerminal() {
       setResult({
         memberId: selectedMember.id,
         status: "denied",
-        reasonCode: "MEMBERSHIP_INACTIVE",
+        reasonCode:
+          selectedMember.membershipStatus === "pending"
+            ? "PAYMENT_PENDING"
+            : "NO_ACTIVE_MEMBERSHIP",
         safeMessage:
           "Từ chối check-in. Hội viên cần có gói đang hoạt động và đã thanh toán trước khi vào phòng.",
       })
@@ -91,7 +94,11 @@ export function CheckInTerminal() {
     } else {
       speechAnnouncer.speakGreeting(
         selectedMember.fullName,
-        nextResult.reasonCode === "LOCKED" ? "locked" : "expired"
+        nextResult.reasonCode === "LOCKED"
+          ? "locked"
+          : nextResult.reasonCode === "PAYMENT_PENDING"
+            ? "pending"
+            : "expired"
       )
     }
   }

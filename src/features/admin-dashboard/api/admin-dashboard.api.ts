@@ -1,5 +1,8 @@
 import { apiRequest } from "@/lib/api/http-client"
-import type { DashboardSummary } from "@/features/admin-dashboard/types/admin-dashboard.types"
+import type {
+  DashboardSummary,
+  DashboardSummaryQuery,
+} from "@/features/admin-dashboard/types/admin-dashboard.types"
 
 function authHeaders(accessToken: string) {
   return {
@@ -9,10 +12,21 @@ function authHeaders(accessToken: string) {
 
 export function getDashboardSummary(
   accessToken: string,
+  query: DashboardSummaryQuery = {},
 ): Promise<DashboardSummary> {
-  return apiRequest<DashboardSummary>("/api/dashboard/summary", {
-    headers: authHeaders(accessToken),
-  })
+  const params = new URLSearchParams()
+
+  if (query.from) params.set("from", query.from)
+  if (query.to) params.set("to", query.to)
+
+  const qs = params.toString()
+
+  return apiRequest<DashboardSummary>(
+    `/api/v1/dashboard/summary${qs ? `?${qs}` : ""}`,
+    {
+      headers: authHeaders(accessToken),
+    },
+  )
 }
 
 import type { PagedResult } from "@/mocks/utils/api-response"
@@ -37,7 +51,7 @@ export function getAuditLogs(
   const qs = params.toString()
 
   return apiRequest<PagedResult<AuditLogEntry>>(
-    `/api/audit-logs${qs ? `?${qs}` : ""}`,
+    `/api/v1/audit-logs${qs ? `?${qs}` : ""}`,
     { headers: authHeaders(accessToken) },
   )
 }

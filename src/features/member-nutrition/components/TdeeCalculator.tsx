@@ -236,7 +236,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
             <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Scale className="size-4" />
             </span>
-            <DialogTitle className="text-lg font-bold text-white">Thiết lập mục tiêu dinh dưỡng</DialogTitle>
+            <DialogTitle className="text-lg font-bold text-white">Tính mục tiêu Calo & TDEE</DialogTitle>
           </div>
           <DialogDescription className="text-xs text-white/50">
             Tính toán chỉ số TDEE tự động hoặc tự thiết lập mục tiêu Calorie & Macros của riêng bạn.

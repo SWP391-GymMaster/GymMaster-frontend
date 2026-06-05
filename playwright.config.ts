@@ -12,10 +12,10 @@ export default defineConfig({
     trace: "on-first-retry",
   },
   webServer: {
-    command: "npm run dev -- --hostname 127.0.0.1 --port 3100",
+    command: "npx next build && npx next start --port 3100 --hostname 127.0.0.1",
     url: "http://127.0.0.1:3100/welcome",
     reuseExistingServer: false,
-    timeout: 120_000,
+    timeout: 180_000,
     env: {
       NEXT_PUBLIC_API_MOCKING: "enabled",
       NEXT_PUBLIC_API_BASE_URL: "http://127.0.0.1:3000",

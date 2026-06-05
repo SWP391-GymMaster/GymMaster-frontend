@@ -3,7 +3,7 @@ export type GymPackage = {
   name: string
   durationDays: number
   price: number
-  status: "active" | "locked"
+  status: "active" | "inactive"
 }
 
 export type Membership = {
@@ -12,7 +12,7 @@ export type Membership = {
   packageId: number
   startDate: string
   endDate: string
-  status: "PendingPayment" | "Active" | "Expired"
+  status: "pending_payment" | "active" | "expired" | "cancelled"
 }
 
 export type Payment = {
@@ -22,14 +22,14 @@ export type Payment = {
   memberName: string
   packageName: string
   amount: number
-  paymentMethod: string
+  paymentMethod: "cash" | "transfer" | "card"
   paymentDate: string
-  status: "paid" | "pending" | "failed"
+  status: "paid" | "pending" | "refunded"
 }
 
 export type CreatePackageDraft = {
   name: string
   durationDays: number
   price: number
-  status: "active" | "locked"
+  status: "active" | "inactive"
 }

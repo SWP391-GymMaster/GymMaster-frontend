@@ -48,7 +48,7 @@ function nextId(items: Array<{ id: number }>) {
 }
 
 export const trainingHandlers = [
-  http.get("/api/assignments/candidates/members", ({ request }) => {
+  http.get("/api/v1/assignments/candidates/members", ({ request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
 
@@ -90,7 +90,7 @@ export const trainingHandlers = [
       total: filtered.length,
     })
   }),
-  http.get("/api/assignments/candidates/trainers", ({ request }) => {
+  http.get("/api/v1/assignments/candidates/trainers", ({ request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
 
@@ -123,7 +123,7 @@ export const trainingHandlers = [
       total: filtered.length,
     })
   }),
-  http.post("/api/assignments", async ({ request }) => {
+  http.post("/api/v1/assignments", async ({ request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
 
@@ -182,7 +182,7 @@ export const trainingHandlers = [
       message: "Đã phân công PT",
     })
   }),
-  http.get("/api/pt/members", ({ request }) => {
+  http.get("/api/v1/pt/members", ({ request }) => {
     const role = requireRole(request, ["pt"])
     if (typeof role !== "string") return role
 
@@ -194,7 +194,7 @@ export const trainingHandlers = [
 
     return ok(members.filter((member) => assignedMemberIds.has(member.id)))
   }),
-  http.post("/api/members/:id/workout-plans", async ({ params, request }) => {
+  http.post("/api/v1/members/:id/workout-plans", async ({ params, request }) => {
     const role = requireRole(request, ["pt"])
     if (typeof role !== "string") return role
 
@@ -248,7 +248,7 @@ export const trainingHandlers = [
 
     return created(plan)
   }),
-  http.put("/api/workout-plans/:id", async ({ params, request }) => {
+  http.put("/api/v1/workout-plans/:id", async ({ params, request }) => {
     const role = requireRole(request, ["pt"])
     if (typeof role !== "string") return role
 
@@ -265,7 +265,7 @@ export const trainingHandlers = [
 
     return ok(workoutPlans[index])
   }),
-  http.post("/api/members/:id/notes", async ({ params, request }) => {
+  http.post("/api/v1/members/:id/notes", async ({ params, request }) => {
     const role = requireRole(request, ["pt"])
     if (typeof role !== "string") return role
 
@@ -292,7 +292,7 @@ export const trainingHandlers = [
 
     return created(note)
   }),
-  http.get("/api/members/:id/notes", ({ params, request }) => {
+  http.get("/api/v1/members/:id/notes", ({ params, request }) => {
     const role = requireRole(request, ["pt", "member", "admin"])
     if (typeof role !== "string") return role
 
@@ -304,7 +304,7 @@ export const trainingHandlers = [
 
     return ok(trainerNotes.filter((item) => item.memberId === memberId))
   }),
-  http.get("/api/members/:id/workout-plans", ({ params, request }) => {
+  http.get("/api/v1/members/:id/workout-plans", ({ params, request }) => {
     const role = requireRole(request, ["pt", "member", "admin"])
     if (typeof role !== "string") return role
 

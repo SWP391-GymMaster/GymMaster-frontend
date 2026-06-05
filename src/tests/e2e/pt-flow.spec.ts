@@ -68,7 +68,7 @@ test.describe("PT Dashboard Flow", () => {
 
     await expect(page.getByText("Đã lưu giáo án")).toBeVisible()
     await expect(page.getByText("Deadline Strength Block")).toBeVisible()
-    await expect(page.getByText("Deadlift").first()).toBeVisible()
+    await expect(page.getByAltText("Minh họa bài tập Deadlift")).toBeVisible()
   })
 
   test("PT adds trainer note for assigned member", async ({ page }) => {

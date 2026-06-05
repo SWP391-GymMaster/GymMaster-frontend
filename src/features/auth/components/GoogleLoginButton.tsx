@@ -1,6 +1,5 @@
 "use client";
 
-import { LogIn } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -9,6 +8,12 @@ import { Button } from "@/components/ui/button";
 import { useAuthSessionStore } from "@/features/auth/session/auth-session";
 import { mapAuthError } from "@/features/auth/utils/auth-error-map";
 import { IconBrandGoogle } from "@tabler/icons-react";
+
+type GoogleLoginButtonProps = {
+  onError?: (message: string) => void;
+  idToken?: string;
+};
+
 function isGoogleLoginEnabled() {
   return (
     process.env.NEXT_PUBLIC_API_MOCKING === "enabled" ||
@@ -17,7 +22,10 @@ function isGoogleLoginEnabled() {
   );
 }
 
-export function GoogleLoginButton() {
+export function GoogleLoginButton({
+  onError,
+  idToken = "mock-google-id-token",
+}: GoogleLoginButtonProps = {}) {
   const router = useRouter();
   const loginWithGoogle = useAuthSessionStore((state) => state.loginWithGoogle);
   const [isPending, setIsPending] = useState(false);
@@ -25,20 +33,25 @@ export function GoogleLoginButton() {
 
   async function handleGoogleLogin() {
     if (!enabled) {
-      toast.error("Đăng nhập Google chưa được cấu hình cho môi trường này.");
+      const message = "Đăng nhập Google chưa được cấu hình cho môi trường này.";
+
+      onError?.(message);
+      toast.error(message);
       return;
     }
 
+    onError?.("");
     setIsPending(true);
 
     try {
       const nextPath = await loginWithGoogle({
-        idToken: "mock-google-id-token",
+        idToken,
       });
       toast.success("Đã đăng nhập bằng Google");
       router.push(nextPath);
     } catch (error) {
       const mappedError = mapAuthError(error);
+      onError?.(mappedError.message);
       toast.error(mappedError.message);
     } finally {
       setIsPending(false);

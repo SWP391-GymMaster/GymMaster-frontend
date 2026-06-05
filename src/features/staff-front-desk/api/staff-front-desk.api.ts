@@ -89,19 +89,19 @@ function normalizeMemberSummary(
 }
 
 async function getPackagesDto(accessToken: string) {
-  return apiRequest<MockPackageDto[]>("/api/packages", {
+  return apiRequest<MockPackageDto[]>("/api/v1/packages", {
     headers: authHeaders(accessToken),
   })
 }
 
 async function getMembershipsDto(accessToken: string) {
-  return apiRequest<MockMembershipDto[]>("/api/memberships", {
+  return apiRequest<MockMembershipDto[]>("/api/v1/memberships", {
     headers: authHeaders(accessToken),
   })
 }
 
 async function getCheckInsDto(accessToken: string) {
-  return apiRequest<MockCheckInDto[]>("/api/checkins", {
+  return apiRequest<MockCheckInDto[]>("/api/v1/checkins", {
     headers: authHeaders(accessToken),
   })
 }
@@ -109,7 +109,7 @@ async function getCheckInsDto(accessToken: string) {
 export async function searchStaffMembers(accessToken: string, query: string) {
   const [membersPage, packages, memberships, checkins] = await Promise.all([
     apiRequest<PagedResult<MockMemberDto>>(
-      `/api/members?query=${encodeURIComponent(query)}&page=1`,
+      `/api/v1/members?query=${encodeURIComponent(query)}&page=1`,
       {
         headers: authHeaders(accessToken),
       },
@@ -129,7 +129,7 @@ export async function searchStaffMembers(accessToken: string, query: string) {
 
 export async function getStaffMemberDetail(accessToken: string, memberId: number) {
   const [member, packages, memberships, checkins] = await Promise.all([
-    apiRequest<MockMemberDto>(`/api/members/${memberId}`, {
+    apiRequest<MockMemberDto>(`/api/v1/members/${memberId}`, {
       headers: authHeaders(accessToken),
     }),
     getPackagesDto(accessToken),
@@ -174,11 +174,15 @@ export async function sellStaffMembership(
   draft: SellPackageDraft,
 ) {
   const response = await apiRequest<{ membership: MockMembershipDto }>(
-    "/api/memberships/sell",
+    "/api/v1/memberships/sell",
     {
       method: "POST",
       headers: authHeaders(accessToken),
-      body: JSON.stringify(draft),
+      body: JSON.stringify({
+        memberId: draft.memberId,
+        packageId: draft.packageId,
+        startDate: draft.startDate,
+      }),
     },
   )
   const packages = await getPackagesDto(accessToken)
@@ -191,11 +195,14 @@ export async function renewStaffMembership(
   draft: RenewPackageDraft,
 ) {
   const response = await apiRequest<MockMembershipDto>(
-    `/api/memberships/${draft.membershipId}/renew`,
+    `/api/v1/memberships/${draft.membershipId}/renew`,
     {
       method: "POST",
       headers: authHeaders(accessToken),
-      body: JSON.stringify(draft),
+      body: JSON.stringify({
+        packageId: draft.packageId,
+        startDate: draft.startDate,
+      }),
     },
   )
   const packages = await getPackagesDto(accessToken)
@@ -211,10 +218,14 @@ export async function recordStaffManualPayment(
     membership: MockMembershipDto
     payment: { id: number; membershipId: number; paidAt?: string }
     status: string
-  }>(`/api/memberships/${draft.membershipId}/payment`, {
+  }>(`/api/v1/memberships/${draft.membershipId}/payment`, {
     method: "POST",
     headers: authHeaders(accessToken),
-    body: JSON.stringify(draft),
+    body: JSON.stringify({
+      amount: draft.amount,
+      method: draft.paymentMethod,
+      paidAt: draft.paidAt,
+    }),
   })
   const packages = await getPackagesDto(accessToken)
   const membership = normalizeMembership(response.membership, packages)
@@ -230,7 +241,7 @@ export async function recordStaffManualPayment(
 }
 
 export async function createStaffCheckIn(accessToken: string, memberId: number) {
-  const response = await apiRequest<MockCheckInDto>("/api/checkins", {
+  const response = await apiRequest<MockCheckInDto>("/api/v1/checkins", {
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify({ memberId, source: "front-desk" }),

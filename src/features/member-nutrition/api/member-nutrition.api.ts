@@ -17,7 +17,7 @@ function authHeaders(accessToken: string) {
 
 export async function searchFoodItems(accessToken: string, query: string) {
   return apiRequest<PagedResult<FoodItem>>(
-    `/api/food-items?query=${encodeURIComponent(query)}&page=1`,
+    `/api/v1/food-items?query=${encodeURIComponent(query)}&page=1`,
     {
       headers: authHeaders(accessToken),
     },
@@ -30,7 +30,7 @@ export async function getMemberMealLogs(
   date: string,
 ) {
   return apiRequest<MealLog[]>(
-    `/api/meal-logs?memberId=${memberId}&date=${encodeURIComponent(date)}`,
+    `/api/v1/meal-logs?memberId=${memberId}&date=${encodeURIComponent(date)}`,
     {
       headers: authHeaders(accessToken),
     },
@@ -41,7 +41,7 @@ export async function createMemberMealLog(
   accessToken: string,
   draft: CreateMealLogDraft,
 ) {
-  return apiRequest<MealLog>("/api/meal-logs", {
+  return apiRequest<MealLog>("/api/v1/meal-logs", {
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify(draft),
@@ -54,7 +54,7 @@ export async function getMemberCalorieSummary(
   date: string,
 ) {
   return apiRequest<CalorieSummary>(
-    `/api/members/${memberId}/calorie-summary?date=${encodeURIComponent(date)}`,
+    `/api/v1/members/${memberId}/calorie-summary?date=${encodeURIComponent(date)}`,
     {
       headers: authHeaders(accessToken),
     },
@@ -68,7 +68,7 @@ export async function getMemberCalorieHistory(
   to: string,
 ) {
   return apiRequest<CalorieHistoryPoint[]>(
-    `/api/members/${memberId}/calorie-history?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+    `/api/v1/members/${memberId}/calorie-history?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
     {
       headers: authHeaders(accessToken),
     },
@@ -79,7 +79,7 @@ export async function createCustomFoodItem(
   accessToken: string,
   input: CreateCustomFoodInput,
 ) {
-  return apiRequest<FoodItem>("/api/food-items", {
+  return apiRequest<FoodItem>("/api/v1/food-items", {
     method: "POST",
     headers: {
       ...authHeaders(accessToken),
@@ -89,67 +89,163 @@ export async function createCustomFoodItem(
   })
 }
 
-export async function fetchFoodByBarcode(barcode: string): Promise<CreateCustomFoodInput | null> {
+type OpenFoodFactsProduct = {
+  product_name_vi?: string
+  product_name?: string
+  brands?: string
+  serving_size?: string
+  nutriments?: Record<string, number | string | undefined>
+}
+
+function normalizeExternalFood(
+  product: OpenFoodFactsProduct,
+  fallbackName: string,
+): CreateCustomFoodInput {
+  let name = product.product_name_vi || product.product_name || fallbackName
+
+  if (product.brands) {
+    name = `${name} (${product.brands})`.trim()
+  }
+
+  if (name.length > 100) {
+    name = `${name.slice(0, 97)}...`
+  }
+
+  let unit = product.serving_size || "100g"
+
+  if (unit.length > 30) {
+    unit = `${unit.slice(0, 27)}...`
+  }
+
+  const nutrients = product.nutriments || {}
+  const caloriesPerUnit = Math.max(
+    0,
+    Math.round(
+      Number(nutrients["energy-kcal_100g"] ?? nutrients["energy-kcal_serving"] ?? 0),
+    ),
+  )
+  const proteinG = Math.max(
+    0,
+    Number(nutrients.proteins_100g ?? nutrients.proteins_serving ?? 0),
+  )
+  const carbsG = Math.max(
+    0,
+    Number(nutrients.carbohydrates_100g ?? nutrients.carbohydrates_serving ?? 0),
+  )
+  const fatG = Math.max(
+    0,
+    Number(nutrients.fat_100g ?? nutrients.fat_serving ?? 0),
+  )
+
+  return {
+    name,
+    unit,
+    caloriesPerUnit,
+    carbsG: Number(carbsG.toFixed(1)),
+    proteinG: Number(proteinG.toFixed(1)),
+    fatG: Number(fatG.toFixed(1)),
+  }
+}
+
+async function tryBackendBarcodeProxy(
+  barcode: string,
+  accessToken?: string,
+): Promise<CreateCustomFoodInput | null | undefined> {
+  if (!accessToken) return undefined
+
+  const response = await fetch(
+    `/api/v1/food-items/barcode/${encodeURIComponent(barcode)}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  )
+
+  if (response.status === 404) {
+    return null
+  }
+
+  if (!response.ok) {
+    return undefined
+  }
+
+  const payload = await response.json()
+
+  return payload?.data ?? null
+}
+
+async function tryBackendOnlineSearchProxy(
+  query: string,
+  accessToken?: string,
+): Promise<CreateCustomFoodInput[] | undefined> {
+  if (!accessToken) return undefined
+
+  const response = await fetch(
+    `/api/v1/food-items/online-search?query=${encodeURIComponent(query)}&page=1&pageSize=10`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  )
+
+  if (response.status === 429) {
+    throw new Error("Too Many Requests (429)")
+  }
+
+  if (!response.ok) {
+    return undefined
+  }
+
+  const payload = await response.json()
+
+  return Array.isArray(payload?.data) ? payload.data : undefined
+}
+
+export async function fetchFoodByBarcode(
+  barcode: string,
+  accessToken?: string,
+): Promise<CreateCustomFoodInput | null> {
   try {
-    console.log(`[DEBUG] fetchFoodByBarcode called for barcode: ${barcode}`)
+    const proxiedFood = await tryBackendBarcodeProxy(barcode, accessToken)
+
+    if (proxiedFood !== undefined) {
+      return proxiedFood
+    }
+
     const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`)
-    console.log(`[DEBUG] fetch response status: ${response.status}, ok: ${response.ok}`)
     if (!response.ok) {
       return null
     }
     const data = await response.json()
-    console.log(`[DEBUG] parsed json data:`, JSON.stringify(data))
     if (data.status !== 1 || !data.product) {
       return null
     }
 
-    const p = data.product
-    
-    // Truncate name to 100 chars for Zod schema compliance
-    let name = p.product_name_vi || p.product_name || `Sản phẩm ${barcode}`
-    if (p.brands) {
-      name = `${name} (${p.brands})`.trim()
-    }
-    if (name.length > 100) {
-      name = name.slice(0, 97) + "..."
-    }
-
-    // Truncate unit to 30 chars
-    let unit = p.serving_size || "100g"
-    if (unit.length > 30) {
-      unit = unit.slice(0, 27) + "..."
-    }
-
-    // Safe nutrient calculations >= 0
-    const nut = p.nutriments || {}
-    const caloriesPerUnit = Math.max(0, Math.round(nut["energy-kcal_100g"] || nut["energy-kcal_serving"] || 0))
-    const proteinG = Math.max(0, Number(nut.proteins_100g || nut.proteins_serving || 0))
-    const carbsG = Math.max(0, Number(nut.carbohydrates_100g || nut.carbohydrates_serving || 0))
-    const fatG = Math.max(0, Number(nut.fat_100g || nut.fat_serving || 0))
-
-    return {
-      name,
-      unit,
-      caloriesPerUnit,
-      carbsG: Number(carbsG.toFixed(1)),
-      proteinG: Number(proteinG.toFixed(1)),
-      fatG: Number(fatG.toFixed(1)),
-    }
+    return normalizeExternalFood(data.product, `Sản phẩm ${barcode}`)
   } catch (error) {
     console.error("Open Food Facts fetch failed:", error)
     return null
   }
 }
 
-export async function searchFoodOnline(query: string): Promise<CreateCustomFoodInput[]> {
+export async function searchFoodOnline(
+  query: string,
+  accessToken?: string,
+): Promise<CreateCustomFoodInput[]> {
   try {
-    console.log(`[DEBUG] searchFoodOnline called for query: ${query}`)
+    const proxiedFoods = await tryBackendOnlineSearchProxy(query, accessToken)
+
+    if (proxiedFoods) {
+      return proxiedFoods
+    }
+
     const response = await fetch(
       `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(
         query
       )}&search_simple=1&action=process&json=1`
     )
-    console.log(`[DEBUG] searchFoodOnline response status: ${response.status}, ok: ${response.ok}`)
     if (!response.ok) {
       if (response.status === 429) {
         throw new Error("Too Many Requests (429)")
@@ -161,43 +257,14 @@ export async function searchFoodOnline(query: string): Promise<CreateCustomFoodI
       return []
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.products.slice(0, 10).map((p: any) => {
-      let name = p.product_name_vi || p.product_name || "Sản phẩm không tên"
-      if (p.brands) {
-        name = `${name} (${p.brands})`.trim()
-      }
-      if (name.length > 100) {
-        name = name.slice(0, 97) + "..."
-      }
-
-      let unit = p.serving_size || "100g"
-      if (unit.length > 30) {
-        unit = unit.slice(0, 27) + "..."
-      }
-
-      const nut = p.nutriments || {}
-      const caloriesPerUnit = Math.max(
-        0,
-        Math.round(nut["energy-kcal_100g"] || nut["energy-kcal_serving"] || 0)
+    return data.products
+      .slice(0, 10)
+      .map((product: OpenFoodFactsProduct) =>
+        normalizeExternalFood(product, "Sản phẩm không tên"),
       )
-      const proteinG = Math.max(0, Number(nut.proteins_100g || nut.proteins_serving || 0))
-      const carbsG = Math.max(0, Number(nut.carbohydrates_100g || nut.carbohydrates_serving || 0))
-      const fatG = Math.max(0, Number(nut.fat_100g || nut.fat_serving || 0))
-
-      return {
-        name,
-        unit,
-        caloriesPerUnit,
-        carbsG: Number(carbsG.toFixed(1)),
-        proteinG: Number(proteinG.toFixed(1)),
-        fatG: Number(fatG.toFixed(1)),
-      }
-    })
   } catch (error) {
     console.error("Open Food Facts online search failed:", error)
     throw error
   }
 }
-
 
