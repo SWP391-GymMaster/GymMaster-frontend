@@ -1,8 +1,9 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
+import { useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import { CalendarDays, CreditCard, RefreshCw } from "lucide-react"
 
@@ -54,7 +55,11 @@ function getRenewalStartDate(membership?: MembershipSnapshot | null) {
 }
 
 export function RenewPackageWizard() {
-  const [submittedQuery, setSubmittedQuery] = useState("")
+  const searchParams = useSearchParams()
+  const memberIdParam = searchParams?.get("memberId")
+  const queryParam = searchParams?.get("query")
+
+  const [submittedQuery, setSubmittedQuery] = useState(queryParam ?? "")
   const [selectedMember, setSelectedMember] =
     useState<StaffFrontDeskMemberSummary | null>(null)
   const [selectedPackageId, setSelectedPackageId] = useState<number | null>(null)
@@ -75,7 +80,7 @@ export function RenewPackageWizard() {
   } = useForm<StaffSearchInput>({
     resolver: zodResolver(staffSearchSchema),
     defaultValues: {
-      query: "",
+      query: queryParam ?? "",
     },
   })
   const {
@@ -91,6 +96,24 @@ export function RenewPackageWizard() {
       paymentMethod: "cash",
     },
   })
+
+  useEffect(() => {
+    if (memberIdParam && members.data?.items && !selectedMember) {
+      const match = members.data.items.find(
+        (m) => m.id === Number(memberIdParam),
+      )
+      if (match) {
+        const timer = setTimeout(() => {
+          setSelectedMember(match)
+          setValue("memberId", match.id, { shouldValidate: true })
+          setValue("startDate", getRenewalStartDate(null), {
+            shouldValidate: true,
+          })
+        }, 0)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [memberIdParam, members.data, selectedMember, setValue])
   const selectedPackage = useMemo(
     () => packages.data?.find((item) => item.id === selectedPackageId),
     [packages.data, selectedPackageId],

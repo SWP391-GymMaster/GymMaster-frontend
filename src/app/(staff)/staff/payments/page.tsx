@@ -1,3 +1,7 @@
+"use client"
+
+import { Suspense, useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import {
   AlertTriangle,
@@ -79,7 +83,20 @@ const activities = [
   },
 ]
 
-export default function StaffPaymentsPage() {
+function StaffPaymentsPageContent() {
+  const searchParams = useSearchParams()
+  const queryParam = searchParams?.get("query") ?? ""
+  const [searchQuery, setSearchQuery] = useState(queryParam)
+
+  const filteredQueue = paymentQueue.filter((payment) => {
+    const q = searchQuery.toLowerCase()
+    return (
+      payment.member.toLowerCase().includes(q) ||
+      payment.code.toLowerCase().includes(q) ||
+      payment.id.toLowerCase().includes(q)
+    )
+  })
+
   return (
     <StaffPageFrame
       description="Theo dõi các khoản thanh toán thủ công phát sinh sau khi bán hoặc gia hạn gói tập."
@@ -154,15 +171,22 @@ export default function StaffPaymentsPage() {
                   <input
                     className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
                     placeholder="Tìm theo tên hội viên, mã hội viên, mã giao dịch..."
-                    readOnly
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </label>
               </div>
 
               <div className="divide-y divide-border">
-                {paymentQueue.map((payment) => (
-                  <PaymentQueueRow key={payment.id} payment={payment} />
-                ))}
+                {filteredQueue.length > 0 ? (
+                  filteredQueue.map((payment) => (
+                    <PaymentQueueRow key={payment.id} payment={payment} />
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-sm text-muted-foreground">
+                    Không tìm thấy giao dịch thanh toán phù hợp.
+                  </div>
+                )}
               </div>
             </section>
 
@@ -268,6 +292,14 @@ export default function StaffPaymentsPage() {
         </section>
       </div>
     </StaffPageFrame>
+  )
+}
+
+export default function StaffPaymentsPage() {
+  return (
+    <Suspense fallback={<div className="text-sm text-muted-foreground p-5">Đang tải trang thanh toán...</div>}>
+      <StaffPaymentsPageContent />
+    </Suspense>
   )
 }
 

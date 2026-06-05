@@ -52,6 +52,7 @@ export type ExerciseOption = {
 
 export type WorkoutPresetExercise = {
   exerciseId: string
+  name?: string
   sets?: number
   reps?: string
   note?: string

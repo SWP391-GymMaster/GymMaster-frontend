@@ -91,4 +91,43 @@ describe("WorkoutPlanForm", () => {
     expect(screen.getByDisplayValue("Back Squat")).toBeInTheDocument()
     expect(onAdded).toHaveBeenCalled()
   })
+
+  it("saves custom preset and merges it in the list of presets", async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    renderWithPtSession(<WorkoutPlanForm onSubmit={onSubmit} />)
+
+    // Go to step 3 (Exercises) to write something
+    fireEvent.click(screen.getByText("Bài tập"))
+    fireEvent.change(screen.getByLabelText("Tên giáo án"), {
+      target: { value: "My Power Plan" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Tên bài tập custom"), {
+      target: { value: "Bench Press" },
+    })
+
+    // Go to step 4 (Save)
+    fireEvent.click(screen.getByText("Lưu"))
+
+    // Click "Lưu thành Preset"
+    fireEvent.click(screen.getByText("Lưu thành Preset"))
+
+    // Fill in preset name in dialog
+    const presetNameInput = screen.getByLabelText("Tên Preset")
+    fireEvent.change(presetNameInput, { target: { value: "Custom Bench Preset" } })
+
+    // Fill in description
+    const presetDescInput = screen.getByLabelText("Mô tả Preset")
+    fireEvent.change(presetDescInput, { target: { value: "Bench training custom preset" } })
+
+    // Click "Xác nhận lưu"
+    fireEvent.click(screen.getByText("Xác nhận lưu"))
+
+    expect(await screen.findByText("Đã lưu preset thành công!")).toBeInTheDocument()
+
+    // Select input or trigger should list it.
+    // Let's verify localStorage has it.
+    const customPresets = JSON.parse(localStorage.getItem("gymmaster-custom-presets") || "[]")
+    expect(customPresets).toHaveLength(1)
+    expect(customPresets[0].name).toBe("Custom Bench Preset")
+  })
 })

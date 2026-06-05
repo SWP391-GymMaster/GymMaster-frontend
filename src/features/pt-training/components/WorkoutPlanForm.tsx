@@ -15,6 +15,7 @@ import { useFieldArray, useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 const LOCAL_STORAGE_KEY_RECENT_EXERCISES = "gymmaster-recent-exercises"
+const LOCAL_STORAGE_KEY_CUSTOM_PRESETS = "gymmaster-custom-presets"
 
 function getRecentExercises(): string[] {
   if (typeof window === "undefined") return []
@@ -37,6 +38,16 @@ function saveRecentExercises(names: string[]) {
   }
 }
 
+function getCustomPresets(): WorkoutPreset[] {
+  if (typeof window === "undefined") return []
+  try {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY_CUSTOM_PRESETS)
+    return data ? JSON.parse(data) : []
+  } catch {
+    return []
+  }
+}
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -49,11 +60,19 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog"
+import {
   exerciseLibrary,
   getExerciseById,
   getExerciseIdByName,
   getFilteredExercises,
-  getFilteredPresets,
   trainingDaysPerWeekOptions,
   trainingEnvironmentOptions,
   trainingGoalOptions,
@@ -115,6 +134,15 @@ export function WorkoutPlanForm({
   const [daysPerWeek, setDaysPerWeek] = useState<number>(3)
   const [presetId, setPresetId] = useState("")
   const [recentExercises, setRecentExercises] = useState<string[]>([])
+  const [customPresets, setCustomPresets] = useState<WorkoutPreset[]>([])
+
+  useEffect(() => {
+    setCustomPresets(getCustomPresets())
+  }, [])
+
+  const allPresets = useMemo(() => {
+    return [...workoutPresets, ...customPresets]
+  }, [customPresets])
 
   useEffect(() => {
     setRecentExercises(getRecentExercises())
@@ -168,13 +196,14 @@ export function WorkoutPlanForm({
 
   const filteredPresets = useMemo(
     () =>
-      getFilteredPresets({
-        daysPerWeek,
-        environment,
-        goal,
-        split,
-      }),
-    [daysPerWeek, environment, goal, split],
+      allPresets.filter(
+        (preset) =>
+          preset.daysPerWeek === daysPerWeek &&
+          preset.environment === environment &&
+          preset.goal === goal &&
+          preset.split === split,
+      ),
+    [allPresets, daysPerWeek, environment, goal, split],
   )
 
   const recommendedPresets = useMemo(() => {
@@ -186,7 +215,7 @@ export function WorkoutPlanForm({
       }
     }
 
-    const sameSplitAndDays = workoutPresets.filter(
+    const sameSplitAndDays = allPresets.filter(
       (preset) => preset.split === split && preset.daysPerWeek === daysPerWeek,
     )
 
@@ -199,7 +228,7 @@ export function WorkoutPlanForm({
       }
     }
 
-    const sameSplit = workoutPresets.filter((preset) => preset.split === split)
+    const sameSplit = allPresets.filter((preset) => preset.split === split)
 
     if (sameSplit.length > 0) {
       return {
@@ -211,12 +240,12 @@ export function WorkoutPlanForm({
     }
 
     return {
-      items: workoutPresets,
+      items: allPresets,
       mode: "fallback" as const,
       message:
         "Chưa có preset khớp bộ lọc. Đang hiển thị toàn bộ preset có sẵn.",
     }
-  }, [daysPerWeek, filteredPresets, split])
+  }, [daysPerWeek, filteredPresets, split, allPresets])
 
   const selectedPreset =
     recommendedPresets.items.find((preset) => preset.id === presetId) ?? null
@@ -247,6 +276,14 @@ export function WorkoutPlanForm({
     setPresetId("")
     setActiveStep(0)
     toast.success("Đã lưu giáo án")
+  }
+
+  function handleSavePreset(newPreset: WorkoutPreset) {
+    const updated = [...customPresets, newPreset]
+    setCustomPresets(updated)
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LOCAL_STORAGE_KEY_CUSTOM_PRESETS, JSON.stringify(updated))
+    }
   }
 
   async function handleNext() {
@@ -300,7 +337,7 @@ export function WorkoutPlanForm({
         const exercise = getExerciseById(item.exerciseId)
 
         return {
-          name: exercise?.name ?? "",
+          name: item.name ?? exercise?.name ?? "",
           sets: item.sets ?? exercise?.defaultSets ?? 3,
           reps: item.reps ?? exercise?.defaultReps ?? "10",
           note: item.note ?? exercise?.defaultNote ?? "",
@@ -454,6 +491,7 @@ export function WorkoutPlanForm({
             goal={goal}
             split={split}
             title={currentTitle}
+            onSavePreset={handleSavePreset}
           />
         ) : null}
       </div>
@@ -950,6 +988,7 @@ function ReviewStep({
   goal,
   split,
   title,
+  onSavePreset,
 }: {
   daysPerWeek: number
   environment: TrainingEnvironment
@@ -957,7 +996,50 @@ function ReviewStep({
   goal: TrainingGoal
   split: TrainingSplit
   title: string
+  onSavePreset: (preset: WorkoutPreset) => void
 }) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [presetName, setPresetName] = useState(title)
+  const [presetDesc, setPresetDesc] = useState("")
+  const [prevTitle, setPrevTitle] = useState(title)
+
+  if (title !== prevTitle) {
+    setPresetName(title)
+    setPrevTitle(title)
+  }
+
+  function handleSave() {
+    if (!presetName.trim()) {
+      toast.error("Vui lòng nhập tên preset")
+      return
+    }
+
+    const exercisesForPreset = exercises.map((item) => {
+      const exerciseId = getExerciseIdByName(item.name) ?? `custom-${Date.now()}`
+      return {
+        exerciseId,
+        name: item.name,
+        sets: item.sets,
+        reps: item.reps,
+        note: item.note,
+      }
+    })
+
+    onSavePreset({
+      id: `custom-${Date.now()}`,
+      name: presetName.trim(),
+      split,
+      daysPerWeek,
+      environment,
+      goal,
+      description: presetDesc.trim() || "Preset tùy chỉnh tạo bởi PT",
+      exercises: exercisesForPreset,
+    })
+
+    toast.success("Đã lưu preset thành công!")
+    setIsOpen(false)
+  }
+
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
       <div>
@@ -1013,15 +1095,81 @@ function ReviewStep({
         </div>
       </div>
 
-      <aside className="rounded-2xl border border-border bg-background p-4">
-        <p className="text-sm font-semibold text-foreground">Tóm tắt giáo án</p>
-        <div className="mt-4 grid gap-3">
-          <ReviewRow label="Môi trường" value={formatEnvironment(environment)} />
-          <ReviewRow label="Mục tiêu" value={formatGoal(goal)} />
-          <ReviewRow label="Split" value={formatSplit(split)} />
-          <ReviewRow label="Số buổi/tuần" value={`${daysPerWeek}`} />
-          <ReviewRow label="Số bài tập" value={`${exercises.length}`} />
+      <aside className="rounded-2xl border border-border bg-background p-4 flex flex-col justify-between">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Tóm tắt giáo án</p>
+          <div className="mt-4 grid gap-3">
+            <ReviewRow label="Môi trường" value={formatEnvironment(environment)} />
+            <ReviewRow label="Mục tiêu" value={formatGoal(goal)} />
+            <ReviewRow label="Split" value={formatSplit(split)} />
+            <ReviewRow label="Số buổi/tuần" value={`${daysPerWeek}`} />
+            <ReviewRow label="Số bài tập" value={`${exercises.length}`} />
+          </div>
         </div>
+
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogTrigger asChild>
+            <Button
+              className="mt-6 w-full min-h-11 rounded-xl bg-card border border-border text-foreground hover:bg-muted active:scale-[0.98]"
+              type="button"
+              variant="outline"
+            >
+              <Plus aria-hidden="true" className="mr-2 size-4" />
+              Lưu thành Preset
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md rounded-2xl p-6 bg-zinc-950 border border-white/10 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">Lưu giáo án thành Preset</DialogTitle>
+              <DialogDescription className="text-zinc-400">
+                Preset này sẽ xuất hiện trong danh sách gợi ý để bạn áp dụng cho hội viên khác.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4 space-y-4">
+              <div className="grid gap-2">
+                <label htmlFor="preset-name" className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-400">
+                  Tên Preset
+                </label>
+                <Input
+                  id="preset-name"
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                  placeholder="Ví dụ: Full Body Cao Cấp"
+                  className="bg-zinc-900 border-zinc-800 text-white placeholder-zinc-500 focus-visible:ring-primary/20 focus-visible:border-primary"
+                />
+              </div>
+              <div className="grid gap-2">
+                <label htmlFor="preset-desc" className="text-xs font-semibold uppercase tracking-[0.08em] text-zinc-400">
+                  Mô tả Preset
+                </label>
+                <textarea
+                  id="preset-desc"
+                  value={presetDesc}
+                  onChange={(e) => setPresetDesc(e.target.value)}
+                  placeholder="Mục tiêu tập luyện, mức tạ gợi ý..."
+                  className="min-h-20 w-full rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                />
+              </div>
+            </div>
+            <DialogFooter className="mt-6 flex gap-2">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="border-zinc-800 hover:bg-zinc-900 text-white"
+              >
+                Hủy
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSave}
+                className="bg-primary text-primary-foreground hover:brightness-95"
+              >
+                Xác nhận lưu
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </aside>
     </section>
   )

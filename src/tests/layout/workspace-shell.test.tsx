@@ -8,6 +8,25 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }))
 
+vi.mock("@/features/notifications/api/notifications.queries", () => ({
+  useNotifications: () => ({
+    data: [],
+    isLoading: false,
+  }),
+  useMarkNotificationRead: () => ({
+    mutate: vi.fn(),
+    mutateAsync: vi.fn(),
+  }),
+  useMarkAllNotificationsRead: () => ({
+    mutate: vi.fn(),
+    mutateAsync: vi.fn(),
+  }),
+  useDeleteNotification: () => ({
+    mutate: vi.fn(),
+    mutateAsync: vi.fn(),
+  }),
+}))
+
 describe("WorkspaceShell", () => {
   it("does not render placeholder metrics when metrics are omitted", () => {
     render(

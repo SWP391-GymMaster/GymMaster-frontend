@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Apple,
   ArrowRight,
@@ -10,8 +11,10 @@ import {
   Salad,
   Target,
   Utensils,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import { StateBlock } from "@/components/feedback/StateBlock";
 import { MealLogList } from "@/features/member-nutrition/components/MealLogList";
@@ -24,12 +27,57 @@ import {
   getRemainingLabel,
   getTodayDate,
 } from "@/features/member-nutrition/utils/nutrition-formatters";
+import { TdeeCalculator } from "./TdeeCalculator";
 
 const today = getTodayDate();
 
 export function CalorieSummaryWorkspace() {
   const summary = useMemberCalorieSummary(today);
   const logs = useMemberMealLogs(today);
+
+  const [isTdeeOpen, setIsTdeeOpen] = useState(false);
+  const [calorieTarget, setCalorieTarget] = useState(2200);
+  const [pTarget, setPTarget] = useState(140);
+  const [cTarget, setCTarget] = useState(270);
+  const [fTarget, setFTarget] = useState(75);
+
+  // Sync targets from localStorage or query summary data
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedCal = localStorage.getItem("gymmaster-calorie-goal");
+      const storedP = localStorage.getItem("gymmaster-protein-goal");
+      const storedC = localStorage.getItem("gymmaster-carbs-goal");
+      const storedF = localStorage.getItem("gymmaster-fat-goal");
+
+      const valCal = storedCal ? Number(storedCal) : (summary.data?.target ?? 2200);
+      const valP = storedP ? Number(storedP) : 140;
+      const valC = storedC ? Number(storedC) : 270;
+      const valF = storedF ? Number(storedF) : 75;
+
+      const timer = setTimeout(() => {
+        setCalorieTarget(valCal);
+        setPTarget(valP);
+        setCTarget(valC);
+        setFTarget(valF);
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+  }, [summary.data?.target]);
+
+  function handleTargetApplied() {
+    if (typeof window !== "undefined") {
+      const storedCal = localStorage.getItem("gymmaster-calorie-goal");
+      const storedP = localStorage.getItem("gymmaster-protein-goal");
+      const storedC = localStorage.getItem("gymmaster-carbs-goal");
+      const storedF = localStorage.getItem("gymmaster-fat-goal");
+
+      if (storedCal) setCalorieTarget(Number(storedCal));
+      if (storedP) setPTarget(Number(storedP));
+      if (storedC) setCTarget(Number(storedC));
+      if (storedF) setFTarget(Number(storedF));
+    }
+  }
 
   if (summary.isLoading) {
     return (
@@ -61,13 +109,14 @@ export function CalorieSummaryWorkspace() {
     );
   }
 
+  const target = calorieTarget;
+  const consumed = summary.data.consumed;
+  const remaining = target - consumed;
   const consumedPercent = Math.min(
     100,
     Math.max(
       0,
-      Math.round(
-        (summary.data.consumed / Math.max(summary.data.target, 1)) * 100,
-      ),
+      Math.round((consumed / Math.max(target, 1)) * 100),
     ),
   );
 
@@ -108,11 +157,6 @@ export function CalorieSummaryWorkspace() {
   const dinnerCal = getCaloriesSum(dinnerLogs);
   const snackCal = getCaloriesSum(snackLogs);
 
-  // Define macro target limits based on 2200 kcal average target
-  const pTarget = 140;
-  const cTarget = 270;
-  const fTarget = 75;
-
   const pPercent = Math.min(
     100,
     Math.round(((summary.data.proteinG || 0) / pTarget) * 100),
@@ -126,6 +170,32 @@ export function CalorieSummaryWorkspace() {
     Math.round(((summary.data.fatG || 0) / fTarget) * 100),
   );
 
+  // Recharts actual calorie distribution data
+  const pCalVal = (summary.data.proteinG || 0) * 4;
+  const cCalVal = (summary.data.carbsG || 0) * 4;
+  const fCalVal = (summary.data.fatG || 0) * 9;
+  const totalCalVal = pCalVal + cCalVal + fCalVal;
+
+  const chartData = [
+    { name: "Đạm (Protein)", value: pCalVal, color: "hsl(var(--primary))" },
+    { name: "Tinh bột (Carbs)", value: cCalVal, color: "#f59e0b" }, // bg-amber-500
+    { name: "Chất béo (Fat)", value: fCalVal, color: "#06b6d4" }, // bg-cyan-500 / cyan
+  ];
+
+  // Target ratios calculations
+  const targetPCal = pTarget * 4;
+  const targetCCal = cTarget * 4;
+  const targetFCal = fTarget * 9;
+  const targetTotalCal = targetPCal + targetCCal + targetFCal;
+
+  const targetPPercent = targetTotalCal > 0 ? Math.round((targetPCal / targetTotalCal) * 100) : 0;
+  const targetCPercent = targetTotalCal > 0 ? Math.round((targetCCal / targetTotalCal) * 100) : 0;
+  const targetFPercent = targetTotalCal > 0 ? 100 - targetPPercent - targetCPercent : 0;
+
+  const actualPPercent = totalCalVal > 0 ? Math.round((pCalVal / totalCalVal) * 100) : 0;
+  const actualCPercent = totalCalVal > 0 ? Math.round((cCalVal / totalCalVal) * 100) : 0;
+  const actualFPercent = totalCalVal > 0 ? 100 - actualPPercent - actualCPercent : 0;
+
   return (
     <div className="grid gap-6">
       {/* Nutrition Control Card */}
@@ -138,7 +208,11 @@ export function CalorieSummaryWorkspace() {
           <aside className="relative flex flex-col items-center justify-center border-b border-border bg-primary/5 p-6 text-center xl:border-b-0 xl:border-r">
             <div className="pointer-events-none absolute -bottom-16 -left-16 size-48 rounded-full bg-primary/10 blur-3xl" />
 
-            <div className="relative flex size-52 items-center justify-center">
+            <button
+              onClick={() => setIsTdeeOpen(true)}
+              className="relative flex size-52 items-center justify-center group cursor-pointer"
+              title="Click để thay đổi mục tiêu"
+            >
               <svg className="size-full -rotate-90">
                 <circle
                   cx="104"
@@ -162,18 +236,18 @@ export function CalorieSummaryWorkspace() {
                 />
               </svg>
 
-              <div className="absolute flex flex-col items-center justify-center text-center">
+              <div className="absolute flex flex-col items-center justify-center text-center transition group-hover:scale-105">
                 <span className="text-xs font-bold text-muted-foreground">
                   {consumedPercent}%
                 </span>
                 <span className="mt-2 text-4xl font-black tracking-tight text-foreground">
-                  {summary.data.remaining}
+                  {remaining}
                 </span>
                 <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                   Kcal còn lại
                 </span>
               </div>
-            </div>
+            </button>
 
             <div className="mt-5 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
               <p className="flex items-center justify-center gap-1.5 text-xs font-semibold text-muted-foreground">
@@ -196,7 +270,7 @@ export function CalorieSummaryWorkspace() {
                   Dinh dưỡng hôm nay
                 </p>
                 <h2 className="mt-2 max-w-2xl text-3xl font-bold tracking-tight text-foreground">
-                  {getRemainingLabel(summary.data.remaining)} cho hôm nay
+                  {getRemainingLabel(remaining)} cho hôm nay
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                   {logsData.length > 0
@@ -214,7 +288,7 @@ export function CalorieSummaryWorkspace() {
               <InsightMetric
                 icon={Flame}
                 label="Đã ăn"
-                value={formatCalories(summary.data.consumed)}
+                value={formatCalories(consumed)}
                 tone="orange"
                 subValue={`${consumedPercent}% mục tiêu`}
               />
@@ -222,17 +296,23 @@ export function CalorieSummaryWorkspace() {
                 featured
                 icon={Utensils}
                 label="Còn lại"
-                value={getRemainingLabel(summary.data.remaining)}
+                value={getRemainingLabel(remaining)}
                 tone="green"
                 subValue={`${Math.max(0, 100 - consumedPercent)}% còn lại`}
               />
-              <InsightMetric
-                icon={Target}
-                label="Mục tiêu"
-                value={formatCalories(summary.data.target)}
-                tone="blue"
-                subValue="Mục tiêu ngày"
-              />
+              <button
+                type="button"
+                onClick={() => setIsTdeeOpen(true)}
+                className="text-left focus:outline-none focus:ring-2 focus:ring-primary/20 rounded-2xl block w-full transition active:scale-[0.98]"
+              >
+                <InsightMetric
+                  icon={Target}
+                  label="Mục tiêu"
+                  value={formatCalories(target)}
+                  tone="blue"
+                  subValue="Click để cấu hình"
+                />
+              </button>
             </div>
 
             <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -257,9 +337,80 @@ export function CalorieSummaryWorkspace() {
                 value={summary.data.fatG}
                 target={fTarget}
                 percent={fPercent}
-                colorClass="bg-[oklch(0.64_0.12_235)]"
+                colorClass="bg-cyan-500"
                 icon="🍟"
               />
+            </div>
+
+            {/* Macro Calorie Distribution Chart */}
+            <div className="mt-6 pt-6 border-t border-border">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
+                Phân tích tỷ lệ calo thực tế tiêu thụ
+              </h3>
+              {totalCalVal > 0 ? (
+                <div className="grid gap-6 md:grid-cols-[160px_1fr] items-center">
+                  <div className="h-[160px] w-full relative flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={chartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={45}
+                          outerRadius={65}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value: unknown) => [`${value} kcal`, "Năng lượng"]}
+                          contentStyle={{ backgroundColor: "rgba(9, 9, 11, 0.95)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", color: "white" }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="absolute flex flex-col items-center justify-center text-center">
+                      <span className="text-[9px] font-bold text-muted-foreground uppercase">Tổng nạp</span>
+                      <span className="text-base font-black text-foreground">{totalCalVal}</span>
+                      <span className="text-[9px] text-muted-foreground">kcal</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      Biểu đồ tròn thể hiện tỷ lệ calo nạp từ Đạm, Tinh bột và Chất béo hôm nay so với tỷ lệ phần trăm phân bổ mục tiêu:
+                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="rounded-xl border border-border bg-background p-2.5 text-center">
+                        <span className="block text-[10px] font-bold uppercase text-primary">Đạm</span>
+                        <div className="mt-1 flex items-baseline justify-center gap-0.5">
+                          <span className="text-sm font-black text-foreground">{actualPPercent}%</span>
+                          <span className="text-[9px] text-muted-foreground">/{targetPPercent}%</span>
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-border bg-background p-2.5 text-center">
+                        <span className="block text-[10px] font-bold uppercase text-amber-500">Tinh bột</span>
+                        <div className="mt-1 flex items-baseline justify-center gap-0.5">
+                          <span className="text-sm font-black text-foreground">{actualCPercent}%</span>
+                          <span className="text-[9px] text-muted-foreground">/{targetCPercent}%</span>
+                        </div>
+                      </div>
+                      <div className="rounded-xl border border-border bg-background p-2.5 text-center">
+                        <span className="block text-[10px] font-bold uppercase text-cyan-500">Béo</span>
+                        <div className="mt-1 flex items-baseline justify-center gap-0.5">
+                          <span className="text-sm font-black text-foreground">{actualFPercent}%</span>
+                          <span className="text-[9px] text-muted-foreground">/{targetFPercent}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
+                  Chưa ghi bữa ăn nào hôm nay để hiển thị phân tích tỷ lệ dinh dưỡng.
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex flex-wrap gap-2">
@@ -270,6 +421,14 @@ export function CalorieSummaryWorkspace() {
                 <Plus className="size-4" />
                 Thêm bữa ăn
               </Link>
+              <button
+                type="button"
+                onClick={() => setIsTdeeOpen(true)}
+                className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl border border-border bg-card hover:bg-muted text-foreground px-6 text-sm font-semibold transition active:scale-[0.98] w-full sm:w-auto cursor-pointer"
+              >
+                <Settings className="size-4 text-primary" />
+                Cấu hình mục tiêu
+              </button>
             </div>
           </main>
 
@@ -303,7 +462,6 @@ export function CalorieSummaryWorkspace() {
                   label="Thêm bữa tối"
                   href="/member/nutrition/meal-journal?view=add&type=dinner"
                 />
-                {/* <NextAction label="Xem tổng kết" href="/member/nutrition/summary" /> */}
               </div>
 
               <div className="mt-4 rounded-2xl bg-primary/5 p-4">
@@ -353,6 +511,13 @@ export function CalorieSummaryWorkspace() {
         isLoading={logs.isLoading}
         logs={logs.data}
       />
+
+      {/* TDEE Calculator Modal */}
+      <TdeeCalculator
+        isOpen={isTdeeOpen}
+        onClose={() => setIsTdeeOpen(false)}
+        onTargetApplied={handleTargetApplied}
+      />
     </div>
   );
 }
@@ -373,14 +538,14 @@ function InsightMetric({
   value: string;
 }) {
   const toneClasses = {
-    orange: "bg-orange-50 text-orange-600 border-orange-100",
+    orange: "bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-900/50",
     green: "bg-primary/10 text-primary border-primary/20",
-    blue: "bg-blue-50 text-blue-600 border-blue-100",
+    blue: "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/50",
   }[tone];
 
   return (
     <div
-      className={`rounded-2xl border p-4 shadow-sm ${
+      className={`rounded-2xl border p-4 shadow-sm w-full ${
         featured
           ? "border-primary/25 bg-primary/5"
           : "border-border bg-background"
@@ -441,7 +606,7 @@ function MacroTrack({
               {label}
             </span>
             <span className="text-xs font-bold text-muted-foreground">
-              {hasValue ? `${value}g / ${target}g` : "Chưa có dữ liệu"}
+              {hasValue ? `${value}g / ${target}g` : `0g / ${target}g`}
             </span>
           </div>
 
@@ -453,7 +618,7 @@ function MacroTrack({
               />
             </div>
             <span className="mt-1.5 block text-right text-[10px] font-semibold text-muted-foreground/70">
-              {hasValue ? `${percent}% mục tiêu` : "0g / " + target + "g"}
+              {hasValue ? `${percent}% mục tiêu` : "0% mục tiêu"}
             </span>
           </div>
         </div>

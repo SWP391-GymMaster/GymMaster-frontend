@@ -3,12 +3,13 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
+import Link from "next/link"
 import {
   CheckCircle2,
   CreditCard,
   Keyboard,
+  RefreshCw,
   Search,
-  ShieldAlert,
   ShieldCheck,
   XCircle,
   Zap,
@@ -245,6 +246,22 @@ export function CheckInTerminal() {
               <BlockedHint>
                 Hội viên chưa đủ điều kiện vào phòng cho đến khi gói tập đang hoạt động và đã thanh toán.
               </BlockedHint>
+              <div className="mt-3 flex gap-2">
+                <Link
+                  href={`/staff/renew-package?memberId=${selectedMember.id}&query=${selectedMember.memberCode}`}
+                  className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+                >
+                  <RefreshCw className="size-3.5" />
+                  Gia hạn gói tập
+                </Link>
+                <Link
+                  href={`/staff/payments?query=${selectedMember.fullName}`}
+                  className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 text-xs font-semibold text-white transition hover:bg-zinc-850 active:scale-[0.98]"
+                >
+                  <CreditCard className="size-3.5" />
+                  Thanh toán ngay
+                </Link>
+              </div>
             </div>
           ) : null}
 
@@ -268,11 +285,31 @@ export function CheckInTerminal() {
           ) : null}
 
           {result ? (
-            <CheckInResultPanel
-              checkedInAt={result.checkedInAt}
-              message={result.safeMessage}
-              status={result.status === "checked-in" ? "success" : "blocked"}
-            />
+            <>
+              <CheckInResultPanel
+                checkedInAt={result.checkedInAt}
+                message={result.safeMessage}
+                status={result.status === "checked-in" ? "success" : "blocked"}
+              />
+              {result.status !== "checked-in" && selectedMember ? (
+                <div className="mt-3 flex gap-2">
+                  <Link
+                    href={`/staff/renew-package?memberId=${selectedMember.id}&query=${selectedMember.memberCode}`}
+                    className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+                  >
+                    <RefreshCw className="size-3.5" />
+                    Gia hạn gói tập
+                  </Link>
+                  <Link
+                    href={`/staff/payments?query=${selectedMember.fullName}`}
+                    className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 text-xs font-semibold text-white transition hover:bg-zinc-850 active:scale-[0.98]"
+                  >
+                    <CreditCard className="size-3.5" />
+                    Thanh toán ngay
+                  </Link>
+                </div>
+              ) : null}
+            </>
           ) : null}
         </section>
       </div>

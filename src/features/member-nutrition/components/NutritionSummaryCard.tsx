@@ -38,14 +38,24 @@ export function NutritionSummaryCard({
   const pathname = usePathname();
   const isOnSummaryPage = pathname === "/member/nutrition/summary";
   const [localTarget, setLocalTarget] = useState(summary?.target ?? 2200);
+  const [pTarget, setPTarget] = useState(140);
+  const [cTarget, setCTarget] = useState(270);
+  const [fTarget, setFTarget] = useState(75);
 
   useEffect(() => {
     const targetVal = summary?.target ?? 2200;
     const override = localStorage.getItem("gymmaster-calorie-goal");
     const val = override ? Number(override) : targetVal;
 
+    const overrideP = localStorage.getItem("gymmaster-protein-goal");
+    const overrideC = localStorage.getItem("gymmaster-carbs-goal");
+    const overrideF = localStorage.getItem("gymmaster-fat-goal");
+
     const timer = setTimeout(() => {
       setLocalTarget(val);
+      if (overrideP) setPTarget(Number(overrideP));
+      if (overrideC) setCTarget(Number(overrideC));
+      if (overrideF) setFTarget(Number(overrideF));
     }, 0);
 
     return () => clearTimeout(timer);
@@ -96,9 +106,6 @@ export function NutritionSummaryCard({
   const strokeDashoffset =
     circumference - (consumedPercent / 100) * circumference;
 
-  const pTarget = 140;
-  const cTarget = 270;
-  const fTarget = 75;
   const pPercent = Math.min(
     100,
     Math.round(((summary.proteinG || 0) / pTarget) * 100),

@@ -64,4 +64,30 @@ describe("CheckInTerminal", () => {
 
     expect(await screen.findByText(/Từ chối check-in/i)).toBeInTheDocument()
   })
+
+  it("displays quick actions for renew and payment when check-in is blocked/denied", async () => {
+    renderWithStaffSession(<CheckInTerminal />)
+
+    fireEvent.change(screen.getByTestId("staff-checkin-search"), {
+      target: { value: "GM-103" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Tìm kiếm" }))
+    await waitFor(() => {
+      const card = screen.getAllByText("Le Hoang My").find((el) => el.closest("button"))
+      if (!card) throw new Error("Card not found")
+      fireEvent.click(card)
+    })
+
+    // Check before confirm - BlockedHint with quick actions should be visible
+    expect(screen.getByText("Gia hạn gói tập")).toBeInTheDocument()
+    expect(screen.getByText("Thanh toán ngay")).toBeInTheDocument()
+
+    // Confirm check-in to get check-in denied result
+    fireEvent.click(screen.getByTestId("staff-checkin-confirm"))
+
+    // Result panel should show denied result, and quick actions should still be there
+    expect(await screen.findByText(/Từ chối check-in/i)).toBeInTheDocument()
+    expect(screen.getAllByText("Gia hạn gói tập")[0]).toBeInTheDocument()
+    expect(screen.getAllByText("Thanh toán ngay")[0]).toBeInTheDocument()
+  })
 })

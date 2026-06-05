@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   CalendarCheck,
@@ -53,6 +53,18 @@ const todayActions = [
 export function MemberDashboardContent() {
   const summary = useMemberCalorieSummary(today);
   const [isBmiOpen, setIsBmiOpen] = useState(false);
+  const [calorieGoal, setCalorieGoal] = useState(2200);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedCal = localStorage.getItem("gymmaster-calorie-goal");
+      const val = storedCal ? Number(storedCal) : (summary.data?.target ?? 2200);
+      const timer = setTimeout(() => {
+        setCalorieGoal(val);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+  }, [summary.data?.target]);
 
   return (
     <div className="grid gap-6">
@@ -98,7 +110,7 @@ export function MemberDashboardContent() {
 
             <div>
               <div className="grid gap-3 sm:grid-cols-3">
-                <HeroChip label="Mục tiêu" value="2.200 kcal" variant="glass" />
+                <HeroChip label="Mục tiêu" value={`${calorieGoal.toLocaleString("vi-VN")} kcal`} variant="glass" />
                 <HeroChip label="Buổi tiếp theo" value="18:30" variant="glass" />
                 <HeroChip label="Check-in" value="Sẵn sàng" variant="glass" />
               </div>
