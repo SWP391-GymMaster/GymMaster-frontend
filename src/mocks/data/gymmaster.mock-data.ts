@@ -103,7 +103,7 @@ export type MockProgressEntry = {
 
 export const members: MockMember[] = [
   {
-    id: 101,
+    id: 4,
     memberCode: "GM-101",
     fullName: "Nguyen Minh Anh",
     email: "member@gymmaster.local",
@@ -430,10 +430,10 @@ export const foodItems: Array<{
   carbsG?: number
   fatG?: number
 }> = [
-  { id: 901, name: "Chicken breast", unit: "100g", caloriesPerUnit: 165, proteinG: 31, carbsG: 0, fatG: 3.6 },
-  { id: 902, name: "White rice", unit: "100g", caloriesPerUnit: 130, proteinG: 2.7, carbsG: 28, fatG: 0.3 },
-  { id: 903, name: "Banana", unit: "piece", caloriesPerUnit: 105, proteinG: 1.3, carbsG: 27, fatG: 0.3 }
-]
+    { id: 901, name: "Chicken breast", unit: "100g", caloriesPerUnit: 165, proteinG: 31, carbsG: 0, fatG: 3.6 },
+    { id: 902, name: "White rice", unit: "100g", caloriesPerUnit: 130, proteinG: 2.7, carbsG: 28, fatG: 0.3 },
+    { id: 903, name: "Banana", unit: "piece", caloriesPerUnit: 105, proteinG: 1.3, carbsG: 27, fatG: 0.3 }
+  ]
 
 let currentId = 904
 

@@ -38,11 +38,7 @@ export function useCurrentMemberProfileId() {
       return null
     }
 
-    if (state.session.user.email === "member@gymmaster.local") {
-      return 101
-    }
-
-    return null
+    return state.session?.user?.userId;
   })
 }
 
