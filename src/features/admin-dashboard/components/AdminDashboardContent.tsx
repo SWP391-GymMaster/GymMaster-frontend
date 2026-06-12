@@ -39,36 +39,50 @@ function formatVnd(amount: number) {
 
 function formatCompactVnd(amount: number) {
   if (amount >= 1_000_000_000) {
-    return `${Math.round(amount / 1_000_000_000)} tỷ`;
+    const val = amount / 1_000_000_000;
+    return `${Number.isInteger(val) ? val : val.toFixed(1)} tỷ`;
   }
-
   if (amount >= 1_000_000) {
-    return `${Math.round(amount / 1_000_000)} triệu`;
+    const val = amount / 1_000_000;
+    return `${Number.isInteger(val) ? val : val.toFixed(1)} triệu`;
   }
-
   return formatVnd(amount);
 }
 
 type DashboardOptionalFields = {
   pendingPaymentAmount?: number;
   pendingPaymentCount?: number;
+  revenueByMonth?: { month: string; revenue: number }[];
+  recentlyExpired?: {
+    initials: string;
+    memberName: string;
+    packageName: string;
+    expiredDate: string;
+  }[];
+  facilityLoadPercent?: number;
+  ptSessionPercent?: number;
+  generalAreaPercent?: number;
+  previousMonthRevenue?: number;
+  newMembershipsThisMonth?: number;
+  peakHourStart?: number;
+  peakHourEnd?: number;
 };
 
 const monthlyRevenueRatio = [0.48, 0.54, 0.64, 0.7, 1];
 
-const expiredMembers = [
-  {
-    id: "JD",
-    name: "John Doe",
-    plan: "Pro Annual",
-    expiredOn: "2 ngày trước",
-  },
-  {
-    id: "AS",
-    name: "Alice Smith",
-    plan: "Monthly Basic",
-    expiredOn: "Hôm nay",
-  },
+function formatExpiredOn(dateStr: string): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiredDate = new Date(dateStr);
+  const diffDays = Math.floor((today.getTime() - expiredDate.getTime()) / 86_400_000);
+  if (diffDays <= 0) return "Hôm nay";
+  if (diffDays === 1) return "1 ngày trước";
+  return `${diffDays} ngày trước`;
+}
+
+const expiredMembersFallback = [
+  { id: "JD", name: "John Doe", plan: "Pro Annual", expiredOn: "2 ngày trước" },
+  { id: "AS", name: "Alice Smith", plan: "Monthly Basic", expiredOn: "Hôm nay" },
 ];
 
 export function AdminDashboardContent() {
@@ -114,10 +128,57 @@ export function AdminDashboardContent() {
   const pendingPaymentAmount = optionalData?.pendingPaymentAmount ?? 3_150_000;
   const pendingPaymentCount = optionalData?.pendingPaymentCount ?? 14;
 
-  const chartData = monthlyRevenueRatio.map((ratio, index) => ({
-    month: ["T1", "T2", "T3", "T4", "T5"][index],
-    "Doanh thu": Math.round(revenue * ratio),
-  }));
+  const facilityLoadPercent = optionalData?.facilityLoadPercent ?? 78;
+  const ptSessionPercent = optionalData?.ptSessionPercent ?? 45;
+  const generalAreaPercent = optionalData?.generalAreaPercent ?? 33;
+  const facilityDeg = Math.round((facilityLoadPercent / 100) * 360);
+
+  const previousMonthRevenue = optionalData?.previousMonthRevenue ?? 0;
+  const revenueChangePercent =
+    previousMonthRevenue > 0
+      ? Math.round(((revenue - previousMonthRevenue) / previousMonthRevenue) * 100)
+      : null;
+  const revenueTrend =
+    revenueChangePercent !== null
+      ? {
+          direction: (revenueChangePercent >= 0 ? "up" : "down") as "up" | "down",
+          label: `${revenueChangePercent >= 0 ? "+" : ""}${revenueChangePercent}% so với tháng trước`,
+        }
+      : { direction: "neutral" as const, label: "Tháng đầu tiên" };
+
+  const newMembershipsThisMonth = optionalData?.newMembershipsThisMonth;
+  const activeTrend =
+    newMembershipsThisMonth !== undefined
+      ? {
+          direction: (newMembershipsThisMonth > 0 ? "up" : "neutral") as "up" | "neutral",
+          label: newMembershipsThisMonth > 0 ? `+${newMembershipsThisMonth} mới tháng này` : "Không có mới",
+        }
+      : { direction: "up" as const, label: "+4.2% duy trì" };
+
+  const peakHourStart = optionalData?.peakHourStart ?? 17;
+  const peakHourEnd = optionalData?.peakHourEnd ?? 19;
+  const peakLabel = `Cao điểm ${String(peakHourStart).padStart(2, "0")}:00 - ${String(peakHourEnd).padStart(2, "0")}:00`;
+
+  const recentlyExpiredList =
+    optionalData?.recentlyExpired && optionalData.recentlyExpired.length > 0
+      ? optionalData.recentlyExpired.map((m) => ({
+          id: m.initials,
+          name: m.memberName,
+          plan: m.packageName,
+          expiredOn: formatExpiredOn(m.expiredDate),
+        }))
+      : expiredMembersFallback;
+
+  const chartData =
+    optionalData?.revenueByMonth && optionalData.revenueByMonth.length > 0
+      ? optionalData.revenueByMonth.map((item) => ({
+          month: item.month,
+          "Doanh thu": item.revenue,
+        }))
+      : monthlyRevenueRatio.map((ratio, index) => ({
+          month: ["T1", "T2", "T3", "T4", "T5"][index],
+          "Doanh thu": Math.round(revenue * ratio),
+        }));
 
   return (
     <div className="space-y-6">
@@ -145,21 +206,21 @@ export function AdminDashboardContent() {
           className="min-h-[190px] rounded-2xl border-border bg-card shadow-sm"
           icon={DollarSign}
           label="DOANH THU THÁNG"
-          trend={{ direction: "up", label: "+12.5% so với kỳ trước" }}
+          trend={revenueTrend}
           value={formatCompactVnd(revenue)}
         />
         <DashboardMetricCard
           className="min-h-[190px] rounded-2xl border-border bg-card shadow-sm"
           icon={Users}
           label="HỘI VIÊN HOẠT ĐỘNG"
-          trend={{ direction: "up", label: "+4.2% duy trì" }}
+          trend={activeTrend}
           value={data?.activeCount ?? 0}
         />
         <DashboardMetricCard
           className="min-h-[190px] rounded-2xl border-border bg-card shadow-sm"
           icon={UserCheck}
           label="CHECK-IN HÔM NAY"
-          trend={{ direction: "neutral", label: "Cao điểm 17:00 - 19:00" }}
+          trend={{ direction: "neutral", label: peakLabel }}
           value={todayCheckIns}
         />
         <DashboardMetricCard
@@ -258,12 +319,12 @@ export function AdminDashboardContent() {
             <div
               className="relative flex size-48 items-center justify-center rounded-full"
               style={{
-                background: `conic-gradient(${c.primary} 0deg 281deg, ${c.muted} 281deg 360deg)`,
+                background: `conic-gradient(${c.primary} 0deg ${facilityDeg}deg, ${c.muted} ${facilityDeg}deg 360deg)`,
               }}
             >
               <div className="flex size-36 flex-col items-center justify-center rounded-full bg-card shadow-inner">
                 <p className="text-4xl font-semibold tracking-tight text-foreground">
-                  78%
+                  {facilityLoadPercent}%
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   giờ cao điểm
@@ -278,14 +339,14 @@ export function AdminDashboardContent() {
                 <span className="size-3 rounded-sm bg-primary" />
                 Buổi PT
               </span>
-              <span className="font-semibold text-foreground">45%</span>
+              <span className="font-semibold text-foreground">{ptSessionPercent}%</span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="flex items-center gap-2 text-muted-foreground">
                 <span className="size-3 rounded-sm bg-muted ring-1 ring-border" />
                 Khu vực tập chung
               </span>
-              <span className="font-semibold text-foreground">33%</span>
+              <span className="font-semibold text-foreground">{generalAreaPercent}%</span>
             </div>
           </div>
         </div>
@@ -351,7 +412,7 @@ export function AdminDashboardContent() {
               <span className="text-right">Thao tác</span>
             </div>
 
-            {expiredMembers.map((member) => (
+            {recentlyExpiredList.map((member) => (
               <div
                 className="grid grid-cols-[1.3fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-4 py-4 last:border-b-0"
                 key={member.id}

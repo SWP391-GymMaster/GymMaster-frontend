@@ -7,6 +7,8 @@ import {
   createMemberWorkoutPlan,
   getMemberTrainerNotes,
   getMemberWorkoutPlans,
+  getMyTrainerNotes,
+  getMyWorkoutPlans,
 } from "@/features/pt-training/api/pt-training.api"
 import type {
   TrainerNoteDraft,
@@ -20,6 +22,8 @@ export const ptTrainingKeys = {
     [...ptTrainingKeys.all, "workout-plans", memberId] as const,
   trainerNotes: (memberId: number) =>
     [...ptTrainingKeys.all, "trainer-notes", memberId] as const,
+  myWorkoutPlans: [...["pt-training"], "my-workout-plans"] as const,
+  myTrainerNotes: [...["pt-training"], "my-trainer-notes"] as const,
 }
 
 function useAccessToken() {
@@ -77,5 +81,25 @@ export function useCreateMemberTrainerNote(memberId: number) {
         queryKey: ptTrainingKeys.trainerNotes(memberId),
       })
     },
+  })
+}
+
+export function useMyWorkoutPlans() {
+  const accessToken = useAccessToken()
+
+  return useQuery({
+    queryKey: ptTrainingKeys.myWorkoutPlans,
+    queryFn: () => getMyWorkoutPlans(accessToken ?? ""),
+    enabled: Boolean(accessToken),
+  })
+}
+
+export function useMyTrainerNotes() {
+  const accessToken = useAccessToken()
+
+  return useQuery({
+    queryKey: ptTrainingKeys.myTrainerNotes,
+    queryFn: () => getMyTrainerNotes(accessToken ?? ""),
+    enabled: Boolean(accessToken),
   })
 }
