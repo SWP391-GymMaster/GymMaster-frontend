@@ -19,8 +19,8 @@ import { StatusPill } from "@/components/data/StatusPill"
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 import {
-  useMemberTrainerNotes,
-  useMemberWorkoutPlans,
+  useMyTrainerNotes,
+  useMyWorkoutPlans,
 } from "@/features/pt-training/api/pt-training.queries"
 import {
   TrainerNoteList,
@@ -31,10 +31,8 @@ import {
   WorkoutPlanListHeader,
 } from "@/features/pt-training/components/WorkoutPlanList"
 
-const demoMemberId = 101
-
 export function MemberWorkoutWorkspace() {
-  const plansQuery = useMemberWorkoutPlans(demoMemberId)
+  const plansQuery = useMyWorkoutPlans()
   const plans = plansQuery.data ?? []
   const latestPlan = plans[0]
   const exercisesCount = latestPlan?.exercises.length ?? 0
@@ -112,7 +110,7 @@ export function MemberWorkoutWorkspace() {
 }
 
 export function MemberTrainerNotesWorkspace() {
-  const notesQuery = useMemberTrainerNotes(demoMemberId)
+  const notesQuery = useMyTrainerNotes()
   const notesCount = notesQuery.data?.length ?? 0
 
   return (

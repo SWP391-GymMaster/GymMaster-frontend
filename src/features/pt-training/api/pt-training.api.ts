@@ -21,6 +21,12 @@ export function getMemberWorkoutPlans(accessToken: string, memberId: number) {
   )
 }
 
+export function getMyWorkoutPlans(accessToken: string) {
+  return apiRequest<WorkoutPlan[]>(`/api/v1/members/me/workout-plans`, {
+    headers: authHeaders(accessToken),
+  })
+}
+
 export function createMemberWorkoutPlan(
   accessToken: string,
   memberId: number,
@@ -38,6 +44,12 @@ export function createMemberWorkoutPlan(
 
 export function getMemberTrainerNotes(accessToken: string, memberId: number) {
   return apiRequest<TrainerNote[]>(`/api/v1/members/${memberId}/notes`, {
+    headers: authHeaders(accessToken),
+  })
+}
+
+export function getMyTrainerNotes(accessToken: string) {
+  return apiRequest<TrainerNote[]>(`/api/v1/members/me/notes`, {
     headers: authHeaders(accessToken),
   })
 }
