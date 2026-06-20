@@ -6,6 +6,8 @@ export type AuthUser = {
   fullName: string
   role: UserRole
   status: "active" | "locked" | string
+  // Id hồ sơ hội viên (member_profiles) — khác userId. null nếu chưa có hồ sơ.
+  memberProfileId?: number | null
 }
 
 export type AuthSession = {
@@ -42,6 +44,7 @@ export type ForgotPasswordSuccess = {
 }
 
 export type ResetPasswordRequest = {
+  email: string
   resetToken: string
   newPassword: string
 }

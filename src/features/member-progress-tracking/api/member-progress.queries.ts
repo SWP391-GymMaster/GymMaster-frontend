@@ -25,7 +25,7 @@ export function useCurrentMemberProfileId() {
       return null
     }
 
-    return state.session?.user?.userId;
+    return state.session?.user?.memberProfileId ?? null;
   })
 }
 

@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ArrowRight, Mail } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -22,8 +23,8 @@ import {
 import { mapAuthError } from "@/features/auth/utils/auth-error-map"
 
 export function ForgotPasswordForm() {
+  const router = useRouter()
   const [message, setMessage] = useState<string | null>(null)
-  const [resetToken, setResetToken] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const {
     formState: { errors, isSubmitting },
@@ -39,13 +40,18 @@ export function ForgotPasswordForm() {
   async function onSubmit(values: ForgotPasswordFormValues) {
     setFormError(null)
     setMessage(null)
-    setResetToken(null)
 
     try {
       const result = await forgotPassword(values)
-      setMessage("Nếu email tồn tại, yêu cầu đặt lại mật khẩu đã được tạo.")
-      setResetToken(result.resetToken ?? null)
-      toast.success("Đã tạo yêu cầu đặt lại mật khẩu")
+      toast.success("Đã gửi mã OTP, vui lòng kiểm tra email")
+
+      // Sang trang đặt lại mật khẩu, điền sẵn email; OTP người dùng lấy từ email.
+      const params = new URLSearchParams({ email: values.email })
+      if (result.resetToken) {
+        // Dev (chưa cấu hình email): điền sẵn OTP để test nhanh.
+        params.set("token", result.resetToken)
+      }
+      router.push(`/reset-password?${params.toString()}`)
     } catch (error) {
       const mappedError = mapAuthError(error)
       setFormError(mappedError.message)
@@ -90,11 +96,6 @@ export function ForgotPasswordForm() {
           role="status"
         >
           {message}
-          {resetToken ? (
-            <span className="mt-2 block font-mono text-xs">
-              Mã reset dev: {resetToken}
-            </span>
-          ) : null}
         </div>
       ) : null}
 

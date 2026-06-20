@@ -36,6 +36,7 @@ export function ChangePasswordForm() {
     defaultValues: {
       currentPassword: "",
       newPassword: "",
+      confirmPassword: "",
     },
   })
 
@@ -105,6 +106,29 @@ export function ChangePasswordForm() {
         </div>
         {errors.newPassword ? (
           <p className={authErrorClassName}>{errors.newPassword.message}</p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className={authLabelClassName} htmlFor="change-confirm-password">
+          Nhập lại mật khẩu mới
+        </label>
+        <div className="relative">
+          <Lock
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            autoComplete="new-password"
+            className={authInputClassName}
+            data-testid="change-confirm-password-input"
+            id="change-confirm-password"
+            type="password"
+            {...register("confirmPassword")}
+          />
+        </div>
+        {errors.confirmPassword ? (
+          <p className={authErrorClassName}>{errors.confirmPassword.message}</p>
         ) : null}
       </div>
 

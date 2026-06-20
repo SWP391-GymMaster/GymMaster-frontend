@@ -22,15 +22,31 @@ export const forgotPasswordSchema = z.object({
   email: z.email("Nhập email hợp lệ."),
 })
 
-export const resetPasswordSchema = z.object({
-  resetToken: z.string().min(1, "Vui lòng nhập mã đặt lại mật khẩu."),
-  newPassword: passwordSchema,
-})
+export const resetPasswordSchema = z
+  .object({
+    email: z.email("Nhập email hợp lệ."),
+    resetToken: z
+      .string()
+      .min(1, "Vui lòng nhập mã OTP.")
+      .regex(/^\d{6}$/, "Mã OTP gồm 6 chữ số."),
+    newPassword: passwordSchema,
+    confirmPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu."),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Mật khẩu nhập lại không khớp.",
+    path: ["confirmPassword"],
+  })
 
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại."),
-  newPassword: passwordSchema,
-})
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại."),
+    newPassword: passwordSchema,
+    confirmPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu."),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Mật khẩu nhập lại không khớp.",
+    path: ["confirmPassword"],
+  })
 
 export type SignupFormValues = z.infer<typeof signupSchema>
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>

@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowRight, KeyRound, Lock } from "lucide-react"
+import { ArrowRight, KeyRound, Lock, Mail } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -23,10 +23,11 @@ import {
 import { mapAuthError } from "@/features/auth/utils/auth-error-map"
 
 type ResetPasswordFormProps = {
+  email?: string
   resetToken?: string
 }
 
-export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
+export function ResetPasswordForm({ email = "", resetToken = "" }: ResetPasswordFormProps) {
   const [message, setMessage] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const {
@@ -36,7 +37,9 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
+      email,
       newPassword: "",
+      confirmPassword: "",
       resetToken,
     },
   })
@@ -59,8 +62,31 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
   return (
     <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-2">
+        <label className={authLabelClassName} htmlFor="reset-email">
+          Email
+        </label>
+        <div className="relative">
+          <Mail
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            autoComplete="email"
+            className={authInputClassName}
+            data-testid="reset-email-input"
+            id="reset-email"
+            type="email"
+            {...register("email")}
+          />
+        </div>
+        {errors.email ? (
+          <p className={authErrorClassName}>{errors.email.message}</p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="reset-token">
-          Mã đặt lại
+          Mã OTP (6 số)
         </label>
         <div className="relative">
           <KeyRound
@@ -72,6 +98,9 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
             className={authInputClassName}
             data-testid="reset-token-input"
             id="reset-token"
+            inputMode="numeric"
+            maxLength={6}
+            placeholder="Nhập mã 6 số trong email"
             type="text"
             {...register("resetToken")}
           />
@@ -101,6 +130,29 @@ export function ResetPasswordForm({ resetToken = "" }: ResetPasswordFormProps) {
         </div>
         {errors.newPassword ? (
           <p className={authErrorClassName}>{errors.newPassword.message}</p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className={authLabelClassName} htmlFor="reset-confirm-password">
+          Nhập lại mật khẩu mới
+        </label>
+        <div className="relative">
+          <Lock
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            autoComplete="new-password"
+            className={authInputClassName}
+            data-testid="reset-confirm-password-input"
+            id="reset-confirm-password"
+            type="password"
+            {...register("confirmPassword")}
+          />
+        </div>
+        {errors.confirmPassword ? (
+          <p className={authErrorClassName}>{errors.confirmPassword.message}</p>
         ) : null}
       </div>
 

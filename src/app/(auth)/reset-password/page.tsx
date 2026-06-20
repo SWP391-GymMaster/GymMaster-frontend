@@ -7,6 +7,7 @@ import { ResetPasswordForm } from "@/features/auth/components/ResetPasswordForm"
 type ResetPasswordPageProps = {
   searchParams?: Promise<{
     token?: string
+    email?: string
   }>
 }
 
@@ -21,7 +22,7 @@ export default async function ResetPasswordPage({
       footer={<BackToLoginLink />}
       title="Đặt mật khẩu mới"
     >
-      <ResetPasswordForm resetToken={params?.token ?? ""} />
+      <ResetPasswordForm email={params?.email ?? ""} resetToken={params?.token ?? ""} />
     </AuthOSShell>
   )
 }
