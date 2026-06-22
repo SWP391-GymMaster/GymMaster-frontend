@@ -15,6 +15,13 @@ export type Membership = {
   status: "pending_payment" | "active" | "expired" | "cancelled"
 }
 
+// Spec 003 / ADR-05 — member gui yeu cau gia han, admin/staff xac nhan sau.
+export type RenewalRequestResult = {
+  id: number
+  packageId: number
+  status: string
+}
+
 export type Payment = {
   id: number
   membershipId: number

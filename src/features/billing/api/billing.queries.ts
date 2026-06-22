@@ -10,6 +10,7 @@ import {
   getPayments,
   getMemberPayments,
   getMemberCheckIns,
+  createRenewalRequest,
 } from "@/features/billing/api/billing.api"
 import type { CreatePackageDraft } from "@/features/billing/types/billing.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
@@ -43,6 +44,20 @@ export function usePackages() {
     queryKey: billingKeys.packages(),
     queryFn: () => getPackages(accessToken ?? ""),
     enabled: Boolean(accessToken),
+  })
+}
+
+// Spec 003 / ADR-05 — member gui yeu cau gia han
+export function useCreateRenewalRequest() {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (packageId: number) =>
+      createRenewalRequest(accessToken ?? "", packageId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: billingKeys.all })
+    },
   })
 }
 

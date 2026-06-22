@@ -1,16 +1,55 @@
 "use client";
 
+import { useState } from "react";
+import { toast } from "sonner";
+
 import { useMember360Data } from "@/features/member-360/api/member-360.queries";
 import {
   useMemberPayments,
   useCurrentMemberProfileId,
+  usePackages,
+  useCreateRenewalRequest,
 } from "@/features/billing/api/billing.queries";
 import { StatusPill } from "@/components/data/StatusPill";
 import { StateBlock } from "@/components/feedback/StateBlock";
-import { CreditCard, User, Activity } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CreditCard, User, Activity, RefreshCw } from "lucide-react";
 
 export function MemberMembershipDetails() {
   const memberId = useCurrentMemberProfileId();
+  // Spec 003 / ADR-05 — member gui yeu cau gia han (admin/staff xac nhan sau).
+  const packages = usePackages();
+  const renewMutation = useCreateRenewalRequest();
+  const [renewOpen, setRenewOpen] = useState(false);
+  const [selectedPackageId, setSelectedPackageId] = useState("");
+
+  function handleRenew() {
+    const pkgId = Number(selectedPackageId);
+    if (!pkgId) return;
+    renewMutation.mutate(pkgId, {
+      onSuccess: () => {
+        toast.success("Đã gửi yêu cầu gia hạn. Lễ tân sẽ xác nhận sớm.");
+        setRenewOpen(false);
+        setSelectedPackageId("");
+      },
+      onError: () => {
+        toast.error("Không gửi được yêu cầu gia hạn. Vui lòng thử lại.");
+      },
+    });
+  }
   const {
     data: member360,
     isLoading: is360Loading,
@@ -124,6 +163,14 @@ export function MemberMembershipDetails() {
               )}
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => setRenewOpen(true)}
+            className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] hover:opacity-90"
+          >
+            <RefreshCw className="size-4" />
+            {membership ? "Yêu cầu gia hạn" : "Yêu cầu đăng ký gói"}
+          </button>
         </div>
 
         {/* PT Assignment Card */}
@@ -260,6 +307,50 @@ export function MemberMembershipDetails() {
           </div>
         )}
       </div>
+
+      <Dialog open={renewOpen} onOpenChange={setRenewOpen}>
+        <DialogContent className="rounded-[1.5rem]">
+          <DialogHeader>
+            <DialogTitle>Yêu cầu gia hạn gói tập</DialogTitle>
+            <DialogDescription>
+              Chọn gói bạn muốn gia hạn. Yêu cầu sẽ được lễ tân/quản lý xác nhận
+              và thu phí.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <Select
+              value={selectedPackageId}
+              onValueChange={setSelectedPackageId}
+            >
+              <SelectTrigger aria-label="Chọn gói tập">
+                <SelectValue placeholder="Chọn gói tập" />
+              </SelectTrigger>
+              <SelectContent>
+                {(packages.data ?? [])
+                  .filter((p) => p.status === "active")
+                  .map((p) => (
+                    <SelectItem key={p.id} value={String(p.id)}>
+                      {p.name} — {formatPrice(p.price)} / {p.durationDays} ngày
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            {packages.isError ? (
+              <p className="text-sm text-destructive">
+                Không tải được danh sách gói. Vui lòng thử lại.
+              </p>
+            ) : null}
+            <button
+              type="button"
+              disabled={!selectedPackageId || renewMutation.isPending}
+              onClick={handleRenew}
+              className="inline-flex h-11 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] hover:opacity-90 disabled:opacity-50"
+            >
+              {renewMutation.isPending ? "Đang gửi..." : "Gửi yêu cầu gia hạn"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
