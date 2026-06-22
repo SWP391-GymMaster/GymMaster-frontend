@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSetMemberCalorieTarget } from "@/features/member-nutrition/api/member-nutrition.queries";
 
 type TdeeCalculatorProps = {
   isOpen: boolean;
@@ -42,6 +43,10 @@ const dietTemplates = {
 };
 
 export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalculatorProps) {
+  // Spec 007 — luu muc tieu len backend (POST /members/{id}/calorie-target).
+  // localStorage van giu lam fallback offline khi backend loi.
+  const setTargetMutation = useSetMemberCalorieTarget();
+
   const [activeTab, setActiveTab] = useState<"tdee" | "manual">("tdee");
 
   // TDEE Calculator state
@@ -210,7 +215,14 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
         localStorage.setItem("gymmaster-protein-goal", pG.toString());
         localStorage.setItem("gymmaster-carbs-goal", cG.toString());
         localStorage.setItem("gymmaster-fat-goal", fG.toString());
-        
+
+        setTargetMutation.mutate({
+          dailyCalories: proposedCalorie,
+          proteinG: pG,
+          carbG: cG,
+          fatG: fG,
+        });
+
         onTargetApplied(proposedCalorie);
       } else {
         // Manual input
@@ -218,7 +230,14 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
         localStorage.setItem("gymmaster-protein-goal", manualProtein.toString());
         localStorage.setItem("gymmaster-carbs-goal", manualCarbs.toString());
         localStorage.setItem("gymmaster-fat-goal", manualFat.toString());
-        
+
+        setTargetMutation.mutate({
+          dailyCalories: manualCalorie,
+          proteinG: manualProtein,
+          carbG: manualCarbs,
+          fatG: manualFat,
+        });
+
         onTargetApplied(manualCalorie);
       }
       onClose();

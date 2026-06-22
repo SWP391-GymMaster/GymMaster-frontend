@@ -7,6 +7,8 @@ import type {
   MealLog,
   PagedResult,
   CreateCustomFoodInput,
+  SetCalorieTargetInput,
+  CalorieTarget,
 } from "@/features/member-nutrition/types/member-nutrition.types"
 
 function authHeaders(accessToken: string) {
@@ -57,6 +59,21 @@ export async function getMemberCalorieSummary(
     `/api/v1/members/${memberId}/calorie-summary?date=${encodeURIComponent(date)}`,
     {
       headers: authHeaders(accessToken),
+    },
+  )
+}
+
+export async function setMemberCalorieTarget(
+  accessToken: string,
+  memberId: number,
+  input: SetCalorieTargetInput,
+) {
+  return apiRequest<CalorieTarget>(
+    `/api/v1/members/${memberId}/calorie-target`,
+    {
+      method: "POST",
+      headers: authHeaders(accessToken),
+      body: JSON.stringify(input),
     },
   )
 }

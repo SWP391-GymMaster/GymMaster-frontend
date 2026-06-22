@@ -64,6 +64,25 @@ export type CalorieHistoryPoint = {
   target: number
 }
 
+// Spec 007 — POST /members/{id}/calorie-target (dat muc tieu calo/macro)
+export type SetCalorieTargetInput = {
+  dailyCalories: number
+  proteinG?: number
+  carbG?: number
+  fatG?: number
+  effectiveDate?: string
+}
+
+export type CalorieTarget = {
+  id: number
+  memberId: number
+  effectiveDate: string
+  dailyCalories: number
+  proteinG?: number
+  carbG?: number
+  fatG?: number
+}
+
 export type CreateCustomFoodInput = {
   name: string
   unit: string
