@@ -4,12 +4,32 @@ import type {
   Membership,
   Payment,
   CreatePackageDraft,
+  RenewalRequestResult,
+  PaymentSummary,
 } from "@/features/billing/types/billing.types"
 
 function authHeaders(accessToken: string) {
   return {
     Authorization: `Bearer ${accessToken}`,
   }
+}
+
+// Spec 003 / ADR-05 — member tu gui yeu cau gia han (admin/staff xac nhan sau).
+export async function createRenewalRequest(
+  accessToken: string,
+  packageId: number,
+): Promise<RenewalRequestResult> {
+  return apiRequest<RenewalRequestResult>(
+    "/api/v1/memberships/renewal-request",
+    {
+      method: "POST",
+      headers: {
+        ...authHeaders(accessToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ packageId }),
+    },
+  )
 }
 
 export async function getPackages(accessToken: string): Promise<GymPackage[]> {
@@ -55,6 +75,15 @@ export async function getMemberships(accessToken: string): Promise<Membership[]>
 
 export async function getPayments(accessToken: string): Promise<Payment[]> {
   return apiRequest<Payment[]>("/api/v1/payments", {
+    headers: authHeaders(accessToken),
+  })
+}
+
+// Spec 003 §6 — bao cao doanh thu
+export async function getPaymentsSummary(
+  accessToken: string,
+): Promise<PaymentSummary> {
+  return apiRequest<PaymentSummary>("/api/v1/payments/summary", {
     headers: authHeaders(accessToken),
   })
 }

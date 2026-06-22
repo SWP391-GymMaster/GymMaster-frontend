@@ -11,8 +11,9 @@ import {
   createCustomFoodItem,
   fetchFoodByBarcode,
   searchFoodOnline,
+  setMemberCalorieTarget,
 } from "@/features/member-nutrition/api/member-nutrition.api"
-import type { CreateMealLogDraft, CreateCustomFoodInput } from "@/features/member-nutrition/types/member-nutrition.types"
+import type { CreateMealLogDraft, CreateCustomFoodInput, SetCalorieTargetInput } from "@/features/member-nutrition/types/member-nutrition.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 
 export const memberNutritionKeys = {
@@ -129,6 +130,23 @@ export function useCreateCustomFoodItem() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: [...memberNutritionKeys.all, "foods"],
+      })
+    },
+  })
+}
+
+// Spec 007 — dat muc tieu calo/macro cho member hien tai
+export function useSetMemberCalorieTarget() {
+  const accessToken = useMemberAccessToken()
+  const memberId = useCurrentMemberProfileId()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: SetCalorieTargetInput) =>
+      setMemberCalorieTarget(accessToken ?? "", memberId ?? 0, input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: memberNutritionKeys.all,
       })
     },
   })
