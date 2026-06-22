@@ -11,6 +11,7 @@ import {
   getMemberPayments,
   getMemberCheckIns,
   createRenewalRequest,
+  getPaymentsSummary,
 } from "@/features/billing/api/billing.api"
 import type { CreatePackageDraft } from "@/features/billing/types/billing.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
@@ -20,6 +21,7 @@ export const billingKeys = {
   packages: () => [...billingKeys.all, "packages"] as const,
   memberships: () => [...billingKeys.all, "memberships"] as const,
   payments: () => [...billingKeys.all, "payments"] as const,
+  paymentsSummary: () => [...billingKeys.all, "payments-summary"] as const,
   memberPayments: (memberId: number) => [...billingKeys.all, "member-payments", memberId] as const,
 }
 
@@ -58,6 +60,17 @@ export function useCreateRenewalRequest() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: billingKeys.all })
     },
+  })
+}
+
+// Spec 003 §6 — bao cao doanh thu
+export function usePaymentsSummary() {
+  const accessToken = useAccessToken()
+
+  return useQuery({
+    queryKey: billingKeys.paymentsSummary(),
+    queryFn: () => getPaymentsSummary(accessToken ?? ""),
+    enabled: Boolean(accessToken),
   })
 }
 

@@ -40,3 +40,27 @@ export type CreatePackageDraft = {
   price: number
   status: "active" | "inactive"
 }
+
+// Spec 003 §6 — GET /payments/summary (bao cao doanh thu)
+export type PaymentMethodSummary = {
+  paymentMethod: string
+  count: number
+  amount: number
+}
+
+export type DailyRevenue = {
+  date: string
+  count: number
+  amount: number
+}
+
+export type PaymentSummary = {
+  from?: string | null
+  to?: string | null
+  totalPayments: number
+  paidPayments: number
+  pendingPayments: number
+  revenue: number
+  byMethod: PaymentMethodSummary[]
+  byDay: DailyRevenue[]
+}

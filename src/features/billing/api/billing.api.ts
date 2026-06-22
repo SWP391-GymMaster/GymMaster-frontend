@@ -5,6 +5,7 @@ import type {
   Payment,
   CreatePackageDraft,
   RenewalRequestResult,
+  PaymentSummary,
 } from "@/features/billing/types/billing.types"
 
 function authHeaders(accessToken: string) {
@@ -74,6 +75,15 @@ export async function getMemberships(accessToken: string): Promise<Membership[]>
 
 export async function getPayments(accessToken: string): Promise<Payment[]> {
   return apiRequest<Payment[]>("/api/v1/payments", {
+    headers: authHeaders(accessToken),
+  })
+}
+
+// Spec 003 §6 — bao cao doanh thu
+export async function getPaymentsSummary(
+  accessToken: string,
+): Promise<PaymentSummary> {
+  return apiRequest<PaymentSummary>("/api/v1/payments/summary", {
     headers: authHeaders(accessToken),
   })
 }

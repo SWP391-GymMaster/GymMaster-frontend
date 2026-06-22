@@ -113,6 +113,40 @@ export const billingHandlers = [
 
     return ok(payments)
   }),
+  http.get("/api/v1/payments/summary", ({ request }) => {
+    const role = requireRole(request, ["admin", "staff"])
+    if (typeof role !== "string") return role
+
+    const paid = payments.filter((p) => p.status === "paid")
+    const pending = payments.filter((p) => p.status === "pending")
+    const revenue = paid.reduce((sum, p) => sum + p.amount, 0)
+
+    const byMethodMap = new Map<string, { count: number; amount: number }>()
+    for (const p of paid) {
+      const entry = byMethodMap.get(p.paymentMethod) ?? { count: 0, amount: 0 }
+      entry.count += 1
+      entry.amount += p.amount
+      byMethodMap.set(p.paymentMethod, entry)
+    }
+    const byMethod = Array.from(byMethodMap.entries()).map(
+      ([paymentMethod, v]) => ({
+        paymentMethod,
+        count: v.count,
+        amount: v.amount,
+      }),
+    )
+
+    return ok({
+      from: null,
+      to: null,
+      totalPayments: payments.length,
+      paidPayments: paid.length,
+      pendingPayments: pending.length,
+      revenue,
+      byMethod,
+      byDay: [],
+    })
+  }),
   http.get("/api/v1/members/:id/payments", ({ params, request }) => {
     const role = requireRole(request, ["admin", "staff", "member"])
     if (typeof role !== "string") return role

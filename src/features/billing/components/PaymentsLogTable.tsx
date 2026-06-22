@@ -13,10 +13,15 @@ import {
 } from "@/components/ui/select"
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
-import { usePayments } from "@/features/billing/api/billing.queries"
+import {
+  usePayments,
+  usePaymentsSummary,
+} from "@/features/billing/api/billing.queries"
 
 export function PaymentsLogTable() {
   const { data: payments, isLoading, error } = usePayments()
+  // Spec 003 §6 — bao cao doanh thu (GET /payments/summary)
+  const { data: summary } = usePaymentsSummary()
 
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "pending" | "refunded">("all")
@@ -57,6 +62,44 @@ export function PaymentsLogTable() {
 
   return (
     <div className="space-y-6">
+      {/* Bao cao doanh thu (spec 003 §6) */}
+      {summary ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Doanh thu (đã thu)
+            </p>
+            <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {formatPrice(summary.revenue)}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Tổng giao dịch
+            </p>
+            <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {summary.totalPayments}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Đã thanh toán
+            </p>
+            <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {summary.paidPayments}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Đang chờ
+            </p>
+            <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+              {summary.pendingPayments}
+            </p>
+          </div>
+        </div>
+      ) : null}
+
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
