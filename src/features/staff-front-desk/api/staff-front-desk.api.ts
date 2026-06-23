@@ -35,7 +35,8 @@ function normalizePackage(item: MockPackageDto): PackageOption {
     name: item.name,
     price: item.price,
     durationDays: item.durationDays,
-    isActive: item.status === "active",
+    // Backend that: isActive (boolean). Mock cu: status === "active".
+    isActive: item.isActive ?? item.status === "active",
   }
 }
 

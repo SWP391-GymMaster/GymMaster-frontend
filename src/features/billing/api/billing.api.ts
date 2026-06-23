@@ -33,9 +33,17 @@ export async function createRenewalRequest(
 }
 
 export async function getPackages(accessToken: string): Promise<GymPackage[]> {
-  return apiRequest<GymPackage[]>("/api/v1/packages", {
-    headers: authHeaders(accessToken),
-  })
+  // Backend that tra isActive (boolean); mock cu tra status string -> chuan hoa ve status.
+  const raw = await apiRequest<Array<GymPackage & { isActive?: boolean }>>(
+    "/api/v1/packages",
+    {
+      headers: authHeaders(accessToken),
+    },
+  )
+  return raw.map((pkg) => ({
+    ...pkg,
+    status: pkg.status ?? (pkg.isActive ? "active" : "inactive"),
+  }))
 }
 
 export async function createPackage(
