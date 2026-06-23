@@ -19,6 +19,17 @@ const fallbackError: ApiError = {
   message: "Không thể kết nối dịch vụ GymMaster. Vui lòng thử lại.",
 }
 
+const emptyProtectedResponseErrors: Partial<Record<number, ApiError>> = {
+  401: {
+    code: "UNAUTHORIZED",
+    message: "Phiên đăng nhập không còn hợp lệ. Vui lòng đăng nhập lại.",
+  },
+  403: {
+    code: "FORBIDDEN",
+    message: "Bạn không có quyền truy cập khu vực này.",
+  },
+}
+
 export function normalizeApiPath(path: string) {
   if (!path.startsWith("/api") || path.startsWith("/api/v1")) {
     return path
@@ -55,6 +66,12 @@ export async function parseApiResponse<T>(response: Response): Promise<T> {
   try {
     payload = (await response.json()) as ApiResponse<T>
   } catch {
+    const protectedError = emptyProtectedResponseErrors[response.status]
+
+    if (protectedError) {
+      throw new ApiClientError(protectedError, response.status)
+    }
+
     throw new ApiClientError(
       {
         code: "INVALID_RESPONSE",

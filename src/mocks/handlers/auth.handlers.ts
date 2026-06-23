@@ -37,7 +37,7 @@ const demoUsers: Record<UserRole, AuthUser> = {
     fullName: "Gym Member",
     role: "member",
     status: "active",
-    memberProfileId: 1,
+    memberProfileId: 101,
   },
 }
 

@@ -19,6 +19,7 @@ export function setMemberSessionForTest() {
       fullName: "Gym Member",
       role: "member",
       status: "active",
+      memberProfileId: 101,
     },
   })
 }

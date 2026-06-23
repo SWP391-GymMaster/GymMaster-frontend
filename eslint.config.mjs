@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "public/mockServiceWorker.js",
     "test-results/**",
     "playwright-report/**",
+    ".understand-anything/**",
+    ".codegraph/**",
   ]),
 ]);
 
