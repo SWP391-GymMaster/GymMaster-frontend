@@ -39,14 +39,26 @@ export async function getMemberMealLogs(
   )
 }
 
+// Backend nhan mealType dang byte (enum): Breakfast=1, Lunch=2, Dinner=3, Snack=4.
+const MEAL_TYPE_TO_BYTE: Record<string, number> = {
+  breakfast: 1,
+  lunch: 2,
+  dinner: 3,
+  snack: 4,
+}
+
 export async function createMemberMealLog(
   accessToken: string,
   draft: CreateMealLogDraft,
 ) {
+  const body = {
+    ...draft,
+    mealType: MEAL_TYPE_TO_BYTE[draft.mealType] ?? draft.mealType,
+  }
   return apiRequest<MealLog>("/api/v1/meal-logs", {
     method: "POST",
     headers: authHeaders(accessToken),
-    body: JSON.stringify(draft),
+    body: JSON.stringify(body),
   })
 }
 

@@ -103,7 +103,7 @@ export function SellPackageWizard() {
     <div className="space-y-5">
       <section className="grid gap-4 md:grid-cols-3">
         <WorkflowCard icon={PackagePlus} label="Trạng thái bán" title={saleResult ? "Đã tạo đơn" : "Chờ thanh toán"} />
-        <WorkflowCard icon={CreditCard} label="Nguồn gói" title="Mock API catalog" />
+        <WorkflowCard icon={CreditCard} label="Nguồn gói" title="Gói tập GymMaster Final" />
         <WorkflowCard icon={WalletCards} label="Phương thức thanh toán" title="Xác nhận thủ công" />
       </section>
 

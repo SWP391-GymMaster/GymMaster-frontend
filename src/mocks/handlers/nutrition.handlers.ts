@@ -234,11 +234,24 @@ export const nutritionHandlers = [
       return fail("FOOD_NOT_FOUND", "Food item was not found", 404)
     }
 
+    // Backend that gui mealType dang byte (1-4); mock luu lai dang string name.
+    const byteToMealType: Record<number, string> = {
+      1: "breakfast",
+      2: "lunch",
+      3: "dinner",
+      4: "snack",
+    }
+    const rawMealType = body.mealType as unknown
+    const mealType =
+      typeof rawMealType === "number"
+        ? (byteToMealType[rawMealType] ?? "meal")
+        : ((rawMealType as string) ?? "meal")
+
     const log = {
       id: Math.max(...mealLogs.map((item) => item.id)) + 1,
       memberId: body.memberId ?? 101,
       logDate: body.logDate ?? new Date().toISOString().slice(0, 10),
-      mealType: body.mealType ?? "meal",
+      mealType,
       items: body.items,
     }
     mealLogs.push(log)
