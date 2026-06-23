@@ -137,7 +137,9 @@ export type MockPackageDto = {
   name: string
   durationDays: number
   price: number
-  status: string
+  // Mock cu dung status string; backend that dung isActive boolean.
+  status?: string
+  isActive?: boolean
 }
 
 export type MockMembershipDto = {
