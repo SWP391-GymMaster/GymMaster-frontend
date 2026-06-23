@@ -68,9 +68,14 @@ export async function updatePackage(
 }
 
 export async function getMemberships(accessToken: string): Promise<Membership[]> {
-  return apiRequest<Membership[]>("/api/v1/memberships", {
-    headers: authHeaders(accessToken),
-  })
+  // Backend that tra paged {items,...}; mock cu tra mang phang -> chap nhan ca 2.
+  const data = await apiRequest<Membership[] | { items: Membership[] }>(
+    "/api/v1/memberships",
+    {
+      headers: authHeaders(accessToken),
+    },
+  )
+  return Array.isArray(data) ? data : data.items
 }
 
 export async function getPayments(accessToken: string): Promise<Payment[]> {

@@ -95,9 +95,13 @@ async function getPackagesDto(accessToken: string) {
 }
 
 async function getMembershipsDto(accessToken: string) {
-  return apiRequest<MockMembershipDto[]>("/api/v1/memberships", {
+  // Backend that tra paged {items,...}; mock cu tra mang phang -> chap nhan ca 2.
+  const data = await apiRequest<
+    MockMembershipDto[] | PagedResult<MockMembershipDto>
+  >("/api/v1/memberships", {
     headers: authHeaders(accessToken),
   })
+  return Array.isArray(data) ? data : data.items
 }
 
 async function getCheckInsDto(accessToken: string) {
