@@ -15,6 +15,25 @@ import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { useMemberships, usePackages } from "@/features/billing/api/billing.queries"
 import { useManagedMembers } from "@/features/member-management/api/member-management.queries"
+import type { Membership } from "@/features/billing/types/billing.types"
+
+// Don "Cho thanh toan" qua 10 phut chua duoc xac nhan -> coi nhu da huy (giong staff/payments).
+const PAYMENT_WINDOW_MS = 10 * 60 * 1000
+
+type RosterStatus = "active" | "pending_payment" | "expired" | "cancelled"
+
+function effectiveStatus(ms: Membership): RosterStatus {
+  if (ms.status === "pending_payment" && ms.createdAt) {
+    // createdAt tu backend la UTC nhung co the thieu hau to "Z" -> them de parse dung.
+    const created = new Date(
+      ms.createdAt.endsWith("Z") ? ms.createdAt : `${ms.createdAt}Z`,
+    ).getTime()
+    if (Date.now() - created > PAYMENT_WINDOW_MS) {
+      return "cancelled"
+    }
+  }
+  return ms.status as RosterStatus
+}
 
 export function MembershipsRoster() {
   const { data: memberships, isLoading: isMembershipsLoading, error: membershipsError } = useMemberships()
@@ -69,7 +88,7 @@ export function MembershipsRoster() {
       memberCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
       packageName.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus = statusFilter === "all" || ms.status === statusFilter
+    const matchesStatus = statusFilter === "all" || effectiveStatus(ms) === statusFilter
 
     return matchesSearch && matchesStatus
   })
@@ -109,6 +128,7 @@ export function MembershipsRoster() {
               <option value="active">Hoạt động (Active)</option>
               <option value="pending_payment">Chờ thanh toán</option>
               <option value="expired">Hết hạn</option>
+              <option value="cancelled">Đã hủy</option>
             </select>
 
             <Select
@@ -123,6 +143,7 @@ export function MembershipsRoster() {
                 <SelectItem value="active" className="focus:bg-white/5 focus:text-white">Hoạt động (Active)</SelectItem>
                 <SelectItem value="pending_payment" className="focus:bg-white/5 focus:text-white">Chờ thanh toán</SelectItem>
                 <SelectItem value="expired" className="focus:bg-white/5 focus:text-white">Hết hạn</SelectItem>
+                <SelectItem value="cancelled" className="focus:bg-white/5 focus:text-white">Đã hủy</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -161,6 +182,7 @@ export function MembershipsRoster() {
               {filteredMemberships.map((ms) => {
                 const member = getMemberDetails(ms.memberId)
                 const pkg = getPackageDetails(ms.packageId)
+                const displayStatus = effectiveStatus(ms)
                 return (
                   <tr
                     key={ms.id}
@@ -184,8 +206,8 @@ export function MembershipsRoster() {
                     <td className="px-6 py-4 text-zinc-600">{formatDate(ms.endDate)}</td>
                     <td className="px-6 py-4">
                       <StatusPill
-                        status={toStatusPillStatus(ms.status)}
-                        label={getStatusLabel(ms.status)}
+                        status={toStatusPillStatus(displayStatus)}
+                        label={getStatusLabel(displayStatus)}
                       />
                     </td>
                   </tr>
