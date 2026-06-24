@@ -148,9 +148,15 @@ function normalizePayment(p: Payment): Payment {
 }
 
 export async function getPayments(accessToken: string): Promise<Payment[]> {
-  const list = await apiRequest<Payment[]>("/api/v1/payments", {
-    headers: authHeaders(accessToken),
-  })
+  // Backend that tra paged {items,...} (GET /payments co page/pageSize);
+  // mock cu tra mang phang -> chap nhan ca 2 de tranh ".map is not a function".
+  const data = await apiRequest<Payment[] | { items: Payment[] }>(
+    "/api/v1/payments",
+    {
+      headers: authHeaders(accessToken),
+    },
+  )
+  const list = Array.isArray(data) ? data : data.items
   return list.map(normalizePayment)
 }
 
