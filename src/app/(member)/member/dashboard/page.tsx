@@ -1,5 +1,6 @@
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
+import { MembershipGate } from "@/features/auth/components/MembershipGate"
 import { MemberDashboardContent } from "@/features/member-nutrition/components/MemberDashboardContent"
 
 export default function MemberDashboardPage() {
@@ -15,7 +16,9 @@ export default function MemberDashboardPage() {
         role="member"
         title="Bảng điều khiển hội viên"
       >
-        <MemberDashboardContent />
+        <MembershipGate>
+          <MemberDashboardContent />
+        </MembershipGate>
       </WorkspaceShell>
     </PermissionGuard>
   )
