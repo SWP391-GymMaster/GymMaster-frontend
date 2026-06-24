@@ -95,6 +95,25 @@ export async function updatePackage(
   })
 }
 
+// Backend tra status enum kieu PascalCase (PendingPayment/Active/...) -> chuan hoa snake_case.
+function normalizeMembershipStatus(status: string): Membership["status"] {
+  switch (status?.toLowerCase()) {
+    case "pendingpayment":
+    case "pending_payment":
+    case "pending":
+      return "pending_payment"
+    case "active":
+      return "active"
+    case "expired":
+      return "expired"
+    case "cancelled":
+    case "canceled":
+      return "cancelled"
+    default:
+      return status as Membership["status"]
+  }
+}
+
 export async function getMemberships(accessToken: string): Promise<Membership[]> {
   // Backend that tra paged {items,...}; mock cu tra mang phang -> chap nhan ca 2.
   const data = await apiRequest<Membership[] | { items: Membership[] }>(
@@ -103,13 +122,36 @@ export async function getMemberships(accessToken: string): Promise<Membership[]>
       headers: authHeaders(accessToken),
     },
   )
-  return Array.isArray(data) ? data : data.items
+  const list = Array.isArray(data) ? data : data.items
+  return list.map((ms) => ({
+    ...ms,
+    status: normalizeMembershipStatus(ms.status as string),
+  }))
+}
+
+// Backend tra payment status PascalCase (Paid/Pending/Refunded) -> chuan hoa.
+function normalizePaymentStatus(status: string): Payment["status"] {
+  switch (status?.toLowerCase()) {
+    case "paid":
+      return "paid"
+    case "pending":
+      return "pending"
+    case "refunded":
+      return "refunded"
+    default:
+      return status as Payment["status"]
+  }
+}
+
+function normalizePayment(p: Payment): Payment {
+  return { ...p, status: normalizePaymentStatus(p.status as string) }
 }
 
 export async function getPayments(accessToken: string): Promise<Payment[]> {
-  return apiRequest<Payment[]>("/api/v1/payments", {
+  const list = await apiRequest<Payment[]>("/api/v1/payments", {
     headers: authHeaders(accessToken),
   })
+  return list.map(normalizePayment)
 }
 
 // Spec 003 §6 — bao cao doanh thu
@@ -125,9 +167,13 @@ export async function getMemberPayments(
   accessToken: string,
   memberId: number,
 ): Promise<Payment[]> {
-  return apiRequest<Payment[]>(`/api/v1/members/${memberId}/payments`, {
-    headers: authHeaders(accessToken),
-  })
+  const list = await apiRequest<Payment[]>(
+    `/api/v1/members/${memberId}/payments`,
+    {
+      headers: authHeaders(accessToken),
+    },
+  )
+  return list.map(normalizePayment)
 }
 
 export async function getMemberCheckIns(
