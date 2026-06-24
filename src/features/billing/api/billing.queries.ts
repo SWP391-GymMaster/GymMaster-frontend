@@ -12,6 +12,7 @@ import {
   getMemberCheckIns,
   createRenewalRequest,
   getPaymentsSummary,
+  confirmMembershipPayment,
 } from "@/features/billing/api/billing.api"
 import type { CreatePackageDraft } from "@/features/billing/types/billing.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
@@ -57,6 +58,20 @@ export function useCreateRenewalRequest() {
   return useMutation({
     mutationFn: (packageId: number) =>
       createRenewalRequest(accessToken ?? "", packageId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: billingKeys.all })
+    },
+  })
+}
+
+// Staff/Admin xac nhan thanh toan cho membership pending
+export function useConfirmMembershipPayment() {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (vars: { membershipId: number; amount: number }) =>
+      confirmMembershipPayment(accessToken ?? "", vars.membershipId, vars.amount),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: billingKeys.all })
     },

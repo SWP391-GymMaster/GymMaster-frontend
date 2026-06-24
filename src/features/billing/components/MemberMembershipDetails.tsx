@@ -12,6 +12,10 @@ import {
 } from "@/features/billing/api/billing.queries";
 import { getCurrentUser } from "@/features/auth/api/auth.api";
 import { useAuthSessionStore } from "@/features/auth/session/auth-session";
+import {
+  PaymentPendingDialog,
+  type PaymentOrder,
+} from "@/features/billing/components/PaymentPendingDialog";
 import { StatusPill } from "@/components/data/StatusPill";
 import { StateBlock } from "@/components/feedback/StateBlock";
 import {
@@ -39,6 +43,8 @@ export function MemberMembershipDetails() {
   const setSession = useAuthSessionStore((state) => state.setSession);
   const [renewOpen, setRenewOpen] = useState(false);
   const [selectedPackageId, setSelectedPackageId] = useState("");
+  const [paymentOrder, setPaymentOrder] = useState<PaymentOrder | null>(null);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   // Sau khi dang ky goi dau tien, backend tao ho so hoi vien -> refetch /auth/me
   // de memberProfileId cap nhat vao session => mo khoa cac tinh nang ngay.
@@ -54,15 +60,18 @@ export function MemberMembershipDetails() {
 
   function handleRenew(packageId: number) {
     if (!packageId) return;
+    const pkg = packages.data?.find((p) => p.id === packageId);
     renewMutation.mutate(packageId, {
-      onSuccess: async () => {
-        toast.success(
-          memberId
-            ? "Đã gửi yêu cầu gia hạn. Lễ tân sẽ xác nhận sớm."
-            : "Đã đăng ký gói! Bạn đã là hội viên — lễ tân sẽ xác nhận thanh toán.",
-        );
+      onSuccess: async (result) => {
         setRenewOpen(false);
         setSelectedPackageId("");
+        // Mo man thanh toan (placeholder VNPay): ma don + dem nguoc.
+        setPaymentOrder({
+          code: `GM-${result.id}`,
+          amount: pkg?.price ?? 0,
+          packageName: pkg?.name ?? "Gói tập",
+        });
+        setPaymentOpen(true);
         if (!memberId) {
           await refreshMemberProfile();
         }
@@ -172,6 +181,13 @@ export function MemberMembershipDetails() {
             ))}
           </div>
         )}
+
+        <PaymentPendingDialog
+          open={paymentOpen}
+          order={paymentOrder}
+          onClose={() => setPaymentOpen(false)}
+          onRetry={() => setPaymentOpen(false)}
+        />
       </div>
     );
   }
@@ -431,6 +447,13 @@ export function MemberMembershipDetails() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <PaymentPendingDialog
+        open={paymentOpen}
+        order={paymentOrder}
+        onClose={() => setPaymentOpen(false)}
+        onRetry={() => setPaymentOpen(false)}
+      />
     </div>
   );
 }

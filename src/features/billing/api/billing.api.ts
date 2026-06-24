@@ -32,6 +32,26 @@ export async function createRenewalRequest(
   )
 }
 
+// Staff/Admin xac nhan thanh toan cho 1 membership pending -> active + tao hoa don.
+export async function confirmMembershipPayment(
+  accessToken: string,
+  membershipId: number,
+  amount: number,
+  method = "cash",
+): Promise<unknown> {
+  return apiRequest<unknown>(
+    `/api/v1/memberships/${membershipId}/payment`,
+    {
+      method: "POST",
+      headers: {
+        ...authHeaders(accessToken),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ amount, method }),
+    },
+  )
+}
+
 export async function getPackages(accessToken: string): Promise<GymPackage[]> {
   // Backend that tra isActive (boolean); mock cu tra status string -> chuan hoa ve status.
   const raw = await apiRequest<Array<GymPackage & { isActive?: boolean }>>(
