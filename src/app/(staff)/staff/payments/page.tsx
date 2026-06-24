@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import { StaffPageFrame } from "@/features/staff-front-desk/components/StaffPageFrame"
 import { staffRoutes } from "@/features/staff-front-desk/constants/staff-routes"
 import { StateBlock } from "@/components/feedback/StateBlock"
+import { ApiClientError } from "@/lib/api/http-client"
 import {
   useMemberships,
   usePackages,
@@ -31,6 +32,23 @@ function formatPrice(price: number) {
     style: "currency",
     currency: "VND",
   }).format(price)
+}
+
+// Hien dung ly do tu backend thay vi thong bao chung chung.
+function confirmErrorMessage(error: unknown) {
+  if (error instanceof ApiClientError) {
+    switch (error.code) {
+      case "ALREADY_HAS_ACTIVE":
+        return "Hội viên đã có gói đang hoạt động — không thể kích hoạt thêm gói mới. Chờ gói hiện tại hết hạn hoặc dùng 'Gia hạn' để cộng nối thời hạn."
+      case "DUPLICATE_PAYMENT":
+        return "Đơn này đã được thanh toán trước đó."
+      case "INSUFFICIENT_AMOUNT":
+        return "Số tiền ghi nhận ít hơn giá gói tập."
+      case "NOT_FOUND":
+        return "Không tìm thấy đơn thanh toán này."
+    }
+  }
+  return "Không ghi nhận được thanh toán. Vui lòng thử lại."
 }
 
 function StaffPaymentsPageContent() {
@@ -100,8 +118,7 @@ function StaffPaymentsPageContent() {
       {
         onSuccess: () =>
           toast.success("Đã ghi nhận thanh toán. Gói tập đã kích hoạt."),
-        onError: () =>
-          toast.error("Không ghi nhận được thanh toán. Vui lòng thử lại."),
+        onError: (error) => toast.error(confirmErrorMessage(error)),
       },
     )
   }

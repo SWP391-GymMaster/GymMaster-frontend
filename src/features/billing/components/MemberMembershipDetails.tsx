@@ -206,6 +206,13 @@ export function MemberMembershipDetails() {
   const pt = member360?.assignedPT;
   const checkIns = member360?.recentCheckIns ?? [];
 
+  // Backend chan 1 hoi vien co 2 goi active cung luc (ALREADY_HAS_ACTIVE), va don
+  // pending dang cho duyet thi khong nen tao them don moi. -> khoa nut yeu cau gia
+  // han khi dang active/pending; chi mo lai khi het han hoac chua co goi.
+  const hasActiveOrPending =
+    membership?.status === "active" ||
+    membership?.status === "pending_payment";
+
   const getStatusLabel = (status: "paid" | "pending" | "refunded") => {
     if (status === "paid") return "Đã thanh toán";
     if (status === "pending") return "Đang chờ";
@@ -257,6 +264,13 @@ export function MemberMembershipDetails() {
                       sau khi được xác nhận.
                     </p>
                   ) : null}
+                  {membership.status === "active" ? (
+                    <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
+                      ✅ Gói còn hiệu lực đến {formatDate(membership.endDate)}.
+                      Khi gần hết hạn, bạn có thể gia hạn tại quầy lễ tân để cộng
+                      nối thời hạn.
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground mt-2">
@@ -267,11 +281,18 @@ export function MemberMembershipDetails() {
           </div>
           <button
             type="button"
+            disabled={hasActiveOrPending}
             onClick={() => setRenewOpen(true)}
-            className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] hover:opacity-90"
+            className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw className="size-4" />
-            {membership ? "Yêu cầu gia hạn" : "Yêu cầu đăng ký gói"}
+            {membership?.status === "active"
+              ? "Gói đang hoạt động"
+              : membership?.status === "pending_payment"
+                ? "Đang chờ xác nhận"
+                : membership
+                  ? "Yêu cầu gia hạn"
+                  : "Yêu cầu đăng ký gói"}
           </button>
         </div>
 
