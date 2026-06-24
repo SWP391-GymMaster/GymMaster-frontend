@@ -199,6 +199,8 @@ export async function renewStaffMembership(
   accessToken: string,
   draft: RenewPackageDraft,
 ) {
+  // Backend that: RenewMembershipRequest { packageId, method } — gia han + ghi nhan
+  // thanh toan trong 1 buoc (atomic). Phai gui `method` neu khong se 422 VALIDATION_ERROR.
   const response = await apiRequest<MockMembershipDto>(
     `/api/v1/memberships/${draft.membershipId}/renew`,
     {
@@ -206,7 +208,7 @@ export async function renewStaffMembership(
       headers: authHeaders(accessToken),
       body: JSON.stringify({
         packageId: draft.packageId,
-        startDate: draft.startDate,
+        method: draft.paymentMethod,
       }),
     },
   )
