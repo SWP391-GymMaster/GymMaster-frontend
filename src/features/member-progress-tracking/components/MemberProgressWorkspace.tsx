@@ -5,6 +5,7 @@ import Link from "next/link"
 
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
+import { MembershipGate } from "@/features/auth/components/MembershipGate"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 import { useMemberProgress, useCurrentMemberProfileId } from "@/features/member-progress-tracking/api/member-progress.queries"
 import { ProgressLogForm } from "@/features/member-progress-tracking/components/ProgressLogForm"
@@ -52,6 +53,7 @@ export function MemberProgressWorkspace() {
         role="member"
         title="Tiến độ của tôi"
       >
+        <MembershipGate>
         <div className="space-y-6">
           {/* Top action rail */}
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -143,6 +145,7 @@ export function MemberProgressWorkspace() {
             </>
           )}
         </div>
+        </MembershipGate>
       </WorkspaceShell>
     </PermissionGuard>
   )

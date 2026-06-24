@@ -492,8 +492,9 @@ function MemberDirectoryTemplate({
             </div>
           </div>
 
+          {/* "Them hoi vien" da bo: hoi vien tu dang ky + mua goi de thanh member. */}
           <SearchToolbar
-            action={<CreateMemberDialog />}
+            action={null}
             onSearch={setQuery}
             placeholder="Tìm hội viên theo tên, email, SĐT, mã hội viên..."
             value={query}

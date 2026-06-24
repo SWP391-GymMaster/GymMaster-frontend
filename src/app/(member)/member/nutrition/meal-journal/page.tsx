@@ -1,5 +1,6 @@
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
+import { MembershipGate } from "@/features/auth/components/MembershipGate"
 import { MealJournalWorkspace } from "@/features/member-nutrition/components/MealJournalWorkspace"
 
 export default function MemberMealJournalPage() {
@@ -15,7 +16,9 @@ export default function MemberMealJournalPage() {
         role="member"
         title="Nhật ký ăn"
       >
-        <MealJournalWorkspace />
+        <MembershipGate>
+          <MealJournalWorkspace />
+        </MembershipGate>
       </WorkspaceShell>
     </PermissionGuard>
   )

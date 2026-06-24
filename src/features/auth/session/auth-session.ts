@@ -9,7 +9,7 @@ import {
   refreshSession,
   registerMember,
 } from "@/features/auth/api/auth.api"
-import { ApiClientError } from "@/lib/api/http-client"
+import { ApiClientError, registerTokenRefresher } from "@/lib/api/http-client"
 import { getDashboardRoute, isUserRole } from "@/lib/auth/roles"
 import type {
   AuthSession,
@@ -188,3 +188,23 @@ export function resetAuthSessionForTest() {
   persistSession(null)
   useAuthSessionStore.setState({ session: null })
 }
+
+// Cho http-client tu lam moi access token khi gap 401 (token 15 phut het han giua
+// chung). Tra ve token moi de retry, hoac null neu refresh that bai -> dang xuat.
+registerTokenRefresher(async () => {
+  const { session, setSession } = useAuthSessionStore.getState()
+
+  if (!session?.refreshToken) {
+    return null
+  }
+
+  try {
+    const data = await refreshSession(session.refreshToken)
+    const refreshedSession = createSessionFromLogin(data)
+    setSession(refreshedSession)
+    return refreshedSession.accessToken
+  } catch {
+    setSession(null)
+    return null
+  }
+})

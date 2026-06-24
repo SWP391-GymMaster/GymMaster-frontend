@@ -17,6 +17,7 @@ import type { LucideIcon } from "lucide-react"
 
 import { StatusPill } from "@/components/data/StatusPill"
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
+import { MembershipGate } from "@/features/auth/components/MembershipGate"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 import {
   useMyTrainerNotes,
@@ -44,6 +45,7 @@ export function MemberWorkoutWorkspace() {
         role="member"
         title="Giáo án của tôi"
       >
+        <MembershipGate>
         <section className="space-y-6">
           <MemberTrainingHero
             ctaHref="/member/notes"
@@ -104,6 +106,7 @@ export function MemberWorkoutWorkspace() {
             </aside>
           </section>
         </section>
+        </MembershipGate>
       </WorkspaceShell>
     </PermissionGuard>
   )
@@ -120,6 +123,7 @@ export function MemberTrainerNotesWorkspace() {
         role="member"
         title="Ghi chú PT"
       >
+        <MembershipGate>
         <section className="space-y-6">
           <MemberTrainingHero
             ctaHref="/member/workout"
@@ -180,6 +184,7 @@ export function MemberTrainerNotesWorkspace() {
             </aside>
           </section>
         </section>
+        </MembershipGate>
       </WorkspaceShell>
     </PermissionGuard>
   )

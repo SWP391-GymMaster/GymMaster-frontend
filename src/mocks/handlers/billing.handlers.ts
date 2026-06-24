@@ -221,7 +221,10 @@ export const billingHandlers = [
       return fail("NOT_FOUND", "Membership not found", 404)
     }
 
-    const body = (await request.json()) as { packageId?: number; startDate?: string }
+    const body = (await request.json()) as {
+      packageId?: number
+      method?: "cash" | "transfer" | "card"
+    }
     const gymPackage = packages.find(
       (item) => item.id === (body.packageId ?? current.packageId),
     )
@@ -234,24 +237,33 @@ export const billingHandlers = [
       return fail("PACKAGE_INACTIVE", "Package is inactive", 422)
     }
 
-    const startDate = body.startDate ?? current.endDate
-    const renewal = {
-      ...current,
-      id: Math.max(...memberships.map((item) => item.id)) + 1,
-      packageId: body.packageId ?? current.packageId,
-      startDate,
-      endDate: addDays(startDate, gymPackage.durationDays),
-      status: "pending_payment" as const,
-    }
-    memberships.push(renewal)
+    // Backend that: gia han la atomic (gia han + ghi nhan thanh toan trong 1 buoc).
+    // Noi tiep tu han hien tai (con han) hoac tu hom nay (da het) -> active + paid.
+    const today = new Date().toISOString().slice(0, 10)
+    const baseDate = current.endDate > today ? current.endDate : today
+    current.packageId = body.packageId ?? current.packageId
+    current.endDate = addDays(baseDate, gymPackage.durationDays)
+    current.status = "active"
 
-    const member = members.find((item) => item.id === renewal.memberId)
+    const member = members.find((item) => item.id === current.memberId)
     if (member) {
-      member.status = "pending"
-      member.currentPackageId = renewal.packageId
+      member.status = "active"
+      member.currentPackageId = current.packageId
     }
 
-    return created(renewal)
+    payments.unshift({
+      id: Math.floor(10000 + Math.random() * 90000),
+      membershipId: current.id,
+      memberId: current.memberId,
+      memberName: member?.fullName ?? "Hội viên",
+      packageName: gymPackage.name,
+      amount: gymPackage.price,
+      paymentMethod: body.method ?? "cash",
+      paymentDate: new Date().toISOString(),
+      status: "paid" as const,
+    })
+
+    return created(current)
   }),
   http.post("/api/v1/memberships/renewal-request", async ({ request }) => {
     const role = requireRole(request, ["member"])

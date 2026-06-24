@@ -1,5 +1,6 @@
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
+import { MembershipGate } from "@/features/auth/components/MembershipGate"
 import { CalorieSummaryWorkspace } from "@/features/member-nutrition/components/CalorieSummaryWorkspace"
 
 export default function MemberNutritionSummaryPage() {
@@ -15,7 +16,9 @@ export default function MemberNutritionSummaryPage() {
         role="member"
         title="Tổng kết calo"
       >
-        <CalorieSummaryWorkspace />
+        <MembershipGate>
+          <CalorieSummaryWorkspace />
+        </MembershipGate>
       </WorkspaceShell>
     </PermissionGuard>
   )

@@ -124,6 +124,9 @@ export function RenewPackageWizard() {
     ? addDays(renewalStart, selectedPackage.durationDays)
     : null
   const operationError = renew.error ? mapStaffOperationError(renew.error) : null
+  // Backend gia han la atomic (gia han + ghi nhan thanh toan) -> ket qua tra ve da paid/active.
+  const renewalPaid =
+    Boolean(paymentResult) || renewalResult?.paymentStatus === "paid"
   const activeStep = renewalResult
     ? 3
     : selectedPackage
@@ -156,7 +159,7 @@ export function RenewPackageWizard() {
     })
     setRenewalResult(result)
     setPaymentResult(null)
-    toast.success("Đã tạo gia hạn")
+    toast.success("Đã gia hạn và ghi nhận thanh toán")
   }
 
   return (
@@ -343,16 +346,23 @@ export function RenewPackageWizard() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-semibold text-foreground">
-                Đã tạo gia hạn {renewalResult.packageName}
+                Đã gia hạn {renewalResult.packageName}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Gia hạn đang chờ cho đến khi ghi nhận thanh toán.
+                {renewalPaid
+                  ? `Gói đã hoạt động đến ${renewalResult.endsAt}. Đã ghi nhận thanh toán tại quầy.`
+                  : "Gia hạn đang chờ cho đến khi ghi nhận thanh toán."}
               </p>
             </div>
-            <StatusPill status={paymentResult ? "paid" : "pending"} />
+            <StatusPill status={renewalPaid ? "paid" : "pending"} />
           </div>
-          {paymentResult ? (
-            <PaymentCompleteBanner message={paymentResult.message} />
+          {renewalPaid ? (
+            <PaymentCompleteBanner
+              message={
+                paymentResult?.message ??
+                "Đã thu tiền và kích hoạt gói. Không cần xác nhận thêm bên lễ tân."
+              }
+            />
           ) : (
             <div className="mt-4">
               <ManualPaymentPanel
