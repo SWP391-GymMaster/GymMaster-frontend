@@ -30,6 +30,48 @@ const emptyProtectedResponseErrors: Partial<Record<number, ApiError>> = {
   },
 }
 
+// --- Auto-refresh access token on 401 -------------------------------------
+// Access token song 15 phut; neu het han giua chung, request se 401.
+// Dang ky 1 ham refresh (tu auth-session, tranh circular import) de thu lam moi
+// token va retry 1 lan truoc khi bao loi cho nguoi dung.
+type TokenRefresher = () => Promise<string | null>
+
+let tokenRefresher: TokenRefresher | null = null
+let refreshInFlight: Promise<string | null> | null = null
+
+export function registerTokenRefresher(refresher: TokenRefresher | null) {
+  tokenRefresher = refresher
+}
+
+// Gom nhieu request 401 cung luc vao 1 lan refresh (tranh thundering herd).
+function refreshAccessToken(): Promise<string | null> {
+  if (!tokenRefresher) {
+    return Promise.resolve(null)
+  }
+
+  if (!refreshInFlight) {
+    refreshInFlight = tokenRefresher().finally(() => {
+      refreshInFlight = null
+    })
+  }
+
+  return refreshInFlight
+}
+
+function readAuthHeader(headers: HeadersInit | undefined): string | null {
+  if (!headers || typeof headers !== "object" || Array.isArray(headers)) {
+    return null
+  }
+
+  const record = headers as Record<string, string>
+  return record.Authorization ?? record.authorization ?? null
+}
+
+// Endpoint auth (login/refresh) khong duoc retry-refresh de tranh vong lap.
+function isAuthFlowPath(path: string) {
+  return path.includes("/auth/refresh") || path.includes("/auth/login")
+}
+
 export function normalizeApiPath(path: string) {
   if (!path.startsWith("/api") || path.startsWith("/api/v1")) {
     return path
@@ -107,6 +149,7 @@ export async function parseApiResponse<T>(response: Response): Promise<T> {
 export async function apiRequest<T>(
   path: string,
   init?: RequestInit,
+  options?: { retried?: boolean },
 ): Promise<T> {
   try {
     const response = await fetch(getApiUrl(path), {
@@ -116,6 +159,32 @@ export async function apiRequest<T>(
         ...init?.headers,
       },
     })
+
+    // Token het han giua chung -> thu lam moi 1 lan roi retry (chi cho request da
+    // xac thuc, khong ap dung cho chinh endpoint login/refresh).
+    const authHeader = readAuthHeader(init?.headers)
+    if (
+      response.status === 401 &&
+      !options?.retried &&
+      authHeader &&
+      tokenRefresher &&
+      !isAuthFlowPath(path)
+    ) {
+      const newToken = await refreshAccessToken()
+      if (newToken) {
+        return apiRequest<T>(
+          path,
+          {
+            ...init,
+            headers: {
+              ...init?.headers,
+              Authorization: `Bearer ${newToken}`,
+            },
+          },
+          { retried: true },
+        )
+      }
+    }
 
     return parseApiResponse<T>(response)
   } catch (error) {
