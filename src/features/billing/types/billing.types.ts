@@ -13,6 +13,7 @@ export type Membership = {
   startDate: string
   endDate: string
   status: "pending_payment" | "active" | "expired" | "cancelled"
+  createdAt?: string
 }
 
 // Spec 003 / ADR-05 — member gui yeu cau gia han, admin/staff xac nhan sau.

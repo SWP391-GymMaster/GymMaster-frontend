@@ -48,10 +48,22 @@ function StaffPaymentsPageContent() {
   const isLoading = isMembershipsLoading || isPackagesLoading || isMembersLoading
 
   const rows = useMemo(() => {
+    // Don pending qua 10 phut chua thanh toan -> coi nhu het han/huy.
+    const PAYMENT_WINDOW_MS = 10 * 60 * 1000
+    const now = Date.now()
     return (memberships ?? [])
       .map((ms) => {
         const member = members.find((m) => m.id === ms.memberId)
         const pkg = packages?.find((p) => p.id === ms.packageId)
+        // createdAt cua backend la UTC nhung khong co hau to "Z" -> them vao de parse dung.
+        const createdRaw = ms.createdAt
+        const createdMs = createdRaw
+          ? new Date(
+              createdRaw.endsWith("Z") ? createdRaw : `${createdRaw}Z`,
+            ).getTime()
+          : now
+        const expired =
+          ms.status === "pending_payment" && now - createdMs > PAYMENT_WINDOW_MS
         return {
           id: ms.id,
           memberName: member?.fullName ?? `Hội viên #${ms.memberId}`,
@@ -59,6 +71,7 @@ function StaffPaymentsPageContent() {
           packageName: pkg?.name ?? `Gói #${ms.packageId}`,
           amount: pkg?.price ?? 0,
           status: ms.status,
+          expired,
         }
       })
       .filter((r) => r.status === "pending_payment" || r.status === "active")
@@ -67,7 +80,8 @@ function StaffPaymentsPageContent() {
       )
   }, [memberships, members, packages])
 
-  const pending = rows.filter((r) => r.status === "pending_payment")
+  // Chi don pending con han moi can thu.
+  const pending = rows.filter((r) => r.status === "pending_payment" && !r.expired)
   const activeCount = rows.filter((r) => r.status === "active").length
   const totalPending = pending.reduce((sum, r) => sum + r.amount, 0)
 
@@ -287,6 +301,7 @@ type QueueRow = {
   packageName: string
   amount: number
   status: string
+  expired: boolean
 }
 
 function PaymentQueueRow({
@@ -299,6 +314,7 @@ function PaymentQueueRow({
   onConfirm: () => void
 }) {
   const isDone = row.status === "active"
+  const isCancelled = !isDone && row.expired
 
   return (
     <article className="grid gap-4 px-5 py-4 transition hover:bg-muted/35 lg:grid-cols-[1.35fr_1fr_0.8fr_0.8fr_auto] lg:items-center">
@@ -335,10 +351,12 @@ function PaymentQueueRow({
           className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
             isDone
               ? "bg-primary/10 text-primary"
-              : "bg-orange-500/10 text-orange-600"
+              : isCancelled
+                ? "bg-destructive/10 text-destructive"
+                : "bg-orange-500/10 text-orange-600"
           }`}
         >
-          {isDone ? "Đã thanh toán" : "Chờ thanh toán"}
+          {isDone ? "Đã thanh toán" : isCancelled ? "Đã bị hủy" : "Chờ thanh toán"}
         </span>
       </div>
 
@@ -346,6 +364,8 @@ function PaymentQueueRow({
         <span className="text-xs font-medium text-muted-foreground">
           Đã kích hoạt
         </span>
+      ) : isCancelled ? (
+        <span className="text-xs font-medium text-destructive">Hết hạn</span>
       ) : (
         <button
           disabled={pending}
