@@ -251,6 +251,12 @@ export function MemberMembershipDetails() {
                       />
                     </div>
                   </div>
+                  {membership.status === "pending_payment" ? (
+                    <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                      ⏳ Đơn đang chờ lễ tân xác nhận thanh toán. Gói sẽ kích hoạt
+                      sau khi được xác nhận.
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground mt-2">
