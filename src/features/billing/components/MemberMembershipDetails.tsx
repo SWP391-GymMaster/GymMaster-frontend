@@ -10,6 +10,8 @@ import {
   usePackages,
   useCreateRenewalRequest,
 } from "@/features/billing/api/billing.queries";
+import { getCurrentUser } from "@/features/auth/api/auth.api";
+import { useAuthSessionStore } from "@/features/auth/session/auth-session";
 import { StatusPill } from "@/components/data/StatusPill";
 import { StateBlock } from "@/components/feedback/StateBlock";
 import {
@@ -33,20 +35,40 @@ export function MemberMembershipDetails() {
   // Spec 003 / ADR-05 — member gui yeu cau gia han (admin/staff xac nhan sau).
   const packages = usePackages();
   const renewMutation = useCreateRenewalRequest();
+  const session = useAuthSessionStore((state) => state.session);
+  const setSession = useAuthSessionStore((state) => state.setSession);
   const [renewOpen, setRenewOpen] = useState(false);
   const [selectedPackageId, setSelectedPackageId] = useState("");
 
-  function handleRenew() {
-    const pkgId = Number(selectedPackageId);
-    if (!pkgId) return;
-    renewMutation.mutate(pkgId, {
-      onSuccess: () => {
-        toast.success("Đã gửi yêu cầu gia hạn. Lễ tân sẽ xác nhận sớm.");
+  // Sau khi dang ky goi dau tien, backend tao ho so hoi vien -> refetch /auth/me
+  // de memberProfileId cap nhat vao session => mo khoa cac tinh nang ngay.
+  async function refreshMemberProfile() {
+    if (!session) return;
+    try {
+      const user = await getCurrentUser(session.accessToken);
+      setSession({ ...session, user });
+    } catch {
+      // Bo qua: gate se mo o lan dang nhap sau.
+    }
+  }
+
+  function handleRenew(packageId: number) {
+    if (!packageId) return;
+    renewMutation.mutate(packageId, {
+      onSuccess: async () => {
+        toast.success(
+          memberId
+            ? "Đã gửi yêu cầu gia hạn. Lễ tân sẽ xác nhận sớm."
+            : "Đã đăng ký gói! Bạn đã là hội viên — lễ tân sẽ xác nhận thanh toán.",
+        );
         setRenewOpen(false);
         setSelectedPackageId("");
+        if (!memberId) {
+          await refreshMemberProfile();
+        }
       },
       onError: () => {
-        toast.error("Không gửi được yêu cầu gia hạn. Vui lòng thử lại.");
+        toast.error("Không gửi được yêu cầu. Vui lòng thử lại.");
       },
     });
   }
@@ -96,7 +118,65 @@ export function MemberMembershipDetails() {
     return <StateBlock tone="loading" title="Đang tải thông tin gói tập..." />;
   }
 
-  if (error || !memberId) {
+  // Chua co ho so hoi vien -> man dang ky goi (mua de tro thanh hoi vien).
+  if (!memberId) {
+    const activePackages = (packages.data ?? []).filter(
+      (p) => p.status === "active",
+    );
+    return (
+      <div className="space-y-6">
+        <div className="rounded-[1.5rem] border border-border/70 bg-card/75 p-8 text-center shadow-sm backdrop-blur">
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">
+            Trở thành hội viên GymMaster
+          </h2>
+          <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
+            Bạn chưa đăng ký gói tập nào. Chọn một gói bên dưới để đăng ký trở
+            thành hội viên — lễ tân sẽ xác nhận thanh toán và toàn bộ tính năng
+            sẽ được mở khóa.
+          </p>
+        </div>
+
+        {packages.isLoading ? (
+          <StateBlock tone="loading" title="Đang tải gói tập..." />
+        ) : activePackages.length === 0 ? (
+          <StateBlock
+            tone="empty"
+            title="Chưa có gói tập"
+            description="Hiện chưa có gói nào để đăng ký. Vui lòng quay lại sau."
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {activePackages.map((p) => (
+              <div
+                key={p.id}
+                className="flex flex-col rounded-[1.5rem] border border-border/70 bg-card p-6 shadow-sm"
+              >
+                <h3 className="text-lg font-bold tracking-tight text-foreground">
+                  {p.name}
+                </h3>
+                <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+                  {formatPrice(p.price)}
+                  <span className="ml-1 text-sm font-normal text-muted-foreground">
+                    / {p.durationDays} ngày
+                  </span>
+                </p>
+                <button
+                  type="button"
+                  disabled={renewMutation.isPending}
+                  onClick={() => handleRenew(p.id)}
+                  className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+                >
+                  {renewMutation.isPending ? "Đang gửi..." : "Đăng ký gói này"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (error) {
     return (
       <StateBlock
         tone="error"
@@ -343,7 +423,7 @@ export function MemberMembershipDetails() {
             <button
               type="button"
               disabled={!selectedPackageId || renewMutation.isPending}
-              onClick={handleRenew}
+              onClick={() => handleRenew(Number(selectedPackageId))}
               className="inline-flex h-11 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] hover:opacity-90 disabled:opacity-50"
             >
               {renewMutation.isPending ? "Đang gửi..." : "Gửi yêu cầu gia hạn"}
