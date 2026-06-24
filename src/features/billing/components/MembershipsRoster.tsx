@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Search } from "lucide-react"
-import { toast } from "sonner"
 
 import { Input } from "@/components/ui/input"
 import {
@@ -14,30 +13,13 @@ import {
 } from "@/components/ui/select"
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
-import {
-  useMemberships,
-  usePackages,
-  useConfirmMembershipPayment,
-} from "@/features/billing/api/billing.queries"
+import { useMemberships, usePackages } from "@/features/billing/api/billing.queries"
 import { useManagedMembers } from "@/features/member-management/api/member-management.queries"
 
 export function MembershipsRoster() {
   const { data: memberships, isLoading: isMembershipsLoading, error: membershipsError } = useMemberships()
   const { data: packages, isLoading: isPackagesLoading } = usePackages()
   const { data: membersResult, isLoading: isMembersLoading } = useManagedMembers("")
-  const confirmPayment = useConfirmMembershipPayment()
-
-  function handleConfirmPayment(membershipId: number, amount: number) {
-    confirmPayment.mutate(
-      { membershipId, amount },
-      {
-        onSuccess: () =>
-          toast.success("Đã xác nhận thanh toán. Gói tập đã kích hoạt."),
-        onError: () =>
-          toast.error("Không xác nhận được thanh toán. Vui lòng thử lại."),
-      },
-    )
-  }
 
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "pending_payment" | "expired" | "cancelled">("all")
@@ -173,7 +155,6 @@ export function MembershipsRoster() {
                 <th className="px-6 py-4">Ngày bắt đầu</th>
                 <th className="px-6 py-4">Ngày kết thúc</th>
                 <th className="px-6 py-4">Trạng thái</th>
-                <th className="px-6 py-4">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -206,24 +187,6 @@ export function MembershipsRoster() {
                         status={toStatusPillStatus(ms.status)}
                         label={getStatusLabel(ms.status)}
                       />
-                    </td>
-                    <td className="px-6 py-4">
-                      {ms.status === "pending_payment" ? (
-                        <button
-                          type="button"
-                          disabled={confirmPayment.isPending}
-                          onClick={() =>
-                            handleConfirmPayment(ms.id, pkg?.price ?? 0)
-                          }
-                          className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
-                        >
-                          {confirmPayment.isPending
-                            ? "Đang xử lý..."
-                            : "Xác nhận thanh toán"}
-                        </button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
                     </td>
                   </tr>
                 )
