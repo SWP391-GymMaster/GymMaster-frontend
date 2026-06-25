@@ -60,17 +60,11 @@ export function MemberDashboardContent() {
   const membership = member360?.currentMembership;
 
   const [isBmiOpen, setIsBmiOpen] = useState(false);
-  const [calorieGoal, setCalorieGoal] = useState(2200);
+  // null = chua dat muc tieu (BE la nguon su that). Khong bia 2200, khong doc localStorage.
+  const [calorieGoal, setCalorieGoal] = useState<number | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedCal = localStorage.getItem("gymmaster-calorie-goal");
-      const val = storedCal ? Number(storedCal) : (summary.data?.target ?? 2200);
-      const timer = setTimeout(() => {
-        setCalorieGoal(val);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
+    setCalorieGoal(summary.data?.target ?? null);
   }, [summary.data?.target]);
 
   return (
@@ -118,7 +112,7 @@ export function MemberDashboardContent() {
 
             <div>
               <div className="grid gap-3 sm:grid-cols-3">
-                <HeroChip label="Mục tiêu" value={`${calorieGoal.toLocaleString("vi-VN")} kcal`} variant="glass" />
+                <HeroChip label="Mục tiêu" value={calorieGoal != null ? `${calorieGoal.toLocaleString("vi-VN")} kcal` : "Chưa đặt"} variant="glass" />
                 <HeroChip label="Buổi tiếp theo" value="18:30" variant="glass" />
                 <HeroChip label="Check-in" value="Sẵn sàng" variant="glass" />
               </div>

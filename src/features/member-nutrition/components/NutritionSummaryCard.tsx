@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -37,29 +36,6 @@ export function NutritionSummaryCard({
 }: NutritionSummaryCardProps) {
   const pathname = usePathname();
   const isOnSummaryPage = pathname === "/member/nutrition/summary";
-  const [localTarget, setLocalTarget] = useState(summary?.target ?? 2200);
-  const [pTarget, setPTarget] = useState(140);
-  const [cTarget, setCTarget] = useState(270);
-  const [fTarget, setFTarget] = useState(75);
-
-  useEffect(() => {
-    const targetVal = summary?.target ?? 2200;
-    const override = localStorage.getItem("gymmaster-calorie-goal");
-    const val = override ? Number(override) : targetVal;
-
-    const overrideP = localStorage.getItem("gymmaster-protein-goal");
-    const overrideC = localStorage.getItem("gymmaster-carbs-goal");
-    const overrideF = localStorage.getItem("gymmaster-fat-goal");
-
-    const timer = setTimeout(() => {
-      setLocalTarget(val);
-      if (overrideP) setPTarget(Number(overrideP));
-      if (overrideC) setCTarget(Number(overrideC));
-      if (overrideF) setFTarget(Number(overrideF));
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, [summary?.target]);
 
   if (isLoading) {
     return (
@@ -91,14 +67,18 @@ export function NutritionSummaryCard({
     );
   }
 
-  const target = localTarget;
+  // BE la nguon su that. target == null => chua dat muc tieu (khong bia 2200).
+  const target = summary.target;
+  const hasTarget = target != null;
+  const pTarget = summary.targetProteinG;
+  const cTarget = summary.targetCarbG;
+  const fTarget = summary.targetFatG;
   const consumed = summary.consumed;
-  const remaining = target - consumed;
+  const remaining = hasTarget ? target - consumed : null;
 
-  const consumedPercent = Math.min(
-    100,
-    Math.max(0, Math.round((consumed / Math.max(target, 1)) * 100)),
-  );
+  const consumedPercent = hasTarget
+    ? Math.min(100, Math.max(0, Math.round((consumed / Math.max(target, 1)) * 100)))
+    : 0;
 
   const remainingPercent = Math.max(0, 100 - consumedPercent);
   const radius = 58;
@@ -106,20 +86,17 @@ export function NutritionSummaryCard({
   const strokeDashoffset =
     circumference - (consumedPercent / 100) * circumference;
 
-  const pPercent = Math.min(
-    100,
-    Math.round(((summary.consumedProteinG || 0) / pTarget) * 100),
-  );
-  const cPercent = Math.min(
-    100,
-    Math.round(((summary.consumedCarbG || 0) / cTarget) * 100),
-  );
-  const fPercent = Math.min(
-    100,
-    Math.round(((summary.consumedFatG || 0) / fTarget) * 100),
-  );
+  const macroPercent = (value: number | undefined, macroTarget: number | null) =>
+    macroTarget == null || macroTarget <= 0
+      ? 0
+      : Math.min(100, Math.round(((value || 0) / macroTarget) * 100));
+  const pPercent = macroPercent(summary.consumedProteinG, pTarget);
+  const cPercent = macroPercent(summary.consumedCarbG, cTarget);
+  const fPercent = macroPercent(summary.consumedFatG, fTarget);
 
   const hasFoodLogged = summary.consumed > 0;
+  const remainingLabel =
+    remaining == null ? "Bạn chưa đặt mục tiêu" : getRemainingLabel(remaining);
 
   return (
     <section
@@ -183,7 +160,7 @@ export function NutritionSummaryCard({
                 {consumedPercent}%
               </span>
               <span className="mt-1 lg:mt-2 text-2xl lg:text-3xl font-black tracking-tight text-foreground">
-                {remaining}
+                {remaining == null ? "—" : remaining}
               </span>
               <span className="text-[8px] lg:text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 Kcal còn
@@ -211,7 +188,7 @@ export function NutritionSummaryCard({
                 Dinh dưỡng hôm nay
               </p>
               <h3 className="mt-2 text-2xl font-bold tracking-tight text-foreground">
-                {getRemainingLabel(remaining)} cho hôm nay
+                {remaining == null ? remainingLabel : `${remainingLabel} cho hôm nay`}
               </h3>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
                 {hasFoodLogged
@@ -237,14 +214,14 @@ export function NutritionSummaryCard({
               featured
               icon={Utensils}
               label="Còn lại"
-              value={getRemainingLabel(remaining)}
-              subValue={`${remainingPercent}% còn lại`}
+              value={remaining == null ? "Chưa đặt" : getRemainingLabel(remaining)}
+              subValue={hasTarget ? `${remainingPercent}% còn lại` : "Chưa đặt mục tiêu"}
               tone="green"
             />
             <MetricCard
               icon={Target}
               label="Mục tiêu"
-              value={formatCalories(target)}
+              value={hasTarget ? formatCalories(target) : "Chưa đặt"}
               subValue="Mục tiêu ngày"
               tone="blue"
             />
@@ -378,7 +355,7 @@ function MacroBar({
   icon: string;
   label: string;
   percent: number;
-  target: number;
+  target: number | null;
   value?: number;
   valueLabel: string;
 }) {
@@ -409,7 +386,7 @@ function MacroBar({
             />
           </div>
           <p className="mt-1 text-right text-[8px] lg:text-[10px] font-semibold text-muted-foreground/70">
-            {hasValue ? `${percent}%` : `${target}g`}
+            {hasValue ? `${percent}%` : target == null ? "Chưa đặt" : `${target}g`}
           </p>
         </div>
       </div>

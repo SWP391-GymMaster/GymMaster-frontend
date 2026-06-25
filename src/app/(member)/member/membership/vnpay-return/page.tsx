@@ -2,23 +2,33 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle2, AlertTriangle } from "lucide-react";
 
 import { getVnpayReturnStatus } from "@/features/billing/api/vnpay.api";
+import { billingKeys } from "@/features/billing/api/billing.queries";
+import { member360Keys } from "@/features/member-360/api/member-360.queries";
 
 export default function VnPayReturnPage() {
   const [status, setStatus] = useState<"loading" | "success" | "failure" | "error">("loading");
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     // Goi BE /return voi nguyen query VNPay redirect ve. Query rong -> BE tu bao loi -> catch.
     getVnpayReturnStatus(window.location.search)
       .then((result) => {
-        setStatus(result.status === "Paid" ? "success" : "failure");
+        const paid = result.status === "Paid";
+        setStatus(paid ? "success" : "failure");
+        if (paid) {
+          // Goi vua kich hoat -> lam moi billing + member-360 de trang Goi tap (va lich su) hien dung trang thai.
+          void queryClient.invalidateQueries({ queryKey: billingKeys.all });
+          void queryClient.invalidateQueries({ queryKey: member360Keys.all });
+        }
       })
       .catch(() => {
         setStatus("error");
       });
-  }, []);
+  }, [queryClient]);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">

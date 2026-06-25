@@ -77,6 +77,23 @@ export function MemberMembershipDetails() {
     return "Đã hoàn tiền";
   };
 
+  const getMembershipStatusLabel = (
+    status?: "pending_payment" | "active" | "expired" | "cancelled",
+  ) => {
+    switch (status) {
+      case "active":
+        return "Đang hiệu lực";
+      case "pending_payment":
+        return "Chờ thanh toán";
+      case "expired":
+        return "Hết hạn";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return "—";
+    }
+  };
+
   const filteredPayments = useMemo(() => {
     return (payments ?? []).filter((payment) => {
       const paidDate = toDateInputValue(payment.paymentDate);
@@ -394,7 +411,8 @@ export function MemberMembershipDetails() {
                   <th className="py-3 px-4">Số tiền</th>
                   <th className="py-3 px-4">Phương thức</th>
                   <th className="py-3 px-4">Ngày thanh toán</th>
-                  <th className="py-3 px-4">Trạng thái</th>
+                  <th className="py-3 px-4">Thanh toán</th>
+                  <th className="py-3 px-4">Trạng thái gói</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -424,6 +442,18 @@ export function MemberMembershipDetails() {
                         status={payment.status}
                         label={getStatusLabel(payment.status)}
                       />
+                    </td>
+                    <td className="py-4 px-4">
+                      {payment.membershipStatus ? (
+                        <StatusPill
+                          status={payment.membershipStatus}
+                          label={getMembershipStatusLabel(
+                            payment.membershipStatus,
+                          )}
+                        />
+                      ) : (
+                        <span className="text-zinc-400">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}

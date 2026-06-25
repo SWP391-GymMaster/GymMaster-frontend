@@ -28,7 +28,8 @@ export function MealJournalWorkspace() {
   const [defaultMealType, setDefaultMealType] = useState<
     "breakfast" | "lunch" | "dinner" | "snack"
   >("lunch");
-  const [calorieTarget, setCalorieTarget] = useState(2200);
+  // null = chua dat muc tieu (BE la nguon su that). KHONG bia 2200, KHONG doc localStorage.
+  const [calorieTarget, setCalorieTarget] = useState<number | null>(null);
   const [isTdeeOpen, setIsTdeeOpen] = useState(false);
 
   useEffect(() => {
@@ -77,16 +78,7 @@ export function MealJournalWorkspace() {
   }, [searchParams, router]);
 
   useEffect(() => {
-    const override = localStorage.getItem("gymmaster-calorie-goal");
-    const targetVal = override
-      ? Number(override)
-      : (summary.data?.target ?? 2200);
-
-    const timer = setTimeout(() => {
-      setCalorieTarget(targetVal);
-    }, 0);
-
-    return () => clearTimeout(timer);
+    setCalorieTarget(summary.data?.target ?? null);
   }, [summary.data?.target]);
 
   function handleTargetApplied(newTarget: number) {
@@ -168,7 +160,9 @@ export function MealJournalWorkspace() {
                       Mục tiêu hôm nay
                     </p>
                     <p className="mt-0.5 text-sm font-semibold text-white">
-                      {calorieTarget.toLocaleString("vi-VN")} kcal
+                      {calorieTarget != null
+                        ? `${calorieTarget.toLocaleString("vi-VN")} kcal`
+                        : "Chưa đặt mục tiêu"}
                     </p>
                   </div>
                 </div>

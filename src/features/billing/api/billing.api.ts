@@ -187,7 +187,13 @@ function normalizePaymentStatus(status: string): Payment["status"] {
 }
 
 function normalizePayment(p: Payment): Payment {
-  return { ...p, status: normalizePaymentStatus(p.status as string) }
+  return {
+    ...p,
+    status: normalizePaymentStatus(p.status as string),
+    membershipStatus: p.membershipStatus
+      ? normalizeMembershipStatus(p.membershipStatus as string)
+      : undefined,
+  }
 }
 
 export async function getPayments(accessToken: string): Promise<Payment[]> {

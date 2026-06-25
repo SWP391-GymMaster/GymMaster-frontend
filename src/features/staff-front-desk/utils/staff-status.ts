@@ -52,6 +52,24 @@ export function getCurrentMembership(
   memberships: MockMembershipDto[],
 ) {
   const memberMemberships = memberships.filter((item) => item.memberId === memberId)
+  const today = new Date().toISOString().slice(0, 10)
 
-  return memberMemberships.at(-1)
+  // "Goi hien tai" thong nhat voi BE: uu tien Active con han (EndDate lon nhat),
+  // roi PendingPayment moi nhat, cuoi cung fallback dong moi nhat. Khong boc nham dong da huy.
+  const activeValid = memberMemberships
+    .filter(
+      (item) =>
+        normalizeMembershipStatus(item.status) === "active" && item.endDate >= today,
+    )
+    .sort((a, b) => b.endDate.localeCompare(a.endDate))
+
+  if (activeValid.length > 0) return activeValid[0]
+
+  const pending = memberMemberships
+    .filter((item) => normalizeMembershipStatus(item.status) === "pending")
+    .sort((a, b) => b.id - a.id)
+
+  if (pending.length > 0) return pending[0]
+
+  return [...memberMemberships].sort((a, b) => b.id - a.id).at(0)
 }
