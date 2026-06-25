@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useSetMemberCalorieTarget } from "@/features/member-nutrition/api/member-nutrition.queries";
+import { useSetMemberCalorieTarget, useMemberCalorieTarget } from "@/features/member-nutrition/api/member-nutrition.queries";
 
 type TdeeCalculatorProps = {
   isOpen: boolean;
@@ -46,6 +46,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
   // Spec 007 — luu muc tieu len backend (POST /members/{id}/calorie-target).
   // localStorage van giu lam fallback offline khi backend loi.
   const setTargetMutation = useSetMemberCalorieTarget();
+  const { data: targetData } = useMemberCalorieTarget();
 
   const [activeTab, setActiveTab] = useState<"tdee" | "manual">("tdee");
 
@@ -67,49 +68,35 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
   const [manualFat, setManualFat] = useState<number>(75);
   const [dietTemplate, setDietTemplate] = useState<string>("balanced");
 
-  // Load existing values from localStorage when open
+  // Prefill target values from backend when open
   useEffect(() => {
-    if (typeof window !== "undefined" && isOpen) {
-      const storedCal = localStorage.getItem("gymmaster-calorie-goal");
-      const storedP = localStorage.getItem("gymmaster-protein-goal");
-      const storedC = localStorage.getItem("gymmaster-carbs-goal");
-      const storedF = localStorage.getItem("gymmaster-fat-goal");
+    if (isOpen && targetData) {
+      const cal = targetData.dailyCalories ?? manualCalorie;
+      const p = targetData.proteinG ?? manualProtein;
+      const c = targetData.carbG ?? manualCarbs;
+      const f = targetData.fatG ?? manualFat;
 
-      const timer = setTimeout(() => {
-        if (storedCal) {
-          const calNum = Number(storedCal);
-          setManualCalorie(calNum);
-          setProposedCalorie(calNum);
-        }
-        if (storedP) setManualProtein(Number(storedP));
-        if (storedC) setManualCarbs(Number(storedC));
-        if (storedF) setManualFat(Number(storedF));
-        
-        // Determine if it matches any diet template
-        if (storedCal && storedP && storedC && storedF) {
-          const cal = Number(storedCal);
-          const p = Number(storedP);
-          const c = Number(storedC);
-          const f = Number(storedF);
-          
-          let foundTemplate = "custom";
-          for (const [key, temp] of Object.entries(dietTemplates)) {
-            if (key === "custom") continue;
-            const expectedP = Math.round((cal * temp.pRatio) / 4);
-            const expectedC = Math.round((cal * temp.cRatio) / 4);
-            const expectedF = Math.round((cal * temp.fRatio) / 9);
-            if (Math.abs(expectedP - p) <= 2 && Math.abs(expectedC - c) <= 2 && Math.abs(expectedF - f) <= 2) {
-              foundTemplate = key;
-              break;
-            }
-          }
-          setDietTemplate(foundTemplate);
-        }
-      }, 0);
+      setManualCalorie(cal);
+      setProposedCalorie(cal);
+      setManualProtein(p);
+      setManualCarbs(c);
+      setManualFat(f);
 
-      return () => clearTimeout(timer);
+      // Determine if it matches any diet template
+      let foundTemplate = "custom";
+      for (const [key, temp] of Object.entries(dietTemplates)) {
+        if (key === "custom") continue;
+        const expectedP = Math.round((cal * temp.pRatio) / 4);
+        const expectedC = Math.round((cal * temp.cRatio) / 4);
+        const expectedF = Math.round((cal * temp.fRatio) / 9);
+        if (Math.abs(expectedP - p) <= 2 && Math.abs(expectedC - c) <= 2 && Math.abs(expectedF - f) <= 2) {
+          foundTemplate = key;
+          break;
+        }
+      }
+      setDietTemplate(foundTemplate);
     }
-  }, [isOpen]);
+  }, [isOpen, targetData]);
 
   // Validation calculated on the fly during render for TDEE tab
   const tdeeErrors: { height?: string; weight?: string; age?: string } = {};

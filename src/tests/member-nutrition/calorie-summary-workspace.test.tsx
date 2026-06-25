@@ -1,16 +1,82 @@
 import { screen } from "@testing-library/react"
+import { http } from "msw"
 import { describe, expect, it } from "vitest"
 
 import { CalorieSummaryWorkspace } from "@/features/member-nutrition/components/CalorieSummaryWorkspace"
+import { server } from "@/mocks/server"
+import { ok } from "@/mocks/utils/api-response"
 import { renderWithMemberSession } from "@/tests/member-nutrition/test-utils"
 
+function mockSummary(data: Record<string, unknown>) {
+  server.use(
+    http.get("/api/v1/members/:id/calorie-summary", ({ request }) => {
+      const date = new URL(request.url).searchParams.get("date") ?? "2026-06-02"
+
+      return ok({
+        date,
+        ...data,
+      })
+    }),
+    http.get("/api/v1/meal-logs", () => ok([])),
+  )
+}
+
 describe("CalorieSummaryWorkspace", () => {
-  it("renders daily calorie summary for the current member", async () => {
+  it("shows a configure CTA without fake target numbers when target is missing", async () => {
+    mockSummary({
+      consumed: 345,
+      target: null,
+      remaining: null,
+      consumedProteinG: 32,
+      consumedCarbG: 41,
+      consumedFatG: 12,
+      targetProteinG: null,
+      targetCarbG: null,
+      targetFatG: null,
+      remainingProteinG: null,
+      remainingCarbG: null,
+      remainingFatG: null,
+    })
+
+    renderWithMemberSession(<CalorieSummaryWorkspace />)
+
+    expect(
+      await screen.findByText("Bạn chưa đặt mục tiêu dinh dưỡng"),
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByRole("button", { name: "Cấu hình mục tiêu" }).length,
+    ).toBeGreaterThan(0)
+    expect(screen.queryByText("2.200 kcal")).not.toBeInTheDocument()
+    expect(screen.getByText("345 kcal")).toBeInTheDocument()
+    expect(screen.getByText("32g")).toBeInTheDocument()
+    expect(screen.getByText("41g")).toBeInTheDocument()
+    expect(screen.getByText("12g")).toBeInTheDocument()
+  })
+
+  it("renders real consumed macros, target macros, and remaining values from BE", async () => {
+    mockSummary({
+      consumed: 345,
+      target: 1800,
+      remaining: 1455,
+      consumedProteinG: 32,
+      consumedCarbG: 41,
+      consumedFatG: 12,
+      targetProteinG: 120,
+      targetCarbG: 210,
+      targetFatG: 55,
+      remainingProteinG: 88,
+      remainingCarbG: 169,
+      remainingFatG: 43,
+    })
+
     renderWithMemberSession(<CalorieSummaryWorkspace />)
 
     expect(await screen.findByText("Dinh dưỡng hôm nay")).toBeInTheDocument()
-    expect(screen.getAllByText("Đã ăn").length).toBeGreaterThan(0)
-    expect(screen.getAllByText("Mục tiêu").length).toBeGreaterThan(0)
-    expect(screen.getAllByText("Còn lại").length).toBeGreaterThan(0)
+    expect(screen.getByText("345 kcal")).toBeInTheDocument()
+    expect(screen.getByText("1.800 kcal")).toBeInTheDocument()
+    expect(screen.getByText("Còn 1.455 kcal")).toBeInTheDocument()
+    expect(screen.getByText("32g / 120g")).toBeInTheDocument()
+    expect(screen.getByText("41g / 210g")).toBeInTheDocument()
+    expect(screen.getByText("12g / 55g")).toBeInTheDocument()
   })
 })
