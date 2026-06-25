@@ -43,6 +43,13 @@ export function PaymentPendingDialog({
   const [isLoading, setIsLoading] = useState(false)
   const token = useAuthSessionStore((s) => s.session?.accessToken)
 
+  // Hien gia chi khi biet (>0); con lai chi hien ten goi - khong bia so.
+  const orderLabel = order
+    ? order.amount > 0
+      ? `Gói ${order.packageName} - ${formatPrice(order.amount)}`
+      : `Gói ${order.packageName}`
+    : "Đơn đăng ký gói tập"
+
   async function handleVnpayPay() {
     if (!order || !token) {
       toast.error("Không thể thanh toán. Vui lòng đăng nhập lại.")
@@ -69,11 +76,7 @@ export function PaymentPendingDialog({
       <DialogContent className="max-w-md rounded-[1.5rem]">
         <DialogHeader>
           <DialogTitle>Thanh toán gói tập</DialogTitle>
-          <DialogDescription>
-            {order
-              ? `Gói ${order.packageName} - ${formatPrice(order.amount)}`
-              : "Đơn đăng ký gói tập"}
-          </DialogDescription>
+          <DialogDescription>{orderLabel}</DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col items-center py-4 text-center">
@@ -81,9 +84,7 @@ export function PaymentPendingDialog({
             <CheckCircle2 className="size-7" />
           </span>
           <p className="mt-4 text-base font-semibold text-foreground">
-            {order
-              ? `Gói ${order.packageName} - ${formatPrice(order.amount)}`
-              : "Đơn thanh toán gói tập"}
+            {orderLabel}
           </p>
           <div className="mt-6 grid gap-3">
             <button

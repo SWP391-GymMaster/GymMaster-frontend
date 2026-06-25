@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { useMember360Data } from "@/features/member-360/api/member-360.queries";
@@ -10,6 +10,7 @@ import {
   useCancelMembership,
 } from "@/features/billing/api/billing.queries";
 import { PackageStore } from "@/features/billing/components/PackageStore";
+import { PaymentPendingDialog } from "@/features/billing/components/PaymentPendingDialog";
 import { StatusPill } from "@/components/data/StatusPill";
 import { StateBlock } from "@/components/feedback/StateBlock";
 import {
@@ -20,6 +21,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CreditCard, User, Activity } from "lucide-react";
+
+const PAYMENT_PAGE_SIZE = 8;
 
 export function MemberMembershipDetails() {
   const memberId = useCurrentMemberProfileId();
@@ -36,6 +39,10 @@ export function MemberMembershipDetails() {
 
   const cancelMutation = useCancelMembership();
   const [cancelOpen, setCancelOpen] = useState(false);
+  const [payOpen, setPayOpen] = useState(false);
+  const [paymentFromDate, setPaymentFromDate] = useState("");
+  const [paymentToDate, setPaymentToDate] = useState("");
+  const [paymentPage, setPaymentPage] = useState(1);
 
   const isLoading = is360Loading || isPaymentsLoading;
   const error = error360 || errorPayments;
@@ -69,6 +76,40 @@ export function MemberMembershipDetails() {
     if (status === "pending") return "Đang chờ";
     return "Đã hoàn tiền";
   };
+
+  const filteredPayments = useMemo(() => {
+    return (payments ?? []).filter((payment) => {
+      const paidDate = toDateInputValue(payment.paymentDate);
+      const matchesFrom = !paymentFromDate || paidDate >= paymentFromDate;
+      const matchesTo = !paymentToDate || paidDate <= paymentToDate;
+
+      return matchesFrom && matchesTo;
+    });
+  }, [paymentFromDate, paymentToDate, payments]);
+
+  const paymentTotalPages = Math.max(
+    1,
+    Math.ceil(filteredPayments.length / PAYMENT_PAGE_SIZE),
+  );
+  const safePaymentPage = Math.min(paymentPage, paymentTotalPages);
+  const paymentStartIndex = (safePaymentPage - 1) * PAYMENT_PAGE_SIZE;
+  const pagedPayments = filteredPayments.slice(
+    paymentStartIndex,
+    paymentStartIndex + PAYMENT_PAGE_SIZE,
+  );
+  const hasPaymentDateFilter = Boolean(paymentFromDate || paymentToDate);
+  const firstVisiblePayment =
+    filteredPayments.length === 0 ? 0 : paymentStartIndex + 1;
+  const lastVisiblePayment = Math.min(
+    paymentStartIndex + pagedPayments.length,
+    filteredPayments.length,
+  );
+
+  function clearPaymentDateFilter() {
+    setPaymentFromDate("");
+    setPaymentToDate("");
+    setPaymentPage(1);
+  }
 
   if (isLoading) {
     return <StateBlock tone="loading" title="Đang tải thông tin gói tập..." />;
@@ -148,10 +189,20 @@ export function MemberMembershipDetails() {
                     </div>
                   </div>
                   {membership.status === "pending_payment" ? (
-                    <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-                      ⏳ Đơn đang chờ lễ tân xác nhận thanh toán. Gói sẽ kích hoạt
-                      sau khi được xác nhận.
-                    </p>
+                    <>
+                      <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                        ⏳ Đơn đang chờ thanh toán. Hoàn tất thanh toán online
+                        hoặc ra quầy lễ tân để kích hoạt gói.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setPayOpen(true)}
+                        className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98]"
+                        data-testid="continue-payment-button"
+                      >
+                        Tiếp tục thanh toán
+                      </button>
+                    </>
                   ) : null}
                   {membership.status === "active" ? (
                     <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
@@ -273,13 +324,64 @@ export function MemberMembershipDetails() {
         <h3 className="text-lg font-bold tracking-tight text-foreground mb-4">
           Lịch sử hóa đơn thanh toán
         </h3>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border/70 bg-background/60 p-3">
+          <div className="flex flex-wrap items-end gap-3">
+            <label className="grid gap-1 text-xs font-semibold text-muted-foreground">
+              Từ ngày
+              <input
+                type="date"
+                value={paymentFromDate}
+                max={paymentToDate || undefined}
+                onChange={(event) => {
+                  setPaymentFromDate(event.target.value);
+                  setPaymentPage(1);
+                }}
+                className="h-10 rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            <label className="grid gap-1 text-xs font-semibold text-muted-foreground">
+              Đến ngày
+              <input
+                type="date"
+                value={paymentToDate}
+                min={paymentFromDate || undefined}
+                onChange={(event) => {
+                  setPaymentToDate(event.target.value);
+                  setPaymentPage(1);
+                }}
+                className="h-10 rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              />
+            </label>
+            {hasPaymentDateFilter ? (
+              <button
+                type="button"
+                onClick={clearPaymentDateFilter}
+                className="inline-flex h-10 items-center justify-center rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
+              >
+                Xóa lọc
+              </button>
+            ) : null}
+          </div>
+          <p className="text-sm font-semibold text-muted-foreground">
+            {filteredPayments.length === 0
+              ? "Không có hóa đơn phù hợp"
+              : `Hiển thị ${firstVisiblePayment}-${lastVisiblePayment} / ${filteredPayments.length} hóa đơn`}
+          </p>
+        </div>
         {!payments || payments.length === 0 ? (
           <StateBlock
             tone="empty"
             title="Không có hóa đơn"
             description="Bạn chưa thực hiện giao dịch thanh toán nào."
           />
+        ) : filteredPayments.length === 0 ? (
+          <StateBlock
+            tone="empty"
+            title="Không có hóa đơn phù hợp"
+            description="Thử đổi khoảng ngày hoặc xóa bộ lọc để xem lại toàn bộ lịch sử."
+          />
         ) : (
+          <>
           <div className="overflow-x-auto">
             <table
               className="w-full text-left text-sm"
@@ -296,7 +398,7 @@ export function MemberMembershipDetails() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {payments.map((payment) => (
+                {pagedPayments.map((payment) => (
                   <tr
                     key={payment.id}
                     className="hover:bg-muted/30"
@@ -328,6 +430,32 @@ export function MemberMembershipDetails() {
               </tbody>
             </table>
           </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
+            <p className="text-sm font-semibold text-muted-foreground">
+              Trang {safePaymentPage} / {paymentTotalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={safePaymentPage <= 1}
+                onClick={() => setPaymentPage((page) => Math.max(1, page - 1))}
+                className="inline-flex h-10 items-center justify-center rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Trước
+              </button>
+              <button
+                type="button"
+                disabled={safePaymentPage >= paymentTotalPages}
+                onClick={() =>
+                  setPaymentPage((page) => Math.min(paymentTotalPages, page + 1))
+                }
+                className="inline-flex h-10 items-center justify-center rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Sau
+              </button>
+            </div>
+          </div>
+          </>
         )}
       </div>
 
@@ -365,6 +493,36 @@ export function MemberMembershipDetails() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <PaymentPendingDialog
+        open={payOpen}
+        order={
+          membership
+            ? {
+                code: `HD-${membership.id}`,
+                amount: 0,
+                packageName: membership.packageName,
+                membershipId: membership.id,
+              }
+            : null
+        }
+        onClose={() => setPayOpen(false)}
+        onRetry={() => setPayOpen(false)}
+      />
     </div>
   );
+}
+
+function toDateInputValue(dateStr: string) {
+  const date = new Date(dateStr);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
