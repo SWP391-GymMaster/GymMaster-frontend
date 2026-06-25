@@ -108,15 +108,15 @@ export function NutritionSummaryCard({
 
   const pPercent = Math.min(
     100,
-    Math.round(((summary.proteinG || 0) / pTarget) * 100),
+    Math.round(((summary.consumedProteinG || 0) / pTarget) * 100),
   );
   const cPercent = Math.min(
     100,
-    Math.round(((summary.carbsG || 0) / cTarget) * 100),
+    Math.round(((summary.consumedCarbG || 0) / cTarget) * 100),
   );
   const fPercent = Math.min(
     100,
-    Math.round(((summary.fatG || 0) / fTarget) * 100),
+    Math.round(((summary.consumedFatG || 0) / fTarget) * 100),
   );
 
   const hasFoodLogged = summary.consumed > 0;
@@ -257,8 +257,8 @@ export function NutritionSummaryCard({
                 label="Đạm"
                 percent={pPercent}
                 target={pTarget}
-                value={summary.proteinG}
-                valueLabel={formatMacro(summary.proteinG)}
+                value={summary.consumedProteinG}
+                valueLabel={formatMacro(summary.consumedProteinG)}
                 colorClass="bg-primary"
               />
               <MacroBar
@@ -266,8 +266,8 @@ export function NutritionSummaryCard({
                 label="Tinh Bột"
                 percent={cPercent}
                 target={cTarget}
-                value={summary.carbsG}
-                valueLabel={formatMacro(summary.carbsG)}
+                value={summary.consumedCarbG}
+                valueLabel={formatMacro(summary.consumedCarbG)}
                 colorClass="bg-amber-500"
               />
               <MacroBar
@@ -275,8 +275,8 @@ export function NutritionSummaryCard({
                 label="Chất Béo"
                 percent={fPercent}
                 target={fTarget}
-                value={summary.fatG}
-                valueLabel={formatMacro(summary.fatG)}
+                value={summary.consumedFatG}
+                valueLabel={formatMacro(summary.consumedFatG)}
                 colorClass="bg-[oklch(0.64_0.12_235)]"
               />
             </div>

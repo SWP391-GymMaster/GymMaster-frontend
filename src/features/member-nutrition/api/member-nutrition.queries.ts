@@ -12,12 +12,14 @@ import {
   fetchFoodByBarcode,
   searchFoodOnline,
   setMemberCalorieTarget,
+  getMemberCalorieTarget,
 } from "@/features/member-nutrition/api/member-nutrition.api"
-import type { CreateMealLogDraft, CreateCustomFoodInput, SetCalorieTargetInput } from "@/features/member-nutrition/types/member-nutrition.types"
+import type { CreateMealLogDraft, CreateCustomFoodInput, SetCalorieTargetInput, CalorieTarget } from "@/features/member-nutrition/types/member-nutrition.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 
 export const memberNutritionKeys = {
   all: ["member-nutrition"] as const,
+  target: (memberId: number) => [...memberNutritionKeys.all, "target", memberId] as const,
   foods: (query: string) => [...memberNutritionKeys.all, "foods", query] as const,
   barcode: (barcode: string) => [...memberNutritionKeys.all, "barcode", barcode] as const,
   onlineSearch: (query: string) => [...memberNutritionKeys.all, "online-search", query] as const,
@@ -149,6 +151,24 @@ export function useSetMemberCalorieTarget() {
         queryKey: memberNutritionKeys.all,
       })
     },
+  })
+}
+
+export function useMemberCalorieTarget() {
+  const accessToken = useMemberAccessToken()
+  const memberId = useCurrentMemberProfileId()
+  return useQuery({
+    queryKey: memberId ? memberNutritionKeys.target(memberId)
+                       : [...memberNutritionKeys.all, "target", "none"],
+    queryFn: async () => {
+      try {
+        return await getMemberCalorieTarget(accessToken ?? "", memberId ?? 0)
+      } catch {
+        return null   // 404/NO_TARGET = chưa đặt
+      }
+    },
+    enabled: Boolean(accessToken) && Boolean(memberId),
+    retry: false,
   })
 }
 

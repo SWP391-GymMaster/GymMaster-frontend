@@ -90,6 +90,13 @@ export async function setMemberCalorieTarget(
   )
 }
 
+export async function getMemberCalorieTarget(accessToken: string, memberId: number) {
+  return apiRequest<CalorieTarget>(
+    `/api/v1/members/${memberId}/calorie-target`,
+    { headers: authHeaders(accessToken) },
+  )
+}
+
 export async function getMemberCalorieHistory(
   accessToken: string,
   memberId: number,
