@@ -148,9 +148,16 @@ export function PackageListWorkspace() {
             >
               <div>
                 <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-xl font-bold tracking-tight text-foreground">
-                    {pkg.name}
-                  </h3>
+                  <div className="space-y-1.5">
+                    <h3 className="text-xl font-bold tracking-tight text-foreground">
+                      {pkg.name}
+                    </h3>
+                    {pkg.supportsPT ? (
+                      <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                        Có PT
+                      </span>
+                    ) : null}
+                  </div>
                   <StatusPill status={pkg.status} />
                 </div>
                 <div className="mt-4 space-y-2">

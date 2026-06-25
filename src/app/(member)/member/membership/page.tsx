@@ -6,9 +6,9 @@ export default function MemberMembershipPage() {
   return (
     <PermissionGuard allowedRoles={["member"]}>
       <WorkspaceShell
-        description="Theo dõi chi tiết về gói tập đăng ký, huấn luyện viên cá nhân và lịch sử hóa đơn thanh toán của bạn."
+        description="Xem gói hiện tại, mua/đổi gói tập và lịch sử hóa đơn thanh toán của bạn."
         role="member"
-        title="Gói tập & Hóa đơn"
+        title="Gói tập"
       >
         <MemberMembershipDetails />
       </WorkspaceShell>

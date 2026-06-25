@@ -4,6 +4,7 @@ export type GymPackage = {
   durationDays: number
   price: number
   status: "active" | "inactive"
+  supportsPT: boolean
 }
 
 export type Membership = {
@@ -40,6 +41,7 @@ export type CreatePackageDraft = {
   durationDays: number
   price: number
   status: "active" | "inactive"
+  supportsPT: boolean
 }
 
 // Spec 003 §6 — GET /payments/summary (bao cao doanh thu)

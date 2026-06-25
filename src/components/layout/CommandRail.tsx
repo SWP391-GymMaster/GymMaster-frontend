@@ -139,7 +139,7 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
         {
           href: "/member/membership",
           icon: CreditCard,
-          label: "Gói tập & Hóa đơn",
+          label: "Gói tập",
         },
         { href: "/member/progress", icon: Activity, label: "Tiến độ" },
       ],

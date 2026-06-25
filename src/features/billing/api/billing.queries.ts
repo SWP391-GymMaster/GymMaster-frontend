@@ -13,9 +13,11 @@ import {
   createRenewalRequest,
   getPaymentsSummary,
   confirmMembershipPayment,
+  cancelMembership,
 } from "@/features/billing/api/billing.api"
 import type { CreatePackageDraft } from "@/features/billing/types/billing.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
+import { member360Keys } from "@/features/member-360/api/member-360.queries"
 
 export const billingKeys = {
   all: ["billing"] as const,
@@ -74,6 +76,23 @@ export function useConfirmMembershipPayment() {
       confirmMembershipPayment(accessToken ?? "", vars.membershipId, vars.amount),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: billingKeys.all })
+    },
+  })
+}
+
+// FR-MS-08 — huy membership. Invalidate ca billing lan member-360 (goi hien tai doi).
+export function useCancelMembership() {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (membershipId: number) =>
+      cancelMembership(accessToken ?? "", membershipId),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: billingKeys.all }),
+        queryClient.invalidateQueries({ queryKey: member360Keys.all }),
+      ])
     },
   })
 }

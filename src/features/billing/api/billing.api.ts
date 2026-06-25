@@ -52,47 +52,90 @@ export async function confirmMembershipPayment(
   )
 }
 
-export async function getPackages(accessToken: string): Promise<GymPackage[]> {
-  // Backend that tra isActive (boolean); mock cu tra status string -> chuan hoa ve status.
-  const raw = await apiRequest<Array<GymPackage & { isActive?: boolean }>>(
-    "/api/v1/packages",
-    {
-      headers: authHeaders(accessToken),
-    },
-  )
-  return raw.map((pkg) => ({
-    ...pkg,
-    status: pkg.status ?? (pkg.isActive ? "active" : "inactive"),
-  }))
+// FR-MS-08 — huy membership (member: don/goi cua minh; staff/admin: bat ky).
+export async function cancelMembership(
+  accessToken: string,
+  membershipId: number,
+): Promise<unknown> {
+  return apiRequest<unknown>(`/api/v1/memberships/${membershipId}/cancel`, {
+    method: "POST",
+    headers: authHeaders(accessToken),
+  })
 }
 
+// Backend tra ve PackageResponse { ..., isActive, supportsPT }; FE dung { ..., status, supportsPT }.
+// Chuan hoa isActive -> status de toan UI dung 1 kieu duy nhat.
+type RawPackage = {
+  id: number
+  name: string
+  durationDays: number
+  price: number
+  status?: "active" | "inactive"
+  isActive?: boolean
+  supportsPT?: boolean
+}
+
+function normalizePackage(pkg: RawPackage): GymPackage {
+  return {
+    id: pkg.id,
+    name: pkg.name,
+    durationDays: pkg.durationDays,
+    price: pkg.price,
+    status: pkg.status ?? (pkg.isActive ? "active" : "inactive"),
+    supportsPT: pkg.supportsPT ?? false,
+  }
+}
+
+export async function getPackages(accessToken: string): Promise<GymPackage[]> {
+  const raw = await apiRequest<RawPackage[]>("/api/v1/packages", {
+    headers: authHeaders(accessToken),
+  })
+  return raw.map(normalizePackage)
+}
+
+// Tao goi moi: backend nhan { name, durationDays, price, supportsPT }, luon tao IsActive=true.
 export async function createPackage(
   accessToken: string,
   draft: CreatePackageDraft,
 ): Promise<GymPackage> {
-  return apiRequest<GymPackage>("/api/v1/packages", {
+  const raw = await apiRequest<RawPackage>("/api/v1/packages", {
     method: "POST",
     headers: {
       ...authHeaders(accessToken),
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(draft),
+    body: JSON.stringify({
+      name: draft.name,
+      durationDays: draft.durationDays,
+      price: draft.price,
+      supportsPT: draft.supportsPT,
+    }),
   })
+  return normalizePackage(raw)
 }
 
+// Sua goi: backend nhan isActive (bool) + supportsPT, KHONG nhan "status" chuoi.
+// Map status -> isActive thi nut Tam dung / Kich hoat goi moi co tac dung.
 export async function updatePackage(
   accessToken: string,
   packageId: number,
   draft: CreatePackageDraft,
 ): Promise<GymPackage> {
-  return apiRequest<GymPackage>(`/api/v1/packages/${packageId}`, {
+  const raw = await apiRequest<RawPackage>(`/api/v1/packages/${packageId}`, {
     method: "PUT",
     headers: {
       ...authHeaders(accessToken),
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(draft),
+    body: JSON.stringify({
+      name: draft.name,
+      durationDays: draft.durationDays,
+      price: draft.price,
+      isActive: draft.status === "active",
+      supportsPT: draft.supportsPT,
+    }),
   })
+  return normalizePackage(raw)
 }
 
 // Backend tra status enum kieu PascalCase (PendingPayment/Active/...) -> chuan hoa snake_case.

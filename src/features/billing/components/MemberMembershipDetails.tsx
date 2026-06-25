@@ -7,15 +7,9 @@ import { useMember360Data } from "@/features/member-360/api/member-360.queries";
 import {
   useMemberPayments,
   useCurrentMemberProfileId,
-  usePackages,
-  useCreateRenewalRequest,
+  useCancelMembership,
 } from "@/features/billing/api/billing.queries";
-import { getCurrentUser } from "@/features/auth/api/auth.api";
-import { useAuthSessionStore } from "@/features/auth/session/auth-session";
-import {
-  PaymentPendingDialog,
-  type PaymentOrder,
-} from "@/features/billing/components/PaymentPendingDialog";
+import { PackageStore } from "@/features/billing/components/PackageStore";
 import { StatusPill } from "@/components/data/StatusPill";
 import { StateBlock } from "@/components/feedback/StateBlock";
 import {
@@ -25,62 +19,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { CreditCard, User, Activity, RefreshCw } from "lucide-react";
+import { CreditCard, User, Activity } from "lucide-react";
 
 export function MemberMembershipDetails() {
   const memberId = useCurrentMemberProfileId();
-  // Spec 003 / ADR-05 — member gui yeu cau gia han (admin/staff xac nhan sau).
-  const packages = usePackages();
-  const renewMutation = useCreateRenewalRequest();
-  const session = useAuthSessionStore((state) => state.session);
-  const setSession = useAuthSessionStore((state) => state.setSession);
-  const [renewOpen, setRenewOpen] = useState(false);
-  const [selectedPackageId, setSelectedPackageId] = useState("");
-  const [paymentOrder, setPaymentOrder] = useState<PaymentOrder | null>(null);
-  const [paymentOpen, setPaymentOpen] = useState(false);
-
-  // Sau khi dang ky goi dau tien, backend tao ho so hoi vien -> refetch /auth/me
-  // de memberProfileId cap nhat vao session => mo khoa cac tinh nang ngay.
-  async function refreshMemberProfile() {
-    if (!session) return;
-    try {
-      const user = await getCurrentUser(session.accessToken);
-      setSession({ ...session, user });
-    } catch {
-      // Bo qua: gate se mo o lan dang nhap sau.
-    }
-  }
-
-  function handleRenew(packageId: number) {
-    if (!packageId) return;
-    const pkg = packages.data?.find((p) => p.id === packageId);
-    renewMutation.mutate(packageId, {
-      onSuccess: async (result) => {
-        setRenewOpen(false);
-        setSelectedPackageId("");
-        // Mo man thanh toan (placeholder VNPay): ma don + dem nguoc.
-        setPaymentOrder({
-          code: `GM-${result.id}`,
-          amount: pkg?.price ?? 0,
-          packageName: pkg?.name ?? "Gói tập",
-        });
-        setPaymentOpen(true);
-        if (!memberId) {
-          await refreshMemberProfile();
-        }
-      },
-      onError: () => {
-        toast.error("Không gửi được yêu cầu. Vui lòng thử lại.");
-      },
-    });
-  }
   const {
     data: member360,
     isLoading: is360Loading,
@@ -92,104 +34,44 @@ export function MemberMembershipDetails() {
     error: errorPayments,
   } = useMemberPayments(memberId);
 
+  const cancelMutation = useCancelMembership();
+  const [cancelOpen, setCancelOpen] = useState(false);
+
   const isLoading = is360Loading || isPaymentsLoading;
   const error = error360 || errorPayments;
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("vi-VN", {
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
     }).format(price);
-  };
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "—";
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("vi-VN", {
+    return new Date(dateStr).toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
   };
 
-  const formatDateTime = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("vi-VN", {
+  const formatDateTime = (dateStr: string) =>
+    new Date(dateStr).toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
+
+  const getStatusLabel = (status: "paid" | "pending" | "refunded") => {
+    if (status === "paid") return "Đã thanh toán";
+    if (status === "pending") return "Đang chờ";
+    return "Đã hoàn tiền";
   };
 
   if (isLoading) {
     return <StateBlock tone="loading" title="Đang tải thông tin gói tập..." />;
-  }
-
-  // Chua co ho so hoi vien -> man dang ky goi (mua de tro thanh hoi vien).
-  if (!memberId) {
-    const activePackages = (packages.data ?? []).filter(
-      (p) => p.status === "active",
-    );
-    return (
-      <div className="space-y-6">
-        <div className="rounded-[1.5rem] border border-border/70 bg-card/75 p-8 text-center shadow-sm backdrop-blur">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Trở thành hội viên GymMaster
-          </h2>
-          <p className="mx-auto mt-2 max-w-lg text-sm text-muted-foreground">
-            Bạn chưa đăng ký gói tập nào. Chọn một gói bên dưới để đăng ký trở
-            thành hội viên — lễ tân sẽ xác nhận thanh toán và toàn bộ tính năng
-            sẽ được mở khóa.
-          </p>
-        </div>
-
-        {packages.isLoading ? (
-          <StateBlock tone="loading" title="Đang tải gói tập..." />
-        ) : activePackages.length === 0 ? (
-          <StateBlock
-            tone="empty"
-            title="Chưa có gói tập"
-            description="Hiện chưa có gói nào để đăng ký. Vui lòng quay lại sau."
-          />
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {activePackages.map((p) => (
-              <div
-                key={p.id}
-                className="flex flex-col rounded-[1.5rem] border border-border/70 bg-card p-6 shadow-sm"
-              >
-                <h3 className="text-lg font-bold tracking-tight text-foreground">
-                  {p.name}
-                </h3>
-                <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
-                  {formatPrice(p.price)}
-                  <span className="ml-1 text-sm font-normal text-muted-foreground">
-                    / {p.durationDays} ngày
-                  </span>
-                </p>
-                <button
-                  type="button"
-                  disabled={renewMutation.isPending}
-                  onClick={() => handleRenew(p.id)}
-                  className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
-                >
-                  {renewMutation.isPending ? "Đang gửi..." : "Đăng ký gói này"}
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <PaymentPendingDialog
-          open={paymentOpen}
-          order={paymentOrder}
-          onClose={() => setPaymentOpen(false)}
-          onRetry={() => setPaymentOpen(false)}
-        />
-      </div>
-    );
   }
 
   if (error) {
@@ -206,24 +88,33 @@ export function MemberMembershipDetails() {
   const pt = member360?.assignedPT;
   const checkIns = member360?.recentCheckIns ?? [];
 
-  // Backend chan 1 hoi vien co 2 goi active cung luc (ALREADY_HAS_ACTIVE), va don
-  // pending dang cho duyet thi khong nen tao them don moi. -> khoa nut yeu cau gia
-  // han khi dang active/pending; chi mo lai khi het han hoac chua co goi.
+  // Backend chan 1 hoi vien co 2 goi active cung luc (ALREADY_HAS_ACTIVE) -> khoa mua.
   const hasActiveOrPending =
     membership?.status === "active" ||
     membership?.status === "pending_payment";
 
-  const getStatusLabel = (status: "paid" | "pending" | "refunded") => {
-    if (status === "paid") return "Đã thanh toán";
-    if (status === "pending") return "Đang chờ";
-    return "Đã hoàn tiền";
-  };
+  function handleCancel() {
+    if (!membership) return;
+    cancelMutation.mutate(membership.id, {
+      onSuccess: () => {
+        setCancelOpen(false);
+        toast.success("Đã hủy gói tập.");
+      },
+      onError: (err) => {
+        toast.error(
+          err instanceof Error && err.message
+            ? err.message
+            : "Hủy không thành công. Vui lòng thử lại.",
+        );
+      },
+    });
+  }
 
   return (
     <div className="space-y-6">
-      {/* Bento Cards Layout */}
+      {/* ① Gói hiện tại + PT + Check-in */}
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Active Membership Card */}
+        {/* Gói tập hiện tại */}
         <div className="flex flex-col justify-between rounded-[1.5rem] border border-border/70 bg-card/75 p-6 shadow-sm backdrop-blur">
           <div>
             <div className="flex items-center gap-3 text-muted-foreground text-sm font-semibold uppercase tracking-[0.08em]">
@@ -253,9 +144,7 @@ export function MemberMembershipDetails() {
                       <span className="text-muted-foreground">
                         Trạng thái thẻ:
                       </span>
-                      <StatusPill
-                        status={membership.status}
-                      />
+                      <StatusPill status={membership.status} />
                     </div>
                   </div>
                   {membership.status === "pending_payment" ? (
@@ -267,36 +156,33 @@ export function MemberMembershipDetails() {
                   {membership.status === "active" ? (
                     <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
                       ✅ Gói còn hiệu lực đến {formatDate(membership.endDate)}.
-                      Khi gần hết hạn, bạn có thể gia hạn tại quầy lễ tân để cộng
-                      nối thời hạn.
                     </p>
+                  ) : null}
+                  {membership.status === "active" ||
+                  membership.status === "pending_payment" ? (
+                    <button
+                      type="button"
+                      onClick={() => setCancelOpen(true)}
+                      className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-full border border-destructive/40 px-4 text-sm font-semibold text-destructive transition hover:bg-destructive/10 active:scale-[0.98]"
+                      data-testid="cancel-membership-button"
+                    >
+                      {membership.status === "pending_payment"
+                        ? "Hủy đơn"
+                        : "Hủy gói"}
+                    </button>
                   ) : null}
                 </>
               ) : (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Bạn chưa đăng ký gói tập nào.
+                  Bạn chưa có gói tập nào. Chọn một gói ở mục “Mua / Đổi gói” bên
+                  dưới để bắt đầu.
                 </p>
               )}
             </div>
           </div>
-          <button
-            type="button"
-            disabled={hasActiveOrPending}
-            onClick={() => setRenewOpen(true)}
-            className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <RefreshCw className="size-4" />
-            {membership?.status === "active"
-              ? "Gói đang hoạt động"
-              : membership?.status === "pending_payment"
-                ? "Đang chờ xác nhận"
-                : membership
-                  ? "Yêu cầu gia hạn"
-                  : "Yêu cầu đăng ký gói"}
-          </button>
         </div>
 
-        {/* PT Assignment Card */}
+        {/* Huấn luyện viên cá nhân */}
         <div className="flex flex-col justify-between rounded-[1.5rem] border border-border/70 bg-card/75 p-6 shadow-sm backdrop-blur">
           <div className="flex flex-col h-full">
             <div className="flex items-center gap-3 text-muted-foreground text-sm font-semibold uppercase tracking-[0.08em]">
@@ -334,7 +220,7 @@ export function MemberMembershipDetails() {
           </div>
         </div>
 
-        {/* Check-in totals Card */}
+        {/* Check-in gần đây */}
         <div className="flex flex-col justify-between rounded-[1.5rem] border border-border/70 bg-card/75 p-6 shadow-sm backdrop-blur">
           <div className="flex flex-col h-full">
             <div className="flex items-center gap-3 text-muted-foreground text-sm font-semibold uppercase tracking-[0.08em]">
@@ -368,7 +254,21 @@ export function MemberMembershipDetails() {
         </div>
       </div>
 
-      {/* Invoice History */}
+      {/* ② Mua / Đổi gói — LUÔN hiện (kiểu app thật) */}
+      <section
+        className="rounded-[1.5rem] border border-border bg-card p-6 shadow-sm"
+        data-testid="member-package-store"
+      >
+        <h3 className="text-lg font-bold tracking-tight text-foreground">
+          Mua / Đổi gói tập
+        </h3>
+        <p className="mt-1 mb-4 text-sm text-muted-foreground">
+          Chọn gói phù hợp để đăng ký. Thanh toán online hoặc tại quầy lễ tân.
+        </p>
+        <PackageStore hasActiveOrPending={hasActiveOrPending} />
+      </section>
+
+      {/* ③ Lịch sử hóa đơn */}
       <div className="rounded-[1.5rem] border border-border bg-card p-6 shadow-sm">
         <h3 className="text-lg font-bold tracking-tight text-foreground mb-4">
           Lịch sử hóa đơn thanh toán
@@ -431,56 +331,40 @@ export function MemberMembershipDetails() {
         )}
       </div>
 
-      <Dialog open={renewOpen} onOpenChange={setRenewOpen}>
+      <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
         <DialogContent className="rounded-[1.5rem]">
           <DialogHeader>
-            <DialogTitle>Yêu cầu gia hạn gói tập</DialogTitle>
+            <DialogTitle>
+              {membership?.status === "pending_payment"
+                ? "Hủy đơn chờ thanh toán?"
+                : "Hủy gói đang hoạt động?"}
+            </DialogTitle>
             <DialogDescription>
-              Chọn gói bạn muốn gia hạn. Yêu cầu sẽ được lễ tân/quản lý xác nhận
-              và thu phí.
+              {membership?.status === "pending_payment"
+                ? "Đơn chờ thanh toán này sẽ bị hủy. Bạn có thể đăng ký lại bất cứ lúc nào."
+                : "⚠️ Bạn sẽ MẤT số ngày còn lại của gói và KHÔNG được hoàn tiền. Hành động này không thể hoàn tác."}
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <Select
-              value={selectedPackageId}
-              onValueChange={setSelectedPackageId}
-            >
-              <SelectTrigger aria-label="Chọn gói tập">
-                <SelectValue placeholder="Chọn gói tập" />
-              </SelectTrigger>
-              <SelectContent>
-                {(packages.data ?? [])
-                  .filter((p) => p.status === "active")
-                  .map((p) => (
-                    <SelectItem key={p.id} value={String(p.id)}>
-                      {p.name} — {formatPrice(p.price)} / {p.durationDays} ngày
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-            {packages.isError ? (
-              <p className="text-sm text-destructive">
-                Không tải được danh sách gói. Vui lòng thử lại.
-              </p>
-            ) : null}
+          <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
-              disabled={!selectedPackageId || renewMutation.isPending}
-              onClick={() => handleRenew(Number(selectedPackageId))}
-              className="inline-flex h-11 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition active:scale-[0.98] hover:opacity-90 disabled:opacity-50"
+              onClick={() => setCancelOpen(false)}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border px-5 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
             >
-              {renewMutation.isPending ? "Đang gửi..." : "Gửi yêu cầu gia hạn"}
+              Không
+            </button>
+            <button
+              type="button"
+              disabled={cancelMutation.isPending}
+              onClick={handleCancel}
+              className="inline-flex h-10 items-center justify-center rounded-full bg-destructive px-5 text-sm font-semibold text-white transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              data-testid="confirm-cancel-membership"
+            >
+              {cancelMutation.isPending ? "Đang hủy..." : "Xác nhận hủy"}
             </button>
           </div>
         </DialogContent>
       </Dialog>
-
-      <PaymentPendingDialog
-        open={paymentOpen}
-        order={paymentOrder}
-        onClose={() => setPaymentOpen(false)}
-        onRetry={() => setPaymentOpen(false)}
-      />
     </div>
   );
 }

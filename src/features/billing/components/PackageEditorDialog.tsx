@@ -63,6 +63,7 @@ export function PackageEditorDialog({
       durationDays: 30,
       price: 0,
       status: "active",
+      supportsPT: false,
     },
   })
 
@@ -75,6 +76,7 @@ export function PackageEditorDialog({
           durationDays: gymPackage.durationDays,
           price: gymPackage.price,
           status: gymPackage.status,
+          supportsPT: gymPackage.supportsPT,
         })
       } else {
         reset({
@@ -82,6 +84,7 @@ export function PackageEditorDialog({
           durationDays: 30,
           price: 0,
           status: "active",
+          supportsPT: false,
         })
       }
     }
@@ -100,8 +103,13 @@ export function PackageEditorDialog({
         toast.success("Tạo gói tập mới thành công!")
       }
       onOpenChange(false)
-    } catch {
-      toast.error("Có lỗi xảy ra. Vui lòng thử lại.")
+    } catch (err) {
+      // Hien dung message backend tra (vd "Ten goi nay da ton tai"), fallback cau chung.
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "Có lỗi xảy ra. Vui lòng thử lại."
+      toast.error(message)
     }
   }
 
@@ -220,6 +228,25 @@ export function PackageEditorDialog({
             {errors.status && (
               <p className="text-xs font-semibold text-destructive">{errors.status.message}</p>
             )}
+          </div>
+
+          {/* Phan loai goi: co ho tro PT hay khong (SupportsPT) */}
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-3 py-3">
+            <div>
+              <label htmlFor="supportsPT" className="text-sm font-semibold text-foreground">
+                Gói có hỗ trợ PT
+              </label>
+              <p className="text-xs text-muted-foreground">
+                Cho phép hội viên dùng huấn luyện viên cá nhân khi gói còn hiệu lực.
+              </p>
+            </div>
+            <input
+              id="supportsPT"
+              type="checkbox"
+              className="size-5 shrink-0 accent-primary"
+              data-testid="package-form-supports-pt"
+              {...register("supportsPT")}
+            />
           </div>
 
           <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
