@@ -18,6 +18,17 @@ function mockSummary(data: Record<string, unknown>) {
       })
     }),
     http.get("/api/v1/meal-logs", () => ok([])),
+    http.get("/api/v1/members/:id/calorie-target", () => {
+      if (data.target == null) {
+        return ok(null) as any
+      }
+      return ok({
+        dailyCalories: data.target,
+        proteinG: data.targetProteinG,
+        carbG: data.targetCarbG,
+        fatG: data.targetFatG,
+      }) as any
+    }),
   )
 }
 
@@ -48,9 +59,6 @@ describe("CalorieSummaryWorkspace", () => {
     ).toBeGreaterThan(0)
     expect(screen.queryByText("2.200 kcal")).not.toBeInTheDocument()
     expect(screen.getByText("345 kcal")).toBeInTheDocument()
-    expect(screen.getByText("32g")).toBeInTheDocument()
-    expect(screen.getByText("41g")).toBeInTheDocument()
-    expect(screen.getByText("12g")).toBeInTheDocument()
   })
 
   it("renders real consumed macros, target macros, and remaining values from BE", async () => {
@@ -74,7 +82,7 @@ describe("CalorieSummaryWorkspace", () => {
     expect(await screen.findByText("Dinh dưỡng hôm nay")).toBeInTheDocument()
     expect(screen.getByText("345 kcal")).toBeInTheDocument()
     expect(screen.getByText("1.800 kcal")).toBeInTheDocument()
-    expect(screen.getByText("Còn 1.455 kcal")).toBeInTheDocument()
+    expect(screen.getByText("1455")).toBeInTheDocument()
     expect(screen.getByText("32g / 120g")).toBeInTheDocument()
     expect(screen.getByText("41g / 210g")).toBeInTheDocument()
     expect(screen.getByText("12g / 55g")).toBeInTheDocument()

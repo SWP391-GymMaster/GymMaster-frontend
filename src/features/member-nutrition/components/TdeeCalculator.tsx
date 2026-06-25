@@ -44,7 +44,6 @@ const dietTemplates = {
 
 export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalculatorProps) {
   // Spec 007 — luu muc tieu len backend (POST /members/{id}/calorie-target).
-  // localStorage van giu lam fallback offline khi backend loi.
   const setTargetMutation = useSetMemberCalorieTarget();
   const { data: targetData } = useMemberCalorieTarget();
 
@@ -178,57 +177,45 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
   }
 
   function handleApply() {
-    if (typeof window !== "undefined") {
-      if (activeTab === "tdee") {
-        // Automatic calculation from TDEE
-        let pRatio = 0.25;
-        let cRatio = 0.5;
-        let fRatio = 0.25;
-        if (selectedGoal === "lose") {
-          pRatio = 0.3;
-          cRatio = 0.4;
-          fRatio = 0.3;
-        } else if (selectedGoal === "gain") {
-          pRatio = 0.2;
-          cRatio = 0.55;
-          fRatio = 0.25;
-        }
-
-        const pG = Math.round((proposedCalorie * pRatio) / 4);
-        const cG = Math.round((proposedCalorie * cRatio) / 4);
-        const fG = Math.round((proposedCalorie * fRatio) / 9);
-
-        localStorage.setItem("gymmaster-calorie-goal", proposedCalorie.toString());
-        localStorage.setItem("gymmaster-protein-goal", pG.toString());
-        localStorage.setItem("gymmaster-carbs-goal", cG.toString());
-        localStorage.setItem("gymmaster-fat-goal", fG.toString());
-
-        setTargetMutation.mutate({
-          dailyCalories: proposedCalorie,
-          proteinG: pG,
-          carbG: cG,
-          fatG: fG,
-        });
-
-        onTargetApplied(proposedCalorie);
-      } else {
-        // Manual input
-        localStorage.setItem("gymmaster-calorie-goal", manualCalorie.toString());
-        localStorage.setItem("gymmaster-protein-goal", manualProtein.toString());
-        localStorage.setItem("gymmaster-carbs-goal", manualCarbs.toString());
-        localStorage.setItem("gymmaster-fat-goal", manualFat.toString());
-
-        setTargetMutation.mutate({
-          dailyCalories: manualCalorie,
-          proteinG: manualProtein,
-          carbG: manualCarbs,
-          fatG: manualFat,
-        });
-
-        onTargetApplied(manualCalorie);
+    if (activeTab === "tdee") {
+      // Automatic calculation from TDEE
+      let pRatio = 0.25;
+      let cRatio = 0.5;
+      let fRatio = 0.25;
+      if (selectedGoal === "lose") {
+        pRatio = 0.3;
+        cRatio = 0.4;
+        fRatio = 0.3;
+      } else if (selectedGoal === "gain") {
+        pRatio = 0.2;
+        cRatio = 0.55;
+        fRatio = 0.25;
       }
-      onClose();
+
+      const pG = Math.round((proposedCalorie * pRatio) / 4);
+      const cG = Math.round((proposedCalorie * cRatio) / 4);
+      const fG = Math.round((proposedCalorie * fRatio) / 9);
+
+      setTargetMutation.mutate({
+        dailyCalories: proposedCalorie,
+        proteinG: pG,
+        carbG: cG,
+        fatG: fG,
+      });
+
+      onTargetApplied(proposedCalorie);
+    } else {
+      // Manual input
+      setTargetMutation.mutate({
+        dailyCalories: manualCalorie,
+        proteinG: manualProtein,
+        carbG: manualCarbs,
+        fatG: manualFat,
+      });
+
+      onTargetApplied(manualCalorie);
     }
+    onClose();
   }
 
   // Calculate total calories from macros input to show warning/comparison

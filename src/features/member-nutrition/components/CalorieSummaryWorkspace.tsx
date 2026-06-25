@@ -272,7 +272,7 @@ export function CalorieSummaryWorkspace() {
                 </p>
                 <h2 className="mt-2 max-w-2xl text-3xl font-bold tracking-tight text-foreground">
                   {hasTarget
-                    ? `${remainingLabel} cho ${dateContext}`
+                    ? `Tổng kết dinh dưỡng ${dateContext}`
                     : `Theo dõi số đã ăn ${dateContext}`}
                 </h2>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -309,71 +309,34 @@ export function CalorieSummaryWorkspace() {
               </div>
             </div>
 
-            <div className="mt-6 grid gap-3 md:grid-cols-4">
+            <div className="mt-6 grid gap-3 md:grid-cols-2">
               <InsightMetric
                 icon={Flame}
-                label="Đã ăn"
+                label="Đã ăn (kcal)"
                 value={formatCalories(consumed)}
                 tone="orange"
                 subValue="Calo thực tế"
               />
-              <InsightMetric
-                icon={Utensils}
-                label="Đạm đã ăn"
-                value={formatMacroGrams(consumedProtein)}
-                tone="green"
-                subValue="Từ bữa đã ghi"
-              />
-              <InsightMetric
-                icon={Salad}
-                label="Carb đã ăn"
-                value={formatMacroGrams(consumedCarb)}
-                tone="blue"
-                subValue="Từ bữa đã ghi"
-              />
-              <InsightMetric
-                icon={Apple}
-                label="Béo đã ăn"
-                value={formatMacroGrams(consumedFat)}
-                tone="cyan"
-                subValue="Từ bữa đã ghi"
-              />
+              {hasTarget ? (
+                <button
+                  type="button"
+                  onClick={() => setIsTdeeOpen(true)}
+                  className="block w-full rounded-2xl text-left transition focus:outline-none focus:ring-2 focus:ring-primary/20 active:scale-[0.98]"
+                >
+                  <InsightMetric
+                    icon={Target}
+                    label="Mục tiêu (kcal)"
+                    value={formatCalories(target ?? 0)}
+                    tone="blue"
+                    subValue="Click để cấu hình"
+                  />
+                </button>
+              ) : null}
             </div>
 
             {hasTarget ? (
               <>
-                <div className="mt-4 grid gap-3 md:grid-cols-3">
-                  <InsightMetric
-                    featured
-                    icon={Utensils}
-                    label="Còn lại"
-                    value={remainingLabel}
-                    tone="green"
-                    subValue={`${remainingPercent}% còn lại`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIsTdeeOpen(true)}
-                    className="block w-full rounded-2xl text-left transition focus:outline-none focus:ring-2 focus:ring-primary/20 active:scale-[0.98]"
-                  >
-                    <InsightMetric
-                      icon={Target}
-                      label="Mục tiêu"
-                      value={formatCalories(target ?? 0)}
-                      tone="blue"
-                      subValue="Click để cấu hình"
-                    />
-                  </button>
-                  <InsightMetric
-                    icon={Info}
-                    label="Tiến độ"
-                    value={`${consumedPercent}%`}
-                    tone="orange"
-                    subValue="So với mục tiêu"
-                  />
-                </div>
-
-                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                <div className="mt-6 grid gap-3 md:grid-cols-3">
                   <MacroTrack
                     label="Đạm"
                     value={consumedProtein}
