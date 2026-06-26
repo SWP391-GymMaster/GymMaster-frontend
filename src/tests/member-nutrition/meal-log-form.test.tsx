@@ -35,7 +35,7 @@ describe("MealLogForm", () => {
     ).toBeInTheDocument()
   })
 
-  it("creates a meal log with selected food and quantity", async () => {
+  it("adds the selected food to the list then logs all on confirm", async () => {
     renderWithMemberSession(<MealLogForm date="2026-06-02" />)
 
     fireEvent.change(screen.getByTestId("member-food-search-input"), {
@@ -47,6 +47,16 @@ describe("MealLogForm", () => {
     })
     fireEvent.click(screen.getByTestId("member-add-meal-button"))
 
-    expect(await screen.findByText("Đã thêm bữa ăn")).toBeInTheDocument()
+    // Mon vao "gio", chua goi API.
+    expect(
+      await screen.findByText("Đã thêm vào danh sách: Banana"),
+    ).toBeInTheDocument()
+
+    // Xac nhan ghi tat ca 1 lan.
+    fireEvent.click(screen.getByTestId("member-confirm-cart-button"))
+
+    expect(
+      await screen.findByText("Đã ghi 1 món vào nhật ký"),
+    ).toBeInTheDocument()
   })
 })

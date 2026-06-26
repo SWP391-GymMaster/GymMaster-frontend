@@ -79,7 +79,8 @@ test.describe("Nutrition Online Food Search Flow", () => {
     await page.getByTestId("member-add-meal-button").click()
 
     // Verify logged successfully
-    await expect(page.getByText("Đã thêm bữa ăn")).toBeVisible()
+    await page.getByTestId("member-confirm-cart-button").click()
+    await expect(page.getByText(/Đã ghi \d+ món vào nhật ký/)).toBeVisible()
     await expect(page.getByTestId("member-meal-log-list")).toContainText("Mì Hảo Hảo chua cay (Acecook)")
   })
 
@@ -123,7 +124,8 @@ test.describe("Nutrition Online Food Search Flow", () => {
     await page.getByTestId("member-add-meal-button").click()
 
     // Verify logged successfully
-    await expect(page.getByText("Đã thêm bữa ăn")).toBeVisible()
+    await page.getByTestId("member-confirm-cart-button").click()
+    await expect(page.getByText(/Đã ghi \d+ món vào nhật ký/)).toBeVisible()
     await expect(page.getByTestId("member-meal-log-list")).toContainText("Sữa tươi TH True Milk ít đường (TH True Milk)")
   })
 })

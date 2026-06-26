@@ -68,7 +68,8 @@ test.describe("Nutrition Barcode Lookup & Scan Flow", () => {
     await page.getByTestId("member-add-meal-button").click()
 
     // Verify it is logged successfully
-    await expect(page.getByText("Đã thêm bữa ăn")).toBeVisible()
+    await page.getByTestId("member-confirm-cart-button").click()
+    await expect(page.getByText(/Đã ghi \d+ món vào nhật ký/)).toBeVisible()
     await expect(page.getByTestId("member-meal-log-list")).toContainText("Sữa tươi TH True Milk ít đường (TH True Milk)")
   })
 
@@ -101,7 +102,8 @@ test.describe("Nutrition Barcode Lookup & Scan Flow", () => {
     await page.getByTestId("member-add-meal-button").click()
 
     // Verify logged successfully
-    await expect(page.getByText("Đã thêm bữa ăn")).toBeVisible()
+    await page.getByTestId("member-confirm-cart-button").click()
+    await expect(page.getByText(/Đã ghi \d+ món vào nhật ký/)).toBeVisible()
     await expect(page.getByTestId("member-meal-log-list")).toContainText("Nước ngọt Coca-Cola 320ml (Coca-Cola)")
   })
 })

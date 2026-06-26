@@ -31,7 +31,8 @@ test("Member adds a meal and sees calorie summary update", async ({ page }) => {
   await page.getByTestId("member-meal-quantity-input").fill("2")
   await page.getByTestId("member-add-meal-button").click()
 
-  await expect(page.getByText("Đã thêm bữa ăn")).toBeVisible()
+  await page.getByTestId("member-confirm-cart-button").click()
+  await expect(page.getByText(/Đã ghi \d+ món vào nhật ký/)).toBeVisible()
   await expect(page.getByTestId("member-meal-log-list")).toContainText("Banana")
 
   await page.goto("/member/nutrition/summary")
@@ -90,6 +91,7 @@ test("Member creates custom food and logs it successfully", async ({ page }) => 
   await page.getByTestId("member-add-meal-button").click()
 
   // Verify it appears in the log list
-  await expect(page.getByText("Đã thêm bữa ăn")).toBeVisible()
+  await page.getByTestId("member-confirm-cart-button").click()
+  await expect(page.getByText(/Đã ghi \d+ món vào nhật ký/)).toBeVisible()
   await expect(page.getByTestId("member-meal-log-list")).toContainText("Táo Nhật Bản E2E")
 })
