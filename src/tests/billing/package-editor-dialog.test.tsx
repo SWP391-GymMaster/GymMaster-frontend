@@ -48,6 +48,7 @@ describe("PackageEditorDialog", () => {
       durationDays: 60,
       price: 1500000,
       status: "active" as const,
+      supportsPT: false,
     }
 
     render(
@@ -106,6 +107,7 @@ describe("PackageEditorDialog", () => {
         durationDays: 60,
         price: 1200000,
         status: "active",
+        supportsPT: false,
       })
       expect(toast.success).toHaveBeenCalledWith("Tạo gói tập mới thành công!")
       expect(mockOnOpenChange).toHaveBeenCalledWith(false)
@@ -119,6 +121,7 @@ describe("PackageEditorDialog", () => {
       durationDays: 60,
       price: 1500000,
       status: "active" as const,
+      supportsPT: false,
     }
 
     mockUpdateMutateAsync.mockResolvedValueOnce({ id: 1 })
@@ -145,6 +148,7 @@ describe("PackageEditorDialog", () => {
           durationDays: 60,
           price: 1500000,
           status: "active",
+          supportsPT: false,
         },
       })
       expect(toast.success).toHaveBeenCalledWith("Cập nhật gói tập thành công!")

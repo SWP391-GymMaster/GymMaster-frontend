@@ -14,11 +14,14 @@ import {
 
 import { StatusPill } from "@/components/data/StatusPill";
 import { Button } from "@/components/ui/button";
+import { MembershipExpiryBanner } from "@/features/billing/components/MembershipExpiryBanner";
 import { NutritionSummaryCard } from "@/features/member-nutrition/components/NutritionSummaryCard";
 import { WaterTrackerCard } from "@/features/member-nutrition/components/WaterTrackerCard";
 import { useMemberCalorieSummary } from "@/features/member-nutrition/api/member-nutrition.queries";
 import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
+import { useCurrentMemberProfileId } from "@/features/billing/api/billing.queries";
+import { useMember360Data } from "@/features/member-360/api/member-360.queries";
 import { BmiCalculator } from "@/features/member-nutrition/components/BmiCalculator";
 
 const today = getTodayDate();
@@ -52,22 +55,21 @@ const todayActions = [
 
 export function MemberDashboardContent() {
   const summary = useMemberCalorieSummary(today);
+  const memberId = useCurrentMemberProfileId();
+  const { data: member360 } = useMember360Data(memberId);
+  const membership = member360?.currentMembership;
+
   const [isBmiOpen, setIsBmiOpen] = useState(false);
-  const [calorieGoal, setCalorieGoal] = useState(2200);
+  // null = chua dat muc tieu (BE la nguon su that). Khong bia 2200, khong doc localStorage.
+  const [calorieGoal, setCalorieGoal] = useState<number | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedCal = localStorage.getItem("gymmaster-calorie-goal");
-      const val = storedCal ? Number(storedCal) : (summary.data?.target ?? 2200);
-      const timer = setTimeout(() => {
-        setCalorieGoal(val);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
+    setCalorieGoal(summary.data?.target ?? null);
   }, [summary.data?.target]);
 
   return (
     <div className="grid gap-6">
+      <MembershipExpiryBanner endDate={membership?.endDate} status={membership?.status} />
       <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="relative min-h-[260px] lg:min-h-[410px] overflow-hidden rounded-[1.75rem] border border-white/10 bg-zinc-950 shadow-xl">
           <div
@@ -110,7 +112,7 @@ export function MemberDashboardContent() {
 
             <div>
               <div className="grid gap-3 sm:grid-cols-3">
-                <HeroChip label="Mục tiêu" value={`${calorieGoal.toLocaleString("vi-VN")} kcal`} variant="glass" />
+                <HeroChip label="Mục tiêu" value={calorieGoal != null ? `${calorieGoal.toLocaleString("vi-VN")} kcal` : "Chưa đặt"} variant="glass" />
                 <HeroChip label="Buổi tiếp theo" value="18:30" variant="glass" />
                 <HeroChip label="Check-in" value="Sẵn sàng" variant="glass" />
               </div>

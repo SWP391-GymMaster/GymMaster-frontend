@@ -13,7 +13,19 @@ import {
 } from "@/components/ui/select"
 import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
-import { useMemberships, usePackages } from "@/features/billing/api/billing.queries"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { toast } from "sonner"
+import {
+  useMemberships,
+  usePackages,
+  useCancelMembership,
+} from "@/features/billing/api/billing.queries"
 import { useManagedMembers } from "@/features/member-management/api/member-management.queries"
 import type { Membership } from "@/features/billing/types/billing.types"
 
@@ -42,8 +54,27 @@ export function MembershipsRoster() {
 
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "pending_payment" | "expired" | "cancelled">("all")
+  const [cancelTarget, setCancelTarget] = useState<Membership | null>(null)
+  const cancelMutation = useCancelMembership()
 
   const members = membersResult?.items ?? []
+
+  function handleCancel() {
+    if (!cancelTarget) return
+    cancelMutation.mutate(cancelTarget.id, {
+      onSuccess: () => {
+        setCancelTarget(null)
+        toast.success("Đã hủy hợp đồng.")
+      },
+      onError: (err) => {
+        toast.error(
+          err instanceof Error && err.message
+            ? err.message
+            : "Hủy không thành công. Vui lòng thử lại.",
+        )
+      },
+    })
+  }
 
   const isLoading = isMembershipsLoading || isPackagesLoading || isMembersLoading
 
@@ -176,6 +207,7 @@ export function MembershipsRoster() {
                 <th className="px-6 py-4">Ngày bắt đầu</th>
                 <th className="px-6 py-4">Ngày kết thúc</th>
                 <th className="px-6 py-4">Trạng thái</th>
+                <th className="px-6 py-4 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -210,6 +242,20 @@ export function MembershipsRoster() {
                         label={getStatusLabel(displayStatus)}
                       />
                     </td>
+                    <td className="px-6 py-4 text-right">
+                      {ms.status === "active" || ms.status === "pending_payment" ? (
+                        <button
+                          type="button"
+                          onClick={() => setCancelTarget(ms)}
+                          className="inline-flex h-9 items-center justify-center rounded-full border border-destructive/40 px-4 text-xs font-semibold text-destructive transition hover:bg-destructive/10 active:scale-[0.98]"
+                          data-testid={`cancel-membership-${ms.id}`}
+                        >
+                          Hủy
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
                   </tr>
                 )
               })}
@@ -217,6 +263,40 @@ export function MembershipsRoster() {
           </table>
         </div>
       )}
+
+      <Dialog
+        open={cancelTarget !== null}
+        onOpenChange={(open) => !open && setCancelTarget(null)}
+      >
+        <DialogContent className="rounded-[1.5rem]">
+          <DialogHeader>
+            <DialogTitle>Hủy hợp đồng HD-{cancelTarget?.id}?</DialogTitle>
+            <DialogDescription>
+              {cancelTarget?.status === "active"
+                ? "⚠️ Gói đang hoạt động sẽ bị hủy ngay. Hội viên mất quyền sử dụng và KHÔNG được hoàn tiền."
+                : "Đơn chờ thanh toán này sẽ bị hủy."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setCancelTarget(null)}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border px-5 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
+            >
+              Không
+            </button>
+            <button
+              type="button"
+              disabled={cancelMutation.isPending}
+              onClick={handleCancel}
+              className="inline-flex h-10 items-center justify-center rounded-full bg-destructive px-5 text-sm font-semibold text-white transition hover:opacity-90 active:scale-[0.98] disabled:opacity-50"
+              data-testid="confirm-cancel-roster"
+            >
+              {cancelMutation.isPending ? "Đang hủy..." : "Xác nhận hủy"}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

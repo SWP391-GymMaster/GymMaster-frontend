@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Clock, QrCode, CheckCircle2, XCircle } from "lucide-react"
+import { useState } from "react"
+import { CheckCircle2 } from "lucide-react"
 
 import {
   Dialog,
@@ -10,15 +10,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-
-// Placeholder cho luong thanh toan (se thay bang VNPay sau).
-// Hien ma don + dem nguoc; het gio -> don het han, dat lai.
-const PAYMENT_WINDOW_SECONDS = 10 * 60 // 10 phut
+import { useAuthSessionStore } from "@/features/auth/session/auth-session"
+import { createVnpayUrl } from "@/features/billing/api/vnpay.api"
+import { toast } from "sonner"
 
 export type PaymentOrder = {
   code: string
   amount: number
   packageName: string
+  membershipId: number
 }
 
 type PaymentPendingDialogProps = {
@@ -35,108 +35,78 @@ function formatPrice(price: number) {
   }).format(price)
 }
 
-function formatCountdown(seconds: number) {
-  const m = Math.floor(seconds / 60)
-    .toString()
-    .padStart(2, "0")
-  const s = (seconds % 60).toString().padStart(2, "0")
-  return `${m}:${s}`
-}
-
 export function PaymentPendingDialog({
   open,
   order,
   onClose,
-  onRetry,
 }: PaymentPendingDialogProps) {
-  const [secondsLeft, setSecondsLeft] = useState(PAYMENT_WINDOW_SECONDS)
+  const [isLoading, setIsLoading] = useState(false)
+  const token = useAuthSessionStore((s) => s.session?.accessToken)
 
-  // Reset dong ho moi lan mo dialog.
-  useEffect(() => {
-    if (open) {
-      setSecondsLeft(PAYMENT_WINDOW_SECONDS)
+  // Hien gia chi khi biet (>0); con lai chi hien ten goi - khong bia so.
+  const orderLabel = order
+    ? order.amount > 0
+      ? `Gói ${order.packageName} - ${formatPrice(order.amount)}`
+      : `Gói ${order.packageName}`
+    : "Đơn đăng ký gói tập"
+
+  async function handleVnpayPay() {
+    if (!order || !token) {
+      toast.error("Không thể thanh toán. Vui lòng đăng nhập lại.")
+      return
     }
-  }, [open])
 
-  // Dem nguoc.
-  useEffect(() => {
-    if (!open || secondsLeft <= 0) return
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => (prev <= 1 ? 0 : prev - 1))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [open, secondsLeft])
-
-  const expired = secondsLeft <= 0
+    setIsLoading(true)
+    try {
+      const result = await createVnpayUrl(token, order.membershipId)
+      window.location.href = result.payUrl
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Không thể tạo liên kết thanh toán VNPay."
+      toast.error(message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md rounded-[1.5rem]">
         <DialogHeader>
           <DialogTitle>Thanh toán gói tập</DialogTitle>
-          <DialogDescription>
-            {order
-              ? `Gói ${order.packageName} — ${formatPrice(order.amount)}`
-              : "Đơn đăng ký gói tập"}
-          </DialogDescription>
+          <DialogDescription>{orderLabel}</DialogDescription>
         </DialogHeader>
 
-        {expired ? (
-          <div className="flex flex-col items-center py-4 text-center">
-            <span className="flex size-14 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-              <XCircle className="size-7" />
-            </span>
-            <p className="mt-4 text-base font-semibold text-foreground">
-              Hết hạn thanh toán
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Mã thanh toán đã hết hiệu lực. Vui lòng đặt lại đơn mới.
-            </p>
+        <div className="flex flex-col items-center py-4 text-center">
+          <span className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <CheckCircle2 className="size-7" />
+          </span>
+          <p className="mt-4 text-base font-semibold text-foreground">
+            {orderLabel}
+          </p>
+          <div className="mt-6 grid gap-3">
             <button
               type="button"
-              onClick={onRetry}
-              className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98]"
+              onClick={handleVnpayPay}
+              disabled={isLoading || !order}
+              className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Đặt lại
+              {isLoading ? "Đang chuyển tới VNPay..." : "Thanh toán qua VNPay"}
             </button>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center py-2 text-center">
-            {/* QR placeholder (se thay bang QR VNPay that sau) */}
-            <div className="flex size-40 items-center justify-center rounded-2xl border border-dashed border-border bg-muted/40 text-muted-foreground">
-              <QrCode className="size-16" />
-            </div>
-
-            <p className="mt-4 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              Mã thanh toán
-            </p>
-            <p className="font-mono text-lg font-bold tracking-wider text-foreground">
-              {order?.code ?? "—"}
-            </p>
-
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-800">
-              <Clock className="size-4" />
-              Còn lại {formatCountdown(secondsLeft)}
-            </div>
-
-            <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
-              <CheckCircle2 className="size-4 text-primary" />
-              Quét mã / chuyển khoản trong thời gian trên để hoàn tất.
-            </p>
-            <p className="mt-2 text-xs text-muted-foreground">
-              (Demo — sẽ tích hợp cổng thanh toán VNPay sau. Lễ tân có thể xác
-              nhận thanh toán thủ công.)
-            </p>
-
             <button
               type="button"
               onClick={onClose}
-              className="mt-5 inline-flex h-11 items-center justify-center rounded-full border border-border px-6 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
+              className="inline-flex h-11 items-center justify-center rounded-full border border-border px-6 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
             >
-              Đóng
+              Trả tại quầy
             </button>
           </div>
-        )}
+          <p className="mt-4 text-sm text-muted-foreground">
+            Bạn có thể ra quầy trả tiền mặt - gói sẽ kích hoạt sau khi lễ tân xác nhận.
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   )

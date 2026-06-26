@@ -1,11 +1,23 @@
-import { screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { TdeeCalculator } from "@/features/member-nutrition/components/TdeeCalculator";
 import { renderWithMemberSession } from "@/tests/member-nutrition/test-utils";
+import { http } from "msw";
+import { server } from "@/mocks/server";
+import { ok } from "@/mocks/utils/api-response";
 
 describe("TdeeCalculator Upgrade", () => {
   beforeEach(() => {
-    localStorage.clear();
+    // Mock the GET calorie-target endpoint to return null by default (chưa đặt)
+    server.use(
+      http.get("/api/v1/members/:id/calorie-target", () => {
+        return ok(null);
+      }),
+      http.post("/api/v1/members/:id/calorie-target", async ({ request }) => {
+        const body = await request.json();
+        return ok(body);
+      })
+    );
   });
 
   it("renders correctly with tabs", () => {
@@ -35,17 +47,6 @@ describe("TdeeCalculator Upgrade", () => {
     fireEvent.click(applyButton);
 
     expect(handleTargetApplied).toHaveBeenCalled();
-
-    // Check localStorage values
-    const storedCal = localStorage.getItem("gymmaster-calorie-goal");
-    const storedP = localStorage.getItem("gymmaster-protein-goal");
-    const storedC = localStorage.getItem("gymmaster-carbs-goal");
-    const storedF = localStorage.getItem("gymmaster-fat-goal");
-
-    expect(storedCal).not.toBeNull();
-    expect(storedP).not.toBeNull();
-    expect(storedC).not.toBeNull();
-    expect(storedF).not.toBeNull();
   });
 
   it("switches to Manual tab, modifies target, and saves manually", () => {
@@ -75,9 +76,35 @@ describe("TdeeCalculator Upgrade", () => {
     fireEvent.click(applyManualButton);
 
     expect(handleTargetApplied).toHaveBeenCalledWith(1800);
-    expect(localStorage.getItem("gymmaster-calorie-goal")).toBe("1800");
-    expect(localStorage.getItem("gymmaster-protein-goal")).toBe("150");
-    expect(localStorage.getItem("gymmaster-carbs-goal")).toBe("200");
-    expect(localStorage.getItem("gymmaster-fat-goal")).toBe("60");
+  });
+
+  it("prefills form from BE calorie target when open", async () => {
+    // Override the GET mock to return target values
+    server.use(
+      http.get("/api/v1/members/:id/calorie-target", () => {
+        return ok({
+          dailyCalories: 1950,
+          proteinG: 130,
+          carbG: 220,
+          fatG: 65,
+        });
+      })
+    );
+
+    renderWithMemberSession(
+      <TdeeCalculator isOpen={true} onClose={vi.fn()} onTargetApplied={vi.fn()} />
+    );
+
+    // Switch to manual tab to inspect prefilled values
+    const manualTabButton = screen.getByText("Tự thiết lập (Manual)");
+    fireEvent.click(manualTabButton);
+
+    // Wait and assert the input values are prefilled from BE instead of default
+    await waitFor(() => {
+      expect(screen.getByLabelText("Calo mục tiêu (kcal)")).toHaveValue(1950);
+    });
+    expect(screen.getByLabelText(/Protein/)).toHaveValue(130);
+    expect(screen.getByLabelText(/Carbs/)).toHaveValue(220);
+    expect(screen.getByLabelText(/Fats/)).toHaveValue(65);
   });
 });

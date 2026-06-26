@@ -4,6 +4,7 @@ export type GymPackage = {
   durationDays: number
   price: number
   status: "active" | "inactive"
+  supportsPT: boolean
 }
 
 export type Membership = {
@@ -33,6 +34,9 @@ export type Payment = {
   paymentMethod: "cash" | "transfer" | "card"
   paymentDate: string
   status: "paid" | "pending" | "refunded"
+  // Trang thai goi tap gan voi lan thanh toan nay (BE tra kem) -> lich su trung thuc:
+  // vd da thanh toan nhung goi da bi Cancelled/Expired.
+  membershipStatus?: "pending_payment" | "active" | "expired" | "cancelled"
 }
 
 export type CreatePackageDraft = {
@@ -40,6 +44,7 @@ export type CreatePackageDraft = {
   durationDays: number
   price: number
   status: "active" | "inactive"
+  supportsPT: boolean
 }
 
 // Spec 003 §6 — GET /payments/summary (bao cao doanh thu)

@@ -29,11 +29,19 @@ describe("NutritionSummaryCard", () => {
     renderWithMemberSession(
       <NutritionSummaryCard
         summary={{
-          memberId: 101,
           date: "2026-06-02",
           consumed: 425,
           target: 2200,
           remaining: 1775,
+          consumedProteinG: 0,
+          consumedCarbG: 0,
+          consumedFatG: 0,
+          targetProteinG: null,
+          targetCarbG: null,
+          targetFatG: null,
+          remainingProteinG: null,
+          remainingCarbG: null,
+          remainingFatG: null,
         }}
       />,
     )

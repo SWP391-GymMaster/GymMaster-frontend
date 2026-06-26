@@ -10,6 +10,7 @@ export const packageFormSchema = z.object({
     .number({ message: "Vui lòng nhập giá tiền" })
     .nonnegative("Giá tiền không được nhỏ hơn 0"),
   status: z.enum(["active", "inactive"]),
+  supportsPT: z.boolean(),
 })
 
 export type PackageFormInput = z.input<typeof packageFormSchema>

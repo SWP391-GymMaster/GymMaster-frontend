@@ -48,14 +48,19 @@ export type CreateMealLogDraft = {
 }
 
 export type CalorieSummary = {
-  memberId: number
   date: string
   consumed: number
-  target: number
-  remaining: number
-  proteinG?: number
-  carbsG?: number
-  fatG?: number
+  target: number | null
+  remaining: number | null
+  consumedProteinG: number
+  consumedCarbG: number
+  consumedFatG: number
+  targetProteinG: number | null
+  targetCarbG: number | null
+  targetFatG: number | null
+  remainingProteinG: number | null
+  remainingCarbG: number | null
+  remainingFatG: number | null
 }
 
 export type CalorieHistoryPoint = {
