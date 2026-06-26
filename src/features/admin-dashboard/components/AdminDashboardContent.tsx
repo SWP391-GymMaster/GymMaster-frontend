@@ -68,8 +68,6 @@ type DashboardOptionalFields = {
   peakHourEnd?: number;
 };
 
-const monthlyRevenueRatio = [0.48, 0.54, 0.64, 0.7, 1];
-
 function formatExpiredOn(dateStr: string): string {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -79,11 +77,6 @@ function formatExpiredOn(dateStr: string): string {
   if (diffDays === 1) return "1 ngày trước";
   return `${diffDays} ngày trước`;
 }
-
-const expiredMembersFallback = [
-  { id: "JD", name: "John Doe", plan: "Pro Annual", expiredOn: "2 ngày trước" },
-  { id: "AS", name: "Alice Smith", plan: "Monthly Basic", expiredOn: "Hôm nay" },
-];
 
 export function AdminDashboardContent() {
   const summary = useDashboardSummary();
@@ -125,12 +118,12 @@ export function AdminDashboardContent() {
   const revenue = data?.revenue ?? 0;
   const todayCheckIns =
     data?.checkinsByDay?.reduce((sum, d) => sum + d.count, 0) ?? 0;
-  const pendingPaymentAmount = optionalData?.pendingPaymentAmount ?? 3_150_000;
-  const pendingPaymentCount = optionalData?.pendingPaymentCount ?? 14;
+  const pendingPaymentAmount = optionalData?.pendingPaymentAmount ?? 0;
+  const pendingPaymentCount = optionalData?.pendingPaymentCount ?? 0;
 
-  const facilityLoadPercent = optionalData?.facilityLoadPercent ?? 78;
-  const ptSessionPercent = optionalData?.ptSessionPercent ?? 45;
-  const generalAreaPercent = optionalData?.generalAreaPercent ?? 33;
+  const facilityLoadPercent = optionalData?.facilityLoadPercent ?? 0;
+  const ptSessionPercent = optionalData?.ptSessionPercent ?? 0;
+  const generalAreaPercent = optionalData?.generalAreaPercent ?? 0;
   const facilityDeg = Math.round((facilityLoadPercent / 100) * 360);
 
   const previousMonthRevenue = optionalData?.previousMonthRevenue ?? 0;
@@ -153,32 +146,27 @@ export function AdminDashboardContent() {
           direction: (newMembershipsThisMonth > 0 ? "up" : "neutral") as "up" | "neutral",
           label: newMembershipsThisMonth > 0 ? `+${newMembershipsThisMonth} mới tháng này` : "Không có mới",
         }
-      : { direction: "up" as const, label: "+4.2% duy trì" };
+      : { direction: "neutral" as const, label: "—" };
 
-  const peakHourStart = optionalData?.peakHourStart ?? 17;
-  const peakHourEnd = optionalData?.peakHourEnd ?? 19;
-  const peakLabel = `Cao điểm ${String(peakHourStart).padStart(2, "0")}:00 - ${String(peakHourEnd).padStart(2, "0")}:00`;
+  const peakHourStart = optionalData?.peakHourStart ?? 0;
+  const peakHourEnd = optionalData?.peakHourEnd ?? 0;
+  const peakLabel =
+    peakHourEnd > 0
+      ? `Cao điểm ${String(peakHourStart).padStart(2, "0")}:00 - ${String(peakHourEnd).padStart(2, "0")}:00`
+      : "Chưa đủ dữ liệu giờ cao điểm";
 
-  const recentlyExpiredList =
-    optionalData?.recentlyExpired && optionalData.recentlyExpired.length > 0
-      ? optionalData.recentlyExpired.map((m) => ({
-          id: m.initials,
-          name: m.memberName,
-          plan: m.packageName,
-          expiredOn: formatExpiredOn(m.expiredDate),
-        }))
-      : expiredMembersFallback;
+  // Dung du lieu that tu backend; rong thi hien empty state (khong bia John Doe/Alice Smith).
+  const recentlyExpiredList = (optionalData?.recentlyExpired ?? []).map((m) => ({
+    id: m.initials,
+    name: m.memberName,
+    plan: m.packageName,
+    expiredOn: formatExpiredOn(m.expiredDate),
+  }));
 
-  const chartData =
-    optionalData?.revenueByMonth && optionalData.revenueByMonth.length > 0
-      ? optionalData.revenueByMonth.map((item) => ({
-          month: item.month,
-          "Doanh thu": item.revenue,
-        }))
-      : monthlyRevenueRatio.map((ratio, index) => ({
-          month: ["T1", "T2", "T3", "T4", "T5"][index],
-          "Doanh thu": Math.round(revenue * ratio),
-        }));
+  const chartData = (optionalData?.revenueByMonth ?? []).map((item) => ({
+    month: item.month,
+    "Doanh thu": item.revenue,
+  }));
 
   return (
     <div className="space-y-6">
@@ -412,7 +400,12 @@ export function AdminDashboardContent() {
               <span className="text-right">Thao tác</span>
             </div>
 
-            {recentlyExpiredList.map((member) => (
+            {recentlyExpiredList.length === 0 ? (
+              <div className="px-4 py-8 text-center text-sm text-muted-foreground">
+                Không có gói nào vừa hết hạn cần xử lý.
+              </div>
+            ) : (
+              recentlyExpiredList.map((member) => (
               <div
                 className="grid grid-cols-[1.3fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-4 py-4 last:border-b-0"
                 key={member.id}
@@ -438,7 +431,8 @@ export function AdminDashboardContent() {
                   Gia hạn
                 </Link>
               </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>

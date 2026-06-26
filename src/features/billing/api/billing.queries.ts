@@ -10,6 +10,7 @@ import {
   getPayments,
   getMemberPayments,
   getMemberCheckIns,
+  getCheckInsByDate,
   createRenewalRequest,
   getPaymentsSummary,
   confirmMembershipPayment,
@@ -17,7 +18,7 @@ import {
 } from "@/features/billing/api/billing.api"
 import type { CreatePackageDraft } from "@/features/billing/types/billing.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
-import { member360Keys } from "@/features/member-360/api/member-360.queries"
+import { invalidateMembershipEntities } from "@/lib/query/invalidate-entities"
 
 export const billingKeys = {
   all: ["billing"] as const,
@@ -60,9 +61,8 @@ export function useCreateRenewalRequest() {
   return useMutation({
     mutationFn: (packageId: number) =>
       createRenewalRequest(accessToken ?? "", packageId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: billingKeys.all })
-    },
+    // Member mua/gia han -> the goi (member-360) phai doi ngay, khong cho F5.
+    onSuccess: () => invalidateMembershipEntities(queryClient),
   })
 }
 
@@ -74,13 +74,11 @@ export function useConfirmMembershipPayment() {
   return useMutation({
     mutationFn: (vars: { membershipId: number; amount: number }) =>
       confirmMembershipPayment(accessToken ?? "", vars.membershipId, vars.amount),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: billingKeys.all })
-    },
+    onSuccess: () => invalidateMembershipEntities(queryClient),
   })
 }
 
-// FR-MS-08 — huy membership. Invalidate ca billing lan member-360 (goi hien tai doi).
+// FR-MS-08 — huy membership.
 export function useCancelMembership() {
   const accessToken = useAccessToken()
   const queryClient = useQueryClient()
@@ -88,12 +86,7 @@ export function useCancelMembership() {
   return useMutation({
     mutationFn: (membershipId: number) =>
       cancelMembership(accessToken ?? "", membershipId),
-    onSuccess: async () => {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: billingKeys.all }),
-        queryClient.invalidateQueries({ queryKey: member360Keys.all }),
-      ])
-    },
+    onSuccess: () => invalidateMembershipEntities(queryClient),
   })
 }
 
@@ -164,6 +157,16 @@ export function useMemberPayments(memberId: number | null) {
     queryKey: billingKeys.memberPayments(memberId ?? 0),
     queryFn: () => getMemberPayments(accessToken ?? "", memberId ?? 0),
     enabled: Boolean(accessToken) && Boolean(memberId),
+  })
+}
+
+export function useCheckInsByDate(date: string) {
+  const accessToken = useAccessToken()
+
+  return useQuery({
+    queryKey: [...billingKeys.all, "checkins-by-date", date],
+    queryFn: () => getCheckInsByDate(accessToken ?? "", date),
+    enabled: Boolean(accessToken) && Boolean(date),
   })
 }
 

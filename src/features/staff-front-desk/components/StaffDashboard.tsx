@@ -1,18 +1,25 @@
+"use client"
+
+import { useMemo } from "react"
 import Link from "next/link"
 import {
   AlertTriangle,
   CalendarClock,
-  CheckCircle2,
   CreditCard,
   DollarSign,
   RefreshCw,
   Search,
   ShieldCheck,
-  UserPlus,
-  UsersRound,
 } from "lucide-react"
 
 import { staffRoutes } from "@/features/staff-front-desk/constants/staff-routes"
+import {
+  useMemberships,
+  usePackages,
+  usePayments,
+  useCheckInsByDate,
+} from "@/features/billing/api/billing.queries"
+import { useManagedMembers } from "@/features/member-management/api/member-management.queries"
 
 const actions = [
   {
@@ -41,38 +48,114 @@ const actions = [
   },
 ]
 
-const tasks = [
-  {
-    name: "Nguyen Minh Anh",
-    code: "GM-101",
-    label: "Gia hạn hết hạn",
-    meta: "Hết hạn 2 ngày",
-    priority: "Ưu tiên cao",
-  },
-  {
-    name: "Tran Bao Long",
-    code: "GM-102",
-    label: "Chưa thanh toán",
-    meta: "2.400.000đ",
-    priority: "Ưu tiên cao",
-  },
-  {
-    name: "Le Hoang My",
-    code: "GM-103",
-    label: "Chờ check-in",
-    meta: "08:15 hôm nay",
-    priority: "Ưu tiên trung bình",
-  },
-]
+function todayStr() {
+  return new Date().toISOString().slice(0, 10)
+}
 
-const activities = [
-  ["10:24", "Check-in thành công", "Nguyen Minh Anh (GM-101)"],
-  ["10:15", "Bán gói Premium 30", "Cho Tran Bao Long (GM-102)"],
-  ["09:48", "Tạo đơn thanh toán", "2.400.000đ · Chờ thanh toán"],
-  ["09:32", "Gia hạn gói Premium 30", "Cho Le Hoang My (GM-103)"],
-]
+function daysUntil(dateStr: string) {
+  const end = Date.parse(`${dateStr}T00:00:00Z`)
+  const now = Date.parse(`${todayStr()}T00:00:00Z`)
+  return Math.round((end - now) / 86_400_000)
+}
+
+function formatPrice(n: number) {
+  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n)
+}
+
+function timeOf(iso: string) {
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime())
+    ? "--:--"
+    : d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+}
+
+type Task = {
+  key: string
+  name: string
+  code: string
+  label: string
+  meta: string
+  priority: string
+}
 
 export function StaffDashboard() {
+  const today = todayStr()
+  const { data: memberships } = useMemberships()
+  const { data: packages } = usePackages()
+  const { data: membersResult } = useManagedMembers("")
+  const { data: payments } = usePayments()
+  const { data: checkIns } = useCheckInsByDate(today)
+
+  const members = membersResult?.items ?? []
+
+  const view = useMemo(() => {
+    const memberOf = (id: number) => members.find((m) => m.id === id)
+    const packageOf = (id: number) => packages?.find((p) => p.id === id)
+
+    const ms = memberships ?? []
+    const pending = ms.filter((m) => m.status === "pending_payment")
+    const expiringSoon = ms.filter(
+      (m) => m.status === "active" && daysUntil(m.endDate) >= 0 && daysUntil(m.endDate) <= 7,
+    )
+
+    const unpaidSum = pending.reduce((sum, m) => sum + (packageOf(m.packageId)?.price ?? 0), 0)
+
+    const paidToday = (payments ?? []).filter(
+      (p) => p.status === "paid" && (p.paymentDate ?? "").slice(0, 10) === today,
+    )
+    const revenueToday = paidToday.reduce((sum, p) => sum + (p.amount ?? 0), 0)
+
+    // Hom nay can xu ly: don cho thanh toan truoc, roi goi sap het han.
+    const tasks: Task[] = [
+      ...pending.map((m): Task => {
+        const member = memberOf(m.memberId)
+        const pkg = packageOf(m.packageId)
+        return {
+          key: `pay-${m.id}`,
+          name: member?.fullName ?? `Hội viên #${m.memberId}`,
+          code: member?.memberCode ?? `HV-${m.memberId}`,
+          label: "Chưa thanh toán",
+          meta: formatPrice(pkg?.price ?? 0),
+          priority: "Ưu tiên cao",
+        }
+      }),
+      ...expiringSoon.map((m): Task => {
+        const member = memberOf(m.memberId)
+        const d = daysUntil(m.endDate)
+        return {
+          key: `exp-${m.id}`,
+          name: member?.fullName ?? `Hội viên #${m.memberId}`,
+          code: member?.memberCode ?? `HV-${m.memberId}`,
+          label: "Sắp hết hạn",
+          meta: d === 0 ? "Hết hạn hôm nay" : `Còn ${d} ngày`,
+          priority: "Ưu tiên trung bình",
+        }
+      }),
+    ].slice(0, 6)
+
+    // Hoat dong gan day: thanh toan moi nhat.
+    const activities = [...(payments ?? [])]
+      .sort((a, b) => (b.paymentDate ?? "").localeCompare(a.paymentDate ?? ""))
+      .slice(0, 5)
+      .map((p) => ({
+        key: `act-${p.id}`,
+        time: timeOf(p.paymentDate),
+        title: p.status === "paid" ? "Đã thu thanh toán" : "Đơn thanh toán",
+        description: `${p.memberName ?? "Hội viên"} · ${p.packageName ?? ""} · ${formatPrice(p.amount ?? 0)}`,
+      }))
+
+    return {
+      checkInsToday: checkIns?.length ?? 0,
+      expiringCount: expiringSoon.length,
+      pendingCount: pending.length,
+      unpaidSum,
+      soldToday: paidToday.length,
+      revenueToday,
+      tasks,
+      activities,
+    }
+  }, [memberships, packages, members, payments, checkIns, today])
+
   return (
     <div className="space-y-6">
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -81,67 +164,56 @@ export function StaffDashboard() {
             Chào buổi sáng, Staff
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Bạn có 7 công việc cần xử lý hôm nay. Bắt đầu từ tra cứu hội viên,
-            bán/gia hạn gói đến check-in và ghi nhận thanh toán.
+            {view.tasks.length > 0
+              ? `Bạn có ${view.tasks.length} công việc cần xử lý hôm nay.`
+              : "Hiện chưa có công việc nào cần xử lý."}{" "}
+            Bắt đầu từ tra cứu hội viên, bán/gia hạn gói đến check-in và ghi nhận thanh toán.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-4">
             <FrontDeskMetric
-              helper="+8 so với hôm qua"
+              helper="Tổng lượt check-in trong ngày"
               icon={ShieldCheck}
               label="Check-in hôm nay"
-              value="32"
+              value={String(view.checkInsToday)}
             />
             <FrontDeskMetric
               helper="Trong 7 ngày tới"
               icon={CalendarClock}
               label="Gia hạn sắp đến"
               tone="warning"
-              value="18"
+              value={String(view.expiringCount)}
             />
             <FrontDeskMetric
-              helper="Tổng tiền 8.450.000đ"
+              helper={`Tổng tiền ${formatPrice(view.unpaidSum)}`}
               icon={AlertTriangle}
               label="Đơn chưa thanh toán"
               tone="danger"
-              value="12"
+              value={String(view.pendingCount)}
             />
             <FrontDeskMetric
-              helper="Doanh thu 22.850.000đ"
+              helper={`Doanh thu ${formatPrice(view.revenueToday)}`}
               icon={DollarSign}
               label="Gói bán hôm nay"
               tone="info"
-              value="9"
+              value={String(view.soldToday)}
             />
           </div>
         </div>
 
         <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <p className="text-sm font-semibold text-foreground">Tổng quan hôm nay</p>
-          <div className="mt-5 flex items-center gap-5">
-            <div
-              className="flex size-32 items-center justify-center rounded-full"
-              style={{
-                background:
-                  "conic-gradient(hsl(var(--primary)) 0deg 245deg, hsl(var(--muted)) 245deg 360deg)",
-              }}
-            >
-              <div className="flex size-24 flex-col items-center justify-center rounded-full bg-card">
-                <p className="text-2xl font-semibold text-foreground">68%</p>
-                <p className="text-xs text-muted-foreground">mục tiêu</p>
-              </div>
-            </div>
-            <div className="space-y-2 text-sm">
-              <SummaryLine label="Mục tiêu" value="50 check-in" />
-              <SummaryLine label="Đã thực hiện" value="32" />
-              <SummaryLine label="Còn lại" value="18" />
-            </div>
+          <div className="mt-5 space-y-2 text-sm">
+            <SummaryLine label="Check-in" value={String(view.checkInsToday)} />
+            <SummaryLine label="Gói bán" value={String(view.soldToday)} />
+            <SummaryLine label="Đơn chờ thu" value={String(view.pendingCount)} />
+            <SummaryLine label="Gia hạn sắp đến" value={String(view.expiringCount)} />
           </div>
           <Link
             className="mt-5 inline-flex text-sm font-semibold text-primary hover:underline"
-            href={staffRoutes.checkIn}
+            href={staffRoutes.payments}
           >
-            Xem chi tiết mục tiêu →
+            Xem hàng đợi thanh toán →
           </Link>
         </aside>
       </section>
@@ -195,35 +267,41 @@ export function StaffDashboard() {
             <h3 className="text-xl font-semibold tracking-tight text-foreground">
               Hôm nay cần xử lý
             </h3>
-            <Link className="text-sm font-semibold text-primary hover:underline" href={staffRoutes.members}>
-              Xem tất cả công việc →
+            <Link className="text-sm font-semibold text-primary hover:underline" href={staffRoutes.payments}>
+              Xem hàng đợi →
             </Link>
           </div>
 
-          <div className="mt-5 divide-y divide-border">
-            {tasks.map((task) => (
-              <div className="flex flex-wrap items-center gap-4 py-4" key={task.code}>
-                <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {task.name.split(" ").slice(-2).map((part) => part[0]).join("")}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-foreground">{task.name}</p>
-                  <p className="text-sm text-muted-foreground">{task.code}</p>
+          {view.tasks.length === 0 ? (
+            <p className="mt-5 py-8 text-center text-sm text-muted-foreground">
+              Không có đơn chờ xử lý. 🎉
+            </p>
+          ) : (
+            <div className="mt-5 divide-y divide-border">
+              {view.tasks.map((task) => (
+                <div className="flex flex-wrap items-center gap-4 py-4" key={task.key}>
+                  <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                    {task.name.split(" ").slice(-2).map((part) => part[0]).join("")}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-foreground">{task.name}</p>
+                    <p className="text-sm text-muted-foreground">{task.code}</p>
+                  </div>
+                  <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-semibold text-destructive">
+                    {task.label}
+                  </span>
+                  <span className="text-sm font-medium text-muted-foreground">{task.meta}</span>
+                  <span className="text-xs font-semibold text-orange-600">{task.priority}</span>
+                  <Link
+                    className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted"
+                    href={staffRoutes.payments}
+                  >
+                    Xem chi tiết
+                  </Link>
                 </div>
-                <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-semibold text-destructive">
-                  {task.label}
-                </span>
-                <span className="text-sm font-medium text-muted-foreground">{task.meta}</span>
-                <span className="text-xs font-semibold text-orange-600">{task.priority}</span>
-                <Link
-                  className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted"
-                  href={staffRoutes.members}
-                >
-                  Xem chi tiết
-                </Link>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
@@ -231,21 +309,29 @@ export function StaffDashboard() {
             <h3 className="text-xl font-semibold tracking-tight text-foreground">
               Hoạt động gần đây
             </h3>
-            <span className="text-sm font-semibold text-primary">Xem tất cả</span>
+            <Link className="text-sm font-semibold text-primary hover:underline" href={staffRoutes.payments}>
+              Xem tất cả
+            </Link>
           </div>
 
-          <div className="relative mt-5 space-y-5 before:absolute before:bottom-3 before:left-[4.25rem] before:top-3 before:w-px before:bg-border">
-            {activities.map(([time, title, description]) => (
-              <div className="grid grid-cols-[56px_24px_minmax(0,1fr)] gap-3" key={`${time}-${title}`}>
-                <span className="text-sm font-medium text-muted-foreground">{time}</span>
-                <span className="relative z-10 mt-1 size-3 rounded-full bg-primary ring-4 ring-card" />
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{title}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+          {view.activities.length === 0 ? (
+            <p className="mt-5 py-8 text-center text-sm text-muted-foreground">
+              Chưa có hoạt động thanh toán.
+            </p>
+          ) : (
+            <div className="relative mt-5 space-y-5 before:absolute before:bottom-3 before:left-[4.25rem] before:top-3 before:w-px before:bg-border">
+              {view.activities.map((activity) => (
+                <div className="grid grid-cols-[56px_24px_minmax(0,1fr)] gap-3" key={activity.key}>
+                  <span className="text-sm font-medium text-muted-foreground">{activity.time}</span>
+                  <span className="relative z-10 mt-1 size-3 rounded-full bg-primary ring-4 ring-card" />
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{activity.title}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{activity.description}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </aside>
       </section>
     </div>

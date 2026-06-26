@@ -242,3 +242,18 @@ export async function getMemberCheckIns(
     },
   )
 }
+
+// GET /checkins?date= (Admin/Staff) — danh sach check-in theo ngay. Chap nhan mang/paged.
+export async function getCheckInsByDate(
+  accessToken: string,
+  date: string,
+): Promise<Array<{ id: number; memberId: number; checkInAt: string }>> {
+  type Row = { id: number; memberId: number; checkInAt: string }
+  const data = await apiRequest<Row[] | { items: Row[] }>(
+    `/api/v1/checkins?date=${encodeURIComponent(date)}`,
+    {
+      headers: authHeaders(accessToken),
+    },
+  )
+  return Array.isArray(data) ? data : data.items
+}

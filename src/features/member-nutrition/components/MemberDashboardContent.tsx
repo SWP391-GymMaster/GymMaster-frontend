@@ -96,8 +96,24 @@ export function MemberDashboardContent() {
                 </p>
                 <StatusPill
                   className="border-primary/25 bg-primary/15 text-primary shadow-sm backdrop-blur-md"
-                  label="Gói active"
-                  status="active"
+                  label={
+                    membership?.status === "active"
+                      ? "Gói active"
+                      : membership?.status === "pending_payment"
+                        ? "Chờ thanh toán"
+                        : membership?.status === "expired"
+                          ? "Hết hạn"
+                          : "Chưa có gói"
+                  }
+                  status={
+                    membership?.status === "active"
+                      ? "active"
+                      : membership?.status === "pending_payment"
+                        ? "pending"
+                        : membership?.status === "expired"
+                          ? "expired"
+                          : "locked"
+                  }
                 />
               </div>
 
