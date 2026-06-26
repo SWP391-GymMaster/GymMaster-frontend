@@ -17,6 +17,7 @@ import type {
   SellPackageDraft,
 } from "@/features/staff-front-desk/types/staff-front-desk.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
+import { invalidateMembershipEntities } from "@/lib/query/invalidate-entities"
 
 export const staffFrontDeskKeys = {
   all: ["staff-front-desk"] as const,
@@ -71,14 +72,7 @@ export function useSellStaffMembership() {
   return useMutation({
     mutationFn: (draft: SellPackageDraft) =>
       sellStaffMembership(accessToken ?? "", draft),
-    onSuccess: async (membership) => {
-      await queryClient.invalidateQueries({
-        queryKey: staffFrontDeskKeys.all,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: staffFrontDeskKeys.memberDetail(membership.memberId),
-      })
-    },
+    onSuccess: () => invalidateMembershipEntities(queryClient),
   })
 }
 
@@ -89,14 +83,7 @@ export function useRenewStaffMembership() {
   return useMutation({
     mutationFn: (draft: RenewPackageDraft) =>
       renewStaffMembership(accessToken ?? "", draft),
-    onSuccess: async (membership) => {
-      await queryClient.invalidateQueries({
-        queryKey: staffFrontDeskKeys.all,
-      })
-      await queryClient.invalidateQueries({
-        queryKey: staffFrontDeskKeys.memberDetail(membership.memberId),
-      })
-    },
+    onSuccess: () => invalidateMembershipEntities(queryClient),
   })
 }
 
@@ -107,16 +94,7 @@ export function useRecordStaffManualPayment() {
   return useMutation({
     mutationFn: (draft: ManualPaymentDraft) =>
       recordStaffManualPayment(accessToken ?? "", draft),
-    onSuccess: async (result) => {
-      await queryClient.invalidateQueries({
-        queryKey: staffFrontDeskKeys.all,
-      })
-      if (result.membership) {
-        await queryClient.invalidateQueries({
-          queryKey: staffFrontDeskKeys.memberDetail(result.membership.memberId),
-        })
-      }
-    },
+    onSuccess: () => invalidateMembershipEntities(queryClient),
   })
 }
 
@@ -126,10 +104,6 @@ export function useCreateStaffCheckIn() {
 
   return useMutation({
     mutationFn: (memberId: number) => createStaffCheckIn(accessToken ?? "", memberId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: staffFrontDeskKeys.all,
-      })
-    },
+    onSuccess: () => invalidateMembershipEntities(queryClient),
   })
 }
