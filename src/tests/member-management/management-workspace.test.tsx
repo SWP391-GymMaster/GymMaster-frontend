@@ -47,24 +47,6 @@ describe("ManagementWorkspace", () => {
     expect(screen.getByTestId("management-search-input")).toBeInTheDocument()
   })
 
-  it("creates a member profile for staff workflows", async () => {
-    renderWithRole("staff")
-
-    fireEvent.click(screen.getByRole("button", { name: "Thêm hội viên" }))
-    fireEvent.change(screen.getByTestId("member-create-name"), {
-      target: { value: "Deadline Member" },
-    })
-    fireEvent.change(screen.getByTestId("member-create-email"), {
-      target: { value: "deadline-member@gymmaster.local" },
-    })
-    fireEvent.change(screen.getByTestId("member-create-phone"), {
-      target: { value: "0900000888" },
-    })
-    fireEvent.click(screen.getByTestId("member-create-submit"))
-
-    expect(await screen.findByText("Deadline Member")).toBeInTheDocument()
-  })
-
   it("lets admin soft-delete a member from the list", async () => {
     renderWithRole("admin")
 

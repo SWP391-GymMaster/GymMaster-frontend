@@ -53,7 +53,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import {
-  useCreateManagedMember,
   useCreateManagedTrainer,
   useCreateManagedUser,
   useDeleteManagedMember,
@@ -63,10 +62,8 @@ import {
   useUpdateManagedMember,
 } from "@/features/member-management/api/member-management.queries"
 import {
-  createMemberSchema,
   createTrainerSchema,
   createUserSchema,
-  type CreateMemberFormValues,
   type CreateTrainerFormValues,
   type CreateUserFormValues,
 } from "@/features/member-management/schemas/member-management.schemas"
@@ -1641,32 +1638,6 @@ function ManagementStateBlock({
 /* Create Dialogs & Forms                                                     */
 /* -------------------------------------------------------------------------- */
 
-function CreateMemberDialog() {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      <DialogTrigger asChild>
-        <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]">
-          <UserPlus aria-hidden="true" className="size-4" />
-          Thêm hội viên
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-xl rounded-2xl p-0">
-        <DialogHeader className="border-b border-border p-6">
-          <DialogTitle>Tạo hồ sơ hội viên</DialogTitle>
-          <DialogDescription>
-            Thêm hội viên mới vào hệ thống quản lý.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="p-6">
-          <CreateMemberPanel onCreated={() => setOpen(false)} />
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
 function CreateUserDialog({
   fixedRole,
   label = "Thêm người dùng",
@@ -1724,55 +1695,6 @@ function CreateTrainerDialog() {
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
-
-function CreateMemberPanel({ onCreated }: { onCreated?: () => void }) {
-  const createMember = useCreateManagedMember()
-  const {
-    formState: { errors, isSubmitting },
-    handleSubmit,
-    register,
-    reset,
-  } = useForm<CreateMemberFormValues>({
-    resolver: zodResolver(createMemberSchema),
-    defaultValues: {
-      email: "",
-      fullName: "",
-      phone: "",
-    },
-  })
-
-  async function onSubmit(values: CreateMemberFormValues) {
-    try {
-      await createMember.mutateAsync(values)
-      reset()
-      toast.success("Đã tạo hồ sơ hội viên")
-      onCreated?.()
-    } catch (error) {
-      toast.error(mapMemberManagementError(error).message)
-    }
-  }
-
-  return (
-    <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <Field error={errors.fullName?.message} label="Họ và tên">
-        <Input className={inputClass} data-testid="member-create-name" {...register("fullName")} />
-      </Field>
-      <Field error={errors.email?.message} label="Email">
-        <Input className={inputClass} data-testid="member-create-email" type="email" {...register("email")} />
-      </Field>
-      <Field error={errors.phone?.message} label="Số điện thoại">
-        <Input className={inputClass} data-testid="member-create-phone" {...register("phone")} />
-      </Field>
-      <Field label="Địa chỉ">
-        <Input className={inputClass} {...register("address")} />
-      </Field>
-      <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="member-create-submit" disabled={isSubmitting || createMember.isPending} type="submit">
-        <Plus aria-hidden="true" className="size-4" />
-        Tạo hội viên
-      </Button>
-    </form>
   )
 }
 

@@ -186,30 +186,4 @@ test.describe("Admin Dashboard Flow", () => {
     )
   })
 
-  test("Admin creates and soft-deletes Member profile", async ({ page }) => {
-    await loginAsAdmin(page)
-
-    await page.goto("/admin/members")
-    await page.waitForFunction(
-      () => window.__GYMMASTER_MSW_READY__ === true,
-    )
-    await expect(page.getByText("Quản lý hội viên").first()).toBeVisible()
-
-    await page.getByRole("button", { name: "Thêm hội viên" }).click()
-
-    await page.getByTestId("member-create-name").fill("Deadline Member E2E")
-    await page
-      .getByTestId("member-create-email")
-      .fill(`deadline-member-${Date.now()}@gymmaster.local`)
-    await page.getByTestId("member-create-phone").fill("0900000666")
-    await page.getByTestId("member-create-submit").click()
-
-    await expect(page.getByText("Deadline Member E2E")).toBeVisible()
-    await page
-      .locator("tr")
-      .filter({ hasText: "Deadline Member E2E" })
-      .getByRole("button", { name: /xóa/i })
-      .click()
-    await expect(page.getByText("Deadline Member E2E")).toHaveCount(0)
-  })
 })
