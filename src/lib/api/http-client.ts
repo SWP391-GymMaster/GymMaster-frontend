@@ -152,10 +152,15 @@ export async function apiRequest<T>(
   options?: { retried?: boolean },
 ): Promise<T> {
   try {
+    // FormData (vd upload anh scan) phai de trinh duyet tu set
+    // "multipart/form-data; boundary=...". Neu ep "application/json" o day,
+    // server tra 415 Unsupported Media Type.
+    const isFormData =
+      typeof FormData !== "undefined" && init?.body instanceof FormData
     const response = await fetch(getApiUrl(path), {
       ...init,
       headers: {
-        "Content-Type": "application/json",
+        ...(isFormData ? {} : { "Content-Type": "application/json" }),
         ...init?.headers,
       },
     })
