@@ -304,3 +304,62 @@ export async function searchFoodOnline(
   }
 }
 
+// ===== Quét ảnh món ăn bằng AI (Gemini) — gọi backend feat/be-ai-food-scan =====
+export type ScannedFoodDto = {
+  id: number
+  name: string
+  unit: string
+  servingSize: number
+  caloriesPerUnit: number
+  proteinG?: number
+  carbsG?: number
+  fatG?: number
+  source: string
+}
+
+export type FoodScanDraft = {
+  name: string
+  unit: string
+  servingSize: number
+  caloriesPerUnit: number
+  proteinG: number
+  carbsG: number
+  fatG: number
+  source: string
+}
+
+export type FoodScanItem = {
+  recognizedName: string
+  confidence: number
+  resultSource: "Database" | "AI"
+  requiresConfirmation: boolean
+  food?: ScannedFoodDto
+  draft?: FoodScanDraft
+}
+
+export type FoodScanResult = { items: FoodScanItem[] }
+
+export async function scanFoodImage(accessToken: string, image: File) {
+  const form = new FormData()
+  form.append("image", image)
+  return apiRequest<FoodScanResult>("/api/v1/foods/scan-image", {
+    method: "POST",
+    headers: authHeaders(accessToken),
+    body: form,
+  })
+}
+
+export async function confirmAiFood(accessToken: string, draft: FoodScanDraft) {
+  return apiRequest<ScannedFoodDto>("/api/v1/foods/confirm-ai-food", {
+    method: "POST",
+    headers: authHeaders(accessToken),
+    body: JSON.stringify({
+      name: draft.name,
+      caloriesPerUnit: draft.caloriesPerUnit,
+      proteinG: draft.proteinG,
+      carbsG: draft.carbsG,
+      fatG: draft.fatG,
+    }),
+  })
+}
+

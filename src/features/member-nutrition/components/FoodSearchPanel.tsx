@@ -26,6 +26,7 @@ import {
   useFoodOnlineSearch,
 } from "@/features/member-nutrition/api/member-nutrition.queries"
 import { searchFoodItems } from "@/features/member-nutrition/api/member-nutrition.api"
+import { AiFoodScanCard } from "@/features/member-nutrition/components/AiFoodScanCard"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 import {
   customFoodSchema,
@@ -337,6 +338,8 @@ export function FoodSearchPanel({
                 </Button>
               </div>
             </div>
+
+            <AiFoodScanCard onSelectFood={onSelectFood} />
 
             <div className="flex flex-wrap gap-2">
               {quickSearches.map((quickSearch) => (
