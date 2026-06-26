@@ -30,13 +30,12 @@ import { useSidebarStore } from "@/stores/useSideBarStore";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const PASSWORD = "Password123!";
-
 const DEMO_ACCOUNTS = [
   {
     role: "Quản trị viên",
     tag: "Admin",
     email: "admin@gymmaster.local",
+    password: "Admin123!",
     accent: "destructive" as const,
     icon: ShieldCheck,
   },
@@ -44,6 +43,7 @@ const DEMO_ACCOUNTS = [
     role: "Nhân viên lễ tân",
     tag: "Staff",
     email: "staff@gymmaster.local",
+    password: "Staff123!",
     accent: "steel" as const,
     icon: UsersRound,
   },
@@ -51,6 +51,7 @@ const DEMO_ACCOUNTS = [
     role: "Huấn luyện viên PT",
     tag: "PT",
     email: "pt@gymmaster.local",
+    password: "Pt123!",
     accent: "pending" as const,
     icon: Dumbbell,
   },
@@ -58,6 +59,7 @@ const DEMO_ACCOUNTS = [
     role: "Hội viên",
     tag: "Member",
     email: "member@gymmaster.local",
+    password: "Member123!",
     accent: "active" as const,
     icon: Activity,
   },
@@ -543,13 +545,13 @@ export default function AboutPage() {
                           Mật khẩu
                         </p>
                         <p className="truncate font-mono text-xs text-foreground">
-                          {PASSWORD}
+                          {acc.password}
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() =>
-                          handleCopy(PASSWORD, passKey, "mật khẩu")
+                          handleCopy(acc.password, passKey, "mật khẩu")
                         }
                         className="shrink-0 rounded-lg border border-border bg-muted p-1.5 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.96]"
                         title="Sao chép mật khẩu"

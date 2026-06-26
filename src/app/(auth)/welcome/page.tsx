@@ -21,31 +21,33 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
 
-const PASSWORD = "Password123!";
-
 const DEMO_ACCOUNTS = [
   {
     role: "Quản trị viên",
     tag: "Admin",
     email: "admin@gymmaster.local",
+    password: "Admin123!",
     icon: ShieldCheck,
   },
   {
     role: "Nhân viên lễ tân",
     tag: "Staff",
     email: "staff@gymmaster.local",
+    password: "Staff123!",
     icon: UsersRound,
   },
   {
     role: "Huấn luyện viên PT",
     tag: "PT",
     email: "pt@gymmaster.local",
+    password: "Pt123!",
     icon: Dumbbell,
   },
   {
     role: "Hội viên",
     tag: "Member",
     email: "member@gymmaster.local",
+    password: "Member123!",
     icon: Activity,
   },
 ] as const;
@@ -339,10 +341,10 @@ export default function WelcomePage() {
                         <div className="flex items-center justify-between gap-2 rounded-xl border border-white/5 bg-zinc-950/80 px-3.5 py-2">
                           <div className="min-w-0 flex-1">
                             <p className="text-[8px] uppercase tracking-wider text-white/40">Mật khẩu</p>
-                            <p className="font-mono text-xs text-white truncate">{PASSWORD}</p>
+                            <p className="font-mono text-xs text-white truncate">{acc.password}</p>
                           </div>
                           <button
-                            onClick={() => handleCopy(PASSWORD, passKey, "mật khẩu")}
+                            onClick={() => handleCopy(acc.password, passKey, "mật khẩu")}
                             className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 transition active:scale-95"
                             title="Sao chép mật khẩu"
                           >
