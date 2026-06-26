@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CalendarDays, CheckCircle2, Scale, Utensils, Sunrise, Sun, Moon, Cookie } from "lucide-react"
+import { CalendarDays, CheckCircle2, ClipboardList, ListPlus, Scale, Trash2, Utensils, Sunrise, Sun, Moon, Cookie } from "lucide-react"
 import { useState, useEffect, type ReactNode } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -27,7 +27,11 @@ import {
   type MealLogFormInput,
   type MealLogInput,
 } from "@/features/member-nutrition/schemas/meal-log.schema"
-import type { FoodItem } from "@/features/member-nutrition/types/member-nutrition.types"
+import type {
+  FoodItem,
+  MealLogItemInput,
+  MealType,
+} from "@/features/member-nutrition/types/member-nutrition.types"
 import {
   formatCalories,
   formatMealType,
@@ -63,11 +67,21 @@ type MealLogFormProps = {
   onSuccess?: () => void
 }
 
+// 1 dong trong "gio" - mon da chon + khau phan + buoi an + ngay, cho toi khi xac nhan.
+type CartLine = {
+  uid: number
+  food: FoodItem
+  quantity: number
+  mealType: MealType
+  logDate: string
+}
+
 export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: MealLogFormProps) {
   const memberId = useCurrentMemberProfileId()
   const createMealLog = useCreateMemberMealLog()
   const [foodQuery, setFoodQuery] = useState("")
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null)
+  const [cart, setCart] = useState<CartLine[]>([])
   const [mobileFormOpen, setMobileFormOpen] = useState(false)
   const [isDesktop, setIsDesktop] = useState(true)
 
@@ -84,6 +98,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
 
   const {
     formState: { errors },
+    getValues,
     handleSubmit,
     register,
     reset,
@@ -116,36 +131,83 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
     setMobileFormOpen(true)
   }
 
-  async function onSubmit(values: MealLogInput) {
-    if (!memberId) {
-      toast.error("Chưa có hồ sơ hội viên.")
-      return
-    }
+  // "Them vao danh sach": dua mon dang chon vao gio, KHONG goi API. Giu lai buoi an +
+  // ngay de chon tiep mon khac. Chi khi bam "Xac nhan" moi ghi tat ca 1 lan.
+  function addToCart(values: MealLogInput) {
+    if (!selectedFood) return
 
-    await createMealLog.mutateAsync({
-      memberId,
-      logDate: values.logDate,
-      mealType: values.mealType,
-      items: [
-        {
-          foodItemId: values.foodItemId,
-          quantity: values.quantity,
-        },
-      ],
-    })
-    toast.success("Đã thêm bữa ăn")
-    if (selectedFood) {
-      saveRecentFood(selectedFood)
-    }
+    setCart((prev) => [
+      ...prev,
+      {
+        uid: Date.now() + Math.random(),
+        food: selectedFood,
+        quantity: values.quantity,
+        mealType: values.mealType,
+        logDate: values.logDate,
+      },
+    ])
+    saveRecentFood(selectedFood)
+    toast.success(`Đã thêm vào danh sách: ${selectedFood.name}`)
+
+    // Reset mon dang chon nhung giu buoi an + ngay de them mon tiep theo nhanh.
     reset({
       foodItemId: 0,
-      logDate: date,
+      logDate: values.logDate,
       mealType: values.mealType,
       quantity: 1,
     })
     setSelectedFood(null)
-    onSuccess?.()
+    setMobileFormOpen(false)
   }
+
+  function removeFromCart(uid: number) {
+    setCart((prev) => prev.filter((line) => line.uid !== uid))
+  }
+
+  // Ghi TAT CA mon trong gio. Gom theo (buoi an + ngay) vi backend nhan 1 mealType/lan.
+  async function confirmCart() {
+    if (!memberId) {
+      toast.error("Chưa có hồ sơ hội viên.")
+      return
+    }
+    if (cart.length === 0) return
+
+    const groups = new Map<string, { mealType: MealType; logDate: string; items: MealLogItemInput[] }>()
+    for (const line of cart) {
+      const key = `${line.mealType}|${line.logDate}`
+      const group = groups.get(key) ?? { mealType: line.mealType, logDate: line.logDate, items: [] }
+      group.items.push({ foodItemId: line.food.id, quantity: line.quantity })
+      groups.set(key, group)
+    }
+
+    try {
+      for (const group of groups.values()) {
+        await createMealLog.mutateAsync({
+          memberId,
+          logDate: group.logDate,
+          mealType: group.mealType,
+          items: group.items,
+        })
+      }
+      toast.success(`Đã ghi ${cart.length} món vào nhật ký`)
+      setCart([])
+      setSelectedFood(null)
+      reset({
+        foodItemId: 0,
+        logDate: getValues("logDate"),
+        mealType: getValues("mealType"),
+        quantity: 1,
+      })
+      onSuccess?.()
+    } catch {
+      toast.error("Không thể ghi nhật ký. Vui lòng thử lại.")
+    }
+  }
+
+  const cartTotalCalories = cart.reduce(
+    (sum, line) => sum + Math.round(line.food.caloriesPerUnit * line.quantity),
+    0,
+  )
 
   // Calculate macro distribution percentages (MyFitnessPal Donut Chart)
   const cG = selectedFood ? Math.round((selectedFood.carbsG || 0) * quantity) : 0
@@ -226,7 +288,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
           />
         )}
 
-        <form className="mt-5 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="mt-5 grid gap-4" onSubmit={handleSubmit(addToCart)}>
           <input type="hidden" {...register("foodItemId")} />
           <div className="space-y-2">
             <label className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -326,8 +388,8 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
             disabled={createMealLog.isPending}
             type="submit"
           >
-            <CheckCircle2 aria-hidden="true" className="size-4" />
-            {createMealLog.isPending ? "Đang ghi nhật ký..." : "Ghi bữa ăn vào Nhật ký"}
+            <ListPlus aria-hidden="true" className="size-4" />
+            Thêm vào danh sách
           </Button>
         </form>
 
@@ -343,7 +405,93 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
     )
   }
 
+  function CartSection() {
+    return (
+      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <ClipboardList className="size-4.5" />
+          </span>
+          <div>
+            <h3 className="text-base font-semibold text-foreground">
+              Danh sách món sẽ ghi
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {cart.length} món · {formatCalories(cartTotalCalories)}
+            </p>
+          </div>
+        </div>
+
+        {cart.length === 0 ? (
+          <StateBlock
+            className="mt-4"
+            description="Chọn món bên trái, chỉnh khẩu phần rồi bấm “Thêm vào danh sách”. Thêm nhiều món rồi xác nhận một lần."
+            title="Chưa có món nào trong danh sách."
+            tone="empty"
+          />
+        ) : (
+          <>
+            <ul className="mt-4 space-y-2">
+              {cart.map((line) => (
+                <li
+                  key={line.uid}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3"
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate font-semibold text-foreground">
+                        {line.food.name}
+                      </span>
+                      <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
+                        {formatMealType(line.mealType)}
+                      </span>
+                    </div>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {line.quantity}x ·{" "}
+                      {formatCalories(
+                        Math.round(line.food.caloriesPerUnit * line.quantity),
+                      )}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeFromCart(line.uid)}
+                    className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-border bg-muted text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive active:scale-95"
+                    title="Xóa khỏi danh sách"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-background p-4">
+              <span className="text-sm text-muted-foreground">Tổng calo</span>
+              <span className="text-lg font-bold text-foreground">
+                {formatCalories(cartTotalCalories)}
+              </span>
+            </div>
+
+            <Button
+              className="mt-3 min-h-[52px] w-full rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+              data-testid="member-confirm-cart-button"
+              disabled={createMealLog.isPending}
+              onClick={confirmCart}
+              type="button"
+            >
+              <CheckCircle2 aria-hidden="true" className="size-4" />
+              {createMealLog.isPending
+                ? "Đang ghi nhật ký..."
+                : `Xác nhận ghi ${cart.length} món vào nhật ký`}
+            </Button>
+          </>
+        )}
+      </section>
+    )
+  }
+
   return (
+    <div className="space-y-5">
     <div className="grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]" id="add-meal">
       <FoodSearchPanel
         onQueryChange={setFoodQuery}
@@ -414,6 +562,9 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
           </SheetContent>
         </Sheet>
       )}
+    </div>
+
+      <CartSection />
     </div>
   )
 }
