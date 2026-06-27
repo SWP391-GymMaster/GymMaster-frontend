@@ -1,6 +1,6 @@
 "use client"
 
-import { CalendarDays, Camera, Crown, Mail, Phone, User, VenusAndMars, Earth } from "lucide-react"
+import { Mail, Phone, User, VenusAndMars, Earth } from "lucide-react"
 
 import { StatusPill } from "@/components/data/StatusPill"
 import { cn } from "@/lib/utils"
@@ -13,6 +13,8 @@ type Member360HeroProps = {
   email: string
   phone: string
   status: "active" | "pending" | "expired" | "locked"
+  dateOfBirth?: string | null
+  gender?: string | null
   viewContext?: ViewContext
   isLoading?: boolean
   className?: string
@@ -23,6 +25,34 @@ const viewContextLabels: Record<ViewContext, string> = {
   admin: "Hồ sơ hội viên",
   staff: "Hồ sơ hội viên",
   member: "Hồ sơ của tôi",
+}
+
+// Map gioi tinh tu backend (member_profiles.Gender: male/female/other) sang tieng Viet.
+function genderLabel(gender?: string | null) {
+  switch (gender?.toLowerCase()) {
+    case "male":
+      return "Nam"
+    case "female":
+      return "Nữ"
+    case "other":
+      return "Khác"
+    default:
+      return "Chưa cập nhật"
+  }
+}
+
+// Tinh tuoi tu ngay sinh (backend DateOfBirth). Khong co -> "Chưa cập nhật".
+function ageLabel(dateOfBirth?: string | null) {
+  if (!dateOfBirth) return "Chưa cập nhật"
+  const dob = new Date(dateOfBirth)
+  if (Number.isNaN(dob.getTime())) return "Chưa cập nhật"
+  const now = new Date()
+  let age = now.getFullYear() - dob.getFullYear()
+  const monthDiff = now.getMonth() - dob.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < dob.getDate())) {
+    age -= 1
+  }
+  return age >= 0 && age < 150 ? `${age}` : "Chưa cập nhật"
 }
 
 function toStatusPillStatus(
@@ -46,6 +76,8 @@ export function Member360Hero({
   email,
   phone,
   status,
+  dateOfBirth,
+  gender,
   viewContext = "admin",
   isLoading,
   className,
@@ -84,13 +116,6 @@ export function Member360Hero({
             <span className="flex size-28 items-center justify-center rounded-full border border-border bg-primary/10 text-primary shadow-sm">
               <User aria-hidden="true" className="size-11" />
             </span>
-            <button
-              className="absolute bottom-1 right-1 flex size-9 items-center justify-center rounded-full border border-border bg-card text-primary shadow-sm transition hover:bg-muted"
-              type="button"
-            >
-              <Camera aria-hidden="true" className="size-4" />
-              <span className="sr-only">Cập nhật ảnh đại diện</span>
-            </button>
           </div>
 
           <div className="min-w-0">
@@ -119,18 +144,13 @@ export function Member360Hero({
                 <Phone aria-hidden="true" className="size-4" />
                 {phone || "Chưa cập nhật SĐT"}
               </span>
-              <span className="flex items-center gap-2">
-                <CalendarDays aria-hidden="true" className="size-4" />
-                Tham gia: 01/06/2024
-              </span>
             </div>
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
-          <HeroAttribute icon={Crown} label="Gói" value="Premium" />
-          <HeroAttribute icon={VenusAndMars} label="Giới tính" value="Nam" />
-          <HeroAttribute icon={Earth} label="Tuổi" value="29" />
+        <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[280px]">
+          <HeroAttribute icon={VenusAndMars} label="Giới tính" value={genderLabel(gender)} />
+          <HeroAttribute icon={Earth} label="Tuổi" value={ageLabel(dateOfBirth)} />
         </div>
       </div>
     </section>
@@ -142,7 +162,7 @@ function HeroAttribute({
   label,
   value,
 }: {
-  icon?: typeof Crown
+  icon?: typeof VenusAndMars
   label: string
   value: string
 }) {

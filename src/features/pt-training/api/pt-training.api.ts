@@ -42,6 +42,25 @@ export function createMemberWorkoutPlan(
   )
 }
 
+export function updateWorkoutPlan(
+  accessToken: string,
+  planId: number,
+  draft: WorkoutPlanDraft,
+) {
+  return apiRequest<WorkoutPlan>(`/api/v1/workout-plans/${planId}`, {
+    method: "PUT",
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(draft),
+  })
+}
+
+export function deleteWorkoutPlan(accessToken: string, planId: number) {
+  return apiRequest<void>(`/api/v1/workout-plans/${planId}`, {
+    method: "DELETE",
+    headers: authHeaders(accessToken),
+  })
+}
+
 export function getMemberTrainerNotes(accessToken: string, memberId: number) {
   return apiRequest<TrainerNote[]>(`/api/v1/members/${memberId}/notes`, {
     headers: authHeaders(accessToken),
@@ -63,5 +82,24 @@ export function createMemberTrainerNote(
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify(draft),
+  })
+}
+
+export function updateTrainerNote(
+  accessToken: string,
+  noteId: number,
+  draft: TrainerNoteDraft,
+) {
+  return apiRequest<TrainerNote>(`/api/v1/trainer-notes/${noteId}`, {
+    method: "PUT",
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(draft),
+  })
+}
+
+export function deleteTrainerNote(accessToken: string, noteId: number) {
+  return apiRequest<void>(`/api/v1/trainer-notes/${noteId}`, {
+    method: "DELETE",
+    headers: authHeaders(accessToken),
   })
 }

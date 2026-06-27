@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 
 import { staffRoutes } from "@/features/staff-front-desk/constants/staff-routes"
+import { formatVnTime, vnDateIso, vnTodayIso } from "@/lib/date/vn-time"
 import {
   useMemberships,
   usePackages,
@@ -49,7 +50,7 @@ const actions = [
 ]
 
 function todayStr() {
-  return new Date().toISOString().slice(0, 10)
+  return vnTodayIso()
 }
 
 function daysUntil(dateStr: string) {
@@ -63,10 +64,7 @@ function formatPrice(n: number) {
 }
 
 function timeOf(iso: string) {
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime())
-    ? "--:--"
-    : d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })
+  return formatVnTime(iso, { hour: "2-digit", minute: "2-digit" }) || "--:--"
 }
 
 type Task = {
@@ -100,8 +98,9 @@ export function StaffDashboard() {
 
     const unpaidSum = pending.reduce((sum, m) => sum + (packageOf(m.packageId)?.price ?? 0), 0)
 
+    // So sanh theo NGAY VN cua paidAt — nhat quan voi `today` o tren.
     const paidToday = (payments ?? []).filter(
-      (p) => p.status === "paid" && (p.paymentDate ?? "").slice(0, 10) === today,
+      (p) => p.status === "paid" && vnDateIso(p.paymentDate ?? "") === today,
     )
     const revenueToday = paidToday.reduce((sum, p) => sum + (p.amount ?? 0), 0)
 

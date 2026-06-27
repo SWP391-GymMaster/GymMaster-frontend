@@ -12,6 +12,7 @@ import {
   useDeleteNotification,
 } from "@/features/notifications/api/notifications.queries";
 import type { Notification, NotificationType } from "@/features/notifications/types";
+import { formatVnDate, formatVnTime } from "@/lib/date/vn-time";
 
 interface NotificationsDrawerProps {
   open: boolean;
@@ -260,10 +261,10 @@ export function NotificationsDrawer({ open, onClose }: NotificationsDrawerProps)
                             </p>
                             <div className="flex items-center justify-between mt-2.5">
                               <span className="text-[10px] font-semibold text-muted-foreground/60">
-                                {new Date(notif.createdAt).toLocaleTimeString("vi-VN", {
+                                {formatVnTime(notif.createdAt, {
                                   hour: "2-digit",
                                   minute: "2-digit",
-                                })} - {new Date(notif.createdAt).toLocaleDateString("vi-VN", {
+                                })} - {formatVnDate(notif.createdAt, {
                                   day: "2-digit",
                                   month: "2-digit",
                                 })}

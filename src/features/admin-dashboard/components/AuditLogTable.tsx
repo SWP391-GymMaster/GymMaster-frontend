@@ -13,6 +13,7 @@ import {
 
 import type { AuditLogEntry } from "@/features/admin-dashboard/types/admin-dashboard.types"
 import { cn } from "@/lib/utils"
+import { formatVnDate, formatVnTime } from "@/lib/date/vn-time"
 
 type AuditLogTableProps = {
   data: AuditLogEntry[]
@@ -303,11 +304,11 @@ function initials(name: string) {
 }
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("vi-VN")
+  return formatVnDate(value)
 }
 
 function formatTime(value: string) {
-  return new Date(value).toLocaleTimeString("vi-VN", {
+  return formatVnTime(value, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",

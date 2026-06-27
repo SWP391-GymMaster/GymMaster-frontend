@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Droplet, Plus, RotateCcw, CloudOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
+import { vnTodayIso } from "@/lib/date/vn-time";
 
 const LOCAL_STORAGE_KEY_WATER = "gymmaster-water-logs";
 const DAILY_GOAL_ML = 2000;
@@ -14,10 +15,8 @@ interface WaterLog {
 }
 
 function getLocalDateString() {
-  const date = new Date();
-  const offset = date.getTimezoneOffset();
-  const localDate = new Date(date.getTime() - offset * 60 * 1000);
-  return localDate.toISOString().split("T")[0];
+  // Khóa nhật ký nước theo NGÀY giờ VN (nhất quán toàn app, không lệ thuộc múi giờ máy).
+  return vnTodayIso();
 }
 
 function loadLogs(): WaterLog[] {

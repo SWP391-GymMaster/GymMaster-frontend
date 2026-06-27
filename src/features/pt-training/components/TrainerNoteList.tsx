@@ -1,8 +1,19 @@
 "use client"
 
-import { AlertCircle, CheckCircle2, NotebookPen } from "lucide-react"
+import { useState } from "react"
+import { NotebookPen, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { StateBlock } from "@/components/feedback/StateBlock"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import type { TrainerNote } from "@/features/pt-training/types/pt-training.types"
 import { cn } from "@/lib/utils"
 
@@ -11,6 +22,9 @@ type TrainerNoteListProps = {
   isLoading?: boolean
   notes?: TrainerNote[]
   variant?: "default" | "member"
+  // Coach-only management. When omitted (e.g. member view) the actions hide.
+  onUpdate?: (noteId: number, content: string) => Promise<void>
+  onDelete?: (noteId: number) => Promise<void>
 }
 
 function formatDate(value: string) {
@@ -25,6 +39,8 @@ export function TrainerNoteList({
   isLoading,
   notes,
   variant = "default",
+  onUpdate,
+  onDelete,
 }: TrainerNoteListProps) {
   if (isLoading) {
     return (
@@ -66,60 +82,206 @@ export function TrainerNoteList({
       ) : null}
 
       {notes.map((note, index) => (
-        <article
-          className={cn(
-            "relative rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
-            variant === "member" && "ml-4",
-          )}
+        <TrainerNoteItem
           key={note.id}
-        >
-          <div className="flex gap-4">
-            <span className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary ring-4 ring-background">
-              {index + 1}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                  {formatDate(note.createdAt)}
-                </p>
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  PT note
-                </span>
-              </div>
-
-              {variant === "member" ? (
-                <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-                  <div>
-                    <p className="whitespace-pre-line text-base leading-7 text-foreground">
-                      {note.content}
-                    </p>
-                  </div>
-                  <div className="rounded-xl border border-border bg-background p-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-                      Action cue
-                    </p>
-                    <div className="mt-3 space-y-2 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-2">
-                        <CheckCircle2 aria-hidden="true" className="size-4 text-primary" />
-                        Khởi động vai trước buổi tập
-                      </span>
-                      <span className="flex items-center gap-2">
-                        <AlertCircle aria-hidden="true" className="size-4 text-orange-500" />
-                        Ưu tiên form hơn mức tạ
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="mt-3 whitespace-pre-line text-sm leading-6 text-foreground">
-                  {note.content}
-                </p>
-              )}
-            </div>
-          </div>
-        </article>
+          index={index}
+          note={note}
+          variant={variant}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+        />
       ))}
     </div>
+  )
+}
+
+function TrainerNoteItem({
+  note,
+  index,
+  variant,
+  onUpdate,
+  onDelete,
+}: {
+  note: TrainerNote
+  index: number
+  variant: "default" | "member"
+  onUpdate?: (noteId: number, content: string) => Promise<void>
+  onDelete?: (noteId: number) => Promise<void>
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [draft, setDraft] = useState(note.content)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const canManage = variant !== "member" && Boolean(onUpdate || onDelete)
+
+  async function handleSave() {
+    const trimmed = draft.trim()
+    if (trimmed.length < 5) {
+      toast.error("Ghi chú cần tối thiểu 5 ký tự.")
+      return
+    }
+    if (trimmed === note.content) {
+      setIsEditing(false)
+      return
+    }
+    try {
+      setIsSaving(true)
+      await onUpdate?.(note.id, trimmed)
+      toast.success("Đã cập nhật ghi chú!")
+      setIsEditing(false)
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể cập nhật ghi chú.",
+      )
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  async function handleDelete() {
+    try {
+      setIsDeleting(true)
+      await onDelete?.(note.id)
+      toast.success("Đã xóa ghi chú!")
+      setIsConfirmOpen(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Không thể xóa ghi chú.")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
+  return (
+    <article
+      className={cn(
+        "relative rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
+        variant === "member" && "ml-4",
+      )}
+    >
+      <div className="flex gap-4">
+        <span className="relative z-10 flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary ring-4 ring-background">
+          {index + 1}
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              {formatDate(note.createdAt)}
+            </p>
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                PT note
+              </span>
+              {canManage && !isEditing ? (
+                <>
+                  {onUpdate ? (
+                    <Button
+                      aria-label="Sửa ghi chú"
+                      className="size-8 rounded-lg border-border bg-card text-foreground hover:bg-muted active:scale-[0.95]"
+                      onClick={() => {
+                        setDraft(note.content)
+                        setIsEditing(true)
+                      }}
+                      size="icon"
+                      type="button"
+                      variant="outline"
+                    >
+                      <Pencil aria-hidden="true" className="size-4" />
+                    </Button>
+                  ) : null}
+                  {onDelete ? (
+                    <Button
+                      aria-label="Xóa ghi chú"
+                      className="size-8 rounded-lg border-destructive/20 bg-card text-destructive hover:bg-destructive/10 active:scale-[0.95]"
+                      onClick={() => setIsConfirmOpen(true)}
+                      size="icon"
+                      type="button"
+                      variant="outline"
+                    >
+                      <Trash2 aria-hidden="true" className="size-4" />
+                    </Button>
+                  ) : null}
+                </>
+              ) : null}
+            </div>
+          </div>
+
+          {isEditing ? (
+            <div className="mt-3 space-y-3">
+              <textarea
+                aria-label="Nội dung ghi chú"
+                autoFocus
+                className="min-h-28 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm leading-6 text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                onChange={(e) => setDraft(e.target.value)}
+                value={draft}
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  className="rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+                  disabled={isSaving}
+                  onClick={handleSave}
+                  type="button"
+                >
+                  {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
+                </Button>
+                <Button
+                  className="rounded-xl border-border hover:bg-muted"
+                  disabled={isSaving}
+                  onClick={() => {
+                    setDraft(note.content)
+                    setIsEditing(false)
+                  }}
+                  type="button"
+                  variant="outline"
+                >
+                  Hủy
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p
+              className={cn(
+                "mt-3 whitespace-pre-line leading-6 text-foreground",
+                variant === "member" ? "text-base leading-7" : "text-sm",
+              )}
+            >
+              {note.content}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <DialogContent className="max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Xóa ghi chú này?</DialogTitle>
+            <DialogDescription>
+              Ghi chú sẽ bị xóa vĩnh viễn và không thể khôi phục.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4 flex gap-2">
+            <Button
+              className="rounded-xl border-border hover:bg-muted"
+              disabled={isDeleting}
+              onClick={() => setIsConfirmOpen(false)}
+              type="button"
+              variant="outline"
+            >
+              Hủy
+            </Button>
+            <Button
+              className="rounded-xl bg-destructive text-white hover:bg-destructive/90 active:scale-[0.98]"
+              disabled={isDeleting}
+              onClick={handleDelete}
+              type="button"
+            >
+              {isDeleting ? "Đang xóa..." : "Xóa ghi chú"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </article>
   )
 }
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useParams } from "next/navigation"
-import { MessageSquareText, NotebookPen, ShieldCheck, Plus } from "lucide-react"
+import { NotebookPen, Plus } from "lucide-react"
 
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button"
 import { useMember360Data } from "@/features/member-360/api/member-360.queries"
 import {
   useCreateMemberTrainerNote,
+  useDeleteMemberTrainerNote,
   useMemberTrainerNotes,
+  useUpdateMemberTrainerNote,
 } from "@/features/pt-training/api/pt-training.queries"
 import { TrainerNoteForm } from "@/features/pt-training/components/TrainerNoteForm"
 import {
@@ -28,12 +30,22 @@ export function PtTrainerNotesWorkspace() {
   const memberQuery = useMember360Data(validMemberId)
   const notesQuery = useMemberTrainerNotes(validMemberId)
   const createNote = useCreateMemberTrainerNote(validMemberId ?? 0)
+  const updateNote = useUpdateMemberTrainerNote(validMemberId ?? 0)
+  const deleteNote = useDeleteMemberTrainerNote(validMemberId ?? 0)
 
   const [activeView, setActiveView] = useState<"list" | "create">("list")
 
   async function handleCreateNote(draft: TrainerNoteDraft) {
     await createNote.mutateAsync(draft)
     setActiveView("list")
+  }
+
+  async function handleUpdateNote(noteId: number, content: string) {
+    await updateNote.mutateAsync({ noteId, draft: { content } })
+  }
+
+  async function handleDeleteNote(noteId: number) {
+    await deleteNote.mutateAsync(noteId)
   }
 
   return (
@@ -61,10 +73,8 @@ export function PtTrainerNotesWorkspace() {
             />
           ) : null}
 
-          <section className="grid gap-4 md:grid-cols-3">
+          <section>
             <NoteMetric icon={NotebookPen} label="Ghi chú" value={String(notesQuery.data?.length ?? 0)} />
-            <NoteMetric icon={MessageSquareText} label="Cue kỹ thuật" value="3 mục" />
-            <NoteMetric icon={ShieldCheck} label="Theo dõi" value="Active" />
           </section>
 
           {activeView === "list" ? (
@@ -90,6 +100,8 @@ export function PtTrainerNotesWorkspace() {
                   error={notesQuery.error instanceof Error ? notesQuery.error : null}
                   isLoading={notesQuery.isLoading}
                   notes={notesQuery.data}
+                  onUpdate={handleUpdateNote}
+                  onDelete={handleDeleteNote}
                 />
               </div>
             </section>

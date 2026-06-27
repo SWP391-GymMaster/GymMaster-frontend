@@ -38,6 +38,7 @@ import type {
   StaffFrontDeskMemberSummary,
 } from "@/features/staff-front-desk/types/staff-front-desk.types"
 import { mapStaffOperationError } from "@/features/staff-front-desk/utils/staff-operation-errors"
+import { vnTodayIso } from "@/lib/date/vn-time"
 
 function addDays(date: string, days: number) {
   const nextDate = new Date(`${date}T00:00:00.000Z`)
@@ -48,7 +49,7 @@ function addDays(date: string, days: number) {
 
 function getRenewalStartDate(membership?: MembershipSnapshot | null) {
   if (!membership?.endsAt) {
-    return new Date().toISOString().slice(0, 10)
+    return vnTodayIso()
   }
 
   return addDays(membership.endsAt, 1)

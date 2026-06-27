@@ -8,7 +8,7 @@ import {
   trainers,
   workoutPlans,
 } from "@/mocks/data/gymmaster.mock-data"
-import { created, fail, ok, requireRole } from "@/mocks/utils/api-response"
+import { created, fail, noContent, ok, requireRole } from "@/mocks/utils/api-response"
 
 function isAssignedMember(memberId: number) {
   return assignments.some(
@@ -265,6 +265,20 @@ export const trainingHandlers = [
 
     return ok(workoutPlans[index])
   }),
+  http.delete("/api/v1/workout-plans/:id", ({ params, request }) => {
+    const role = requireRole(request, ["pt"])
+    if (typeof role !== "string") return role
+
+    const index = workoutPlans.findIndex((item) => item.id === Number(params.id))
+
+    if (index < 0) {
+      return fail("NOT_FOUND", "Workout plan not found", 404)
+    }
+
+    workoutPlans.splice(index, 1)
+
+    return noContent()
+  }),
   http.post("/api/v1/members/:id/notes", async ({ params, request }) => {
     const role = requireRole(request, ["pt"])
     if (typeof role !== "string") return role
@@ -291,6 +305,41 @@ export const trainingHandlers = [
     trainerNotes.push(note)
 
     return created(note)
+  }),
+  http.put("/api/v1/trainer-notes/:id", async ({ params, request }) => {
+    const role = requireRole(request, ["pt"])
+    if (typeof role !== "string") return role
+
+    const index = trainerNotes.findIndex((item) => item.id === Number(params.id))
+
+    if (index < 0) {
+      return fail("NOT_FOUND", "Trainer note not found", 404)
+    }
+
+    const body = (await request.json()) as { content?: string }
+    const content = body.content?.trim() ?? ""
+
+    if (!content) {
+      return fail("VALIDATION_ERROR", "Trainer note content is required", 422)
+    }
+
+    trainerNotes[index] = { ...trainerNotes[index], content }
+
+    return ok(trainerNotes[index])
+  }),
+  http.delete("/api/v1/trainer-notes/:id", ({ params, request }) => {
+    const role = requireRole(request, ["pt"])
+    if (typeof role !== "string") return role
+
+    const index = trainerNotes.findIndex((item) => item.id === Number(params.id))
+
+    if (index < 0) {
+      return fail("NOT_FOUND", "Trainer note not found", 404)
+    }
+
+    trainerNotes.splice(index, 1)
+
+    return noContent()
   }),
   http.get("/api/v1/members/:id/notes", ({ params, request }) => {
     const role = requireRole(request, ["pt", "member", "admin"])

@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { PtDashboardContent } from "@/features/pt-dashboard/components/PtDashboardContent"
 import { resetAuthSessionForTest } from "@/features/auth/session/auth-session"
@@ -10,9 +10,22 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/pt/dashboard",
 }))
 
-// Mock the query hook
-import { usePtAssignedMembers } from "@/features/pt-dashboard/api/pt-dashboard.queries"
+// Mock the query hooks
+import {
+  usePtAssignedMembers,
+  usePtTodayCheckIns,
+} from "@/features/pt-dashboard/api/pt-dashboard.queries"
 vi.mock("@/features/pt-dashboard/api/pt-dashboard.queries")
+
+beforeEach(() => {
+  // Mac dinh: khong co check-in hom nay (tung test ghi de usePtAssignedMembers rieng).
+  vi.mocked(usePtTodayCheckIns).mockReturnValue({
+    data: [],
+    isLoading: false,
+    error: null,
+    refetch: vi.fn(),
+  } as never)
+})
 
 afterEach(() => {
   resetAuthSessionForTest()

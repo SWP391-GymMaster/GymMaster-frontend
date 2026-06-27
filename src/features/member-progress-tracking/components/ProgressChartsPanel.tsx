@@ -12,6 +12,7 @@ import {
 
 import type { MockProgressEntry } from "@/features/member-progress-tracking/types/member-progress.types"
 import { useChartColors } from "@/hooks/use-chart-colors"
+import { formatVnDate } from "@/lib/date/vn-time"
 
 type ProgressChartsPanelProps = {
   entries: MockProgressEntry[]
@@ -19,8 +20,7 @@ type ProgressChartsPanelProps = {
 
 function formatDate(dateStr: string) {
   try {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString("vi-VN", {
+    return formatVnDate(dateStr, {
       day: "2-digit",
       month: "2-digit",
     })

@@ -37,8 +37,9 @@ import type {
   StaffFrontDeskMemberSummary,
 } from "@/features/staff-front-desk/types/staff-front-desk.types"
 import { mapStaffOperationError } from "@/features/staff-front-desk/utils/staff-operation-errors"
+import { vnTodayIso } from "@/lib/date/vn-time"
 
-const today = new Date().toISOString().slice(0, 10)
+const today = vnTodayIso()
 
 export function SellPackageWizard() {
   const [submittedQuery, setSubmittedQuery] = useState("")

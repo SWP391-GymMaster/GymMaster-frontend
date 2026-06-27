@@ -21,6 +21,7 @@ import {
   type ProgressEntryFormValues,
 } from "@/features/member-progress-tracking/schemas/member-progress.schema"
 import { useCreateProgressEntry } from "@/features/member-progress-tracking/api/member-progress.queries"
+import { vnTodayIso } from "@/lib/date/vn-time"
 
 type ProgressLogFormProps = {
   memberId: number
@@ -32,7 +33,7 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
   const [open, setOpen] = useState(false)
   const createEntry = useCreateProgressEntry(memberId)
 
-  const todayStr = new Date().toISOString().slice(0, 10)
+  const todayStr = vnTodayIso()
 
   const {
     register,

@@ -80,7 +80,26 @@ export const checkinHandlers = [
     const role = requireRole(request, ["admin", "staff"])
     if (typeof role !== "string") return role
 
-    return ok(checkins)
+    // Loc theo ngay lich VN (?date=YYYY-MM-DD) -> khung UTC, khop ListAsync cua BE.
+    const dateParam = new URL(request.url).searchParams.get("date")
+    let result = checkins
+    if (dateParam) {
+      const startUtc = new Date(`${dateParam}T00:00:00+07:00`).getTime()
+      const endUtc = startUtc + 24 * 60 * 60 * 1000
+      result = result.filter((item) => {
+        const at = new Date(item.checkInAt).getTime()
+        return at >= startUtc && at < endUtc
+      })
+    }
+
+    // Dien ten hoi vien o endpoint LIST (BE that lam tuong tu) cho "check-in gan day".
+    // Khong sap xep lai de giu thu tu tang dan (searchStaffMembers dung .at(-1) lay luot gan nhat).
+    return ok(
+      result.map((item) => ({
+        ...item,
+        memberName: members.find((member) => member.id === item.memberId)?.fullName,
+      })),
+    )
   }),
   http.get("/api/v1/members/:id/checkins", ({ params, request }) => {
     const role = requireRole(request, ["admin", "staff", "pt", "member"])

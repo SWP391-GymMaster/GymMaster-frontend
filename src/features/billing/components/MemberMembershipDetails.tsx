@@ -10,6 +10,7 @@ import {
   useCancelMembership,
 } from "@/features/billing/api/billing.queries";
 import { PackageStore } from "@/features/billing/components/PackageStore";
+import { formatVnDate } from "@/lib/date/vn-time";
 import { PaymentPendingDialog } from "@/features/billing/components/PaymentPendingDialog";
 import { StatusPill } from "@/components/data/StatusPill";
 import { StateBlock } from "@/components/feedback/StateBlock";
@@ -55,7 +56,7 @@ export function MemberMembershipDetails() {
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return "—";
-    return new Date(dateStr).toLocaleDateString("vi-VN", {
+    return formatVnDate(dateStr, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -63,7 +64,7 @@ export function MemberMembershipDetails() {
   };
 
   const formatDateTime = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString("vi-VN", {
+    formatVnDate(dateStr, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",

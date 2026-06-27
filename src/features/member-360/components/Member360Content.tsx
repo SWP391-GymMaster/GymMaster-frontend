@@ -4,7 +4,6 @@ import {
   Activity,
   Bell,
   CalendarDays,
-  CreditCard,
   Dumbbell,
   UserPlus,
   Scale,
@@ -13,9 +12,9 @@ import {
 
 import { useMemberProgress } from "@/features/member-progress-tracking/api/member-progress.queries"
 import { useMemberCheckIns } from "@/features/billing/api/billing.queries"
+import { formatVnDate } from "@/lib/date/vn-time"
 import { useMemberWorkoutPlans, useMemberTrainerNotes } from "@/features/pt-training/api/pt-training.queries"
 
-import { Button } from "@/components/ui/button"
 import type { Member360Data } from "@/features/member-360/types/member-360.types"
 import { Member360Hero } from "@/features/member-360/components/Member360Hero"
 import { MembershipSummaryCard } from "@/features/member-360/components/MembershipSummaryCard"
@@ -78,36 +77,17 @@ export function Member360Content({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground">Member 360°</span>
-          <span className="mx-2">/</span>
-          <span>{member?.memberCode || "Đang tải hồ sơ"}</span>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {viewContext !== "pt" ? (
-            <>
-              <Button className="min-h-10 rounded-xl" type="button" variant="outline">
-                <CreditCard aria-hidden="true" className="size-4" />
-                Gia hạn gói
-              </Button>
-              <Button className="min-h-10 rounded-xl" type="button" variant="outline">
-                <UserPlus aria-hidden="true" className="size-4" />
-                Phân công PT
-              </Button>
-            </>
-          ) : null}
-          <Button className="min-h-10 rounded-xl bg-primary text-primary-foreground hover:brightness-95" type="button">
-            <Activity aria-hidden="true" className="size-4" />
-            Ghi nhận check-in
-          </Button>
-        </div>
+      <div className="text-sm text-muted-foreground">
+        <span className="font-medium text-foreground">Member 360°</span>
+        <span className="mx-2">/</span>
+        <span>{member?.memberCode || "Đang tải hồ sơ"}</span>
       </div>
 
       <Member360Hero
+        dateOfBirth={member?.dateOfBirth}
         email={member?.email ?? ""}
         fullName={member?.fullName ?? ""}
+        gender={member?.gender}
         isLoading={isLoading}
         memberCode={member?.memberCode ?? ""}
         phone={member?.phone ?? ""}
@@ -206,7 +186,7 @@ function MemberQuickStats({
       <p className="text-sm font-semibold text-foreground">Thống kê nhanh</p>
       <div className="mt-4 grid grid-cols-2 gap-3">
         <QuickStat icon={Activity} label="Tổng check-in" value={`${checkinsCount} lần`} />
-        <QuickStat icon={Dumbbell} label="Buổi cùng PT" value={`${workoutsCount} buổi`} />
+        <QuickStat icon={Dumbbell} label="Giáo án" value={`${workoutsCount} giáo án`} />
         <QuickStat icon={Scale} label="Cân nặng" value={weightVal} />
         <QuickStat icon={Percent} label="Tỷ lệ mỡ" value={fatVal} />
       </div>
@@ -276,7 +256,7 @@ function ActivityNotesPanel({
 
   if (checkinsQuery.data) {
     checkinsQuery.data.forEach((ci) => {
-      const formattedDate = new Date(ci.checkInAt).toLocaleDateString("vi-VN", {
+      const formattedDate = formatVnDate(ci.checkInAt, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -296,7 +276,7 @@ function ActivityNotesPanel({
 
   if (notesQuery.data) {
     notesQuery.data.forEach((note) => {
-      const formattedDate = new Date(note.createdAt).toLocaleDateString("vi-VN", {
+      const formattedDate = formatVnDate(note.createdAt, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -315,7 +295,7 @@ function ActivityNotesPanel({
   }
 
   if (pt) {
-    const formattedDate = new Date(pt.assignedAt).toLocaleDateString("vi-VN", {
+    const formattedDate = formatVnDate(pt.assignedAt, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -405,8 +385,7 @@ function MemberAttentionCard({
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return ""
-  const date = new Date(dateStr)
-  return date.toLocaleDateString("vi-VN", {
+  return formatVnDate(dateStr, {
     day: "numeric",
     month: "short",
     year: "numeric",

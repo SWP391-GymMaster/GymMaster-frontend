@@ -4,6 +4,7 @@ import type {
   MockPackageDto,
   StaffMembershipStatus,
 } from "@/features/staff-front-desk/types/staff-front-desk.types"
+import { vnTodayIso } from "@/lib/date/vn-time"
 
 export function normalizeMembershipStatus(status?: string): StaffMembershipStatus {
   switch (status?.toLowerCase()) {
@@ -52,7 +53,7 @@ export function getCurrentMembership(
   memberships: MockMembershipDto[],
 ) {
   const memberMemberships = memberships.filter((item) => item.memberId === memberId)
-  const today = new Date().toISOString().slice(0, 10)
+  const today = vnTodayIso()
 
   // "Goi hien tai" thong nhat voi BE: uu tien Active con han (EndDate lon nhat),
   // roi PendingPayment moi nhat, cuoi cung fallback dong moi nhat. Khong boc nham dong da huy.
