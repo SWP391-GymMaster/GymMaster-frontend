@@ -109,6 +109,26 @@ export type CheckInResult = {
   safeMessage: string
 }
 
+// Mot luot check-in trong bang "check-in gan day" cua terminal (kem ten hoi vien).
+export type StaffCheckInFeedItem = {
+  id: number
+  memberId: number
+  memberName: string
+  checkInAt: string
+  source: string
+}
+
+// Bang ket qua check-in HOM NAY (so lieu thuc tinh tu GET /checkins?date=today).
+export type StaffTodayCheckInBoard = {
+  items: StaffCheckInFeedItem[]
+  stats: {
+    total: number
+    frontDesk: number
+    selfService: number
+    uniqueMembers: number
+  }
+}
+
 export type StaffOperationError = {
   code: string
   message: string
@@ -156,4 +176,6 @@ export type MockCheckInDto = {
   memberId: number
   checkInAt: string
   source: string
+  // Backend dien o endpoint LIST (GET /checkins) de FE hien ten o "check-in gan day".
+  memberName?: string
 }

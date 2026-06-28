@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import {
-  Bell,
   ClipboardList,
   CreditCard,
   FileText,
@@ -61,19 +60,6 @@ export function QuickActionPanel({
         ) : (
           <p className="text-sm text-muted-foreground">Chưa có thao tác khả dụng</p>
         )}
-
-        <Link
-          className="group flex items-center gap-3 rounded-xl border border-border bg-background p-3 text-sm font-medium text-foreground transition hover:border-primary/30 hover:bg-primary/5 active:scale-[0.98]"
-          href="#"
-        >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Bell aria-hidden="true" className="size-4" />
-          </span>
-          <span className="min-w-0 flex-1 truncate">Gửi thông báo</span>
-          <span className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary">
-            ›
-          </span>
-        </Link>
       </div>
     </section>
   )

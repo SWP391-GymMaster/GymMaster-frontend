@@ -4,20 +4,24 @@ import Link from "next/link"
 import { useMemo, useState } from "react"
 import {
   ArrowRight,
-  CalendarDays,
   CheckCircle2,
+  Clock,
   Dumbbell,
   NotebookPen,
+  ScanLine,
   Search,
   ShieldCheck,
-  Trophy,
   Users,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
 import { StatusPill } from "@/components/data/StatusPill"
-import { usePtAssignedMembers } from "@/features/pt-dashboard/api/pt-dashboard.queries"
+import {
+  usePtAssignedMembers,
+  usePtTodayCheckIns,
+} from "@/features/pt-dashboard/api/pt-dashboard.queries"
 import { cn } from "@/lib/utils"
+import { formatVnTime } from "@/lib/date/vn-time"
 
 function initials(name: string) {
   return name
@@ -30,9 +34,22 @@ function initials(name: string) {
 
 export function PtDashboardContent() {
   const [search, setSearch] = useState("")
-  const { data, isLoading, error, refetch } = usePtAssignedMembers()
+  const membersQuery = usePtAssignedMembers()
+  const todayQuery = usePtTodayCheckIns()
 
-  const members = data ?? []
+  const members = useMemo(() => membersQuery.data ?? [], [membersQuery.data])
+  const todayCheckIns = useMemo(() => todayQuery.data ?? [], [todayQuery.data])
+
+  // memberId -> gio check-in dau tien hom nay (de hien "da den hom nay").
+  const checkedInToday = useMemo(() => {
+    const map = new Map<number, string>()
+    for (const record of todayCheckIns) {
+      if (!map.has(record.memberId)) {
+        map.set(record.memberId, record.checkInAt)
+      }
+    }
+    return map
+  }, [todayCheckIns])
 
   const filteredMembers = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -45,15 +62,25 @@ export function PtDashboardContent() {
     )
   }, [members, search])
 
-  if (error) {
+  // Danh sach hoi vien da check-in hom nay (kem gio) — du lieu that tu /pt/checkins/today.
+  const todayAttendance = useMemo(() => {
+    return members
+      .filter((member) => checkedInToday.has(member.id))
+      .map((member) => ({ member, checkInAt: checkedInToday.get(member.id)! }))
+      .sort((a, b) => b.checkInAt.localeCompare(a.checkInAt))
+  }, [members, checkedInToday])
+
+  if (membersQuery.error) {
     return (
       <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6">
         <p className="text-sm font-medium text-destructive">
-          {error instanceof Error ? error.message : "Không thể tải danh sách hội viên."}
+          {membersQuery.error instanceof Error
+            ? membersQuery.error.message
+            : "Không thể tải danh sách hội viên."}
         </p>
         <button
           className="mt-3 inline-flex min-h-10 items-center rounded-xl bg-destructive px-4 text-sm font-medium text-destructive-foreground transition hover:brightness-95 active:scale-[0.97]"
-          onClick={() => refetch()}
+          onClick={() => membersQuery.refetch()}
           type="button"
         >
           Thử lại
@@ -62,7 +89,7 @@ export function PtDashboardContent() {
     )
   }
 
-  if (isLoading) {
+  if (membersQuery.isLoading) {
     return (
       <div className="space-y-5">
         <div className="grid gap-4 lg:grid-cols-4">
@@ -86,6 +113,7 @@ export function PtDashboardContent() {
 
   const activeCount = members.filter((member) => member.status === "active").length
   const followUpCount = Math.max(members.length - activeCount, 0)
+  const todayCount = todayAttendance.length
 
   return (
     <div className="space-y-6">
@@ -104,18 +132,18 @@ export function PtDashboardContent() {
           value={String(activeCount)}
         />
         <CoachSummaryCard
-          helper="Cần kiểm tra lại"
+          helper="Chưa có gói active"
           icon={NotebookPen}
           label="Cần theo dõi"
           tone="warning"
           value={String(followUpCount)}
         />
         <CoachSummaryCard
-          helper="Kế hoạch hôm nay"
-          icon={CalendarDays}
-          label="Buổi PT"
+          helper="Học viên đã đến hôm nay"
+          icon={ShieldCheck}
+          label="Check-in hôm nay"
           tone="purple"
-          value={String(Math.max(activeCount * 2, 1))}
+          value={String(todayCount)}
         />
       </section>
 
@@ -130,29 +158,67 @@ export function PtDashboardContent() {
               Quản lý học viên, giáo án và ghi chú trong một workspace rõ ràng.
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
-              Mở hồ sơ 360, kiểm tra trạng thái gói, tạo giáo án và ghi chú sau buổi tập mà không mất ngữ cảnh huấn luyện.
+              Mở hồ sơ 360, điểm danh học viên, tạo giáo án và ghi chú sau buổi tập mà không mất ngữ cảnh huấn luyện.
             </p>
 
-            <div className="mt-7 grid gap-3 sm:grid-cols-3">
-              <HeroMetric icon={Users} label="Roster" value={`${members.length} hội viên`} />
-              <HeroMetric icon={Trophy} label="Adherence" value="88%" />
-              <HeroMetric icon={Dumbbell} label="Load" value="32/40 suất" />
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href="/pt/members"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+              >
+                <Users aria-hidden="true" className="size-4" />
+                Xem hội viên
+              </Link>
+              <Link
+                href="/pt/check-in"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-background px-5 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
+              >
+                <ScanLine aria-hidden="true" className="size-4" />
+                Điểm danh học viên
+              </Link>
             </div>
           </div>
         </div>
 
         <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <p className="text-sm font-semibold text-foreground">Nhịp huấn luyện hôm nay</p>
-          <div className="mt-4 space-y-3">
-            <CoachTask label="Kiểm tra hội viên active" done={activeCount > 0} />
-            <CoachTask label="Cập nhật giáo án chính" done={members.length > 0} />
-            <CoachTask label="Ghi chú sau buổi tập" done={false} />
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-semibold text-foreground">Đã đến hôm nay</p>
+            <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+              {todayCount}/{members.length}
+            </span>
           </div>
+
+          {todayAttendance.length > 0 ? (
+            <div className="mt-4 space-y-2">
+              {todayAttendance.map(({ member, checkInAt }) => (
+                <div
+                  className="flex items-center gap-3 rounded-xl border border-border bg-background p-3"
+                  key={member.id}
+                >
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                    {initials(member.fullName)}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
+                    {member.fullName}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                    <Clock aria-hidden="true" className="size-3.5" />
+                    {formatVnTime(checkInAt, { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-4 flex items-center gap-2 rounded-xl border border-dashed border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+              <Clock aria-hidden="true" className="size-4" />
+              Chưa có học viên check-in hôm nay.
+            </div>
+          )}
 
           <div className="mt-6 rounded-xl border border-border bg-background p-4">
             <p className="text-sm font-semibold text-foreground">Gợi ý ưu tiên</p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Bắt đầu với hội viên có trạng thái active, sau đó cập nhật giáo án hoặc ghi chú cho từng hồ sơ.
+              Ưu tiên hội viên có trạng thái active, cập nhật giáo án hoặc ghi chú cho từng hồ sơ sau buổi tập.
             </p>
           </div>
         </aside>
@@ -190,38 +256,51 @@ export function PtDashboardContent() {
 
           <div className="grid gap-4 p-5 xl:grid-cols-2">
             {filteredMembers.length > 0 ? (
-              filteredMembers.map((member) => (
-                <Link
-                  className="group rounded-2xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
-                  href={`/pt/members/${member.id}`}
-                  key={member.id}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-base font-semibold text-primary">
-                      {initials(member.fullName)}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-base font-semibold text-foreground">
-                        {member.fullName}
+              filteredMembers.map((member) => {
+                const checkInAt = checkedInToday.get(member.id)
+                return (
+                  <Link
+                    className="group rounded-2xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
+                    href={`/pt/members/${member.id}`}
+                    key={member.id}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-base font-semibold text-primary">
+                        {initials(member.fullName)}
                       </span>
-                      <span className="mt-1 block text-sm text-muted-foreground">
-                        {member.memberCode} · {member.phone}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-base font-semibold text-foreground">
+                          {member.fullName}
+                        </span>
+                        <span className="mt-1 block text-sm text-muted-foreground">
+                          {member.memberCode}
+                          {member.phone ? ` · ${member.phone}` : ""}
+                        </span>
                       </span>
-                    </span>
-                    <StatusPill status={member.status} />
-                    <ArrowRight
-                      aria-hidden="true"
-                      className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary"
-                    />
-                  </div>
+                      <StatusPill status={member.status} />
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="size-4 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary"
+                      />
+                    </div>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <RosterStat label="Buổi còn lại" value="12" />
-                    <RosterStat label="Tuần này" value="3/4" />
-                    <RosterStat label="Ghi chú" value="2 mới" />
-                  </div>
-                </Link>
-              ))
+                    <div className="mt-4 border-t border-border/60 pt-3 text-xs font-medium">
+                      {checkInAt ? (
+                        <span className="inline-flex items-center gap-1.5 text-primary">
+                          <CheckCircle2 aria-hidden="true" className="size-3.5" />
+                          Đã đến hôm nay ·{" "}
+                          {formatVnTime(checkInAt, { hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                          <Clock aria-hidden="true" className="size-3.5" />
+                          Chưa check-in hôm nay
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                )
+              })
             ) : (
               <div className="col-span-full py-8 text-center text-sm text-muted-foreground">
                 Không tìm thấy hội viên nào khớp với từ khóa tìm kiếm.
@@ -282,45 +361,5 @@ function CoachSummaryCard({
         </div>
       </div>
     </article>
-  )
-}
-
-function HeroMetric({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: LucideIcon
-  label: string
-  value: string
-}) {
-  return (
-    <div className="rounded-2xl border border-border bg-background p-4">
-      <Icon aria-hidden="true" className="size-5 text-primary" />
-      <p className="mt-3 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 text-lg font-semibold text-foreground">{value}</p>
-    </div>
-  )
-}
-
-function CoachTask({ done, label }: { done: boolean; label: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-4">
-      <span className="text-sm font-semibold text-foreground">{label}</span>
-      <span className={done ? "text-primary" : "text-muted-foreground"}>
-        {done ? "Sẵn sàng" : "Chờ cập nhật"}
-      </span>
-    </div>
-  )
-}
-
-function RosterStat({ label, value }: { label: string; value: string }) {
-  return (
-    <span className="rounded-xl border border-border bg-card p-3">
-      <span className="block text-xs text-muted-foreground">{label}</span>
-      <span className="mt-1 block text-sm font-semibold text-foreground">{value}</span>
-    </span>
   )
 }

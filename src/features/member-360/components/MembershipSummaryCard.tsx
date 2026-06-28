@@ -4,6 +4,7 @@ import { CalendarDays } from "lucide-react"
 
 import { StatusPill } from "@/components/data/StatusPill"
 import { cn } from "@/lib/utils"
+import { formatVnDate } from "@/lib/date/vn-time"
 
 type MembershipSummaryCardProps = {
   packageName?: string
@@ -23,8 +24,7 @@ function toStatusPillStatus(
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return ""
-  const date = new Date(dateStr)
-  return date.toLocaleDateString("vi-VN", {
+  return formatVnDate(dateStr, {
     day: "numeric",
     month: "short",
     year: "numeric",

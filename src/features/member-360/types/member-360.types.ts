@@ -6,6 +6,8 @@ export type Member360Data = {
     email: string
     phone: string
     status: "active" | "pending" | "expired" | "locked"
+    dateOfBirth?: string | null
+    gender?: string | null
   }
     currentMembership?: {
       id: number

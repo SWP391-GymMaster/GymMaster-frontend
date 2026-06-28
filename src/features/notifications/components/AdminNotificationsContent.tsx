@@ -26,6 +26,7 @@ import {
 } from "@/features/notifications/api/notifications.queries"
 import type { Notification, NotificationType } from "@/features/notifications/types"
 import { cn } from "@/lib/utils"
+import { formatVnDate, formatVnTime } from "@/lib/date/vn-time"
 
 const iconMap = {
   checkin: UserCheck,
@@ -281,10 +282,10 @@ export function AdminNotificationsContent() {
                       {/* Time */}
                       <div className="text-xs">
                         <p className="font-semibold text-foreground">
-                          {new Date(notif.createdAt).toLocaleDateString("vi-VN")}
+                          {formatVnDate(notif.createdAt)}
                         </p>
                         <p className="text-muted-foreground mt-0.5">
-                          {new Date(notif.createdAt).toLocaleTimeString("vi-VN", {
+                          {formatVnTime(notif.createdAt, {
                             hour: "2-digit",
                             minute: "2-digit",
                             second: "2-digit",

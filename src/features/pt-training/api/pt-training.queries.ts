@@ -5,10 +5,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   createMemberTrainerNote,
   createMemberWorkoutPlan,
+  deleteTrainerNote,
+  deleteWorkoutPlan,
   getMemberTrainerNotes,
   getMemberWorkoutPlans,
   getMyTrainerNotes,
   getMyWorkoutPlans,
+  updateTrainerNote,
+  updateWorkoutPlan,
 } from "@/features/pt-training/api/pt-training.api"
 import type {
   TrainerNoteDraft,
@@ -57,6 +61,42 @@ export function useCreateMemberWorkoutPlan(memberId: number) {
   })
 }
 
+export function useUpdateMemberWorkoutPlan(memberId: number) {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      planId,
+      draft,
+    }: {
+      planId: number
+      draft: WorkoutPlanDraft
+    }) => updateWorkoutPlan(accessToken ?? "", planId, draft),
+    // Resync local state with server truth on success or failure so a failed
+    // mutation reverts the optimistic UI instead of silently diverging.
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ptTrainingKeys.workoutPlans(memberId),
+      })
+    },
+  })
+}
+
+export function useDeleteMemberWorkoutPlan(memberId: number) {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (planId: number) => deleteWorkoutPlan(accessToken ?? "", planId),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ptTrainingKeys.workoutPlans(memberId),
+      })
+    },
+  })
+}
+
 export function useMemberTrainerNotes(memberId: number | null) {
   const accessToken = useAccessToken()
 
@@ -76,6 +116,40 @@ export function useCreateMemberTrainerNote(memberId: number) {
   return useMutation({
     mutationFn: (draft: TrainerNoteDraft) =>
       createMemberTrainerNote(accessToken ?? "", memberId, draft),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ptTrainingKeys.trainerNotes(memberId),
+      })
+    },
+  })
+}
+
+export function useUpdateMemberTrainerNote(memberId: number) {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      noteId,
+      draft,
+    }: {
+      noteId: number
+      draft: TrainerNoteDraft
+    }) => updateTrainerNote(accessToken ?? "", noteId, draft),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ptTrainingKeys.trainerNotes(memberId),
+      })
+    },
+  })
+}
+
+export function useDeleteMemberTrainerNote(memberId: number) {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (noteId: number) => deleteTrainerNote(accessToken ?? "", noteId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ptTrainingKeys.trainerNotes(memberId),

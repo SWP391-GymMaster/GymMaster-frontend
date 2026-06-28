@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { useMemo, useState } from "react"
 
+import { formatVnDateTime } from "@/lib/date/vn-time"
 import { AuditLogTable, getAuditLogKey } from "@/features/admin-dashboard/components/AuditLogTable"
 import { AuditLogFilters } from "@/features/admin-dashboard/components/AuditLogFilters"
 import type { AuditLogFilterValues } from "@/features/admin-dashboard/components/AuditLogFilters"
@@ -78,7 +79,7 @@ export function AuditLogsContent() {
       <main className="min-w-0 space-y-5">
         <section
           aria-label="Audit summary"
-          className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4"
+          className="grid gap-4 sm:grid-cols-2"
         >
           {metrics.map((metric) => (
             <AuditMetricCard
@@ -118,13 +119,8 @@ export function AuditLogsContent() {
 }
 
 function buildAuditMetrics(logs: AuditLogEntry[], total: number) {
+  // Backend chua co endpoint thong ke audit → chi dem duoc tren trang dang xem.
   const criticalCount = logs.filter((log) => getAuditSeverity(log.action) === "high").length
-  const authCount = logs.filter((log) =>
-    ["LOCK_MEMBER_ACCOUNT", "CREATE_STAFF_ACCOUNT"].includes(log.action),
-  ).length
-  const operationCount = logs.filter((log) =>
-    ["MEMBER_CHECK_IN", "SELL_MEMBERSHIP", "MEMBERSHIP_RENEWAL", "ASSIGN_PT"].includes(log.action),
-  ).length
 
   return [
     {
@@ -135,25 +131,11 @@ function buildAuditMetrics(logs: AuditLogEntry[], total: number) {
       value: String(total),
     },
     {
-      helper: "Cần xem lại",
+      helper: "Trên trang hiện tại",
       icon: AlertTriangle,
       label: "Thao tác quan trọng",
       tone: "danger" as const,
       value: String(criticalCount),
-    },
-    {
-      helper: "Tài khoản & quyền",
-      icon: LockKeyhole,
-      label: "Sự kiện truy cập",
-      tone: "info" as const,
-      value: String(authCount),
-    },
-    {
-      helper: "Nghiệp vụ vận hành",
-      icon: Users,
-      label: "Thao tác hệ thống",
-      tone: "purple" as const,
-      value: String(operationCount),
     },
   ]
 }
@@ -298,14 +280,6 @@ function AuditLogDetailPanel({ log }: { log: AuditLogEntry | null }) {
             <DetailRow label="Mã audit" value={getAuditLogKey(log).slice(0, 18)} />
           </div>
         </DetailSection>
-
-        <DetailSection title="Thông tin hệ thống">
-          <div className="space-y-3">
-            <DetailRow label="IP Address" value="192.168.1.25" />
-            <DetailRow label="Thiết bị" value="Chrome · macOS" />
-            <DetailRow label="Nguồn" value="GymMaster Admin" />
-          </div>
-        </DetailSection>
       </div>
     </aside>
   )
@@ -443,8 +417,7 @@ function formatAction(action: string) {
 }
 
 function formatDateTime(value: string) {
-  const date = new Date(value)
-  return date.toLocaleString("vi-VN", {
+  return formatVnDateTime(value, {
     dateStyle: "short",
     timeStyle: "medium",
   })

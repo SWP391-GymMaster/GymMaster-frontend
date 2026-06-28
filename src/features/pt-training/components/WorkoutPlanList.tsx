@@ -1,8 +1,7 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import {
-  CheckCircle2,
   ClipboardList,
   Copy,
   MoreVertical,
@@ -62,6 +61,10 @@ type WorkoutPlanListProps = {
   isLoading?: boolean
   mediaMode?: "none" | "member" | "coach"
   plans?: WorkoutPlan[]
+  // Coach-mode persistence. Without these, coach edits stay local-only.
+  onPersistPlan?: (plan: WorkoutPlan) => Promise<void>
+  onDeletePlan?: (planId: number) => Promise<void>
+  onDuplicatePlan?: (plan: WorkoutPlan) => Promise<void>
 }
 
 function formatDate(value?: string) {
@@ -79,6 +82,9 @@ export function WorkoutPlanList({
   isLoading,
   mediaMode = "none",
   plans,
+  onPersistPlan,
+  onDeletePlan,
+  onDuplicatePlan,
 }: WorkoutPlanListProps) {
   const [prevPlans, setPrevPlans] = useState<WorkoutPlan[] | undefined>(plans)
   const [localPlans, setLocalPlans] = useState<WorkoutPlan[]>(plans || [])
@@ -121,6 +127,28 @@ export function WorkoutPlanList({
     )
   }
 
+  // Optimistically apply `exercises` to a plan locally, then persist to the
+  // backend. On failure the query is invalidated (see hooks) which resets local
+  // state back to server truth, so the UI never lies about what was saved.
+  const persistExercises = async (
+    plan: WorkoutPlan,
+    exercises: WorkoutExercise[],
+    successMessage: string | null,
+  ) => {
+    const updatedPlan = { ...plan, exercises }
+    setLocalPlans((prev) =>
+      prev.map((p) => (p.id === plan.id ? updatedPlan : p)),
+    )
+    try {
+      await onPersistPlan?.(updatedPlan)
+      if (successMessage) toast.success(successMessage)
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Không thể lưu thay đổi giáo án.",
+      )
+    }
+  }
+
   return (
     <div className="space-y-5">
       {localPlans.map((plan, planIndex) =>
@@ -145,23 +173,31 @@ export function WorkoutPlanList({
                 ...ex,
                 orderIndex: exIdx + 1,
               }))
-              setLocalPlans((prev) =>
-                prev.map((p) => (p.id === plan.id ? { ...p, exercises: updatedExercises } : p))
+              void persistExercises(
+                plan,
+                updatedExercises,
+                `Đã nhân bản bài tập "${exToCopy.name}"!`,
               )
-              toast.success(`Đã nhân bản bài tập "${exToCopy.name}"!`)
             }}
             onDeleteExercise={(idx) => {
               const exToDelete = plan.exercises[idx]
+              if (plan.exercises.length <= 1) {
+                toast.error(
+                  "Giáo án phải có ít nhất 1 bài tập. Hãy xóa cả giáo án nếu không cần nữa.",
+                )
+                return
+              }
               const updatedExercises = plan.exercises
                 .filter((_, exIdx) => exIdx !== idx)
                 .map((ex, exIdx) => ({
                   ...ex,
                   orderIndex: exIdx + 1,
                 }))
-              setLocalPlans((prev) =>
-                prev.map((p) => (p.id === plan.id ? { ...p, exercises: updatedExercises } : p))
+              void persistExercises(
+                plan,
+                updatedExercises,
+                exToDelete ? `Đã xóa bài tập "${exToDelete.name}"!` : "Đã xóa bài tập!",
               )
-              toast.success(exToDelete ? `Đã xóa bài tập "${exToDelete.name}"!` : "Đã xóa bài tập!")
             }}
             onUpdateExercise={(idx, field, value) => {
               const updatedExercises = plan.exercises.map((ex, exIdx) => {
@@ -171,9 +207,14 @@ export function WorkoutPlanList({
                   [field]: value,
                 }
               })
+              // Local-only while typing; persisted on blur via onCommitExercises.
               setLocalPlans((prev) =>
                 prev.map((p) => (p.id === plan.id ? { ...p, exercises: updatedExercises } : p))
               )
+            }}
+            onCommitExercises={() => {
+              // Silent autosave on blur (no toast) — only persist when changed.
+              void persistExercises(plan, plan.exercises, null)
             }}
             onAddExercise={(name, sets, reps, note) => {
               const defaultEx: WorkoutExercise = {
@@ -184,41 +225,51 @@ export function WorkoutPlanList({
                 orderIndex: plan.exercises.length + 1,
               }
               const updatedExercises = [...plan.exercises, defaultEx]
-              setLocalPlans((prev) =>
-                prev.map((p) => (p.id === plan.id ? { ...p, exercises: updatedExercises } : p))
+              void persistExercises(
+                plan,
+                updatedExercises,
+                `Đã thêm bài tập "${name}"!`,
               )
             }}
             onReorderExercises={(newExs) => {
-              setLocalPlans((prev) =>
-                prev.map((p) => (p.id === plan.id ? { ...p, exercises: newExs } : p))
-              )
-              toast.success("Đã sắp xếp lại bài tập!")
+              void persistExercises(plan, newExs, "Đã sắp xếp lại bài tập!")
             }}
-            onRenamePlan={(newTitle) => {
+            onRenamePlan={async (newTitle) => {
+              const updatedPlan = { ...plan, title: newTitle }
               setLocalPlans((prev) =>
-                prev.map((p) => (p.id === plan.id ? { ...p, title: newTitle } : p))
+                prev.map((p) => (p.id === plan.id ? updatedPlan : p))
               )
-            }}
-            onCopyPlan={() => {
-              const maxId = Math.max(...localPlans.map((p) => p.id), 0)
-              const newPlan: WorkoutPlan = {
-                ...plan,
-                id: maxId + 1,
-                title: `${plan.title} (Bản sao)`,
-                exercises: plan.exercises.map((ex) => ({ ...ex, id: undefined })),
+              try {
+                await onPersistPlan?.(updatedPlan)
+                toast.success(`Đã cập nhật tên giáo án thành "${newTitle}"!`)
+              } catch (err) {
+                toast.error(
+                  err instanceof Error ? err.message : "Không thể đổi tên giáo án.",
+                )
               }
-              setLocalPlans((prev) => {
-                const idx = prev.findIndex((p) => p.id === plan.id)
-                if (idx === -1) return [...prev, newPlan]
-                const next = [...prev]
-                next.splice(idx + 1, 0, newPlan)
-                return next
-              })
-              toast.success(`Đã nhân bản giáo án "${plan.title}"!`)
             }}
-            onDeletePlan={() => {
+            onCopyPlan={async () => {
+              try {
+                await onDuplicatePlan?.(plan)
+                toast.success(`Đã nhân bản giáo án "${plan.title}"!`)
+              } catch (err) {
+                toast.error(
+                  err instanceof Error ? err.message : "Không thể nhân bản giáo án.",
+                )
+              }
+            }}
+            onDeletePlan={async () => {
+              const snapshot = localPlans
               setLocalPlans((prev) => prev.filter((p) => p.id !== plan.id))
-              toast.success(`Đã xóa giáo án "${plan.title}"!`)
+              try {
+                await onDeletePlan?.(plan.id)
+                toast.success(`Đã xóa giáo án "${plan.title}"!`)
+              } catch (err) {
+                setLocalPlans(snapshot)
+                toast.error(
+                  err instanceof Error ? err.message : "Không thể xóa giáo án.",
+                )
+              }
             }}
           />
         ) : (
@@ -239,6 +290,7 @@ function CoachWorkoutPlanCard({
   onCopyExercise,
   onDeleteExercise,
   onUpdateExercise,
+  onCommitExercises,
   onAddExercise,
   onReorderExercises,
   onRenamePlan,
@@ -250,6 +302,7 @@ function CoachWorkoutPlanCard({
   onCopyExercise: (idx: number) => void
   onDeleteExercise: (idx: number) => void
   onUpdateExercise: (idx: number, field: "name" | "sets" | "reps" | "note", value: string | number) => void
+  onCommitExercises: () => void
   onAddExercise: (name: string, sets: number, reps: string, note: string) => void
   onReorderExercises: (newExs: WorkoutExercise[]) => void
   onRenamePlan: (newTitle: string) => void
@@ -400,10 +453,10 @@ function CoachWorkoutPlanCard({
                 key={exercise.id ? String(exercise.id) : `${exercise.name}-${index}`}
                 exercise={exercise}
                 index={index}
-                planId={plan.id}
                 onCopy={() => onCopyExercise(index)}
                 onDelete={() => onDeleteExercise(index)}
                 onUpdate={(field, val) => onUpdateExercise(index, field, val)}
+                onCommit={onCommitExercises}
               />
             ))}
           </div>
@@ -421,8 +474,6 @@ function CoachWorkoutPlanCard({
         </Button>
         <div className="flex flex-wrap gap-6 text-sm">
           <SummaryItem label="Tổng cộng" value={`${plan.exercises.length} bài`} />
-          <SummaryItem label="Thời lượng ước tính" value="~ 75 phút" />
-          <SummaryItem label="Tần suất" value="4 buổi/tuần" />
         </div>
       </div>
 
@@ -578,17 +629,17 @@ function AddExerciseDialog({ isOpen, onClose, onAdd }: AddExerciseDialogProps) {
 function SortableCoachExerciseRow({
   exercise,
   index,
-  planId,
   onCopy,
   onDelete,
   onUpdate,
+  onCommit,
 }: {
   exercise: WorkoutExercise
   index: number
-  planId: number
   onCopy: () => void
   onDelete: () => void
   onUpdate: (field: "name" | "sets" | "reps" | "note", value: string | number) => void
+  onCommit: () => void
 }) {
   const id = exercise.id ? String(exercise.id) : `${exercise.name}-${index}`
   const {
@@ -606,6 +657,26 @@ function SortableCoachExerciseRow({
     opacity: isDragging ? 0.5 : 1,
   }
 
+  // Persist on blur only when an editable field actually changed, so merely
+  // tabbing through fields doesn't spam the backend with no-op updates.
+  const editSnapshot = useRef<string | null>(null)
+  const snapshotKey = () =>
+    JSON.stringify({
+      name: exercise.name,
+      note: exercise.note ?? "",
+      sets: exercise.sets,
+      reps: exercise.reps,
+    })
+  const handleFieldFocus = () => {
+    editSnapshot.current = snapshotKey()
+  }
+  const handleFieldBlur = () => {
+    if (editSnapshot.current !== null && editSnapshot.current !== snapshotKey()) {
+      onCommit()
+    }
+    editSnapshot.current = null
+  }
+
   const asset = getWorkoutAssetForExercise(exercise.name)
 
   return (
@@ -613,7 +684,7 @@ function SortableCoachExerciseRow({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "grid gap-4 p-4 lg:grid-cols-[24px_96px_minmax(0,1fr)_86px_96px_84px_92px_auto] lg:items-center bg-card",
+        "grid gap-4 p-4 lg:grid-cols-[24px_96px_minmax(0,1fr)_86px_96px_auto] lg:items-center bg-card",
         isDragging && "z-50 shadow-lg border border-primary/20 rounded-xl"
       )}
     >
@@ -639,6 +710,8 @@ function SortableCoachExerciseRow({
           <Input
             value={exercise.name}
             onChange={(e) => onUpdate("name", e.target.value)}
+            onFocus={handleFieldFocus}
+            onBlur={handleFieldBlur}
             className="h-8 font-semibold text-foreground bg-transparent border-none p-0 focus-visible:ring-1 focus-visible:ring-primary w-fit max-w-[200px]"
           />
           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
@@ -649,6 +722,8 @@ function SortableCoachExerciseRow({
           value={exercise.note || ""}
           placeholder="Thêm ghi chú kỹ thuật..."
           onChange={(e) => onUpdate("note", e.target.value)}
+          onFocus={handleFieldFocus}
+          onBlur={handleFieldBlur}
           className="h-7 mt-1 text-sm text-muted-foreground bg-transparent border-none p-0 focus-visible:ring-1 focus-visible:ring-primary"
         />
       </div>
@@ -657,14 +732,16 @@ function SortableCoachExerciseRow({
         label="Sets"
         value={String(exercise.sets)}
         onChange={(val) => onUpdate("sets", Number(val) || 0)}
+        onFocus={handleFieldFocus}
+        onCommit={handleFieldBlur}
       />
       <CoachInlineField
         label="Reps"
         value={exercise.reps}
         onChange={(val) => onUpdate("reps", val)}
+        onFocus={handleFieldFocus}
+        onCommit={handleFieldBlur}
       />
-      <CoachInlineField label="RPE" value="7-8" />
-      <CoachInlineField label="Nghỉ" value="90s" />
 
       <div className="flex items-center gap-2">
         <Button
@@ -694,10 +771,14 @@ function CoachInlineField({
   label,
   value,
   onChange,
+  onFocus,
+  onCommit,
 }: {
   label: string
   value: string
   onChange?: (val: string) => void
+  onFocus?: () => void
+  onCommit?: () => void
 }) {
   return (
     <label className="grid gap-1">
@@ -705,6 +786,8 @@ function CoachInlineField({
       <Input
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
+        onFocus={onFocus}
+        onBlur={onCommit}
         readOnly={!onChange}
       />
     </label>
@@ -731,15 +814,17 @@ function DefaultWorkoutPlanCard({
             </h3>
           </div>
           <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-primary">
-            {plan.status ?? "active"}
+            {plan.status ?? "—"}
           </span>
         </div>
 
         {mediaMode === "member" ? (
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <PlanStat label="Số bài" value={`${plan.exercises.length}`} />
-            <PlanStat label="Trọng tâm" value="Strength" />
-            <PlanStat label="Theo dõi" value="Cue kỹ thuật" />
+            <PlanStat
+              label="Bài có cue"
+              value={`${plan.exercises.filter((e) => e.note?.trim()).length}`}
+            />
           </div>
         ) : null}
       </div>
@@ -808,10 +893,6 @@ function ExerciseRow({
                   ) : null}
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary print:hidden">
-                <CheckCircle2 aria-hidden="true" className="size-3.5" />
-                Sẵn sàng
-              </span>
             </div>
           </div>
 

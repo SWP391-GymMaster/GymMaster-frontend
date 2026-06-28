@@ -17,10 +17,8 @@ export type AssignmentCandidateMember = {
   email: string
   phone: string
   membershipStatus: "active" | "pending" | "expired"
-  goal?: string
   currentTrainerId?: number
   currentTrainerName?: string
-  priority?: "normal" | "high"
 }
 
 export type AssignmentCandidateTrainer = {
@@ -31,7 +29,6 @@ export type AssignmentCandidateTrainer = {
   status: "active" | "locked"
   assignedCount: number
   capacity: number
-  rating?: number
 }
 
 export type AssignmentCandidateResponse<T> = {

@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { StatusPill } from "@/components/data/StatusPill"
+import { formatVnDate } from "@/lib/date/vn-time"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import {
   usePayments,
@@ -34,8 +35,7 @@ export function PaymentsLogTable() {
   }
 
   const formatDateTime = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString("vi-VN", {
+    return formatVnDate(dateStr, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",

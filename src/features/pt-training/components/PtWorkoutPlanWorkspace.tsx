@@ -20,7 +20,9 @@ import { PermissionGuard } from "@/features/auth/components/PermissionGuard";
 import { useMember360Data } from "@/features/member-360/api/member-360.queries";
 import {
   useCreateMemberWorkoutPlan,
+  useDeleteMemberWorkoutPlan,
   useMemberWorkoutPlans,
+  useUpdateMemberWorkoutPlan,
 } from "@/features/pt-training/api/pt-training.queries";
 import { TrainingMemberContext } from "@/features/pt-training/components/TrainingMemberContext";
 import { WorkoutPlanForm } from "@/features/pt-training/components/WorkoutPlanForm";
@@ -32,7 +34,10 @@ import {
   getWorkoutAssetForExercise,
 } from "@/features/pt-training/data/workout-assets";
 import { exerciseLibrary } from "@/features/pt-training/data/exercise-library";
-import type { WorkoutPlanDraft } from "@/features/pt-training/types/pt-training.types";
+import type {
+  WorkoutPlan,
+  WorkoutPlanDraft,
+} from "@/features/pt-training/types/pt-training.types";
 
 export function PtWorkoutPlanWorkspace() {
   const params = useParams<{ id: string }>();
@@ -42,6 +47,37 @@ export function PtWorkoutPlanWorkspace() {
   const memberQuery = useMember360Data(validMemberId);
   const plansQuery = useMemberWorkoutPlans(validMemberId);
   const createPlan = useCreateMemberWorkoutPlan(validMemberId ?? 0);
+  const updatePlan = useUpdateMemberWorkoutPlan(validMemberId ?? 0);
+  const deletePlan = useDeleteMemberWorkoutPlan(validMemberId ?? 0);
+
+  // Map a (possibly edited) plan to the backend draft shape used by PUT/POST.
+  function toDraft(plan: WorkoutPlan): WorkoutPlanDraft {
+    return {
+      title: plan.title,
+      exercises: plan.exercises.map((ex, index) => ({
+        name: ex.name,
+        sets: ex.sets,
+        reps: ex.reps,
+        note: ex.note,
+        orderIndex: ex.orderIndex ?? index + 1,
+      })),
+    };
+  }
+
+  async function handlePersistPlan(plan: WorkoutPlan) {
+    await updatePlan.mutateAsync({ planId: plan.id, draft: toDraft(plan) });
+  }
+
+  async function handleDeletePlan(planId: number) {
+    await deletePlan.mutateAsync(planId);
+  }
+
+  async function handleDuplicatePlan(plan: WorkoutPlan) {
+    await createPlan.mutateAsync({
+      ...toDraft(plan),
+      title: `${plan.title} (Bản sao)`,
+    });
+  }
 
   const [activeView, setActiveView] = useState<"list" | "create">("list");
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,8 +86,8 @@ export function PtWorkoutPlanWorkspace() {
   const [externalExerciseToAdd, setExternalExerciseToAdd] = useState<string | undefined>(undefined);
 
   const plansCount = plansQuery.data?.length ?? 0;
-  const latestPlan = plansQuery.data?.[0];
-  const latestExercisesCount = latestPlan?.exercises.length ?? 0;
+  const totalExercisesCount =
+    plansQuery.data?.reduce((sum, plan) => sum + plan.exercises.length, 0) ?? 0;
 
   const categoryMapping: Record<string, string[]> = {
     "Tất cả": [],
@@ -116,13 +152,12 @@ export function PtWorkoutPlanWorkspace() {
                     </p>
                   </div>
                   <div className="flex flex-col gap-4 sm:w-[360px] shrink-0">
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                       <MiniStat label="Giáo án" value={String(plansCount)} />
                       <MiniStat
                         label="Bài tập"
-                        value={String(latestExercisesCount)}
+                        value={String(totalExercisesCount)}
                       />
-                      <MiniStat label="Tần suất" value="4 buổi" />
                     </div>
                     <Button
                       onClick={() => setActiveView("create")}
@@ -144,6 +179,9 @@ export function PtWorkoutPlanWorkspace() {
                     isLoading={plansQuery.isLoading}
                     mediaMode="coach"
                     plans={plansQuery.data}
+                    onPersistPlan={handlePersistPlan}
+                    onDeletePlan={handleDeletePlan}
+                    onDuplicatePlan={handleDuplicatePlan}
                   />
                 </div>
               </section>
@@ -237,14 +275,6 @@ export function PtWorkoutPlanWorkspace() {
                     </div>
 
                     <div className="mt-5 grid gap-3">
-                      <SideField
-                        label="Tên giáo án"
-                        value="Hypertrophy Program · Phase 1"
-                      />
-                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                        <SideField label="Tuần" value="04 tuần" />
-                        <SideField label="Mục tiêu" value="Tăng cơ" />
-                      </div>
                       <div className="rounded-xl border border-primary/20 bg-primary/10 p-4">
                         <div className="flex items-start gap-3">
                           <CheckCircle2
@@ -434,17 +464,6 @@ function BuilderStep({
           {title}
         </span>
       </span>
-    </div>
-  );
-}
-
-function SideField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-background p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-2 text-sm font-semibold text-foreground">{value}</p>
     </div>
   );
 }

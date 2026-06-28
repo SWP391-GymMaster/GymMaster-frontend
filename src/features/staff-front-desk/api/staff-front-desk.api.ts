@@ -1,4 +1,5 @@
 import { apiRequest } from "@/lib/api/http-client"
+import { vnTodayIso } from "@/lib/date/vn-time"
 import type {
   CheckInResult,
   CheckInSummary,
@@ -13,8 +14,10 @@ import type {
   PagedResult,
   RenewPackageDraft,
   SellPackageDraft,
+  StaffCheckInFeedItem,
   StaffFrontDeskMemberSummary,
   StaffMemberDetail,
+  StaffTodayCheckInBoard,
 } from "@/features/staff-front-desk/types/staff-front-desk.types"
 import {
   getCurrentMembership,
@@ -245,6 +248,43 @@ export async function recordStaffManualPayment(
     message: "Đã ghi nhận thanh toán. Gói hội viên đang hoạt động.",
     membership,
   } satisfies ManualPaymentResult
+}
+
+function toCheckInFeedItem(item: MockCheckInDto): StaffCheckInFeedItem {
+  return {
+    id: item.id,
+    memberId: item.memberId,
+    memberName: item.memberName ?? `Hội viên #${item.memberId}`,
+    checkInAt: item.checkInAt,
+    source: item.source,
+  }
+}
+
+// "Luong vao phong hom nay" + "Check-in gan day": so lieu THUC tu GET /checkins?date=today.
+// BE chi luu luot vao phong (khong co tu choi/check-out — spec 004 §9) nen chi thong ke
+// duoc tong/nguon (tai quay vs tu check-in)/so hoi vien.
+export async function getStaffTodayCheckIns(
+  accessToken: string,
+): Promise<StaffTodayCheckInBoard> {
+  const data = await apiRequest<MockCheckInDto[]>(
+    `/api/v1/checkins?date=${vnTodayIso()}`,
+    { headers: authHeaders(accessToken) },
+  )
+
+  // BE tra moi nhat truoc; phong khi mock chua sap xep -> sap lai theo thoi gian giam dan.
+  const items = data
+    .map(toCheckInFeedItem)
+    .sort((a, b) => b.checkInAt.localeCompare(a.checkInAt))
+
+  return {
+    items,
+    stats: {
+      total: items.length,
+      frontDesk: items.filter((item) => item.source !== "member").length,
+      selfService: items.filter((item) => item.source === "member").length,
+      uniqueMembers: new Set(items.map((item) => item.memberId)).size,
+    },
+  }
 }
 
 export async function createStaffCheckIn(accessToken: string, memberId: number) {

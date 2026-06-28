@@ -1,6 +1,7 @@
 "use client"
 
 import type { MockProgressEntry } from "@/features/member-progress-tracking/types/member-progress.types"
+import { formatVnDate } from "@/lib/date/vn-time"
 
 type ProgressHistoryTableProps = {
   entries: MockProgressEntry[]
@@ -8,8 +9,7 @@ type ProgressHistoryTableProps = {
 
 function formatDate(dateStr: string) {
   try {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString("vi-VN", {
+    return formatVnDate(dateStr, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",

@@ -18,12 +18,10 @@ import {
   Filter,
   Mail,
   MessageSquare,
-  MoreHorizontal,
   Phone,
   Plus,
   Search,
   ShieldCheck,
-  Star,
   Trash2,
   UserCheck,
   UserCog,
@@ -34,6 +32,7 @@ import {
 import type { LucideIcon } from "lucide-react"
 
 import { StatusPill, type Status } from "@/components/data/StatusPill"
+import { formatVnDate } from "@/lib/date/vn-time"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -587,7 +586,7 @@ function MemberTable({
           <table className="w-full border-collapse text-left">
             <thead className="border-b border-border bg-muted/40">
               <tr>
-                {["Hội viên", "Mã", "Trạng thái", "Gói tập", "Check-in", "Thao tác"].map(
+                {["Hội viên", "Mã", "Trạng thái", "Số điện thoại", "Ngày sinh", "Thao tác"].map(
                   (heading) => (
                     <th
                       className={cn(
@@ -636,10 +635,10 @@ function MemberTable({
                       <StatusPill status={toStatus(member.status)} />
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
-                      {member.status === "expired" ? "Standard Monthly" : "Premium 30"}
+                      {member.phone || "—"}
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 text-muted-foreground">
-                      {member.status === "active" ? "Đã check-in" : "Chưa check-in"}
+                      {formatDateVi(member.dateOfBirth)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 text-right">
                       <div className="flex flex-wrap justify-end gap-2">
@@ -733,22 +732,13 @@ function MemberPreviewPanel({
 
   return (
     <aside className={cn(surfaceClass, "overflow-hidden")}>
-      <div className="flex items-start justify-between gap-3 border-b border-border p-5">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
-            Hồ sơ Hội viên 360°
-          </p>
-          <h3 className="mt-1 text-xl font-semibold text-foreground">
-            Thông tin hội viên
-          </h3>
-        </div>
-        <Button
-          className="size-9 rounded-full text-muted-foreground"
-          type="button"
-          variant="ghost"
-        >
-          <MoreHorizontal aria-hidden="true" className="size-4" />
-        </Button>
+      <div className="border-b border-border p-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+          Hồ sơ Hội viên 360°
+        </p>
+        <h3 className="mt-1 text-xl font-semibold text-foreground">
+          Thông tin hội viên
+        </h3>
       </div>
 
       <div className="p-5">
@@ -776,44 +766,19 @@ function MemberPreviewPanel({
         <div className="mt-5 grid gap-3">
           <PreviewInfo icon={Mail} label="Email" value={member.email} />
           <PreviewInfo icon={Phone} label="Số điện thoại" value={member.phone} />
-          <PreviewInfo icon={Badge} label="Gói tập" value={member.status === "expired" ? "Standard Monthly" : "Premium 30"} />
-          <PreviewInfo icon={CalendarDays} label="Check-in gần nhất" value={member.status === "active" ? "Hôm nay · 08:30" : "Oct 24, 2023"} />
+          <PreviewInfo icon={CalendarDays} label="Ngày sinh" value={formatDateVi(member.dateOfBirth)} />
+          <PreviewInfo icon={UserRound} label="Giới tính" value={formatGenderVi(member.gender)} />
+          <PreviewInfo icon={Badge} label="Địa chỉ" value={member.address} />
+          <PreviewInfo icon={ShieldCheck} label="Liên hệ khẩn cấp" value={member.emergencyContact} />
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95">
-            Check-in
-          </Button>
-          {detailBasePath ? (
-            <Button asChild className="min-h-11 rounded-xl" variant="outline">
+        {detailBasePath ? (
+          <div className="mt-5">
+            <Button asChild className="min-h-11 w-full rounded-xl" variant="outline">
               <Link href={`${detailBasePath}/${member.id}`}>Xem chi tiết</Link>
             </Button>
-          ) : (
-            <Button className="min-h-11 rounded-xl" variant="outline">
-              Gia hạn gói
-            </Button>
-          )}
-        </div>
-
-        <section className="mt-5 rounded-xl border border-border bg-muted/25 p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">Lịch sử hoạt động</p>
-            <span className="text-xs font-medium text-primary">Gần đây</span>
           </div>
-          <div className="space-y-3">
-            {[
-              ["Check-in thành công", "07:24 · hôm nay"],
-              ["Gia hạn gói Premium", "10:15 · 21/05"],
-              ["Cập nhật hồ sơ", "16:45 · 20/05"],
-            ].map(([title, time]) => (
-              <div className="flex items-center gap-3 text-sm" key={title}>
-                <span className="size-2 rounded-full bg-primary" />
-                <span className="flex-1 font-medium text-foreground">{title}</span>
-                <span className="text-xs text-muted-foreground">{time}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+        ) : null}
       </div>
     </aside>
   )
@@ -886,7 +851,7 @@ function StaffDirectoryTemplate({
 
   return (
     <section className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <DirectoryMetricCard
           helper="Tất cả nhân sự"
           icon={UsersRound}
@@ -907,13 +872,6 @@ function StaffDirectoryTemplate({
           tone="warning"
           value={String(lockedStaff)}
         />
-        <DirectoryMetricCard
-          helper="Lịch trực giả lập"
-          icon={Clock3}
-          label="Ca hôm nay"
-          tone="purple"
-          value={String(Math.max(activeStaff - 1, 0))}
-        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.08fr)]">
@@ -926,7 +884,7 @@ function StaffDirectoryTemplate({
               Quản lý nhân sự
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Theo dõi ca làm, quyền thao tác và trạng thái vận hành của nhân sự.
+              Theo dõi thông tin tài khoản và trạng thái vận hành của nhân sự.
             </p>
           </div>
 
@@ -987,7 +945,7 @@ function StaffDirectoryTemplate({
                         : "bg-destructive/10 text-destructive",
                     )}
                   >
-                    {user.status === "active" ? "Đang trực" : "Đã khóa"}
+                    {user.status === "active" ? "Hoạt động" : "Đã khóa"}
                   </span>
                 </button>
               )
@@ -1036,78 +994,38 @@ function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
             </p>
           </div>
         </div>
-        <Button className="rounded-xl" variant="outline">
-          Chỉnh sửa
-        </Button>
       </div>
 
-      <div className="grid gap-5 p-6 xl:grid-cols-2">
+      <div className="grid gap-5 p-6">
         <section className="rounded-xl border border-border bg-background p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">Ca làm hôm nay</p>
-            <StatusPill label="Đang trực" status="active" />
-          </div>
-          <p className="text-3xl font-semibold tracking-tight text-foreground">
-            07:00 - 15:00
-          </p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            GymMaster Q1 · Quầy lễ tân
-          </p>
-          <div className="mt-5 h-2 rounded-full bg-muted">
-            <div className="h-2 w-[72%] rounded-full bg-primary" />
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">Đã làm 5h 20m · 72%</p>
-        </section>
-
-        <section className="rounded-xl border border-border bg-background p-5">
-          <p className="mb-4 text-sm font-semibold text-foreground">
-            Quyền truy cập & thao tác
-          </p>
-          <div className="space-y-3">
+          <p className="mb-5 text-sm font-semibold text-foreground">Thông tin tài khoản</p>
+          <div className="grid gap-3">
             {[
-              ["Quản lý hội viên", true],
-              ["Check-in / Check-out", true],
-              ["Bán gói & dịch vụ", true],
-              ["Xem báo cáo doanh thu", false],
-            ].map(([permission, enabled]) => (
+              { label: "Email", value: user.email || "—" },
+              { label: "Số điện thoại", value: user.phone || "—" },
+              { label: "Vai trò", value: "Lễ tân" },
+              {
+                label: "Trạng thái",
+                value: user.status === "active" ? "Hoạt động" : "Đã khóa",
+              },
+              { label: "Mã người dùng", value: `#${user.userId}` },
+            ].map((row) => (
               <div
-                className="flex items-center justify-between gap-3"
-                key={permission as string}
+                className="flex items-center justify-between gap-4 text-sm"
+                key={row.label}
               >
-                <span className="text-sm font-medium text-foreground">{permission}</span>
-                <span
-                  className={cn(
-                    "rounded-full px-2.5 py-1 text-xs font-medium",
-                    enabled
-                      ? "bg-primary/10 text-primary"
-                      : "bg-destructive/10 text-destructive",
-                  )}
-                >
-                  {enabled ? "Cho phép" : "Hạn chế"}
+                <span className="text-muted-foreground">{row.label}</span>
+                <span className="max-w-[60%] truncate text-right font-semibold text-foreground">
+                  {row.value}
                 </span>
               </div>
             ))}
           </div>
-        </section>
-
-        <section className="rounded-xl border border-border bg-background p-5 xl:col-span-2">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm font-semibold text-foreground">Hoạt động gần đây</p>
-            <span className="text-xs font-medium text-primary">Xem tất cả</span>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {[
-              ["Check-in hội viên", "07:06 · hôm nay"],
-              ["Gia hạn gói Premium", "09:32 · hôm nay"],
-              ["Đăng ký hội viên mới", "11:15 · hôm nay"],
-              ["Cập nhật thông tin hội viên", "16:45 · hôm qua"],
-            ].map(([title, time]) => (
-              <div className="rounded-xl border border-border bg-card p-3" key={title}>
-                <p className="text-sm font-semibold text-foreground">{title}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{time}</p>
-              </div>
-            ))}
-          </div>
+          {user.initialPassword ? (
+            <p className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3 font-mono text-xs font-semibold text-primary">
+              Mật khẩu tạm thời: {user.initialPassword}
+            </p>
+          ) : null}
         </section>
       </div>
     </section>
@@ -1154,7 +1072,7 @@ function TrainerRosterTemplate({
 
   return (
     <section className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         <DirectoryMetricCard
           helper="Tất cả PT"
           icon={Dumbbell}
@@ -1176,12 +1094,6 @@ function TrainerRosterTemplate({
           tone="warning"
           value={String(lockedTrainers)}
         />
-        <DirectoryMetricCard
-          helper="Lịch dạy hôm nay"
-          icon={CalendarDays}
-          label="Buổi PT"
-          value={String(Math.max(activeTrainers * 3, 0))}
-        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.08fr)]">
@@ -1194,7 +1106,7 @@ function TrainerRosterTemplate({
               Quản lý huấn luyện viên
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Theo dõi chuyên môn, công suất và lịch dạy của đội ngũ PT.
+              Theo dõi chuyên môn và hồ sơ của đội ngũ PT.
             </p>
           </div>
 
@@ -1216,9 +1128,8 @@ function TrainerRosterTemplate({
               itemCount={filteredTrainers.length}
               loadingTitle="Đang tải danh sách huấn luyện viên..."
             />
-            {filteredTrainers.map((trainer, index) => {
+            {filteredTrainers.map((trainer) => {
               const active = selectedTrainer?.id === trainer.id
-              const capacity = index === 0 ? 80 : index === 1 ? 70 : index === 2 ? 55 : 88
 
               return (
                 <button
@@ -1239,48 +1150,30 @@ function TrainerRosterTemplate({
                         {trainer.fullName}
                       </span>
                       <span className="block truncate text-xs text-muted-foreground">
-                        {trainer.specialty}
+                        {trainer.specialty || "Chưa cập nhật chuyên môn"}
                       </span>
                     </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
-                      <Star aria-hidden="true" className="size-3 fill-current" />
-                      {(4.9 - index / 10).toFixed(1)}
-                    </span>
+                    <StatusPill status={toStatus(trainer.status)} />
                   </div>
-                  <div className="mt-3 grid gap-2">
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Công suất</span>
-                      <span className="font-semibold text-foreground">{capacity}%</span>
+                  {trainer.yearsOfExperience != null && (
+                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                      <BadgeCheck aria-hidden="true" className="size-3.5 text-primary" />
+                      {trainer.yearsOfExperience} năm kinh nghiệm
                     </div>
-                    <div className="h-2 rounded-full bg-muted">
-                      <div
-                        className={cn(
-                          "h-2 rounded-full",
-                          capacity > 85 ? "bg-orange-500" : "bg-primary",
-                        )}
-                        style={{ width: `${capacity}%` }}
-                      />
-                    </div>
-                  </div>
+                  )}
                 </button>
               )
             })}
           </div>
         </section>
 
-        <TrainerProfilePanel total={total} trainer={selectedTrainer} />
+        <TrainerProfilePanel trainer={selectedTrainer} />
       </div>
     </section>
   )
 }
 
-function TrainerProfilePanel({
-  total,
-  trainer,
-}: {
-  total: number
-  trainer: ManagedTrainer | null
-}) {
+function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
   if (!trainer) {
     return (
       <section className={cn(surfaceClass, "p-6")}>
@@ -1293,180 +1186,91 @@ function TrainerProfilePanel({
     )
   }
 
+  const infoRows = [
+    { label: "Email", value: trainer.email || "—" },
+    { label: "Chuyên môn", value: trainer.specialty || "Chưa cập nhật" },
+    {
+      label: "Kinh nghiệm",
+      value: trainer.yearsOfExperience != null ? `${trainer.yearsOfExperience} năm` : "—",
+    },
+    { label: "Giới tính", value: formatGenderVi(trainer.gender) },
+    { label: "Ngày sinh", value: formatDateVi(trainer.dateOfBirth) },
+    { label: "Ngày tạo hồ sơ", value: formatDateVi(trainer.createdAt) },
+  ]
+
   return (
     <section className={cn(surfaceClass, "overflow-hidden")}>
-      <div className="flex flex-wrap items-start justify-between gap-4 border-b border-border bg-muted/25 p-6">
-        <div className="flex gap-5">
-          <span className="flex size-24 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl font-semibold text-primary-foreground shadow-sm">
-            {initials(trainer.fullName)}
-          </span>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-                {trainer.fullName}
-              </h2>
-              <StatusPill status={toStatus(trainer.status)} />
-            </div>
-            <p className="mt-1 text-sm font-medium text-primary">{trainer.specialty}</p>
-            <div className="mt-4 flex flex-wrap gap-6">
-              <CoachMetric label="Học viên" value={`${Math.min(total + 9, 32)}`} />
-              <CoachMetric label="Công suất" value="80%" />
-              <CoachMetric label="Đánh giá" value="4.9/5" />
-            </div>
+      <div className="flex flex-wrap items-start gap-5 border-b border-border bg-muted/25 p-6">
+        <span className="flex size-24 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl font-semibold text-primary-foreground shadow-sm">
+          {initials(trainer.fullName)}
+        </span>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+              {trainer.fullName}
+            </h2>
+            <StatusPill status={toStatus(trainer.status)} />
           </div>
-        </div>
-        <div className="grid gap-2 sm:grid-cols-2">
-          <Button className="rounded-xl bg-primary text-primary-foreground">
-            Xem lịch
-          </Button>
-          <Button className="rounded-xl" variant="outline">
-            Phân công
-          </Button>
+          <p className="mt-1 text-sm font-medium text-primary">
+            {trainer.specialty || "Chưa cập nhật chuyên môn"}
+          </p>
+          <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+            <Mail aria-hidden="true" className="size-4" />
+            <span className="truncate">{trainer.email || "—"}</span>
+          </p>
         </div>
       </div>
 
-      <div className="grid gap-5 p-6 xl:grid-cols-2">
+      <div className="grid gap-5 p-6 lg:grid-cols-2">
         <section className="rounded-xl border border-border bg-background p-5">
-          <p className="mb-5 text-sm font-semibold text-foreground">
-            Tổng quan công suất
-          </p>
-          <div className="flex items-center gap-5">
-            <div
-              className="flex size-32 items-center justify-center rounded-full"
-              style={{
-                background:
-                  "conic-gradient(hsl(var(--primary)) 0deg 288deg, hsl(var(--muted)) 288deg 360deg)",
-              }}
-            >
-              <div className="flex size-24 flex-col items-center justify-center rounded-full bg-card">
-                <p className="text-2xl font-semibold text-foreground">80%</p>
-                <p className="text-xs text-muted-foreground">32/40</p>
-              </div>
-            </div>
-            <div className="grid gap-2 text-sm">
-              <span className="flex justify-between gap-8">
-                <span className="text-muted-foreground">Tối đa</span>
-                <strong>40 suất</strong>
-              </span>
-              <span className="flex justify-between gap-8">
-                <span className="text-muted-foreground">Đang phụ trách</span>
-                <strong>32 suất</strong>
-              </span>
-              <span className="flex justify-between gap-8">
-                <span className="text-muted-foreground">Còn trống</span>
-                <strong>8 suất</strong>
-              </span>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-xl border border-border bg-background p-5">
-          <p className="mb-5 text-sm font-semibold text-foreground">Thống kê nhanh</p>
+          <p className="mb-5 text-sm font-semibold text-foreground">Thông tin hồ sơ</p>
           <div className="grid gap-3">
-            {[
-              ["Buổi PT đã dạy", "56 buổi", "+16%"],
-              ["Học viên mới", "6", "+20%"],
-              ["Buổi đã hủy", "2 buổi", "-50%"],
-              ["Doanh thu PT", "18.240.000đ", "+11%"],
-            ].map(([label, value, change]) => (
-              <div className="flex items-center justify-between gap-3" key={label}>
-                <span className="text-sm text-muted-foreground">{label}</span>
-                <span className="font-semibold text-foreground">{value}</span>
-                <span
-                  className={cn(
-                    "text-xs font-semibold",
-                    change.startsWith("-") ? "text-destructive" : "text-primary",
-                  )}
-                >
-                  {change}
+            {infoRows.map((row) => (
+              <div
+                className="flex items-center justify-between gap-4 text-sm"
+                key={row.label}
+              >
+                <span className="text-muted-foreground">{row.label}</span>
+                <span className="max-w-[60%] truncate text-right font-semibold text-foreground">
+                  {row.value}
                 </span>
               </div>
             ))}
           </div>
         </section>
 
-        <TrainerSchedule />
-        <AssignedMemberList />
+        <section className="rounded-xl border border-border bg-background p-5">
+          <p className="mb-5 text-sm font-semibold text-foreground">Giới thiệu</p>
+          {trainer.bio ? (
+            <p className="text-sm leading-6 text-muted-foreground">{trainer.bio}</p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Chưa có mô tả giới thiệu cho huấn luyện viên này.
+            </p>
+          )}
+        </section>
       </div>
     </section>
   )
 }
 
-function CoachMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
-    </div>
-  )
+function formatGenderVi(gender?: string | null): string {
+  if (!gender) return "—"
+  const normalized = gender.trim().toLowerCase()
+  if (normalized === "male" || normalized === "nam") return "Nam"
+  if (normalized === "female" || normalized === "nữ" || normalized === "nu") return "Nữ"
+  return gender
 }
 
-function TrainerSchedule() {
-  const items = [
-    ["06:00 - 07:00", "Nguyễn Văn Hùng", "Đã check-in"],
-    ["07:15 - 08:15", "Lê Minh Tuấn", "Đang diễn ra"],
-    ["10:00 - 11:00", "Phạm Anh Khoa", "Sắp tới"],
-    ["16:00 - 17:00", "Trịnh Gia Bảo", "Sắp tới"],
-  ] as const
-
-  return (
-    <section className="rounded-xl border border-border bg-background p-5">
-      <p className="mb-5 text-sm font-semibold text-foreground">Lịch dạy hôm nay</p>
-      <div className="relative space-y-4 before:absolute before:bottom-0 before:left-4 before:top-0 before:w-px before:bg-border">
-        {items.map(([time, title, state]) => (
-          <div className="relative flex gap-4 pl-1" key={`${time}-${title}`}>
-            <span className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-card text-primary">
-              <CalendarDays aria-hidden="true" className="size-4" />
-            </span>
-            <div className="flex-1 rounded-xl border border-border bg-card p-3">
-              <div className="mb-1 flex justify-between gap-3">
-                <span className="text-xs font-semibold text-primary">{time}</span>
-                <span className="text-xs text-muted-foreground">{state}</span>
-              </div>
-              <p className="font-semibold text-foreground">{title}</p>
-              <p className="mt-1 text-xs text-muted-foreground">1:1 PT</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
-function AssignedMemberList() {
-  return (
-    <section className="rounded-xl border border-border bg-background p-5">
-      <div className="mb-5 flex items-center justify-between">
-        <p className="text-sm font-semibold text-foreground">
-          Học viên đang phụ trách
-        </p>
-        <span className="text-xs font-medium text-primary">Xem tất cả</span>
-      </div>
-      <div className="space-y-3">
-        {[
-          ["Nguyễn Văn Hùng", "Còn 18 buổi"],
-          ["Lê Minh Tuấn", "Còn 7 buổi"],
-          ["Phạm Anh Khoa", "Còn 21 buổi"],
-          ["Trịnh Gia Bảo", "Còn 12 buổi"],
-        ].map(([name, remain]) => (
-          <div className="flex items-center gap-3" key={name}>
-            <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-              {initials(name)}
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-sm font-semibold text-foreground">
-                {name}
-              </span>
-              <span className="text-xs text-muted-foreground">Gói Premium 12 Tháng</span>
-            </span>
-            <span className="text-xs text-muted-foreground">{remain}</span>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
+function formatDateVi(value?: string | null): string {
+  if (!value) return "—"
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "—"
+  return formatVnDate(date, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
 }
 
 /* -------------------------------------------------------------------------- */

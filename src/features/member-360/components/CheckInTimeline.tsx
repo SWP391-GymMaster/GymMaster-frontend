@@ -1,9 +1,9 @@
 "use client"
 
-import { CheckCircle2, Clock, MapPin, UserRound } from "lucide-react"
+import { CheckCircle2, Clock } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { formatVnDate, formatVnTime } from "@/lib/date/vn-time"
 
 type CheckInEntry = {
   id: number
@@ -17,16 +17,11 @@ type CheckInTimelineProps = {
 }
 
 function formatTime(dateStr: string) {
-  const date = new Date(dateStr)
-  return date.toLocaleTimeString("vi-VN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  return formatVnTime(dateStr, { hour: "2-digit", minute: "2-digit" })
 }
 
 function formatDate(dateStr: string) {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString("vi-VN", {
+  return formatVnDate(dateStr, {
     weekday: "short",
     day: "2-digit",
     month: "2-digit",
@@ -68,11 +63,6 @@ export function CheckInTimeline({
     >
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-foreground">Check-in gần đây</p>
-        {hasEntries ? (
-          <Button className="rounded-xl" size="sm" type="button" variant="outline">
-            Xem tất cả
-          </Button>
-        ) : null}
       </div>
 
       <div className="mt-5">
@@ -102,17 +92,6 @@ export function CheckInTimeline({
                     </div>
                     <span className="text-xs text-muted-foreground">
                       {formatDate(entry.checkInAt)}
-                    </span>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <MapPin aria-hidden="true" className="size-3.5" />
-                      Chi nhánh Q1 · Tầng 2
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <UserRound aria-hidden="true" className="size-3.5" />
-                      {i % 2 === 0 ? "Không có PT" : "Cùng PT: Coach PT"}
                     </span>
                   </div>
                 </div>

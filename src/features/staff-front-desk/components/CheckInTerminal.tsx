@@ -10,8 +10,6 @@ import {
   Keyboard,
   RefreshCw,
   Search,
-  ShieldCheck,
-  XCircle,
   Zap,
 } from "lucide-react"
 import { toast } from "sonner"
@@ -21,6 +19,7 @@ import { StateBlock } from "@/components/feedback/StateBlock"
 import {
   useCreateStaffCheckIn,
   useStaffMemberSearch,
+  useStaffTodayCheckIns,
 } from "@/features/staff-front-desk/api/staff-front-desk.queries"
 import {
   BlockedHint,
@@ -37,6 +36,7 @@ import type {
 } from "@/features/staff-front-desk/types/staff-front-desk.types"
 import { mapStaffOperationError } from "@/features/staff-front-desk/utils/staff-operation-errors"
 import { toStatusPillStatus } from "@/features/staff-front-desk/utils/staff-status"
+import { formatVnTime } from "@/lib/date/vn-time"
 import { speechAnnouncer } from "@/lib/speech-announcer"
 
 export function CheckInTerminal() {
@@ -45,6 +45,7 @@ export function CheckInTerminal() {
     useState<StaffFrontDeskMemberSummary | null>(null)
   const [result, setResult] = useState<CheckInResult | null>(null)
   const members = useStaffMemberSearch(submittedQuery)
+  const todayCheckIns = useStaffTodayCheckIns()
   const checkIn = useCreateStaffCheckIn()
   const mutationError = checkIn.error ? mapStaffOperationError(checkIn.error) : null
   const {
@@ -105,12 +106,6 @@ export function CheckInTerminal() {
 
   return (
     <div className="space-y-5">
-      <section className="grid gap-4 md:grid-cols-3">
-        <RuleCard icon={CreditCard} label="Chế độ terminal" title="Tra cứu nhanh" />
-        <RuleCard icon={ShieldCheck} label="Quy tắc vào phòng" title="Gói paid active" />
-        <RuleCard icon={XCircle} label="Từ chối & xử lý" title="Có hướng xử lý" tone="danger" />
-      </section>
-
       <div className="grid gap-5 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
         <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6 text-white shadow-xl shadow-zinc-950/20">
           <div className="flex items-start justify-between gap-4">
@@ -325,61 +320,96 @@ export function CheckInTerminal() {
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <p className="text-sm font-semibold text-foreground">Luồng vào phòng hôm nay</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-4">
-            <CheckInMetric label="Tổng check-in" value="68" helper="+12% so với hôm qua" />
-            <CheckInMetric label="Được vào" value="62" helper="91%" />
-            <CheckInMetric label="Từ chối" value="6" helper="9%" tone="danger" />
-            <CheckInMetric label="Đang tập" value="54" helper="Hiện tại" />
+            <CheckInMetric
+              label="Tổng check-in"
+              value={todayCheckIns.isLoading ? "…" : (todayCheckIns.data?.stats.total ?? 0)}
+              helper="Hôm nay"
+            />
+            <CheckInMetric
+              label="Tại quầy"
+              value={todayCheckIns.isLoading ? "…" : (todayCheckIns.data?.stats.frontDesk ?? 0)}
+              helper="Lễ tân hoặc PT xác nhận"
+            />
+            <CheckInMetric
+              label="Tự check-in"
+              value={todayCheckIns.isLoading ? "…" : (todayCheckIns.data?.stats.selfService ?? 0)}
+              helper="Hội viên tự quét"
+            />
+            <CheckInMetric
+              label="Lượt hội viên"
+              value={todayCheckIns.isLoading ? "…" : (todayCheckIns.data?.stats.uniqueMembers ?? 0)}
+              helper="Khách duy nhất"
+            />
           </div>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <p className="text-sm font-semibold text-foreground">Check-in gần đây</p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {["Le Hoang My", "Pham Quoc Huy", "Nguyen Van An", "Vo Minh Duc"].map((name, index) => (
-              <div className="flex items-center gap-3 rounded-xl border border-border bg-background p-3" key={name}>
-                <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                  {name.split(" ").slice(-2).map((part) => part[0]).join("")}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-foreground">{name}</p>
-                  <p className="text-xs text-muted-foreground">10:{23 - index * 2}</p>
+          {todayCheckIns.isLoading ? (
+            <StateBlock
+              className="mt-4"
+              description="Đang tải lượt check-in hôm nay."
+              title="Đang tải..."
+              tone="loading"
+            />
+          ) : todayCheckIns.isError ? (
+            <StateBlock
+              className="mt-4"
+              description="Không tải được lượt check-in hôm nay. Vui lòng thử lại."
+              title="Lỗi tải dữ liệu"
+              tone="error"
+            />
+          ) : (todayCheckIns.data?.items.length ?? 0) === 0 ? (
+            <StateBlock
+              className="mt-4"
+              description="Các lượt check-in trong ngày sẽ hiển thị tại đây."
+              title="Chưa có check-in nào hôm nay."
+              tone="empty"
+            />
+          ) : (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {todayCheckIns.data?.items.slice(0, 6).map((item) => (
+                <div
+                  className="flex items-center gap-3 rounded-xl border border-border bg-background p-3"
+                  key={item.id}
+                >
+                  <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                    {checkInInitials(item.memberName)}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {item.memberName}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatCheckInTime(item.checkInAt)}
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-semibold text-primary">
+                    {item.source === "member" ? "Tự check-in" : "Tại quầy"}
+                  </span>
                 </div>
-                <span className={`rounded-full px-2 py-1 text-xs font-semibold ${index === 1 ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>
-                  {index === 1 ? "Từ chối" : "Được vào"}
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
   )
 }
 
-function RuleCard({
-  icon: Icon,
-  label,
-  title,
-  tone = "success",
-}: {
-  icon: typeof CreditCard
-  label: string
-  title: string
-  tone?: "success" | "danger"
-}) {
+function checkInInitials(name: string) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex items-center gap-4">
-        <span className={`flex size-12 items-center justify-center rounded-full ${tone === "danger" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>
-          <Icon aria-hidden="true" className="size-5" />
-        </span>
-        <div>
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="mt-1 text-xl font-semibold tracking-tight text-foreground">{title}</p>
-        </div>
-      </div>
-    </section>
+    name
+      .split(" ")
+      .filter(Boolean)
+      .slice(-2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "?"
   )
+}
+
+function formatCheckInTime(checkInAt: string) {
+  return formatVnTime(checkInAt, { hour: "2-digit", minute: "2-digit" }) || "--:--"
 }
 
 function CheckInMetric({
@@ -391,7 +421,7 @@ function CheckInMetric({
   helper: string
   label: string
   tone?: "success" | "danger"
-  value: string
+  value: number | string
 }) {
   return (
     <div className="rounded-xl border border-border bg-background p-4">

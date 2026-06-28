@@ -6,6 +6,7 @@ import {
   createStaffCheckIn,
   getStaffMemberDetail,
   getStaffPackages,
+  getStaffTodayCheckIns,
   recordStaffManualPayment,
   renewStaffMembership,
   searchStaffMembers,
@@ -26,6 +27,7 @@ export const staffFrontDeskKeys = {
   memberDetail: (id: number) =>
     [...staffFrontDeskKeys.all, "member-detail", id] as const,
   packages: () => [...staffFrontDeskKeys.all, "packages"] as const,
+  todayCheckIns: () => [...staffFrontDeskKeys.all, "today-checkins"] as const,
 }
 
 function useStaffAccessToken() {
@@ -52,6 +54,16 @@ export function useStaffMemberDetail(memberId: number | null) {
       : [...staffFrontDeskKeys.all, "member-detail", "none"],
     queryFn: () => getStaffMemberDetail(accessToken ?? "", memberId ?? 0),
     enabled: Boolean(accessToken) && Boolean(memberId),
+  })
+}
+
+export function useStaffTodayCheckIns() {
+  const accessToken = useStaffAccessToken()
+
+  return useQuery({
+    queryKey: staffFrontDeskKeys.todayCheckIns(),
+    queryFn: () => getStaffTodayCheckIns(accessToken ?? ""),
+    enabled: Boolean(accessToken),
   })
 }
 

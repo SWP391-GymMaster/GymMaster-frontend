@@ -3,14 +3,11 @@
 import Link from "next/link"
 import {
   ArrowRight,
-  CalendarDays,
   CheckCircle2,
   ClipboardList,
   Dumbbell,
-  MessageSquareText,
   NotebookPen,
   ShieldCheck,
-  Sparkles,
   Target,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
@@ -35,8 +32,13 @@ import {
 export function MemberWorkoutWorkspace() {
   const plansQuery = useMyWorkoutPlans()
   const plans = plansQuery.data ?? []
+  const plansCount = plans.length
+  const totalExercises = plans.reduce(
+    (sum, plan) => sum + plan.exercises.length,
+    0,
+  )
   const latestPlan = plans[0]
-  const exercisesCount = latestPlan?.exercises.length ?? 0
+  const latestPlanDate = latestPlan?.updatedAt ?? latestPlan?.createdAt
 
   return (
     <PermissionGuard allowedRoles={["member"]}>
@@ -54,9 +56,12 @@ export function MemberWorkoutWorkspace() {
             eyebrow="Training Plan Viewer"
             icon={ShieldCheck}
             stats={[
-              { label: "Tuần", value: "04" },
-              { label: "Mục tiêu", value: "Tăng cơ" },
-              { label: "Bài tập", value: String(exercisesCount || 2) },
+              { label: "Giáo án", value: String(plansCount) },
+              { label: "Bài tập", value: String(totalExercises) },
+              {
+                label: "Cập nhật",
+                value: latestPlanDate ? formatShortDate(latestPlanDate) : "—",
+              },
             ]}
             title="Giáo án hôm nay, rõ từng bài và cue kỹ thuật."
           />
@@ -65,17 +70,17 @@ export function MemberWorkoutWorkspace() {
             <TrainingMetric
               icon={ClipboardList}
               label="Plan hiện tại"
-              value={latestPlan?.title ?? "Foundation Strength"}
+              value={latestPlan?.title ?? "Chưa có giáo án"}
             />
             <TrainingMetric
               icon={Dumbbell}
-              label="Khối lượng"
-              value={`${exercisesCount || 2} bài tập`}
+              label="Tổng bài tập"
+              value={`${totalExercises} bài tập`}
             />
             <TrainingMetric
               icon={CheckCircle2}
               label="Trạng thái"
-              value={latestPlan?.status ?? "active"}
+              value={latestPlan?.status ?? "—"}
             />
           </section>
 
@@ -114,7 +119,9 @@ export function MemberWorkoutWorkspace() {
 
 export function MemberTrainerNotesWorkspace() {
   const notesQuery = useMyTrainerNotes()
-  const notesCount = notesQuery.data?.length ?? 0
+  const notes = notesQuery.data ?? []
+  const notesCount = notes.length
+  const latestNote = notes[0]
 
   return (
     <PermissionGuard allowedRoles={["member"]}>
@@ -132,30 +139,14 @@ export function MemberTrainerNotesWorkspace() {
             eyebrow="Coach Feedback"
             icon={NotebookPen}
             stats={[
-              { label: "Tuần", value: "04" },
-              { label: "Ghi chú", value: String(notesCount || 1) },
-              { label: "Ưu tiên", value: "Kỹ thuật" },
+              { label: "Ghi chú", value: String(notesCount) },
+              {
+                label: "Mới nhất",
+                value: latestNote ? formatShortDate(latestNote.createdAt) : "—",
+              },
             ]}
             title="Phản hồi huấn luyện để tập đúng hơn."
           />
-
-          <section className="grid gap-4 md:grid-cols-3">
-            <TrainingMetric
-              icon={MessageSquareText}
-              label="Ghi chú mới"
-              value={String(notesCount || 1)}
-            />
-            <TrainingMetric
-              icon={Sparkles}
-              label="Trọng tâm"
-              value="Shoulder warm-up"
-            />
-            <TrainingMetric
-              icon={CalendarDays}
-              label="Buổi tới"
-              value="18:30"
-            />
-          </section>
 
           <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
             <main className="space-y-4">
@@ -317,6 +308,12 @@ function MemberSideCard({
         />
       </span>
     </Link>
+  )
+}
+
+function formatShortDate(value: string) {
+  return new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(
+    new Date(value),
   )
 }
 

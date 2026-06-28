@@ -19,6 +19,7 @@ import {
   MoreHorizontal,
   Package,
   Salad,
+  ScanLine,
   Search,
   Settings,
   ShieldCheck,
@@ -98,6 +99,7 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
       items: [
         { href: "/pt/dashboard", icon: Home, label: "Coach hub" },
         { href: "/pt/members", icon: Users, label: "Hội viên" },
+        { href: "/pt/check-in", icon: ScanLine, label: "Check-in" },
         { href: "/pt/members/:id", icon: Dumbbell, label: "Hội viên 360" },
       ],
     },

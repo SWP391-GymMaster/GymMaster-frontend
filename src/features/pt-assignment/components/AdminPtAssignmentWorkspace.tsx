@@ -13,6 +13,7 @@ import {
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
+import { StatusPill } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
 import {
@@ -151,7 +152,7 @@ export function AdminPtAssignmentWorkspace() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <MetricCard
-          helper="+3 so với hôm qua"
+          helper="Chưa có PT phụ trách"
           icon={<Users aria-hidden="true" className="size-5" />}
           label="Hội viên cần phân công"
           tone="primary"
@@ -165,7 +166,7 @@ export function AdminPtAssignmentWorkspace() {
           value={String(trainers.length)}
         />
         <MetricCard
-          helper="+6% so với tuần trước"
+          helper="Tải trung bình theo sức chứa PT"
           icon={<Star aria-hidden="true" className="size-5" />}
           label="Công suất trung bình"
           tone="neutral"
@@ -197,14 +198,12 @@ export function AdminPtAssignmentWorkspace() {
                   <tr className="border-b border-border text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     <th className="pb-3 pt-2">Hội viên</th>
                     <th className="pb-3 pt-2">Huấn luyện viên (PT)</th>
-                    <th className="pb-3 pt-2">Mục tiêu</th>
-                    <th className="pb-3 pt-2">Ưu tiên</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {members.filter((m) => m.currentTrainerName).length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-8 text-center text-muted-foreground">
+                      <td colSpan={2} className="py-8 text-center text-muted-foreground">
                         Chưa có phân công hoạt động nào.
                       </td>
                     </tr>
@@ -219,20 +218,6 @@ export function AdminPtAssignmentWorkspace() {
                           </td>
                           <td className="py-3.5">
                             <span className="font-semibold text-primary">{member.currentTrainerName}</span>
-                          </td>
-                          <td className="py-3.5 text-muted-foreground">
-                            {member.goal ?? "Thể lực tổng quát"}
-                          </td>
-                          <td className="py-3.5">
-                            {member.priority === "high" ? (
-                              <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-bold text-orange-600">
-                                Cao
-                              </span>
-                            ) : (
-                              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                                Thường
-                              </span>
-                            )}
                           </td>
                         </tr>
                       ))
@@ -514,7 +499,7 @@ function MemberCard({
           {member.fullName}
         </span>
         <span className="mt-1 block truncate text-xs text-muted-foreground">
-          Mục tiêu: {member.goal ?? "Thể lực tổng quát"}
+          {member.email}
         </span>
         <span className="mt-3 flex flex-wrap gap-2">
           <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
@@ -529,11 +514,6 @@ function MemberCard({
               Cần PT
             </span>
           )}
-          {member.priority === "high" ? (
-            <span className="rounded-full bg-orange-500/10 px-2.5 py-1 text-[11px] font-semibold text-orange-600">
-              Ưu tiên cao
-            </span>
-          ) : null}
         </span>
       </span>
       <span className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary">
@@ -586,10 +566,7 @@ function TrainerCard({
             </span>
           </span>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-orange-500/10 px-2.5 py-1 text-xs font-semibold text-orange-600">
-          <Star aria-hidden="true" className="size-3 fill-current" />
-          {trainer.rating?.toFixed(1) ?? "4.8"}
-        </span>
+        <StatusPill status={trainer.status === "locked" ? "locked" : "active"} />
       </div>
 
       <div className="mt-4">
@@ -639,14 +616,11 @@ function AssignmentPreview({
   selectedMember: AssignmentCandidateMember | null
   selectedTrainer: AssignmentCandidateTrainer | null
 }) {
-  const matchScore = selectedMember && selectedTrainer ? 92 : null
-
   return (
     <div className="flex flex-1 flex-col overflow-y-auto p-5">
       <div className="space-y-4">
         <PreviewBlock
           empty="Chọn hội viên"
-          label={selectedMember?.goal ? `Mục tiêu: ${selectedMember.goal}` : undefined}
           name={selectedMember?.fullName}
           subline={selectedMember ? `${selectedMember.memberCode} · ${selectedMember.currentTrainerName ? "Đã có PT" : "Chưa có PT"}` : undefined}
         />
@@ -676,42 +650,31 @@ function AssignmentPreview({
           }
         />
 
-        {selectedMember && selectedTrainer && matchScore ? (
-          <section className="rounded-xl border border-primary/20 bg-primary/5 p-4">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-foreground">Độ phù hợp</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Phù hợp theo mục tiêu, chuyên môn và tải công việc.
-                </p>
-              </div>
-              <span className="text-2xl font-semibold text-primary">
-                {matchScore}%
-              </span>
-            </div>
-            <div className="mt-3 h-2 rounded-full bg-primary/10">
-              <div className="h-2 rounded-full bg-primary" style={{ width: `${matchScore}%` }} />
-            </div>
-          </section>
-        ) : null}
-
         {selectedMember && selectedTrainer ? (
           <section className="rounded-xl border border-border bg-background p-4">
             <p className="text-sm font-semibold text-foreground">Tóm tắt phân công</p>
             <div className="mt-3 space-y-2 text-sm">
               <PreviewRow label="Hình thức" value={mode === "reassign" ? "Phân công lại" : "Phân công mới"} />
-              <PreviewRow label="Số buổi / tuần" value="3 buổi" />
-              <PreviewRow label="Gói hiện tại" value="Premium 3T" />
+              <PreviewRow
+                label="Trạng thái hội viên"
+                value={
+                  selectedMember.membershipStatus === "active"
+                    ? "Đang hoạt động"
+                    : selectedMember.membershipStatus === "expired"
+                      ? "Hết hạn"
+                      : "Chờ kích hoạt"
+                }
+              />
               <PreviewRow
                 label="Tải PT sau phân công"
-                value={`${selectedTrainer.assignedCount + 1}/${selectedTrainer.capacity}`}
+                value={`${selectedTrainer.assignedCount + 1}/${selectedTrainer.capacity} suất`}
               />
             </div>
 
             {mode === "reassign" && selectedMember.currentTrainerName ? (
               <p className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-3 text-xs leading-5 text-orange-800">
-                {selectedMember.currentTrainerName} đang là PT active. Theo tài liệu final,
-                backend trả 422 cho đến khi assignment cũ kết thúc.
+                Hội viên đang được {selectedMember.currentTrainerName} phụ trách. Cần
+                kết thúc phân công hiện tại trước khi gán PT mới.
               </p>
             ) : null}
           </section>

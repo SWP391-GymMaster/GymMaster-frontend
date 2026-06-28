@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { AlertTriangle, Clock } from "lucide-react";
 
+import { formatVnDate } from "@/lib/date/vn-time";
+
 type MembershipExpiryBannerProps = {
   endDate?: string;
   status?: string;
@@ -26,7 +28,7 @@ export function MembershipExpiryBanner({
 
   const daysLeft = getDaysLeft(endDate);
 
-  const expiryDate = new Date(endDate).toLocaleDateString("vi-VN", {
+  const expiryDate = formatVnDate(endDate, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",

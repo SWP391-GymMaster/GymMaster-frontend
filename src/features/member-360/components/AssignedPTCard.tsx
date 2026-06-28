@@ -1,9 +1,9 @@
 "use client"
 
-import { CalendarDays, Dumbbell, MessageSquare, Phone, UserRound } from "lucide-react"
+import { Dumbbell } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { formatVnDate } from "@/lib/date/vn-time"
 
 type AssignedPTCardProps = {
   fullName?: string
@@ -15,8 +15,7 @@ type AssignedPTCardProps = {
 
 function formatDate(dateStr?: string) {
   if (!dateStr) return ""
-  const date = new Date(dateStr)
-  return date.toLocaleDateString("vi-VN", {
+  return formatVnDate(dateStr, {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -89,9 +88,6 @@ export function AssignedPTCard({
           {specialty ? (
             <p className="mt-1 text-sm text-muted-foreground">{specialty}</p>
           ) : null}
-          <p className="mt-1 text-xs text-muted-foreground">
-            Chuyên môn: Tăng cơ, Giảm mỡ, HIIT
-          </p>
         </div>
       </div>
 
@@ -100,21 +96,6 @@ export function AssignedPTCard({
           Phân công ngày {formatDate(assignedAt)}
         </p>
       ) : null}
-
-      <div className="mt-4 grid grid-cols-4 gap-2">
-        <Button className="rounded-xl" size="sm" type="button" variant="outline">
-          <MessageSquare aria-hidden="true" className="size-4" />
-        </Button>
-        <Button className="rounded-xl" size="sm" type="button" variant="outline">
-          <CalendarDays aria-hidden="true" className="size-4" />
-        </Button>
-        <Button className="rounded-xl" size="sm" type="button" variant="outline">
-          <Phone aria-hidden="true" className="size-4" />
-        </Button>
-        <Button className="rounded-xl" size="sm" type="button" variant="outline">
-          <UserRound aria-hidden="true" className="size-4" />
-        </Button>
-      </div>
     </section>
   )
 }
