@@ -39,7 +39,9 @@ describe("AdminPtAssignmentWorkspace", () => {
 
     fireEvent.click(await screen.findByText("Nguyen Minh Anh"))
     fireEvent.click(await screen.findByText("Marcus Cole"))
-    expect(screen.getByText(/đang là PT active/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/kết thúc phân công hiện tại trước khi gán PT mới/),
+    ).toBeInTheDocument()
 
     fireEvent.click(screen.getByTestId("assignment-confirm-button"))
 

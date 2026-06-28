@@ -673,8 +673,8 @@ function AssignmentPreview({
 
             {mode === "reassign" && selectedMember.currentTrainerName ? (
               <p className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-3 text-xs leading-5 text-orange-800">
-                {selectedMember.currentTrainerName} đang là PT active. Theo tài liệu final,
-                backend trả 422 cho đến khi assignment cũ kết thúc.
+                Hội viên đang được {selectedMember.currentTrainerName} phụ trách. Cần
+                kết thúc phân công hiện tại trước khi gán PT mới.
               </p>
             ) : null}
           </section>
