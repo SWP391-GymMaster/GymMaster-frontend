@@ -21,6 +21,7 @@ import {
   type ProgressEntryFormValues,
 } from "@/features/member-progress-tracking/schemas/member-progress.schema"
 import { useCreateProgressEntry } from "@/features/member-progress-tracking/api/member-progress.queries"
+import { ApiClientError } from "@/lib/api/http-client"
 import { vnTodayIso } from "@/lib/date/vn-time"
 
 type ProgressLogFormProps = {
@@ -70,8 +71,12 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
       toast.success("Ghi nhận chỉ số tiến độ thành công!")
       if (onSuccess) onSuccess()
       setOpen(false)
-    } catch {
-      toast.error("Không thể ghi nhận chỉ số. Vui lòng thử lại.")
+    } catch (error) {
+      const message =
+        error instanceof ApiClientError && error.message
+          ? error.message
+          : "Không thể ghi nhận chỉ số. Vui lòng thử lại."
+      toast.error(message)
     }
   }
 
@@ -103,6 +108,7 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
             <input
               id="measuredAt"
               type="date"
+              max={todayStr}
               className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
               data-testid="progress-form-date"
               {...register("measuredAt")}
