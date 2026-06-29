@@ -19,6 +19,12 @@ import {
   usePaymentsSummary,
 } from "@/features/billing/api/billing.queries"
 
+// Backend trả timestamp UTC nhưng EF đọc từ SQL ra Kind=Unspecified nên JSON thiếu hậu
+// tố 'Z' -> new Date() hiểu nhầm thành giờ máy (lệch -7h). Ép 'Z' để parse đúng UTC.
+function ensureUtcIso(value: string) {
+  return /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`
+}
+
 export function PaymentsLogTable() {
   const { data: payments, isLoading, error } = usePayments()
   // Spec 003 §6 — bao cao doanh thu (GET /payments/summary)
@@ -35,7 +41,7 @@ export function PaymentsLogTable() {
   }
 
   const formatDateTime = (dateStr: string) => {
-    return formatVnDate(dateStr, {
+    return formatVnDate(ensureUtcIso(dateStr), {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",

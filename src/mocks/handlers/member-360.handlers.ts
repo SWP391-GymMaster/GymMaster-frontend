@@ -19,6 +19,7 @@ function buildMember360Response(memberId: number) {
   const currentMembership = memberships.find(
     (item) => item.memberId === memberId && item.status !== "expired",
   )
+  const memberMemberships = memberships.filter((item) => item.memberId === memberId)
   const activeAssignment = assignments.find(
     (item) => item.memberId === memberId && item.status === "active",
   )
@@ -45,7 +46,10 @@ function buildMember360Response(memberId: number) {
     currentMembership: currentMembership
       ? {
           id: currentMembership.id,
+          memberId: currentMembership.memberId,
+          packageId: currentMembership.packageId,
           packageName: `Package #${currentMembership.packageId}`,
+          supportsPT: false,
           startDate: currentMembership.startDate,
           endDate: currentMembership.endDate,
           status: currentMembership.status,
@@ -53,6 +57,17 @@ function buildMember360Response(memberId: number) {
             currentMembership.status === "active" ? "paid" : "pending",
         }
       : null,
+    membershipHistory: memberMemberships.map((membership) => ({
+      id: membership.id,
+      memberId: membership.memberId,
+      packageId: membership.packageId,
+      packageName: `Package #${membership.packageId}`,
+      supportsPT: false,
+      startDate: membership.startDate,
+      endDate: membership.endDate,
+      status: membership.status,
+      paymentStatus: membership.status === "active" ? "paid" : "pending",
+    })),
     assignedPT: assignedPT
       ? {
           id: assignedPT.id,

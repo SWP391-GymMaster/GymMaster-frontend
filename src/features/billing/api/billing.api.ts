@@ -168,6 +168,7 @@ export async function getMemberships(accessToken: string): Promise<Membership[]>
   const list = Array.isArray(data) ? data : data.items
   return list.map((ms) => ({
     ...ms,
+    supportsPT: ms.supportsPT ?? false,
     status: normalizeMembershipStatus(ms.status as string),
   }))
 }

@@ -15,6 +15,7 @@ import {
   type PaymentOrder,
 } from "@/features/billing/components/PaymentPendingDialog";
 import { StateBlock } from "@/components/feedback/StateBlock";
+import { formatVnDate, vnTodayIso } from "@/lib/date/vn-time";
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("vi-VN", {
@@ -22,16 +23,40 @@ const formatPrice = (price: number) =>
     currency: "VND",
   }).format(price);
 
-type PackageStoreProps = {
-  // Member dang co goi active/pending -> khoa mua (luat 1 goi active/nguoi).
-  hasActiveOrPending?: boolean;
+function addDays(date: string, days: number) {
+  const nextDate = new Date(`${date}T00:00:00.000Z`);
+  nextDate.setUTCDate(nextDate.getUTCDate() + days);
+
+  return nextDate.toISOString().slice(0, 10);
+}
+
+function formatDate(date: string) {
+  return formatVnDate(date, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+type StoreMembership = {
+  status: "pending_payment" | "active" | "expired" | "cancelled";
+  endDate: string;
+  supportsPT?: boolean;
 };
 
-/**
- * Catalog gói tập cho member: duyệt + đăng ký. Tái dùng ở trang membership.
- * Tự lo luồng mua (renewal-request -> màn thanh toán) + tự tạo hồ sơ nếu lần đầu.
- */
-export function PackageStore({ hasActiveOrPending = false }: PackageStoreProps) {
+type PendingOrderInfo = {
+  packageName: string;
+};
+
+type PackageStoreProps = {
+  currentMembership?: StoreMembership | null;
+  pendingOrder?: PendingOrderInfo | null;
+};
+
+export function PackageStore({
+  currentMembership = null,
+  pendingOrder = null,
+}: PackageStoreProps) {
   const memberId = useCurrentMemberProfileId();
   const packages = usePackages();
   const renewMutation = useCreateRenewalRequest();
@@ -40,8 +65,15 @@ export function PackageStore({ hasActiveOrPending = false }: PackageStoreProps) 
   const [paymentOrder, setPaymentOrder] = useState<PaymentOrder | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
 
-  // Sau khi dang ky goi dau tien, backend tao ho so hoi vien -> refetch /auth/me
-  // de memberProfileId cap nhat vao session => mo khoa cac tinh nang ngay.
+  // Single-slot: chỉ giữ 1 đơn chờ tại một thời điểm. Đơn chờ có thể là gói hiện
+  // tại đang chờ, HOẶC đơn gia hạn tách riêng khi đang có gói Active. Cả hai đều
+  // phải khóa việc tạo đơn mới cho tới khi member thanh toán/hủy đơn đang chờ.
+  const hasPendingMembership =
+    currentMembership?.status === "pending_payment" || Boolean(pendingOrder);
+  const hasActiveMembership =
+    currentMembership?.status === "active" &&
+    currentMembership.endDate >= vnTodayIso();
+
   async function refreshMemberProfile() {
     if (!session) return;
     try {
@@ -53,15 +85,19 @@ export function PackageStore({ hasActiveOrPending = false }: PackageStoreProps) 
   }
 
   function handleBuy(packageId: number) {
-    if (!packageId || hasActiveOrPending) return;
-    const pkg = packages.data?.find((p) => p.id === packageId);
+    if (!packageId || hasPendingMembership) return;
+    const requestedPackage = packages.data?.find((p) => p.id === packageId);
+
     renewMutation.mutate(packageId, {
       onSuccess: async (result) => {
-        // Mo man thanh toan (placeholder VNPay): ma don + dem nguoc.
+        const orderPackage =
+          packages.data?.find((p) => p.id === result.packageId) ??
+          requestedPackage;
+
         setPaymentOrder({
           code: `GM-${result.id}`,
-          amount: pkg?.price ?? 0,
-          packageName: pkg?.name ?? "Gói tập",
+          amount: orderPackage?.price ?? 0,
+          packageName: orderPackage?.name ?? result.packageName ?? "Gói tập",
           membershipId: result.id,
         });
         setPaymentOpen(true);
@@ -69,22 +105,43 @@ export function PackageStore({ hasActiveOrPending = false }: PackageStoreProps) 
           await refreshMemberProfile();
         }
       },
-      onError: () => {
-        toast.error("Không gửi được yêu cầu. Vui lòng thử lại.");
+      onError: (err) => {
+        toast.error(
+          err instanceof Error && err.message
+            ? err.message
+            : "Không gửi được yêu cầu. Vui lòng thử lại.",
+        );
       },
     });
   }
 
   const activePackages = (packages.data ?? []).filter(
-    (p) => p.status === "active",
+    (p) =>
+      p.status === "active" &&
+      (!hasActiveMembership ||
+        p.supportsPT === (currentMembership?.supportsPT ?? false)),
   );
 
   return (
     <div className="space-y-4">
-      {hasActiveOrPending ? (
-        <p className="rounded-xl bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
-          Bạn đang có gói đang hoạt động nên chưa thể mua thêm. Khi gói hết hạn,
-          bạn có thể đăng ký gói mới ngay tại đây.
+      {hasPendingMembership ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <p className="font-semibold">
+            ⏳ Bạn đang có 1 đơn chờ thanh toán
+            {pendingOrder?.packageName
+              ? `: gói ${pendingOrder.packageName}`
+              : ""}
+            .
+          </p>
+          <p className="mt-1 text-amber-700">
+            Mỗi lúc chỉ giữ được 1 đơn chờ. Hãy hoàn tất thanh toán hoặc hủy đơn
+            đó ở phía trên, rồi mới chọn gói khác.
+          </p>
+        </div>
+      ) : hasActiveMembership ? (
+        <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-foreground">
+          Bạn có thể gia hạn sớm. Danh sách bên dưới chỉ hiển thị gói cùng loại
+          PT với gói hiện tại.
         </p>
       ) : null}
 
@@ -99,46 +156,62 @@ export function PackageStore({ hasActiveOrPending = false }: PackageStoreProps) 
       ) : activePackages.length === 0 ? (
         <StateBlock
           tone="empty"
-          title="Chưa có gói tập"
-          description="Hiện chưa có gói nào để đăng ký. Vui lòng quay lại sau."
+          title="Chưa có gói phù hợp"
+          description="Hiện chưa có gói đang bán phù hợp với trạng thái gói hiện tại."
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {activePackages.map((p) => (
-            <div
-              key={p.id}
-              className="flex flex-col rounded-[1.5rem] border border-border/70 bg-card p-6 shadow-sm"
-              data-testid={`store-package-${p.id}`}
-            >
-              <h3 className="text-lg font-bold tracking-tight text-foreground">
-                {p.name}
-              </h3>
-              {p.supportsPT ? (
-                <span className="mt-2 inline-flex w-fit items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
-                  Có PT
-                </span>
-              ) : null}
-              <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
-                {formatPrice(p.price)}
-                <span className="ml-1 text-sm font-normal text-muted-foreground">
-                  / {p.durationDays} ngày
-                </span>
-              </p>
-              <button
-                type="button"
-                disabled={hasActiveOrPending || renewMutation.isPending}
-                onClick={() => handleBuy(p.id)}
-                className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-                data-testid={`buy-package-${p.id}`}
+          {activePackages.map((p) => {
+            const currentEndDate = currentMembership?.endDate;
+            const newEndDate =
+              hasActiveMembership && currentEndDate
+                ? addDays(currentEndDate, p.durationDays)
+                : null;
+
+            return (
+              <div
+                key={p.id}
+                className="flex flex-col rounded-[1.5rem] border border-border/70 bg-card p-6 shadow-sm"
+                data-testid={`store-package-${p.id}`}
               >
-                {renewMutation.isPending
-                  ? "Đang gửi..."
-                  : hasActiveOrPending
-                    ? "Đang có gói"
-                    : "Đăng ký gói này"}
-              </button>
-            </div>
-          ))}
+                <h3 className="text-lg font-bold tracking-tight text-foreground">
+                  {p.name}
+                </h3>
+                {p.supportsPT ? (
+                  <span className="mt-2 inline-flex w-fit items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    Có PT
+                  </span>
+                ) : null}
+                <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+                  {formatPrice(p.price)}
+                  <span className="ml-1 text-sm font-normal text-muted-foreground">
+                    / {p.durationDays} ngày
+                  </span>
+                </p>
+                {newEndDate && currentEndDate ? (
+                  <p className="mt-3 rounded-xl bg-muted/50 px-3 py-2 text-xs font-semibold text-muted-foreground">
+                    Hạn mới: {formatDate(currentEndDate)} +{" "}
+                    {p.durationDays} ngày = {formatDate(newEndDate)}
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  disabled={hasPendingMembership || renewMutation.isPending}
+                  onClick={() => handleBuy(p.id)}
+                  className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                  data-testid={`buy-package-${p.id}`}
+                >
+                  {renewMutation.isPending
+                    ? "Đang gửi..."
+                    : hasPendingMembership
+                      ? "Đang chờ thanh toán"
+                      : hasActiveMembership
+                        ? "Gia hạn gói này"
+                        : "Đăng ký gói này"}
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
 

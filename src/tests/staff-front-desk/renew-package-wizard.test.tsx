@@ -25,7 +25,7 @@ describe("RenewPackageWizard", () => {
     expect(await screen.findByText("Chọn hội viên.")).toBeInTheDocument()
   })
 
-  it("previews renewal period and renews atomically (active + paid in one step)", async () => {
+  it("previews renewal period and renews instantly", async () => {
     renderWithStaffSession(<RenewPackageWizard />)
 
     fireEvent.change(screen.getByTestId("staff-renew-member-search"), {
@@ -37,14 +37,15 @@ describe("RenewPackageWizard", () => {
 
     fireEvent.click(await screen.findByText("Strength 90"))
     expect(screen.getByTestId("staff-renew-summary")).toHaveTextContent(
-      "2026-07-01 đến 2026-09-29",
+      "2026-06-30 đến 2026-09-28",
     )
 
     fireEvent.click(screen.getByTestId("staff-renew-submit-button"))
 
-    // Backend gia han la atomic -> hien hoan tat (paid) ngay, khong co buoc ghi nhan rieng.
-    expect(await screen.findByText(/Đã gia hạn Strength 90/i)).toBeInTheDocument()
-    expect(screen.getAllByText("Đã thanh toán").length).toBeGreaterThan(0)
+    expect(
+      await screen.findByText(/Đã gia hạn Strength 90/i),
+    ).toBeInTheDocument()
+    expect(screen.getAllByText("Đã gia hạn").length).toBeGreaterThan(0)
     expect(
       screen.queryByTestId("staff-record-payment-button"),
     ).not.toBeInTheDocument()

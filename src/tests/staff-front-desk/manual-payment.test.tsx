@@ -10,6 +10,7 @@ const pendingMembership = {
   memberId: 102,
   packageId: 2,
   packageName: "Strength 90",
+  supportsPT: false,
   status: "pending",
   paymentStatus: "pending",
   startsAt: "2026-06-01",

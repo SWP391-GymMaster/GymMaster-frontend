@@ -8,10 +8,14 @@ import {
   useMemberPayments,
   useCurrentMemberProfileId,
   useCancelMembership,
+  usePackages,
 } from "@/features/billing/api/billing.queries";
 import { PackageStore } from "@/features/billing/components/PackageStore";
-import { formatVnDate } from "@/lib/date/vn-time";
-import { PaymentPendingDialog } from "@/features/billing/components/PaymentPendingDialog";
+import { formatVnDate, vnDateIso } from "@/lib/date/vn-time";
+import {
+  PaymentPendingDialog,
+  type PaymentOrder,
+} from "@/features/billing/components/PaymentPendingDialog";
 import { StatusPill } from "@/components/data/StatusPill";
 import { StateBlock } from "@/components/feedback/StateBlock";
 import {
@@ -21,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CreditCard, User, Activity } from "lucide-react";
+import { Clock, CreditCard } from "lucide-react";
 
 const PAYMENT_PAGE_SIZE = 8;
 
@@ -37,10 +41,12 @@ export function MemberMembershipDetails() {
     isLoading: isPaymentsLoading,
     error: errorPayments,
   } = useMemberPayments(memberId);
+  const packages = usePackages();
 
   const cancelMutation = useCancelMembership();
   const [cancelOpen, setCancelOpen] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
+  const [paymentOrder, setPaymentOrder] = useState<PaymentOrder | null>(null);
   const [paymentFromDate, setPaymentFromDate] = useState("");
   const [paymentToDate, setPaymentToDate] = useState("");
   const [paymentPage, setPaymentPage] = useState(1);
@@ -64,7 +70,7 @@ export function MemberMembershipDetails() {
   };
 
   const formatDateTime = (dateStr: string) =>
-    formatVnDate(dateStr, {
+    formatVnDate(ensureUtcIso(dateStr), {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -144,13 +150,55 @@ export function MemberMembershipDetails() {
   }
 
   const membership = member360?.currentMembership;
-  const pt = member360?.assignedPT;
-  const checkIns = member360?.recentCheckIns ?? [];
+  const currentPackage = packages.data?.find(
+    (item) => item.id === membership?.packageId,
+  );
+  const membershipCanPay = membership?.status === "pending_payment";
+  const pendingOrders = (member360?.membershipHistory ?? []).filter(
+    (item) => item.status === "pending_payment" && item.id !== membership?.id,
+  );
+  // Single-slot: chỉ giữ 1 đơn chờ tại một thời điểm. Đơn chờ hiện có = gói hiện
+  // tại đang chờ, hoặc đơn gia hạn tách riêng (khi đang có gói Active).
+  const pendingOrder =
+    membership?.status === "pending_payment"
+      ? membership
+      : (pendingOrders[0] ?? null);
 
-  // Backend chan 1 hoi vien co 2 goi active cung luc (ALREADY_HAS_ACTIVE) -> khoa mua.
-  const hasActiveOrPending =
-    membership?.status === "active" ||
-    membership?.status === "pending_payment";
+  function buildPaymentOrder(
+    target: NonNullable<typeof membership>,
+    amount = 0,
+  ): PaymentOrder {
+    return {
+      code: `HD-${target.id}`,
+      amount,
+      packageName: target.packageName,
+      membershipId: target.id,
+    };
+  }
+
+  function handleContinuePayment() {
+    if (!membership || !membershipCanPay) return;
+    setPaymentOrder(buildPaymentOrder(membership, currentPackage?.price ?? 0));
+    setPayOpen(true);
+  }
+
+  function handlePayOrder(order: NonNullable<typeof membership>) {
+    const pkg = packages.data?.find((item) => item.id === order.packageId);
+    setPaymentOrder(buildPaymentOrder(order, pkg?.price ?? 0));
+    setPayOpen(true);
+  }
+
+  function handleCancelOrder(orderId: number) {
+    cancelMutation.mutate(orderId, {
+      onSuccess: () => toast.success("Đã hủy đơn."),
+      onError: (err) =>
+        toast.error(
+          err instanceof Error && err.message
+            ? err.message
+            : "Hủy không thành công. Vui lòng thử lại.",
+        ),
+    });
+  }
 
   function handleCancel() {
     if (!membership) return;
@@ -171,8 +219,8 @@ export function MemberMembershipDetails() {
 
   return (
     <div className="space-y-6">
-      {/* ① Gói hiện tại + PT + Check-in */}
-      <div className="grid gap-6 md:grid-cols-3">
+      {/* ① Gói tập hiện tại */}
+      <div className="grid gap-6">
         {/* Gói tập hiện tại */}
         <div className="flex flex-col justify-between rounded-[1.5rem] border border-border/70 bg-card/75 p-6 shadow-sm backdrop-blur">
           <div>
@@ -206,7 +254,7 @@ export function MemberMembershipDetails() {
                       <StatusPill status={membership.status} />
                     </div>
                   </div>
-                  {membership.status === "pending_payment" ? (
+                  {membershipCanPay ? (
                     <>
                       <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
                         ⏳ Đơn đang chờ thanh toán. Hoàn tất thanh toán online
@@ -214,7 +262,7 @@ export function MemberMembershipDetails() {
                       </p>
                       <button
                         type="button"
-                        onClick={() => setPayOpen(true)}
+                        onClick={handleContinuePayment}
                         className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98]"
                         data-testid="continue-payment-button"
                       >
@@ -251,79 +299,62 @@ export function MemberMembershipDetails() {
           </div>
         </div>
 
-        {/* Huấn luyện viên cá nhân */}
-        <div className="flex flex-col justify-between rounded-[1.5rem] border border-border/70 bg-card/75 p-6 shadow-sm backdrop-blur">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center gap-3 text-muted-foreground text-sm font-semibold uppercase tracking-[0.08em]">
-              <User className="size-4 text-primary" />
-              <span>Huấn luyện viên cá nhân (PT)</span>
-            </div>
-            <div className="mt-4 flex-1 flex flex-col justify-between">
-              {pt ? (
-                <>
-                  <h3 className="text-2xl font-bold tracking-tight text-foreground">
-                    {pt.fullName}
-                  </h3>
-                  <p className="text-sm text-primary font-semibold mt-1">
-                    {pt.specialty}
-                  </p>
-                  <div className="mt-auto space-y-2 text-sm border-t border-border/50 pt-3">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Ngày phân công:
-                      </span>
-                      <span className="font-semibold text-foreground">
-                        {formatDate(pt.assignedAt)}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="mt-2 space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Bạn hiện tại chưa được chỉ định huấn luyện viên cá nhân.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Check-in gần đây */}
-        <div className="flex flex-col justify-between rounded-[1.5rem] border border-border/70 bg-card/75 p-6 shadow-sm backdrop-blur">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center gap-3 text-muted-foreground text-sm font-semibold uppercase tracking-[0.08em]">
-              <Activity className="size-4 text-primary" />
-              <span>Check-in gần đây</span>
-            </div>
-            <div className="mt-4 flex-1 flex flex-col justify-between">
-              <h3 className="text-2xl font-bold tracking-tight text-foreground">
-                Tổng check-in: {checkIns.length} lần
-              </h3>
-              <div className="mt-4 space-y-2 text-sm border-t border-border/50 pt-3">
-                {checkIns.length > 0 ? (
-                  checkIns.slice(0, 2).map((ci) => (
-                    <div className="flex justify-between text-sm" key={ci.id}>
-                      <span className="text-muted-foreground">
-                        Đã check-in vào:
-                      </span>
-                      <span className="font-semibold text-foreground">
-                        {formatDateTime(ci.checkInAt)}
-                      </span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    Chưa ghi nhận check-in.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* ② Mua / Đổi gói — LUÔN hiện (kiểu app thật) */}
+      {/* ② Đơn chờ thanh toán (hàng chờ) */}
+      {pendingOrders.length > 0 ? (
+        <section className="rounded-[1.5rem] border border-amber-200 bg-amber-50/50 p-6 shadow-sm">
+          <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.08em] text-amber-700">
+            <Clock className="size-4" />
+            <span>Đơn chờ thanh toán ({pendingOrders.length})</span>
+          </div>
+          <p className="mt-1 mb-4 text-sm text-amber-700/80">
+            Các đơn gia hạn bạn đã tạo nhưng chưa thanh toán. Hoàn tất để kích
+            hoạt gói.
+          </p>
+          <div className="space-y-3">
+            {pendingOrders.map((order) => {
+              const pkg = packages.data?.find(
+                (item) => item.id === order.packageId,
+              );
+              return (
+                <div
+                  key={order.id}
+                  className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <p className="font-semibold text-foreground">
+                      Gói {order.packageName}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {pkg ? formatPrice(pkg.price) : "—"} · Mã HD-{order.id}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handlePayOrder(order)}
+                      className="inline-flex h-9 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98]"
+                    >
+                      Thanh toán
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCancelOrder(order.id)}
+                      disabled={cancelMutation.isPending}
+                      className="inline-flex h-9 items-center justify-center rounded-full border border-destructive/40 px-4 text-sm font-semibold text-destructive transition hover:bg-destructive/10 active:scale-[0.98] disabled:opacity-50"
+                    >
+                      Hủy
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
+
+      {/* ③ Mua / Đổi gói — LUÔN hiện (kiểu app thật) */}
       <section
         className="rounded-[1.5rem] border border-border bg-card p-6 shadow-sm"
         data-testid="member-package-store"
@@ -334,7 +365,12 @@ export function MemberMembershipDetails() {
         <p className="mt-1 mb-4 text-sm text-muted-foreground">
           Chọn gói phù hợp để đăng ký. Thanh toán online hoặc tại quầy lễ tân.
         </p>
-        <PackageStore hasActiveOrPending={hasActiveOrPending} />
+        <PackageStore
+          currentMembership={membership ?? null}
+          pendingOrder={
+            pendingOrder ? { packageName: pendingOrder.packageName } : null
+          }
+        />
       </section>
 
       {/* ③ Lịch sử hóa đơn */}
@@ -527,16 +563,7 @@ export function MemberMembershipDetails() {
 
       <PaymentPendingDialog
         open={payOpen}
-        order={
-          membership
-            ? {
-                code: `HD-${membership.id}`,
-                amount: 0,
-                packageName: membership.packageName,
-                membershipId: membership.id,
-              }
-            : null
-        }
+        order={paymentOrder}
         onClose={() => setPayOpen(false)}
         onRetry={() => setPayOpen(false)}
       />
@@ -544,16 +571,13 @@ export function MemberMembershipDetails() {
   );
 }
 
+// Backend trả timestamp UTC nhưng EF đọc từ SQL ra Kind=Unspecified nên JSON thiếu hậu
+// tố 'Z' -> new Date() hiểu nhầm thành giờ máy (lệch -7h). Ép 'Z' để parse đúng UTC.
+function ensureUtcIso(value: string) {
+  return /[zZ]$|[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value}Z`;
+}
+
 function toDateInputValue(dateStr: string) {
-  const date = new Date(dateStr);
-
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
+  // Lọc theo NGÀY lịch Việt Nam (đồng bộ với ô từ ngày / đến ngày người dùng chọn).
+  return vnDateIso(ensureUtcIso(dateStr));
 }

@@ -32,6 +32,7 @@ export type MockPackage = {
   durationDays: number
   price: number
   status: "active" | "inactive"
+  supportsPT?: boolean
 }
 
 export type MockMembership = {
@@ -173,6 +174,7 @@ export const packages: MockPackage[] = [
     durationDays: 30,
     price: 900000,
     status: "active",
+    supportsPT: false,
   },
   {
     id: 2,
@@ -180,6 +182,7 @@ export const packages: MockPackage[] = [
     durationDays: 90,
     price: 2400000,
     status: "active",
+    supportsPT: false,
   },
 ]
 

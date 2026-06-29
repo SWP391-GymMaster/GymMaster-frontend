@@ -1,5 +1,8 @@
 import { apiRequest } from "@/lib/api/http-client"
-import type { Member360Data } from "@/features/member-360/types/member-360.types"
+import type {
+  Member360Data,
+  Member360Membership,
+} from "@/features/member-360/types/member-360.types"
 
 function authHeaders(accessToken: string) {
   return {
@@ -37,6 +40,17 @@ function normPaymentStatus(s?: string) {
   }
 }
 
+function normalizeMembership(
+  membership: Member360Membership,
+): Member360Membership {
+  return {
+    ...membership,
+    supportsPT: membership.supportsPT ?? false,
+    status: normMembershipStatus(membership.status),
+    paymentStatus: normPaymentStatus(membership.paymentStatus),
+  }
+}
+
 export async function getMember360Data(
   accessToken: string,
   memberId: number,
@@ -51,11 +65,8 @@ export async function getMember360Data(
   return {
     ...data,
     currentMembership: data.currentMembership
-      ? {
-          ...data.currentMembership,
-          status: normMembershipStatus(data.currentMembership.status),
-          paymentStatus: normPaymentStatus(data.currentMembership.paymentStatus),
-        }
+      ? normalizeMembership(data.currentMembership)
       : data.currentMembership,
+    membershipHistory: (data.membershipHistory ?? []).map(normalizeMembership),
   }
 }

@@ -39,6 +39,7 @@ export type MembershipSnapshot = {
   memberId: number
   packageId: number
   packageName: string
+  supportsPT: boolean
   status: StaffMembershipStatus
   paymentStatus: PaymentStatus
   startsAt: string
@@ -67,6 +68,7 @@ export type PackageOption = {
   price: number
   durationDays: number
   isActive: boolean
+  supportsPT: boolean
   description?: string
 }
 
@@ -160,12 +162,15 @@ export type MockPackageDto = {
   // Mock cu dung status string; backend that dung isActive boolean.
   status?: string
   isActive?: boolean
+  supportsPT?: boolean
 }
 
 export type MockMembershipDto = {
   id: number
   memberId: number
   packageId: number
+  packageName?: string
+  supportsPT?: boolean
   startDate: string
   endDate: string
   status: string

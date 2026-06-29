@@ -1,3 +1,15 @@
+export type Member360Membership = {
+  id: number
+  memberId?: number
+  packageId: number
+  packageName: string
+  supportsPT: boolean
+  startDate: string
+  endDate: string
+  status: "active" | "pending_payment" | "expired" | "cancelled"
+  paymentStatus: "paid" | "pending" | "refunded"
+}
+
 export type Member360Data = {
   member: {
     id: number
@@ -9,14 +21,8 @@ export type Member360Data = {
     dateOfBirth?: string | null
     gender?: string | null
   }
-    currentMembership?: {
-      id: number
-      packageName: string
-      startDate: string
-      endDate: string
-      status: "active" | "pending_payment" | "expired" | "cancelled"
-      paymentStatus: "paid" | "pending" | "refunded"
-    }
+  currentMembership?: Member360Membership | null
+  membershipHistory?: Member360Membership[]
   assignedPT?: {
     id: number
     fullName: string
