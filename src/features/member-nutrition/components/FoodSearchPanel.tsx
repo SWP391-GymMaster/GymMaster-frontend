@@ -1,11 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Search, Utensils, History, Heart, Scan, Info, AlertTriangle, Globe } from "lucide-react"
+import { Plus, Search, Utensils, History, Heart, Info, AlertTriangle, Globe } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import dynamic from "next/dynamic"
 
 import { cn } from "@/lib/utils"
 import { StateBlock } from "@/components/feedback/StateBlock"
@@ -22,7 +21,6 @@ import {
 import {
   useFoodSearch,
   useCreateCustomFoodItem,
-  useFoodBarcodeLookup,
   useFoodOnlineSearch,
 } from "@/features/member-nutrition/api/member-nutrition.queries"
 import { searchFoodItems } from "@/features/member-nutrition/api/member-nutrition.api"
@@ -38,11 +36,6 @@ import type {
   CreateCustomFoodInput,
 } from "@/features/member-nutrition/types/member-nutrition.types"
 import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
-
-const BarcodeScannerDialog = dynamic(
-  () => import("./BarcodeScannerDialog").then((m) => m.BarcodeScannerDialog),
-  { ssr: false }
-)
 
 const quickSearches = ["ức gà", "cơm", "chuối", "trứng", "sữa", "yến mạch"]
 
@@ -86,9 +79,7 @@ export function FoodSearchPanel({
   const [recentFoods, setRecentFoods] = useState<FoodItem[]>([])
   const [customFoods, setCustomFoods] = useState<FoodItem[]>([])
 
-  // Barcode Lookup States
-  const [isScannerOpen, setIsScannerOpen] = useState(false)
-  const [barcode, setBarcode] = useState("")
+  // Preview & confirm states (dung cho ket qua tra cuu online)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [isSavingProduct, setIsSavingProduct] = useState(false)
 
@@ -124,18 +115,8 @@ export function FoodSearchPanel({
   const foods = useFoodSearch(query)
   const canSearch = query.trim().length >= 2
 
-  const barcodeLookup = useFoodBarcodeLookup(barcode)
   const onlineSearch = useFoodOnlineSearch(query, onlineSearchTriggered)
   const createFood = useCreateCustomFoodItem()
-
-  // Handle Barcode Query response
-  useEffect(() => {
-    if (barcodeLookup.isFetching) {
-      toast.loading("Đang tìm kiếm thông tin sản phẩm...", { id: "barcode-loading" })
-    } else {
-      toast.dismiss("barcode-loading")
-    }
-  }, [barcodeLookup.isFetching])
 
   /* eslint-disable react-hooks/set-state-in-effect */
   // Reset online search when keyword changes
@@ -155,28 +136,7 @@ export function FoodSearchPanel({
     setIsPreviewOpen(true)
   }
 
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    if (barcodeLookup.data) {
-      const prod = barcodeLookup.data
-      setPreviewName(prod.name)
-      setPreviewUnit(prod.unit)
-      setPreviewCalories(prod.caloriesPerUnit)
-      setPreviewProtein(prod.proteinG || 0)
-      setPreviewCarbs(prod.carbsG || 0)
-      setPreviewFat(prod.fatG || 0)
-
-      setIsPreviewOpen(true)
-      setIsScannerOpen(false)
-      setBarcode("") // Reset query triggers
-    } else if (barcodeLookup.data === null && !barcodeLookup.isFetching && barcode !== "") {
-      toast.error("Không tìm thấy thông tin sản phẩm cho mã vạch này.")
-      setBarcode("")
-    }
-  }, [barcodeLookup.data, barcodeLookup.isFetching, barcode])
-  /* eslint-enable react-hooks/set-state-in-effect */
-
-  // Save or Select the scanned product
+  // Save or Select the previewed product
   const handleConfirmProduct = async () => {
     if (!previewName.trim() || !previewUnit.trim()) {
       toast.error("Vui lòng điền đầy đủ tên và đơn vị.")
@@ -312,7 +272,7 @@ export function FoodSearchPanel({
               <label className="block text-sm font-semibold text-foreground" htmlFor="food-search">
                 Tên thực phẩm hoặc món ăn
               </label>
-              <div className="flex gap-2 mt-2">
+              <div className="mt-2">
                 <div className="relative flex-1">
                   <Search
                     aria-hidden="true"
@@ -327,15 +287,6 @@ export function FoodSearchPanel({
                     value={query}
                   />
                 </div>
-                <Button
-                  type="button"
-                  onClick={() => setIsScannerOpen(true)}
-                  className="min-h-12 aspect-square rounded-xl border border-border bg-background hover:bg-muted text-muted-foreground transition active:scale-[0.98] shrink-0"
-                  variant="outline"
-                  title="Quét mã vạch sản phẩm"
-                >
-                  <Scan className="size-5 text-primary" />
-                </Button>
               </div>
             </div>
 
@@ -656,13 +607,6 @@ export function FoodSearchPanel({
         )}
       </div>
 
-      {/* Barcode scanner dialog */}
-      <BarcodeScannerDialog
-        isOpen={isScannerOpen}
-        onClose={() => setIsScannerOpen(false)}
-        onDetected={(code) => setBarcode(code)}
-      />
-
       {/* Nutrition preview & confirm dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
         <DialogContent className="max-w-md rounded-3xl p-0 border border-white/20 bg-background/95 backdrop-blur-xl shadow-2xl">
@@ -674,7 +618,7 @@ export function FoodSearchPanel({
               Xem trước dinh dưỡng sản phẩm
             </DialogTitle>
             <DialogDescription className="mt-1">
-              Sản phẩm tìm thấy từ cơ sở dữ liệu mã vạch. Bạn có thể chỉnh sửa lại trước khi thêm.
+              Sản phẩm tìm thấy từ tra cứu trực tuyến. Bạn có thể chỉnh sửa lại trước khi thêm.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 p-6">
