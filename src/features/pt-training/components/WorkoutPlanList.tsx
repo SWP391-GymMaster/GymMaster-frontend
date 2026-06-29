@@ -54,6 +54,7 @@ import {
 } from "@/features/pt-training/data/workout-assets"
 import { exerciseLibrary } from "@/features/pt-training/data/exercise-library"
 import type { WorkoutPlan, WorkoutExercise } from "@/features/pt-training/types/pt-training.types"
+import { formatVnDate } from "@/lib/date/vn-time"
 import { cn } from "@/lib/utils"
 
 type WorkoutPlanListProps = {
@@ -70,11 +71,7 @@ type WorkoutPlanListProps = {
 function formatDate(value?: string) {
   if (!value) return "Chưa có ngày bắt đầu"
 
-  return new Intl.DateTimeFormat("vi-VN", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(value))
+  return formatVnDate(value, { month: "short", day: "numeric", year: "numeric" })
 }
 
 export function WorkoutPlanList({

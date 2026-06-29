@@ -28,6 +28,7 @@ import {
   WorkoutPlanList,
   WorkoutPlanListHeader,
 } from "@/features/pt-training/components/WorkoutPlanList"
+import { formatVnDate } from "@/lib/date/vn-time"
 
 export function MemberWorkoutWorkspace() {
   const plansQuery = useMyWorkoutPlans()
@@ -312,9 +313,7 @@ function MemberSideCard({
 }
 
 function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat("vi-VN", { dateStyle: "medium" }).format(
-    new Date(value),
-  )
+  return formatVnDate(value, { dateStyle: "medium" })
 }
 
 function HeroStat({ label, value }: { label: string; value: string }) {

@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import type { TrainerNote } from "@/features/pt-training/types/pt-training.types"
+import { formatVnDateTime } from "@/lib/date/vn-time"
 import { cn } from "@/lib/utils"
 
 type TrainerNoteListProps = {
@@ -28,10 +29,7 @@ type TrainerNoteListProps = {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value))
+  return formatVnDateTime(value, { dateStyle: "medium", timeStyle: "short" })
 }
 
 export function TrainerNoteList({

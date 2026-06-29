@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Droplet, Plus, RotateCcw, CloudOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
-import { vnTodayIso } from "@/lib/date/vn-time";
+import { vnDateIso, vnTodayIso } from "@/lib/date/vn-time";
 
 const LOCAL_STORAGE_KEY_WATER = "gymmaster-water-logs";
 const DAILY_GOAL_ML = 2000;
@@ -17,6 +17,27 @@ interface WaterLog {
 function getLocalDateString() {
   // Khóa nhật ký nước theo NGÀY giờ VN (nhất quán toàn app, không lệ thuộc múi giờ máy).
   return vnTodayIso();
+}
+
+const DAY_LABELS = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
+
+// 7 ngày gần nhất (gồm hôm nay) theo NGÀY giờ VN. Tách ra ngoài component để không
+// gọi Date.now() trực tiếp trong thân render (lint react-hooks/purity).
+function buildLast7Days(logs: WaterLog[], todayStr: string) {
+  const now = Date.now();
+  return Array.from({ length: 7 }).map((_, idx) => {
+    const dateStr = vnDateIso(now - (6 - idx) * 86400000);
+    // Thứ (weekday) suy từ chính ngày VN: neo UTC rồi đọc getUTCDay -> không lệch múi giờ.
+    const dayIndex = new Date(`${dateStr}T00:00:00Z`).getUTCDay();
+    const log = logs.find((l) => l.date === dateStr);
+    return {
+      date: dateStr,
+      label: DAY_LABELS[dayIndex],
+      amount: log ? log.amount : 0,
+      pct: log ? Math.min(Math.round((log.amount / DAILY_GOAL_ML) * 100), 100) : 0,
+      isToday: dateStr === todayStr,
+    };
+  });
 }
 
 function loadLogs(): WaterLog[] {
@@ -107,28 +128,8 @@ export function WaterTrackerCard() {
     saveLogs(updatedLogs);
   }
 
-  // Get the last 7 days (including today) to draw the history chart
-  const last7Days = Array.from({ length: 7 }).map((_, idx) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - idx));
-    const offset = d.getTimezoneOffset();
-    const localDate = new Date(d.getTime() - offset * 60 * 1000);
-    const dateStr = localDate.toISOString().split("T")[0];
-    
-    // Day label (Vietnamese: T2, T3, T4, T5, T6, T7, CN)
-    const dayIndex = d.getDay();
-    const dayLabels = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"];
-    const label = dayLabels[dayIndex];
-
-    const log = logs.find((l) => l.date === dateStr);
-    return {
-      date: dateStr,
-      label,
-      amount: log ? log.amount : 0,
-      pct: log ? Math.min(Math.round((log.amount / DAILY_GOAL_ML) * 100), 100) : 0,
-      isToday: dateStr === todayStr,
-    };
-  });
+  // Get the last 7 days (including today) to draw the history chart.
+  const last7Days = buildLast7Days(logs, todayStr);
 
   return (
     <div className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
