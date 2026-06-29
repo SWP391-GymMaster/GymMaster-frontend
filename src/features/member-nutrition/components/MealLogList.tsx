@@ -96,7 +96,7 @@ export function MealLogList({
 
   return (
     <>
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="gm-panel p-5">
         <div className="flex items-center justify-between gap-3 border-b border-border pb-4 mb-5">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -113,7 +113,7 @@ export function MealLogList({
 
         <div className="space-y-6" data-testid="member-meal-log-list">
           {mealTypesList.map(({ key, label, icon: Icon, items, sum }) => (
-            <div key={key} className="rounded-xl border border-border bg-background/50 overflow-hidden">
+            <div key={key} className="gm-panel-muted overflow-hidden">
               {/* Clickable header */}
               <button
                 type="button"

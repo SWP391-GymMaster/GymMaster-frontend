@@ -90,7 +90,7 @@ export function AiFoodScanCard({ onSelectFood }: AiFoodScanCardProps) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background/60 p-4">
+    <div className="gm-panel-muted p-4">
       <input
         ref={fileInputRef}
         accept="image/jpeg,image/png"

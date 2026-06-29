@@ -32,7 +32,7 @@ export default function VnPayReturnPage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4">
-      <div className="w-full max-w-xl rounded-[1.5rem] border border-border/70 bg-card p-8 shadow-xl">
+      <div className="gm-panel w-full max-w-xl p-8">
         {status === "loading" ? (
           <div className="text-center">
             <p className="text-lg font-semibold text-foreground">
@@ -41,7 +41,7 @@ export default function VnPayReturnPage() {
           </div>
         ) : status === "success" ? (
           <div className="text-center">
-            <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+            <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
               <CheckCircle2 className="size-8" />
             </span>
             <h1 className="mt-6 text-2xl font-semibold text-foreground">

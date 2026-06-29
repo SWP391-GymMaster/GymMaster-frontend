@@ -356,7 +356,7 @@ export function WorkoutPlanForm({
 
   return (
     <form
-      className="rounded-2xl border border-border bg-card shadow-sm"
+      className="gm-panel"
       onSubmit={form.handleSubmit(handleSubmit)}
     >
       <div className="border-b border-border p-5">
@@ -587,7 +587,7 @@ function TrainingContextStep({
         </div>
       </div>
 
-      <aside className="rounded-2xl border border-border bg-background p-4">
+      <aside className="gm-panel-muted p-4">
         <p className="text-sm font-semibold text-foreground">Kết quả lọc</p>
         <p className="mt-3 text-4xl font-semibold tracking-tight text-primary">
           {filteredExercisesCount}
@@ -649,7 +649,7 @@ function PresetStep({
             ))}
           </div>
 
-          <div className="rounded-2xl border border-border bg-background p-4">
+          <div className="gm-panel-muted p-4">
             <p className="text-sm font-semibold text-foreground">
               Số buổi tập mỗi tuần
             </p>
@@ -677,7 +677,7 @@ function PresetStep({
               "rounded-2xl border p-4",
               recommendedPresets.mode === "exact"
                 ? "border-primary/20 bg-primary/5 dark:border-primary/10 dark:bg-primary/5"
-                : "border-orange-200 bg-orange-50 dark:border-orange-500/20 dark:bg-orange-950/20",
+                : "border-[var(--status-warning)]/30 bg-[var(--status-warning)]/10",
             )}
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
@@ -690,7 +690,7 @@ function PresetStep({
                     "mt-1 text-xs leading-5",
                     recommendedPresets.mode === "exact"
                       ? "text-muted-foreground"
-                      : "text-orange-800 dark:text-orange-300",
+                      : "text-[var(--status-warning)]",
                   )}
                 >
                   {recommendedPresets.message}
@@ -701,7 +701,7 @@ function PresetStep({
                   "w-fit rounded-full px-3 py-1 text-xs font-semibold",
                   recommendedPresets.mode === "exact"
                     ? "bg-primary/10 text-primary"
-                    : "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300",
+                    : "bg-[var(--status-warning)]/15 text-[var(--status-warning)]",
                 )}
               >
                 {recommendedPresets.items.length} preset
@@ -734,7 +734,7 @@ function PresetStep({
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-border bg-background p-4">
+        <aside className="gm-panel-muted p-4">
           <p className="text-sm font-semibold text-foreground">Preset đang chọn</p>
           {selectedPreset ? (
             <div className="mt-4">
@@ -833,7 +833,7 @@ function ExerciseEditorStep({
 
           return (
             <div
-              className="rounded-2xl border border-border bg-background p-4"
+              className="gm-panel-muted p-4"
               key={field.id}
             >
               <div className="flex items-center justify-between gap-3">
@@ -1049,7 +1049,7 @@ function ReviewStep({
           title="Xem trước & lưu"
         />
 
-        <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-background">
+        <div className="gm-panel-muted mt-5 overflow-hidden">
           <div className="border-b border-border bg-primary/10 p-4">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
               Workout Preview
@@ -1095,7 +1095,7 @@ function ReviewStep({
         </div>
       </div>
 
-      <aside className="rounded-2xl border border-border bg-background p-4 flex flex-col justify-between">
+      <aside className="gm-panel-muted flex flex-col justify-between p-4">
         <div>
           <p className="text-sm font-semibold text-foreground">Tóm tắt giáo án</p>
           <div className="mt-4 grid gap-3">

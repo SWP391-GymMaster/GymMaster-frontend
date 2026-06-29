@@ -66,7 +66,7 @@ export function PackageListWorkspace() {
               className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             />
             <Input
-              className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+              className="gm-field min-h-11 w-full pl-11 pr-4 text-sm text-foreground transition placeholder:text-muted-foreground"
               placeholder="Tìm kiếm gói tập..."
               type="search"
               value={searchTerm}
@@ -97,7 +97,7 @@ export function PackageListWorkspace() {
               value={statusFilter}
               onValueChange={(val: string) => setStatusFilter(val as "all" | "active" | "inactive")}
             >
-              <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+              <SelectTrigger className="gm-field min-h-11 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
                 <SelectValue placeholder="Tất cả trạng thái" />
               </SelectTrigger>
               <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
@@ -143,7 +143,7 @@ export function PackageListWorkspace() {
           {filteredPackages.map((pkg) => (
             <div
               key={pkg.id}
-              className="group flex flex-col justify-between rounded-[1.5rem] border border-border/70 bg-card/75 p-6 shadow-sm backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+              className="gm-interactive-card group flex min-h-[248px] flex-col justify-between p-6 backdrop-blur"
               data-testid={`package-card-${pkg.id}`}
             >
               <div>
@@ -153,7 +153,7 @@ export function PackageListWorkspace() {
                       {pkg.name}
                     </h3>
                     {pkg.supportsPT ? (
-                      <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                      <span className="inline-flex w-fit items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary ring-1 ring-primary/15">
                         Có PT
                       </span>
                     ) : null}

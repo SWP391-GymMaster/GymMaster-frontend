@@ -43,6 +43,13 @@ const demoUsers: Record<UserRole, AuthUser> = {
 
 const userRoles = ["admin", "staff", "pt", "member"] as const
 
+const demoPasswords: Record<UserRole, string[]> = {
+  admin: ["Password123!", "Admin123!"],
+  staff: ["Password123!", "Staff123!"],
+  pt: ["Password123!", "Pt123!"],
+  member: ["Password123!", "Member123!"],
+}
+
 let refreshTokenSequence = 1
 let validRefreshTokens = new Map<string, UserRole>()
 
@@ -128,7 +135,7 @@ export const authHandlers = [
       email.startsWith(`${item}@`),
     )
 
-    if (!role || body.password !== "Password123!") {
+    if (!role || !demoPasswords[role].includes(body.password ?? "")) {
       return fail("INVALID_CREDENTIALS", "Invalid credentials", 401)
     }
 

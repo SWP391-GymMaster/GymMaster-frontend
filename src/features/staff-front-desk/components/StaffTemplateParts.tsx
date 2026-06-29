@@ -34,7 +34,7 @@ export function StaffWizardStepper({
   return (
     <nav
       aria-label="Staff operation steps"
-      className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+      className="gm-panel p-4"
     >
       <div className="grid gap-3 md:grid-cols-4">
         {steps.map((step, index) => {
@@ -45,7 +45,7 @@ export function StaffWizardStepper({
             <div className="flex items-center gap-3" key={step}>
               <span
                 className={cn(
-                  "flex size-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition",
+                  "flex size-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] transition",
                   isDone
                     ? "border-primary bg-primary text-primary-foreground"
                     : isActive
@@ -98,7 +98,7 @@ export function StaffSearchPanel({
   registerInput,
 }: StaffSearchPanelProps) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-start gap-3">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Search aria-hidden="true" className="size-5" />
@@ -118,14 +118,14 @@ export function StaffSearchPanel({
           {label}
         </label>
         <input
-          className="min-h-12 flex-1 rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+          className="gm-field min-h-12 flex-1 px-4 text-sm text-foreground transition placeholder:text-muted-foreground"
           data-testid={testId}
           id={id}
           placeholder={placeholder}
           {...registerInput}
         />
         <button
-          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+          className="inline-flex min-h-12 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_12px_26px_color-mix(in_oklch,var(--primary)_26%,transparent)] transition hover:brightness-95 active:scale-[0.98]"
           type="submit"
         >
           <Search aria-hidden="true" className="size-4" />
@@ -163,7 +163,7 @@ export function StaffMemberCard({
 }: StaffMemberCardProps) {
   return (
     <button
-      className="rounded-xl border border-border bg-background p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98] data-[selected=true]:border-primary/40 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-sm"
+      className="gm-interactive-card p-4 text-left active:scale-[0.98] data-[selected=true]:border-primary/40 data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[var(--shadow-panel)]"
       data-selected={selected}
       onClick={onSelect}
       type="button"
@@ -209,7 +209,7 @@ export function PackageCard({
 
   return (
     <button
-      className="group relative flex min-h-[17rem] flex-col rounded-2xl border border-border bg-card p-5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 data-[selected=true]:border-primary data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-primary/10"
+      className="gm-interactive-card group relative flex min-h-[17rem] flex-col p-5 text-left active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 data-[selected=true]:border-primary data-[selected=true]:bg-primary/10 data-[selected=true]:shadow-[0_18px_44px_color-mix(in_oklch,var(--primary)_18%,transparent)]"
       data-selected={selected}
       disabled={!gymPackage.isActive}
       onClick={onSelect}
@@ -296,12 +296,12 @@ export function OrderSummaryShell({
   footer,
 }: OrderSummaryShellProps) {
   return (
-    <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm lg:sticky lg:top-24">
+    <aside className="gm-panel p-5 lg:sticky lg:top-24">
       <p className="border-b border-border pb-3 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">
         {title}
       </p>
 
-      <div className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-background p-3">
+      <div className="gm-panel-muted mt-4 flex items-center gap-3 p-3">
         <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
           <UserRound aria-hidden="true" className="size-5" />
         </span>
@@ -337,7 +337,7 @@ export function CheckInResultPanel({
   return (
     <div
       className={cn(
-        "mt-5 rounded-2xl border p-5",
+        "mt-5 rounded-[1.5rem] border p-5 shadow-[var(--shadow-soft)]",
         isSuccess
           ? "border-primary/20 bg-primary/10 text-foreground"
           : "border-destructive/20 bg-destructive/10 text-destructive",
@@ -381,7 +381,7 @@ export function PaymentRequiredBanner({
   error,
 }: PaymentRequiredBannerProps) {
   return (
-    <section className="rounded-2xl border border-orange-200 bg-orange-50 p-4">
+    <section className="rounded-[1.5rem] border border-orange-200/80 bg-orange-50/80 p-4 shadow-[var(--shadow-soft)]">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex gap-3">
           <span className="flex size-10 items-center justify-center rounded-full bg-orange-100 text-orange-700">
@@ -399,7 +399,7 @@ export function PaymentRequiredBanner({
         <StatusPill status="pending" />
       </div>
       <button
-        className="mt-4 min-h-11 rounded-xl bg-foreground px-5 text-sm font-semibold text-background transition hover:bg-foreground/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-4 min-h-11 rounded-full bg-foreground px-5 text-sm font-semibold text-background transition hover:bg-foreground/90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         data-testid="staff-record-payment-button"
         disabled={isPending}
         onClick={onRecordPayment}
@@ -414,7 +414,7 @@ export function PaymentRequiredBanner({
 
 export function PaymentCompleteBanner({ message }: { message?: string }) {
   return (
-    <p className="mt-4 flex items-start gap-3 rounded-2xl bg-primary/10 p-4 text-sm font-medium text-foreground">
+    <p className="mt-4 flex items-start gap-3 rounded-[1.25rem] border border-primary/20 bg-primary/10 p-4 text-sm font-medium text-foreground">
       <CheckCircle2 aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
       {message ?? "Đã ghi nhận thanh toán. Gói hội viên đang hoạt động."}
     </p>
@@ -423,7 +423,7 @@ export function PaymentCompleteBanner({ message }: { message?: string }) {
 
 export function BlockedHint({ children }: { children: ReactNode }) {
   return (
-    <p className="flex items-start gap-2 rounded-2xl bg-destructive/10 p-3 text-sm font-medium text-destructive">
+    <p className="flex items-start gap-2 rounded-[1.25rem] border border-destructive/20 bg-destructive/10 p-3 text-sm font-medium text-destructive">
       <XCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
       {children}
     </p>

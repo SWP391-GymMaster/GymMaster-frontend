@@ -131,7 +131,7 @@ export function WaterTrackerCard() {
   });
 
   return (
-    <div className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <div className="gm-panel flex flex-col justify-between overflow-hidden p-5">
       <style>{`
         @keyframes waveMove {
           0% { transform: translate(-50%, 0) rotate(0deg); }
@@ -216,14 +216,14 @@ export function WaterTrackerCard() {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => handleAddWater(250)}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background min-h-11 py-2.5 text-xs font-bold text-foreground transition hover:bg-muted active:scale-[0.96]"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-[var(--surface-panel)] py-2.5 text-xs font-bold text-foreground transition hover:bg-muted active:scale-[0.96]"
             >
               <Plus className="size-3.5 text-cyan-500" />
               250ml
             </button>
             <button
               onClick={() => handleAddWater(500)}
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-background min-h-11 py-2.5 text-xs font-bold text-foreground transition hover:bg-muted active:scale-[0.96]"
+              className="flex min-h-11 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-[var(--surface-panel)] py-2.5 text-xs font-bold text-foreground transition hover:bg-muted active:scale-[0.96]"
             >
               <Plus className="size-3.5 text-cyan-500" />
               500ml
@@ -253,7 +253,7 @@ export function WaterTrackerCard() {
                 <div 
                   className={cn(
                     "absolute bottom-0 left-0 right-0 rounded-full transition-all duration-300",
-                    day.isToday ? "bg-cyan-500" : day.pct >= 100 ? "bg-emerald-500" : "bg-cyan-500/40"
+                    day.isToday ? "bg-[var(--status-info)]" : day.pct >= 100 ? "bg-primary" : "bg-[var(--status-info)]/40"
                   )}
                   style={{ height: `${day.pct}%` }}
                 />

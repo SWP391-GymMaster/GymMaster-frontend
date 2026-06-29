@@ -261,17 +261,17 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
                 </div>
               </div>
               <div className="flex-1 grid grid-cols-3 gap-2 w-full text-center">
-                <div className="rounded-xl bg-background border border-border/80 p-2">
+                <div className="gm-panel-muted p-2">
                   <p className="text-xs font-bold uppercase tracking-[0.1em] text-green-500">Carbs</p>
                   <p className="mt-1 text-sm font-bold text-foreground">{cG}g</p>
                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">{carbsPct}% calo</p>
                 </div>
-                <div className="rounded-xl bg-background border border-border/80 p-2">
+                <div className="gm-panel-muted p-2">
                   <p className="text-xs font-bold uppercase tracking-[0.1em] text-sky-500">Protein</p>
                   <p className="mt-1 text-sm font-bold text-foreground">{pG}g</p>
                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">{proteinPct}% calo</p>
                 </div>
-                <div className="rounded-xl bg-background border border-border/80 p-2">
+                <div className="gm-panel-muted p-2">
                   <p className="text-xs font-bold uppercase tracking-[0.1em] text-amber-500">Fat</p>
                   <p className="mt-1 text-sm font-bold text-foreground">{fG}g</p>
                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">{fatPct}% calo</p>
@@ -375,7 +375,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-background p-4 mt-2">
+          <div className="gm-panel-muted mt-2 p-4">
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm text-muted-foreground">Ước tính lượng Calo</span>
               <span className="text-lg font-bold text-foreground">{formatCalories(estimatedCalories)}</span>
@@ -407,7 +407,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
 
   function CartSection() {
     return (
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="gm-panel p-5">
         <div className="flex items-center gap-2">
           <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
             <ClipboardList className="size-4.5" />
@@ -435,7 +435,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
               {cart.map((line) => (
                 <li
                   key={line.uid}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3"
+                  className="gm-panel-muted flex items-center justify-between gap-3 p-3"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -465,7 +465,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
               ))}
             </ul>
 
-            <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-background p-4">
+            <div className="gm-panel-muted mt-4 flex items-center justify-between p-4">
               <span className="text-sm text-muted-foreground">Tổng calo</span>
               <span className="text-lg font-bold text-foreground">
                 {formatCalories(cartTotalCalories)}
@@ -502,7 +502,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
 
       {/* DESKTOP: always-visible right panel (hidden on mobile) */}
       {isDesktop && (
-        <section className="hidden lg:flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <section className="gm-panel hidden flex-col p-5 lg:flex">
           <div className="flex items-start gap-3">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Utensils aria-hidden="true" className="size-5" />

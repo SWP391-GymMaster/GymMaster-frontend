@@ -160,7 +160,7 @@ export function PackageStore({
           description="Hiện chưa có gói đang bán phù hợp với trạng thái gói hiện tại."
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {activePackages.map((p) => {
             const currentEndDate = currentMembership?.endDate;
             const newEndDate =
@@ -171,25 +171,27 @@ export function PackageStore({
             return (
               <div
                 key={p.id}
-                className="flex flex-col rounded-[1.5rem] border border-border/70 bg-card p-6 shadow-sm"
+                className="flex h-full min-h-[228px] flex-col rounded-[1.5rem] border border-border/80 bg-[var(--surface-panel)] p-6 shadow-[var(--shadow-soft)] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-[var(--shadow-panel)]"
                 data-testid={`store-package-${p.id}`}
               >
-                <h3 className="text-lg font-bold tracking-tight text-foreground">
+                <div className="min-h-[3.75rem]">
+                <h3 className="min-h-7 text-lg font-bold tracking-tight text-foreground">
                   {p.name}
                 </h3>
                 {p.supportsPT ? (
-                  <span className="mt-2 inline-flex w-fit items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                  <span className="mt-2 inline-flex w-fit items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary ring-1 ring-primary/15">
                     Có PT
                   </span>
                 ) : null}
-                <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+                </div>
+                <p className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
                   {formatPrice(p.price)}
                   <span className="ml-1 text-sm font-normal text-muted-foreground">
                     / {p.durationDays} ngày
                   </span>
                 </p>
                 {newEndDate && currentEndDate ? (
-                  <p className="mt-3 rounded-xl bg-muted/50 px-3 py-2 text-xs font-semibold text-muted-foreground">
+                  <p className="mt-4 rounded-2xl border border-border/70 bg-muted/45 px-3 py-2 text-xs font-semibold leading-5 text-muted-foreground">
                     Hạn mới: {formatDate(currentEndDate)} +{" "}
                     {p.durationDays} ngày = {formatDate(newEndDate)}
                   </p>
@@ -198,7 +200,7 @@ export function PackageStore({
                   type="button"
                   disabled={hasPendingMembership || renewMutation.isPending}
                   onClick={() => handleBuy(p.id)}
-                  className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-auto inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_12px_26px_color-mix(in_oklch,var(--primary)_26%,transparent)] transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
                   data-testid={`buy-package-${p.id}`}
                 >
                   {renewMutation.isPending

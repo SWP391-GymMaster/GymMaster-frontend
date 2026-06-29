@@ -200,7 +200,7 @@ export function StaffDashboard() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <aside className="gm-panel p-5">
           <p className="text-sm font-semibold text-foreground">Tổng quan hôm nay</p>
           <div className="mt-5 space-y-2 text-sm">
             <SummaryLine label="Check-in" value={String(view.checkInsToday)} />
@@ -217,7 +217,7 @@ export function StaffDashboard() {
         </aside>
       </section>
 
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="gm-panel p-5">
         <div className="flex items-end justify-between gap-4">
           <div>
             <h3 className="text-xl font-semibold tracking-tight text-foreground">
@@ -241,7 +241,7 @@ export function StaffDashboard() {
 
             return (
               <Link
-                className="group rounded-2xl border border-border bg-background p-5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
+                className="gm-interactive-card group p-5 text-center active:scale-[0.98]"
                 href={action.href}
                 key={action.href}
               >
@@ -261,7 +261,7 @@ export function StaffDashboard() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="gm-panel p-5">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-xl font-semibold tracking-tight text-foreground">
               Hôm nay cần xử lý
@@ -303,7 +303,7 @@ export function StaffDashboard() {
           )}
         </div>
 
-        <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <aside className="gm-panel p-5">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold tracking-tight text-foreground">
               Hoạt động gần đây
@@ -354,11 +354,11 @@ function FrontDeskMetric({
     success: "bg-primary/10 text-primary",
     warning: "bg-orange-500/10 text-orange-600",
     danger: "bg-destructive/10 text-destructive",
-    info: "bg-blue-500/10 text-blue-600",
+    info: "bg-[var(--status-info-bg)] text-[var(--status-info-text)]",
   }[tone]
 
   return (
-    <article className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <article className="gm-panel p-5">
       <span className={`flex size-11 items-center justify-center rounded-full ${toneClass}`}>
         <Icon aria-hidden="true" className="size-5" />
       </span>

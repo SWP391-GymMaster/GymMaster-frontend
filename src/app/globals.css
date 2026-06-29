@@ -7,8 +7,8 @@
 @layer base {
   /* Custom scrollbars globally using token colors */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
   }
 
   ::-webkit-scrollbar-track {
@@ -16,19 +16,21 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--border);
+    background-color: var(--scrollbar-thumb);
     border-radius: 9999px;
-    transition: background 0.2s ease;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    transition: background-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--muted-foreground);
+    background-color: var(--scrollbar-thumb-hover);
   }
 
   /* Support for Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
   }
 
   /* Ẩn scrollbar cho Chrome, Safari và Opera */
@@ -47,17 +49,18 @@
     overflow-x: auto;
     /* Tránh việc nhảy giao diện trên Firefox */
     scrollbar-gutter: stable both-edges;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
   }
 
   /* 2. Mặc định ẩn hoàn toàn thanh cuộn bằng cách cho độ dày bằng 0 */
   .custom-scrollbar::-webkit-scrollbar {
-    height: 0px;
-    transition: all 0.2s ease;
+    height: 8px;
   }
 
   /* 3. KHI HOVER: Bật độ dày thanh cuộn lên, nhưng dùng màu suốt và border để tạo hiệu ứng "float" */
   .custom-scrollbar:hover::-webkit-scrollbar {
-    height: 6px; /* Thanh cuộn xuất hiện */
+    height: 8px; /* Thanh cuộn xuất hiện */
   }
 
   /* Thanh ray (Track) luôn trong suốt để không chiếm không gian màu của thẻ */
@@ -67,12 +70,14 @@
 
   /* Cục cuộn (Thumb) */
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 10px;
+    background-color: var(--scrollbar-thumb);
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--muted-foreground);
+    background-color: var(--scrollbar-thumb-hover);
   }
 }
 
@@ -127,28 +132,28 @@
 
 :root {
   --gym-iron: oklch(0.16 0.015 145);
-  --gym-lime: oklch(0.66 0.19 142);
+  --gym-lime: oklch(0.6 0.16 142);
   --gym-steel: oklch(0.58 0.095 210);
   --gym-orange: oklch(0.62 0.2 35);
   --gym-mat: oklch(0.95 0.018 150);
   --gym-chalk: oklch(0.99 0.004 120);
-  --background: oklch(0.985 0.006 120);
+  --background: oklch(0.982 0.007 128);
   --foreground: var(--gym-iron);
-  --card: oklch(1 0 0);
+  --card: oklch(0.998 0.003 120);
   --card-foreground: var(--gym-iron);
-  --popover: oklch(1 0 0);
+  --popover: oklch(0.998 0.003 120);
   --popover-foreground: var(--gym-iron);
   --primary: var(--gym-lime);
-  --primary-foreground: oklch(0.985 0.006 120);
-  --secondary: oklch(0.94 0.018 150);
+  --primary-foreground: oklch(0.99 0.004 120);
+  --secondary: oklch(0.945 0.014 150);
   --secondary-foreground: var(--gym-iron);
-  --muted: oklch(0.94 0.012 145);
-  --muted-foreground: oklch(0.44 0.018 145);
-  --accent: oklch(0.92 0.045 145);
+  --muted: oklch(0.945 0.01 145);
+  --muted-foreground: oklch(0.42 0.018 145);
+  --accent: oklch(0.92 0.035 145);
   --accent-foreground: var(--gym-iron);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.88 0.012 145);
-  --input: oklch(0.88 0.012 145);
+  --border: oklch(0.86 0.012 145);
+  --input: oklch(0.88 0.01 145);
   --ring: var(--gym-lime);
   --chart-1: var(--gym-lime);
   --chart-2: var(--gym-steel);
@@ -156,13 +161,13 @@
   --chart-4: oklch(0.64 0.18 28);
   --chart-5: oklch(0.32 0.025 145);
   --radius: 0.625rem;
-  --sidebar: oklch(0.18 0.018 145);
-  --sidebar-foreground: oklch(0.96 0.01 145);
+  --sidebar: var(--surface-panel);
+  --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--gym-lime);
-  --sidebar-primary-foreground: var(--gym-iron);
-  --sidebar-accent: oklch(0.24 0.02 145);
-  --sidebar-accent-foreground: oklch(0.96 0.01 145);
-  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-panel-muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: color-mix(in oklch, var(--border) 78%, transparent);
   --sidebar-ring: var(--gym-lime);
   --status-active-bg: oklch(0.92 0.07 145);
   --status-active-border: oklch(0.66 0.19 142 / 35%);
@@ -179,6 +184,128 @@
   --status-muted-bg: oklch(0.9 0.008 145);
   --status-muted-border: oklch(0.62 0.015 145 / 35%);
   --status-muted-text: oklch(0.31 0.015 145);
+  --surface-canvas: color-mix(in oklch, var(--background) 92%, var(--primary) 8%);
+  --surface-panel: color-mix(in oklch, var(--card) 92%, var(--background) 8%);
+  --surface-panel-muted: color-mix(in oklch, var(--muted) 72%, var(--card) 28%);
+  --surface-panel-strong: color-mix(in oklch, var(--foreground) 94%, var(--primary) 6%);
+  --surface-input: color-mix(in oklch, var(--card) 82%, var(--muted) 18%);
+  --scrollbar-size: 10px;
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: color-mix(in oklch, var(--foreground) 20%, var(--primary) 10%);
+  --scrollbar-thumb-hover: color-mix(in oklch, var(--foreground) 34%, var(--primary) 18%);
+  --scrollbar-thumb-active: color-mix(in oklch, var(--foreground) 46%, var(--primary) 24%);
+  --workspace-canvas: radial-gradient(circle at 12% 0%, color-mix(in oklch, var(--primary) 13%, transparent) 0, transparent 34rem), radial-gradient(circle at 92% 12%, color-mix(in oklch, var(--gym-steel) 9%, transparent) 0, transparent 30rem), linear-gradient(135deg, var(--surface-canvas), var(--background) 46%, var(--surface-panel-muted));
+  --shadow-soft: 0 1px 0 color-mix(in oklch, var(--foreground) 7%, transparent), 0 18px 44px color-mix(in oklch, var(--foreground) 9%, transparent);
+  --shadow-panel: 0 1px 0 color-mix(in oklch, var(--foreground) 6%, transparent), 0 22px 60px color-mix(in oklch, var(--foreground) 11%, transparent);
+  --shadow-elevated: 0 26px 80px color-mix(in oklch, var(--foreground) 18%, transparent);
+}
+
+@layer components {
+  .gm-panel {
+    border: 1px solid color-mix(in oklch, var(--border) 82%, transparent);
+    border-radius: 1.5rem;
+    background: var(--surface-panel);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .gm-panel-muted {
+    border: 1px solid color-mix(in oklch, var(--border) 74%, transparent);
+    border-radius: 1.25rem;
+    background: color-mix(in oklch, var(--surface-panel-muted) 72%, var(--card) 28%);
+  }
+
+  .gm-interactive-card {
+    border: 1px solid color-mix(in oklch, var(--border) 82%, transparent);
+    border-radius: 1.25rem;
+    background: var(--surface-panel);
+    box-shadow: var(--shadow-soft);
+    transition:
+      transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 200ms cubic-bezier(0.22, 1, 0.36, 1),
+      background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .gm-interactive-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklch, var(--primary) 28%, var(--border));
+    box-shadow: var(--shadow-panel);
+  }
+
+  .gm-field {
+    border: 1px solid color-mix(in oklch, var(--border) 82%, transparent);
+    border-radius: 1rem;
+    background: var(--surface-input);
+    box-shadow: inset 0 1px 0 color-mix(in oklch, var(--foreground) 4%, transparent);
+  }
+
+  .gm-field:focus,
+  .gm-field:focus-visible {
+    border-color: color-mix(in oklch, var(--primary) 58%, var(--border));
+    background: var(--card);
+    box-shadow:
+      0 0 0 4px color-mix(in oklch, var(--primary) 12%, transparent),
+      inset 0 1px 0 color-mix(in oklch, var(--foreground) 4%, transparent);
+    outline: none;
+  }
+
+  .gm-dialog-surface {
+    border: 1px solid color-mix(in oklch, var(--border) 76%, transparent);
+    border-radius: 1.875rem;
+    background:
+      radial-gradient(circle at 18% 0%, color-mix(in oklch, var(--primary) 10%, transparent), transparent 18rem),
+      linear-gradient(180deg, color-mix(in oklch, var(--surface-panel) 96%, var(--primary) 4%), var(--surface-panel));
+    box-shadow:
+      0 1px 0 color-mix(in oklch, var(--foreground) 7%, transparent),
+      0 28px 90px color-mix(in oklch, var(--foreground) 20%, transparent);
+  }
+
+  .gm-dialog-dark {
+    border-color: oklch(1 0 0 / 12%);
+    background:
+      radial-gradient(circle at 18% 0%, color-mix(in oklch, var(--primary) 18%, transparent), transparent 18rem),
+      linear-gradient(180deg, oklch(0.19 0.018 145 / 98%), oklch(0.11 0.014 145 / 98%));
+    color: oklch(0.96 0.008 145);
+  }
+
+  .gm-dialog-header {
+    border-bottom: 1px solid color-mix(in oklch, var(--border) 72%, transparent);
+    background: color-mix(in oklch, var(--surface-panel-muted) 42%, transparent);
+    padding: 1.375rem 1.5rem 1.25rem;
+  }
+
+  .gm-dialog-body {
+    max-height: min(68dvh, 42rem);
+    overflow-y: auto;
+    padding: 1.5rem;
+    scrollbar-gutter: stable;
+  }
+
+  .gm-dialog-footer {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+    border-top: 1px solid color-mix(in oklch, var(--border) 72%, transparent);
+    background: color-mix(in oklch, var(--surface-panel-muted) 34%, transparent);
+    padding: 1rem 1.5rem 1.25rem;
+  }
+
+  .gm-dialog-label {
+    display: block;
+    color: var(--muted-foreground);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .gm-dialog-footer {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
 }
 
 .dark {
@@ -234,39 +361,65 @@
   --status-muted-bg: oklch(0.24 0.015 145);
   --status-muted-border: oklch(0.68 0.012 145 / 35%);
   --status-muted-text: oklch(0.82 0.008 145);
+  --surface-canvas: color-mix(in oklch, var(--background) 90%, var(--primary) 10%);
+  --surface-panel: color-mix(in oklch, var(--card) 88%, white 3%);
+  --surface-panel-muted: color-mix(in oklch, var(--muted) 76%, var(--card) 24%);
+  --surface-panel-strong: color-mix(in oklch, var(--foreground) 8%, black 92%);
+  --surface-input: color-mix(in oklch, var(--card) 72%, white 8%);
+  --scrollbar-thumb: color-mix(in oklch, var(--foreground) 22%, var(--primary) 10%);
+  --scrollbar-thumb-hover: color-mix(in oklch, var(--foreground) 36%, var(--primary) 18%);
+  --scrollbar-thumb-active: color-mix(in oklch, var(--foreground) 50%, var(--primary) 24%);
+  --workspace-canvas: radial-gradient(circle at 12% 0%, color-mix(in oklch, var(--primary) 12%, transparent) 0, transparent 34rem), radial-gradient(circle at 92% 12%, color-mix(in oklch, var(--gym-steel) 12%, transparent) 0, transparent 30rem), linear-gradient(135deg, var(--surface-canvas), var(--background) 46%, var(--surface-panel-muted));
+  --shadow-soft: 0 1px 0 color-mix(in oklch, white 8%, transparent), 0 18px 44px color-mix(in oklch, black 32%, transparent);
+  --shadow-panel: 0 1px 0 color-mix(in oklch, white 8%, transparent), 0 22px 60px color-mix(in oklch, black 38%, transparent);
+  --shadow-elevated: 0 26px 80px color-mix(in oklch, black 52%, transparent);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
     scrollbar-width: thin;
-    scrollbar-color: var(--border) var(--background);
+    scrollbar-color: var(--scrollbar-thumb) transparent;
   }
   body {
     @apply bg-background text-foreground;
+    font-variant-numeric: tabular-nums;
     overscroll-behavior-y: none;
+    text-rendering: geometricPrecision;
   }
   html {
     @apply font-sans;
     overscroll-behavior-y: none;
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
   }
 
-  /* Custom Global Scrollbar for Webkit Browsers */
+  /* Global floating scrollbar for WebKit browsers */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: var(--scrollbar-size);
+    height: var(--scrollbar-size);
   }
   ::-webkit-scrollbar-track {
-    background: var(--background);
+    background: var(--scrollbar-track);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--border);
+    min-height: 2.5rem;
+    background-color: var(--scrollbar-thumb);
     border-radius: 9999px;
-    border: 2px solid var(--background);
-    transition: background 0.15s ease;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    transition:
+      background-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--muted-foreground);
+    background-color: var(--scrollbar-thumb-hover);
+  }
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--scrollbar-thumb-active);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }
 
@@ -283,36 +436,36 @@
 /* ────────────────────────────────────────────────────────────────── */
 .theme-lime {
   /* Surfaces */
-  --background: oklch(0.985 0.006 120);
+  --background: oklch(0.982 0.007 128);
   --foreground: oklch(0.16 0.015 145);
-  --card: oklch(1 0 0);
+  --card: oklch(0.998 0.003 120);
   --card-foreground: oklch(0.16 0.015 145);
-  --popover: oklch(1 0 0);
+  --popover: oklch(0.998 0.003 120);
   --popover-foreground: oklch(0.16 0.015 145);
   /* Primary accent */
   --primary: var(--gym-lime);
-  --primary-foreground: oklch(0.985 0.006 120);
+  --primary-foreground: oklch(0.99 0.004 120);
   --ring: var(--gym-lime);
   /* Secondary / muted */
-  --secondary: oklch(0.94 0.018 150);
+  --secondary: oklch(0.945 0.014 150);
   --secondary-foreground: oklch(0.16 0.015 145);
-  --muted: oklch(0.94 0.012 145);
-  --muted-foreground: oklch(0.44 0.018 145);
-  --accent: oklch(0.92 0.045 145);
+  --muted: oklch(0.945 0.01 145);
+  --muted-foreground: oklch(0.42 0.018 145);
+  --accent: oklch(0.92 0.035 145);
   --accent-foreground: oklch(0.16 0.015 145);
   /* Borders */
-  --border: oklch(0.88 0.012 145);
-  --input: oklch(0.88 0.012 145);
+  --border: oklch(0.86 0.012 145);
+  --input: oklch(0.88 0.01 145);
   /* Charts */
   --chart-1: var(--gym-lime);
-  /* Sidebar — dark iron-green */
-  --sidebar: oklch(0.18 0.018 145);
-  --sidebar-foreground: oklch(0.96 0.01 145);
+  /* Sidebar - light shell surface, aligned with panels */
+  --sidebar: var(--surface-panel);
+  --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--gym-lime);
-  --sidebar-primary-foreground: oklch(0.16 0.015 145);
-  --sidebar-accent: oklch(0.24 0.02 145);
-  --sidebar-accent-foreground: oklch(0.96 0.01 145);
-  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-panel-muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: color-mix(in oklch, var(--border) 78%, transparent);
   --sidebar-ring: var(--gym-lime);
   /* Status active */
   --status-active-bg: oklch(0.92 0.07 145);
@@ -378,14 +531,14 @@
   --input: oklch(0.86 0.014 215);
   /* Charts */
   --chart-1: var(--gym-steel);
-  /* Sidebar — deep navy */
-  --sidebar: oklch(0.15 0.035 232);
-  --sidebar-foreground: oklch(0.94 0.01 218);
+  /* Sidebar - light shell surface, aligned with panels */
+  --sidebar: var(--surface-panel);
+  --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--gym-steel);
-  --sidebar-primary-foreground: oklch(0.15 0.035 232);
-  --sidebar-accent: oklch(0.21 0.03 228);
-  --sidebar-accent-foreground: oklch(0.94 0.01 218);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-panel-muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: color-mix(in oklch, var(--border) 78%, transparent);
   --sidebar-ring: var(--gym-steel);
   /* Status active */
   --status-active-bg: oklch(0.9 0.055 215);
@@ -453,14 +606,14 @@
   --input: oklch(0.87 0.016 46);
   /* Charts */
   --chart-1: var(--gym-orange);
-  /* Sidebar — dark espresso / chocolate */
-  --sidebar: oklch(0.16 0.038 32);
-  --sidebar-foreground: oklch(0.95 0.01 48);
+  /* Sidebar - light shell surface, aligned with panels */
+  --sidebar: var(--surface-panel);
+  --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--gym-orange);
-  --sidebar-primary-foreground: oklch(0.16 0.038 32);
-  --sidebar-accent: oklch(0.22 0.032 36);
-  --sidebar-accent-foreground: oklch(0.95 0.01 48);
-  --sidebar-border: oklch(1 0 0 / 11%);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--surface-panel-muted);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: color-mix(in oklch, var(--border) 78%, transparent);
   --sidebar-ring: var(--gym-orange);
   /* Status active */
   --status-active-bg: oklch(0.93 0.075 46);

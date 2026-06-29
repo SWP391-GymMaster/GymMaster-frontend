@@ -159,7 +159,7 @@ function MemberQuickStats({
 
   if (isStatsLoading) {
     return (
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="gm-panel p-5">
         <div className="h-4 w-28 animate-pulse rounded bg-muted" />
         <div className="mt-4 grid grid-cols-2 gap-3">
           {Array.from({ length: 4 }).map((_, index) => (
@@ -182,7 +182,7 @@ function MemberQuickStats({
       : "—"
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <p className="text-sm font-semibold text-foreground">Thống kê nhanh</p>
       <div className="mt-4 grid grid-cols-2 gap-3">
         <QuickStat icon={Activity} label="Tổng check-in" value={`${checkinsCount} lần`} />
@@ -204,7 +204,7 @@ function QuickStat({
   value: string
 }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-3">
+    <div className="gm-panel-muted p-3">
       <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Icon aria-hidden="true" className="size-4" />
       </span>
@@ -232,7 +232,7 @@ function ActivityNotesPanel({
 
   if (isPanelLoading) {
     return (
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="gm-panel p-5">
         <div className="h-4 w-40 animate-pulse rounded bg-muted" />
         <div className="mt-4 space-y-3">
           {Array.from({ length: 3 }).map((_, index) => (
@@ -315,7 +315,7 @@ function ActivityNotesPanel({
   events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-foreground">
           Ghi chú & hoạt động gần đây
@@ -364,17 +364,17 @@ function MemberAttentionCard({
   const isExpired = membershipStatus === "expired"
 
   return (
-    <section className="rounded-2xl border border-orange-200 bg-orange-50 p-5 shadow-sm">
-      <p className="text-sm font-semibold text-orange-900">Cần lưu ý</p>
+    <section className="rounded-[1.5rem] border border-[var(--status-warning)]/25 bg-[var(--status-warning)]/10 p-5 shadow-[var(--shadow-soft)]">
+      <p className="text-sm font-semibold text-[var(--status-warning)]">Cần lưu ý</p>
       <div className="mt-3 flex items-start gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-700">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--status-warning)]/15 text-[var(--status-warning)]">
           <CalendarDays aria-hidden="true" className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-orange-950">
+          <p className="text-sm font-semibold text-foreground">
             {isExpired ? "Gói tập đã hết hạn" : "Theo dõi thời hạn gói tập"}
           </p>
-          <p className="mt-1 text-xs text-orange-800">
+          <p className="mt-1 text-xs text-muted-foreground">
             {endDate ? `Ngày kết thúc: ${formatDate(endDate)}` : "Chưa có ngày kết thúc"}
           </p>
         </div>

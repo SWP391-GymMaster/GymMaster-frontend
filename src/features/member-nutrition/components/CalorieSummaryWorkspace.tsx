@@ -178,7 +178,7 @@ export function CalorieSummaryWorkspace() {
   return (
     <div className="grid gap-6">
       <section
-        className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm"
+        className="gm-panel overflow-hidden"
         data-testid="member-calorie-summary"
       >
         <div className="grid gap-0 xl:grid-cols-[320px_minmax(0,1fr)_300px]">
@@ -229,7 +229,7 @@ export function CalorieSummaryWorkspace() {
                   </div>
                 </button>
 
-                <div className="mt-5 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
+                <div className="gm-panel-muted mt-5 px-4 py-3">
                   <p className="flex items-center justify-center gap-1.5 text-xs font-semibold text-muted-foreground">
                     <Info className="size-3.5 text-primary" />
                     Tiến độ ăn: {consumedPercent}%
@@ -242,7 +242,7 @@ export function CalorieSummaryWorkspace() {
                 </div>
               </>
             ) : (
-              <div className="relative rounded-[1.5rem] border border-border bg-card p-6 text-left shadow-sm">
+              <div className="gm-panel relative p-6 text-left">
                 <span className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <Target aria-hidden="true" className="size-5" />
                 </span>
@@ -463,7 +463,7 @@ export function CalorieSummaryWorkspace() {
           </main>
 
           <aside className="border-t border-border bg-background/50 p-5 xl:border-l xl:border-t-0">
-            <div className="h-full rounded-2xl border border-border bg-card p-4 shadow-sm">
+            <div className="gm-panel h-full p-4">
               <div className="flex items-center gap-3">
                 <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <CalendarCheck2 aria-hidden="true" className="size-4" />
@@ -566,8 +566,8 @@ function InsightMetric({
   const toneClasses = {
     orange: "bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-900/50",
     green: "bg-primary/10 text-primary border-primary/20",
-    blue: "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/50",
-    cyan: "bg-cyan-50 text-cyan-600 border-cyan-100 dark:bg-cyan-950/20 dark:text-cyan-400 dark:border-cyan-900/50",
+    blue: "bg-[var(--status-info)]/10 text-[var(--status-info)] border-[var(--status-info)]/25",
+    cyan: "bg-[var(--status-info)]/10 text-[var(--status-info)] border-[var(--status-info)]/25",
   }[tone];
 
   return (
@@ -662,7 +662,7 @@ function MacroRatioCard({
   tone: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-2.5 text-center">
+    <div className="gm-panel-muted p-2.5 text-center">
       <span className={`block text-[10px] font-bold uppercase ${tone}`}>
         {label}
       </span>
@@ -703,7 +703,7 @@ function CategoryCard({
   type: "breakfast" | "lunch" | "dinner" | "snack";
 }) {
   return (
-    <div className="flex min-h-[140px] flex-col justify-between rounded-[1.5rem] border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <div className="gm-interactive-card flex min-h-[140px] flex-col justify-between p-5">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-bold text-foreground">{title}</h3>

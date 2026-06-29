@@ -16,7 +16,7 @@ export function TrainingMemberContext({
 }: TrainingMemberContextProps) {
   if (isLoading) {
     return (
-      <div className="h-44 animate-pulse rounded-2xl border border-border bg-card" />
+      <div className="gm-panel h-44 animate-pulse" />
     )
   }
 
@@ -25,7 +25,7 @@ export function TrainingMemberContext({
   const membership = data?.currentMembership
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <section className="gm-panel relative overflow-hidden p-6">
       <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-primary/10 blur-3xl" />
 
       <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
@@ -71,7 +71,7 @@ export function TrainingMemberContext({
 
 function ContextTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-4">
+    <div className="gm-panel-muted p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </p>

@@ -78,7 +78,7 @@ export function PtTrainerNotesWorkspace() {
           </section>
 
           {activeView === "list" ? (
-            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+            <section className="gm-panel space-y-4 p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <TrainerNoteListHeader />
@@ -106,7 +106,7 @@ export function PtTrainerNotesWorkspace() {
               </div>
             </section>
           ) : (
-            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-5">
+            <section className="gm-panel space-y-5 p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -164,7 +164,7 @@ function NoteMetric({
   value: string
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-center gap-4">
         <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Icon aria-hidden="true" className="size-5" />

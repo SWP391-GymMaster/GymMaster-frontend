@@ -99,7 +99,7 @@ export function WorkoutPlanList({
       <div className="space-y-3" data-testid="workout-plan-loading">
         {Array.from({ length: 2 }).map((_, index) => (
           <div
-            className="h-40 animate-pulse rounded-2xl border border-border bg-card"
+            className="gm-panel h-40 animate-pulse"
             key={index}
           />
         ))}
@@ -371,7 +371,7 @@ function CoachWorkoutPlanCard({
   const exerciseIds = plan.exercises.map((ex, idx) => (ex.id ? String(ex.id) : `${ex.name}-${idx}`))
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <article className="gm-panel overflow-hidden">
       <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-3">
@@ -802,7 +802,7 @@ function DefaultWorkoutPlanCard({
   plan: WorkoutPlan
 }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+    <article className="gm-interactive-card overflow-hidden transition-all duration-200">
       <div className="border-b border-border bg-primary/5 p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -927,7 +927,7 @@ function ExerciseRow({
   }
 
   return (
-    <div className="grid gap-3 rounded-xl border border-border bg-background p-3 text-sm sm:grid-cols-[1fr_auto_auto]">
+    <div className="gm-panel-muted grid gap-3 p-3 text-sm sm:grid-cols-[1fr_auto_auto]">
       <div className="flex items-center gap-3">
         <span className="flex size-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
           {index + 1}

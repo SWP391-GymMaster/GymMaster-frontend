@@ -168,7 +168,7 @@ export function MealDetailSheet({
               Tổng macro — {meta.label}
             </p>
             <div className="grid grid-cols-4 gap-2 text-center">
-              <div className="rounded-2xl border border-border bg-card p-3">
+              <div className="gm-panel-muted p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Calo</p>
                 <p className="mt-1 text-base font-black text-foreground">{Math.round(totalCal)}</p>
               </div>
@@ -180,9 +180,9 @@ export function MealDetailSheet({
                 <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600">Bột</p>
                 <p className="mt-1 text-base font-black text-amber-700">{totalCarbs.toFixed(1)}g</p>
               </div>
-              <div className="rounded-2xl border border-orange-100 bg-orange-50 p-3">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-orange-600">Béo</p>
-                <p className="mt-1 text-base font-black text-orange-700">{totalFat.toFixed(1)}g</p>
+              <div className="rounded-2xl border border-[var(--status-warning)]/25 bg-[var(--status-warning)]/10 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--status-warning)]">Béo</p>
+                <p className="mt-1 text-base font-black text-[var(--status-warning)]">{totalFat.toFixed(1)}g</p>
               </div>
             </div>
           </div>

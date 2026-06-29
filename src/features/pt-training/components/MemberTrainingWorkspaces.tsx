@@ -199,7 +199,7 @@ function MemberTrainingHero({
   title: string
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <div className="gm-panel relative overflow-hidden p-6">
       <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/10 blur-3xl" />
       <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-end">
         <div>
@@ -255,7 +255,7 @@ function TrainingMetric({
   value: string
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-center gap-4">
         <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Icon aria-hidden="true" className="size-5" />
@@ -284,7 +284,7 @@ function MemberSideCard({
 }) {
   return (
     <Link
-      className="group block rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
+      className="gm-interactive-card group block p-5 active:scale-[0.98]"
       href={href}
     >
       <div className="flex items-start gap-4">
@@ -319,7 +319,7 @@ function formatShortDate(value: string) {
 
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-4">
+    <div className="gm-panel-muted p-4">
       <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
         {label}
       </p>

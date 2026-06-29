@@ -39,7 +39,7 @@ type GoogleLoginButtonProps = {
 // Mock/test (MSW) -> dung token gia. Khac di -> Google that neu co Client ID.
 function isMockMode() {
   return (
-    process.env.NEXT_PUBLIC_API_MOCKING === "enabled" ||
+    process.env.NEXT_PUBLIC_API_MOCKING?.toLowerCase() === "enabled" ||
     process.env.NODE_ENV === "test"
   );
 }

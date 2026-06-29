@@ -33,7 +33,7 @@ export function AssignedPTCard({
     return (
       <div
         className={cn(
-          "rounded-2xl border border-border bg-card p-5 shadow-sm",
+          "gm-panel p-5",
           className,
         )}
       >
@@ -68,7 +68,7 @@ export function AssignedPTCard({
   return (
     <section
       className={cn(
-        "rounded-2xl border border-border bg-card p-5 shadow-sm",
+        "gm-panel p-5",
         className,
       )}
     >

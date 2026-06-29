@@ -31,10 +31,10 @@ export function TrainerNoteForm({ isPending, onSubmit }: TrainerNoteFormProps) {
 
   return (
     <form
-      className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+      className="gm-panel p-5"
       onSubmit={form.handleSubmit(handleSubmit)}
     >
-      <div className="flex items-start gap-3 rounded-xl border border-border bg-background p-4">
+      <div className="gm-panel-muted flex items-start gap-3 p-4">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Lightbulb aria-hidden="true" className="size-5" />
         </span>
@@ -53,7 +53,7 @@ export function TrainerNoteForm({ isPending, onSubmit }: TrainerNoteFormProps) {
         Ghi chú huấn luyện
       </label>
       <textarea
-        className="mt-2 min-h-44 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm leading-6 text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+        className="gm-field mt-2 min-h-44 w-full px-4 py-3 text-sm leading-6 text-foreground transition"
         id="trainer-note-content"
         placeholder="Ví dụ: Giữ vai ổn định khi đẩy ngực, giảm tốc độ eccentric ở set cuối..."
         {...form.register("content")}

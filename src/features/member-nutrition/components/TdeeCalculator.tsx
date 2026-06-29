@@ -67,7 +67,8 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
   const [manualFat, setManualFat] = useState<number>(75);
   const [dietTemplate, setDietTemplate] = useState<string>("balanced");
 
-  // Prefill target values from backend when open
+  // Prefill target values from backend when open.
+  /* eslint-disable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
   useEffect(() => {
     if (isOpen && targetData) {
       const cal = targetData.dailyCalories ?? manualCalorie;
@@ -96,6 +97,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
       setDietTemplate(foundTemplate);
     }
   }, [isOpen, targetData]);
+  /* eslint-enable react-hooks/set-state-in-effect, react-hooks/exhaustive-deps */
 
   // Validation calculated on the fly during render for TDEE tab
   const tdeeErrors: { height?: string; weight?: string; age?: string } = {};
@@ -223,7 +225,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90dvh] overflow-y-auto bg-zinc-950/95 border border-white/10 text-white rounded-[2rem] p-6 shadow-2xl backdrop-blur-xl">
+      <DialogContent className="gm-dialog-surface gm-dialog-dark max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto p-6 text-white sm:max-w-[46rem]">
         <DialogHeader className="border-b border-white/5 pb-4">
           <div className="flex items-center gap-2">
             <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -301,7 +303,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
             </div>
 
             {/* Age, Height, Weight inputs */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div className="min-w-0">
                 <label htmlFor="tdee-age" className="block text-[10px] font-bold uppercase tracking-wider text-white/40 truncate">
                   Tuổi
@@ -475,7 +477,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                 </div>
 
                 {/* Summary and Apply CTA */}
-                <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-4">
+                  <div className="pt-3 border-t border-white/5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-xs font-bold text-white/40">Mục tiêu Calo đề xuất:</p>
                     <p className="text-lg font-black text-white">{proposedCalorie} kcal/ngày</p>
@@ -486,7 +488,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                   <button
                     type="button"
                     onClick={handleApply}
-                    className="h-10 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 shadow hover:brightness-95 active:scale-95 transition"
+                    className="min-h-10 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow transition hover:brightness-95 active:scale-95 sm:shrink-0 flex items-center justify-center gap-1.5"
                   >
                     <Award className="size-3.5" />
                     Áp dụng mục tiêu
@@ -535,8 +537,8 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
             </div>
 
             {/* Gram inputs for Protein, Carbs, Fats */}
-            <div className="grid grid-cols-3 gap-2">
-              <div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="min-w-0">
                 <label htmlFor="manual-protein" className="block text-[10px] font-bold uppercase tracking-wider text-white/40 truncate">
                   Protein (g) 🍖
                 </label>
@@ -551,7 +553,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                   className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="manual-carbs" className="block text-[10px] font-bold uppercase tracking-wider text-white/40 truncate">
                   Carbs (g) 🍞
                 </label>
@@ -566,7 +568,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                   className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
                 />
               </div>
-              <div>
+              <div className="min-w-0">
                 <label htmlFor="manual-fat" className="block text-[10px] font-bold uppercase tracking-wider text-white/40 truncate">
                   Fats (g) 🍟
                 </label>

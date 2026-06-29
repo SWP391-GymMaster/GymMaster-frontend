@@ -185,7 +185,7 @@ export function CheckInTerminal() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <section className="gm-panel p-5">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
@@ -251,14 +251,14 @@ export function CheckInTerminal() {
               <div className="mt-3 flex gap-2">
                 <Link
                   href={`/staff/renew-package?memberId=${selectedMember.id}&query=${selectedMember.memberCode}`}
-                  className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+                  className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
                 >
                   <RefreshCw className="size-3.5" />
                   Gia hạn gói tập
                 </Link>
                 <Link
                   href={`/staff/payments?query=${selectedMember.fullName}`}
-                  className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 text-xs font-semibold text-white transition hover:bg-zinc-850 active:scale-[0.98]"
+                  className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full border border-zinc-800 bg-zinc-900 px-4 text-xs font-semibold text-white transition hover:bg-zinc-850 active:scale-[0.98]"
                 >
                   <CreditCard className="size-3.5" />
                   Thanh toán ngay
@@ -268,7 +268,7 @@ export function CheckInTerminal() {
           ) : null}
 
           <button
-            className="mt-5 min-h-12 w-full rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-5 min-h-12 w-full rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_14px_34px_color-mix(in_oklch,var(--primary)_22%,transparent)] transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
             data-testid="staff-checkin-confirm"
             disabled={!selectedMember || checkIn.isPending}
             onClick={onConfirm}
@@ -297,14 +297,14 @@ export function CheckInTerminal() {
                 <div className="mt-3 flex gap-2">
                   <Link
                     href={`/staff/renew-package?memberId=${selectedMember.id}&query=${selectedMember.memberCode}`}
-                    className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+                    className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
                   >
                     <RefreshCw className="size-3.5" />
                     Gia hạn gói tập
                   </Link>
                   <Link
                     href={`/staff/payments?query=${selectedMember.fullName}`}
-                    className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-4 text-xs font-semibold text-white transition hover:bg-zinc-850 active:scale-[0.98]"
+                    className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full border border-zinc-800 bg-zinc-900 px-4 text-xs font-semibold text-white transition hover:bg-zinc-850 active:scale-[0.98]"
                   >
                     <CreditCard className="size-3.5" />
                     Thanh toán ngay
@@ -317,7 +317,7 @@ export function CheckInTerminal() {
       </div>
 
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="gm-panel p-5">
           <p className="text-sm font-semibold text-foreground">Luồng vào phòng hôm nay</p>
           <div className="mt-4 grid gap-3 sm:grid-cols-4">
             <CheckInMetric
@@ -343,7 +343,7 @@ export function CheckInTerminal() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="gm-panel p-5">
           <p className="text-sm font-semibold text-foreground">Check-in gần đây</p>
           {todayCheckIns.isLoading ? (
             <StateBlock
@@ -370,7 +370,7 @@ export function CheckInTerminal() {
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {todayCheckIns.data?.items.slice(0, 6).map((item) => (
                 <div
-                  className="flex items-center gap-3 rounded-xl border border-border bg-background p-3"
+                  className="gm-panel-muted flex items-center gap-3 p-3"
                   key={item.id}
                 >
                   <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
@@ -424,7 +424,7 @@ function CheckInMetric({
   value: number | string
 }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-4">
+    <div className="gm-panel-muted p-4">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-1 text-3xl font-semibold tracking-tight text-foreground">{value}</p>
       <p className={`mt-1 text-xs font-semibold ${tone === "danger" ? "text-destructive" : "text-primary"}`}>

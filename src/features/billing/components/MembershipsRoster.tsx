@@ -135,7 +135,7 @@ export function MembershipsRoster() {
               className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             />
             <Input
-              className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+              className="gm-field min-h-11 w-full pl-11 pr-4 text-sm text-foreground transition placeholder:text-muted-foreground"
               placeholder="Tìm theo hội viên, mã, gói..."
               type="search"
               value={searchTerm}
@@ -166,7 +166,7 @@ export function MembershipsRoster() {
               value={statusFilter}
               onValueChange={(val: string) => setStatusFilter(val as "all" | "active" | "pending_payment" | "expired" | "cancelled")}
             >
-              <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
+              <SelectTrigger className="gm-field min-h-11 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
                 <SelectValue placeholder="Tất cả trạng thái" />
               </SelectTrigger>
               <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
@@ -197,7 +197,7 @@ export function MembershipsRoster() {
           description="Không có hợp đồng thẻ thành viên nào phù hợp với bộ lọc hiện tại."
         />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
+        <div className="gm-panel overflow-x-auto">
           <table className="w-full border-collapse text-left text-sm" data-testid="memberships-table">
             <thead>
               <tr className="border-b border-border bg-muted/40 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
