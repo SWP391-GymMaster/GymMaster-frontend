@@ -15,11 +15,9 @@ import {
   useStaffMemberSearch,
   useStaffPackages,
 } from "@/features/staff-front-desk/api/staff-front-desk.queries"
-import { ManualPaymentPanel } from "@/features/staff-front-desk/components/ManualPaymentPanel"
 import {
   OrderSummaryShell,
   PackageCard,
-  PaymentCompleteBanner,
   StaffMemberCard,
   StaffSearchPanel,
   StaffWizardStepper,
@@ -33,7 +31,6 @@ import {
   type StaffSearchInput,
 } from "@/features/staff-front-desk/schemas/staff-front-desk.schemas"
 import type {
-  ManualPaymentResult,
   MembershipSnapshot,
   StaffFrontDeskMemberSummary,
 } from "@/features/staff-front-desk/types/staff-front-desk.types"
@@ -47,12 +44,16 @@ function addDays(date: string, days: number) {
   return nextDate.toISOString().slice(0, 10)
 }
 
-function getRenewalStartDate(membership?: MembershipSnapshot | null) {
-  if (!membership?.endsAt) {
-    return vnTodayIso()
+function isCurrentMembershipActive(membership?: MembershipSnapshot | null) {
+  return membership?.status === "active" && membership.endsAt >= vnTodayIso()
+}
+
+function getRenewalBaseDate(membership?: MembershipSnapshot | null) {
+  if (membership && isCurrentMembershipActive(membership)) {
+    return membership.endsAt
   }
 
-  return addDays(membership.endsAt, 1)
+  return vnTodayIso()
 }
 
 export function RenewPackageWizard() {
@@ -65,9 +66,6 @@ export function RenewPackageWizard() {
     useState<StaffFrontDeskMemberSummary | null>(null)
   const [selectedPackageId, setSelectedPackageId] = useState<number | null>(null)
   const [renewalResult, setRenewalResult] = useState<MembershipSnapshot | null>(
-    null,
-  )
-  const [paymentResult, setPaymentResult] = useState<ManualPaymentResult | null>(
     null,
   )
   const members = useStaffMemberSearch(submittedQuery)
@@ -93,7 +91,7 @@ export function RenewPackageWizard() {
     defaultValues: {
       memberId: 0,
       packageId: 0,
-      startDate: getRenewalStartDate(null),
+      startDate: getRenewalBaseDate(null),
       paymentMethod: "cash",
     },
   })
@@ -107,7 +105,7 @@ export function RenewPackageWizard() {
         const timer = setTimeout(() => {
           setSelectedMember(match)
           setValue("memberId", match.id, { shouldValidate: true })
-          setValue("startDate", getRenewalStartDate(null), {
+          setValue("startDate", getRenewalBaseDate(null), {
             shouldValidate: true,
           })
         }, 0)
@@ -115,19 +113,26 @@ export function RenewPackageWizard() {
       }
     }
   }, [memberIdParam, members.data, selectedMember, setValue])
-  const selectedPackage = useMemo(
-    () => packages.data?.find((item) => item.id === selectedPackageId),
-    [packages.data, selectedPackageId],
-  )
   const currentMembership = memberDetail.data?.currentMembership
-  const renewalStart = getRenewalStartDate(currentMembership)
+  const currentMembershipIsActive = isCurrentMembershipActive(currentMembership)
+  const renewalPackages = useMemo(
+    () =>
+      (packages.data ?? []).filter(
+        (item) =>
+          !currentMembershipIsActive ||
+          item.supportsPT === (currentMembership?.supportsPT ?? false),
+      ),
+    [currentMembership?.supportsPT, currentMembershipIsActive, packages.data],
+  )
+  const selectedPackage = useMemo(
+    () => renewalPackages.find((item) => item.id === selectedPackageId),
+    [renewalPackages, selectedPackageId],
+  )
+  const renewalStart = getRenewalBaseDate(currentMembership)
   const renewalEnd = selectedPackage
     ? addDays(renewalStart, selectedPackage.durationDays)
     : null
   const operationError = renew.error ? mapStaffOperationError(renew.error) : null
-  // Backend gia han la atomic (gia han + ghi nhan thanh toan) -> ket qua tra ve da paid/active.
-  const renewalPaid =
-    Boolean(paymentResult) || renewalResult?.paymentStatus === "paid"
   const activeStep = renewalResult
     ? 3
     : selectedPackage
@@ -141,10 +146,20 @@ export function RenewPackageWizard() {
     setSelectedMember(null)
     setSelectedPackageId(null)
     setRenewalResult(null)
-    setPaymentResult(null)
     setValue("memberId", 0, { shouldValidate: false })
     setValue("packageId", 0, { shouldValidate: false })
   }
+
+  useEffect(() => {
+    if (
+      selectedPackageId &&
+      packages.data &&
+      !renewalPackages.some((item) => item.id === selectedPackageId)
+    ) {
+      setSelectedPackageId(null)
+      setValue("packageId", 0, { shouldValidate: false })
+    }
+  }, [packages.data, renewalPackages, selectedPackageId, setValue])
 
   async function onSubmitRenewal(values: SellPackageInput) {
     if (!currentMembership) {
@@ -159,8 +174,7 @@ export function RenewPackageWizard() {
       paymentMethod: values.paymentMethod,
     })
     setRenewalResult(result)
-    setPaymentResult(null)
-    toast.success("Đã gia hạn và ghi nhận thanh toán")
+    toast.success("Đã gia hạn gói tập.")
   }
 
   return (
@@ -168,12 +182,12 @@ export function RenewPackageWizard() {
       <section className="grid gap-4 md:grid-cols-3">
         <WorkflowCard icon={RefreshCw} label="Chế độ gia hạn" title="Xem trước & xác nhận" />
         <WorkflowCard icon={CalendarDays} label="Quy tắc gói" title="Nối từ ngày hết hạn" />
-        <WorkflowCard icon={CreditCard} label="Xử lý thanh toán" title="Xác nhận thủ công" />
+        <WorkflowCard icon={CreditCard} label="Thanh toán" title="Thu tiền tại quầy" />
       </section>
 
       <StaffWizardStepper
         activeIndex={activeStep}
-        steps={["Hội viên", "Gói hiện tại", "Gia hạn", "Thanh toán"]}
+        steps={["Hội viên", "Gói hiện tại", "Gia hạn", "Đã gia hạn"]}
       />
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
@@ -207,12 +221,13 @@ export function RenewPackageWizard() {
                 member={member}
                 onSelect={() => {
                   setSelectedMember(member)
+                  setSelectedPackageId(null)
                   setRenewalResult(null)
-                  setPaymentResult(null)
                   setValue("memberId", member.id, { shouldValidate: true })
-                  setValue("startDate", getRenewalStartDate(null), {
+                  setValue("startDate", getRenewalBaseDate(null), {
                     shouldValidate: true,
                   })
+                  setValue("packageId", 0, { shouldValidate: false })
                 }}
                 selected={selectedMember?.id === member.id}
                 subtitle={`${member.memberCode} · ${
@@ -249,15 +264,20 @@ export function RenewPackageWizard() {
               <StatusPill status={selectedPackage ? "active" : "pending"} />
             </div>
 
+            {currentMembershipIsActive ? (
+              <p className="mt-4 rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-foreground">
+                Membership còn hiệu lực nên chỉ chọn được gói cùng loại PT với gói hiện tại.
+              </p>
+            ) : null}
+
             <div className="mt-5 grid gap-4 lg:grid-cols-3">
-              {packages.data?.map((gymPackage, index) => (
+              {renewalPackages.map((gymPackage, index) => (
                 <PackageCard
                   gymPackage={gymPackage}
                   key={gymPackage.id}
                   onSelect={() => {
                     setSelectedPackageId(gymPackage.id)
                     setRenewalResult(null)
-                    setPaymentResult(null)
                     setValue("packageId", gymPackage.id, {
                       shouldValidate: true,
                     })
@@ -299,7 +319,7 @@ export function RenewPackageWizard() {
                   disabled={renew.isPending}
                   type="submit"
                 >
-                  {renew.isPending ? "Đang tạo..." : "Xác nhận gia hạn"}
+                  {renew.isPending ? "Đang gia hạn..." : "Xác nhận gia hạn"}
                 </button>
               </form>
 
@@ -350,28 +370,11 @@ export function RenewPackageWizard() {
                 Đã gia hạn {renewalResult.packageName}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {renewalPaid
-                  ? `Gói đã hoạt động đến ${renewalResult.endsAt}. Đã ghi nhận thanh toán tại quầy.`
-                  : "Gia hạn đang chờ cho đến khi ghi nhận thanh toán."}
+                Gói đã được kích hoạt và ghi nhận thanh toán tại quầy.
               </p>
             </div>
-            <StatusPill status={renewalPaid ? "paid" : "pending"} />
+            <StatusPill status="paid" label="Đã gia hạn" />
           </div>
-          {renewalPaid ? (
-            <PaymentCompleteBanner
-              message={
-                paymentResult?.message ??
-                "Đã thu tiền và kích hoạt gói. Không cần xác nhận thêm bên lễ tân."
-              }
-            />
-          ) : (
-            <div className="mt-4">
-              <ManualPaymentPanel
-                membership={renewalResult}
-                onRecorded={setPaymentResult}
-              />
-            </div>
-          )}
         </section>
       ) : null}
     </div>

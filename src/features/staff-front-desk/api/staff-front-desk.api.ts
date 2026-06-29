@@ -40,6 +40,7 @@ function normalizePackage(item: MockPackageDto): PackageOption {
     durationDays: item.durationDays,
     // Backend that: isActive (boolean). Mock cu: status === "active".
     isActive: item.isActive ?? item.status === "active",
+    supportsPT: item.supportsPT ?? false,
   }
 }
 
@@ -53,7 +54,8 @@ function normalizeMembership(
     id: item.id,
     memberId: item.memberId,
     packageId: item.packageId,
-    packageName: gymPackage?.name ?? "Unknown package",
+    packageName: item.packageName ?? gymPackage?.name ?? "Unknown package",
+    supportsPT: item.supportsPT ?? gymPackage?.supportsPT ?? false,
     status: normalizeMembershipStatus(item.status),
     paymentStatus: paymentStatusFromMembership(item.status),
     startsAt: item.startDate,
@@ -202,8 +204,6 @@ export async function renewStaffMembership(
   accessToken: string,
   draft: RenewPackageDraft,
 ) {
-  // Backend that: RenewMembershipRequest { packageId, method } — gia han + ghi nhan
-  // thanh toan trong 1 buoc (atomic). Phai gui `method` neu khong se 422 VALIDATION_ERROR.
   const response = await apiRequest<MockMembershipDto>(
     `/api/v1/memberships/${draft.membershipId}/renew`,
     {

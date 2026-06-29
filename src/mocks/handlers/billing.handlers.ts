@@ -18,7 +18,7 @@ export const billingHandlers = [
     return ok(memberships)
   }),
   http.get("/api/v1/packages", ({ request }) => {
-    const role = requireRole(request, ["admin", "staff"])
+    const role = requireRole(request, ["admin", "staff", "member"])
     if (typeof role !== "string") return role
 
     return ok(packages)
@@ -275,5 +275,17 @@ export const billingHandlers = [
       ...body,
       status: "pending",
     })
+  }),
+  http.post("/api/v1/memberships/:id/cancel", ({ params, request }) => {
+    const role = requireRole(request, ["admin", "staff", "member"])
+    if (typeof role !== "string") return role
+
+    const membership = memberships.find((item) => item.id === Number(params.id))
+    if (!membership) {
+      return fail("NOT_FOUND", "Membership not found", 404)
+    }
+
+    membership.status = "cancelled"
+    return ok(membership)
   }),
 ]

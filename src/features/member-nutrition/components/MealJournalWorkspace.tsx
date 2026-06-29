@@ -16,11 +16,12 @@ import {
 import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
 
-const today = getTodayDate();
-
 export function MealJournalWorkspace() {
-  const summary = useMemberCalorieSummary(today);
-  const logs = useMemberMealLogs(today);
+  const today = getTodayDate();
+  const [selectedDate, setSelectedDate] = useState(today);
+  const isToday = selectedDate === today;
+  const summary = useMemberCalorieSummary(selectedDate);
+  const logs = useMemberMealLogs(selectedDate);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -114,15 +115,31 @@ export function MealJournalWorkspace() {
                     <Utensils aria-hidden="true" className="size-5" />
                   </span>
                   <span className="rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-primary backdrop-blur-md">
-                    Nhật ký hôm nay
+                    {isToday ? "Nhật ký hôm nay" : "Nhật ký"}
                   </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-zinc-200 backdrop-blur-md">
+                  <label className="inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-semibold text-zinc-200 backdrop-blur-md">
                     <CalendarDays
                       aria-hidden="true"
-                      className="size-3.5 text-primary"
+                      className="size-5 text-primary"
                     />
-                    {today}
-                  </span>
+                    <span className="sr-only">Chọn ngày nhật ký</span>
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      max={today}
+                      onChange={(event) => setSelectedDate(event.target.value)}
+                      className="bg-transparent text-sm font-semibold text-zinc-100 outline-none [color-scheme:dark]"
+                    />
+                  </label>
+                  {!isToday ? (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedDate(today)}
+                      className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-semibold text-zinc-200 backdrop-blur-md transition hover:bg-white/15 active:scale-[0.98]"
+                    >
+                      Hôm nay
+                    </button>
+                  ) : null}
                 </div>
 
                 <h2 className="mt-6 max-w-2xl text-4xl font-semibold tracking-tight text-white md:text-5xl">
@@ -157,7 +174,7 @@ export function MealJournalWorkspace() {
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3 shadow-sm backdrop-blur-md">
                     <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-300">
-                      Mục tiêu hôm nay
+                      Mục tiêu calo
                     </p>
                     <p className="mt-0.5 text-sm font-semibold text-white">
                       {calorieTarget != null
@@ -199,7 +216,7 @@ export function MealJournalWorkspace() {
               </h2>
             </div>
             <MealLogForm
-              date={today}
+              date={selectedDate}
               defaultMealType={defaultMealType}
               onSuccess={handleBackToList}
             />

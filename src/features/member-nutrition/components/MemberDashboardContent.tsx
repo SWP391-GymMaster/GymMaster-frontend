@@ -9,6 +9,7 @@ import {
   Dumbbell,
   Salad,
   TrendingUp,
+  User,
   Utensils,
 } from "lucide-react";
 
@@ -20,6 +21,7 @@ import { WaterTrackerCard } from "@/features/member-nutrition/components/WaterTr
 import { useMemberCalorieSummary } from "@/features/member-nutrition/api/member-nutrition.queries";
 import { getTodayDate } from "@/features/member-nutrition/utils/nutrition-formatters";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
+import { formatVnDate } from "@/lib/date/vn-time";
 import { useCurrentMemberProfileId } from "@/features/billing/api/billing.queries";
 import { useMember360Data } from "@/features/member-360/api/member-360.queries";
 import { BmiCalculator } from "@/features/member-nutrition/components/BmiCalculator";
@@ -58,6 +60,8 @@ export function MemberDashboardContent() {
   const memberId = useCurrentMemberProfileId();
   const { data: member360 } = useMember360Data(memberId);
   const membership = member360?.currentMembership;
+  const pt = member360?.assignedPT;
+  const checkIns = member360?.recentCheckIns ?? [];
 
   const [isBmiOpen, setIsBmiOpen] = useState(false);
   // null = chua dat muc tieu (BE la nguon su that). Khong bia 2200, khong doc localStorage.
@@ -189,6 +193,67 @@ export function MemberDashboardContent() {
             );
           })}
         </aside>
+      </section>
+
+      {/* PT + Check-in gần đây */}
+      <section className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <User aria-hidden="true" className="size-4 text-primary" />
+            <span>Huấn luyện viên cá nhân</span>
+          </div>
+          {pt ? (
+            <div className="mt-4">
+              <h3 className="text-xl font-bold tracking-tight text-foreground">
+                {pt.fullName}
+              </h3>
+              <p className="mt-1 text-sm font-semibold text-primary">
+                {pt.specialty}
+              </p>
+              <p className="mt-3 border-t border-border/60 pt-3 text-sm text-muted-foreground">
+                Phân công từ{" "}
+                {formatVnDate(pt.assignedAt, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Bạn chưa được chỉ định huấn luyện viên cá nhân.
+            </p>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+            <CalendarCheck aria-hidden="true" className="size-4 text-primary" />
+            <span>Check-in gần đây</span>
+          </div>
+          <h3 className="mt-4 text-xl font-bold tracking-tight text-foreground">
+            Tổng {checkIns.length} lượt
+          </h3>
+          <div className="mt-3 space-y-2 border-t border-border/60 pt-3 text-sm">
+            {checkIns.length > 0 ? (
+              checkIns.slice(0, 2).map((ci) => (
+                <div className="flex justify-between" key={ci.id}>
+                  <span className="text-muted-foreground">Đã vào lúc</span>
+                  <span className="font-semibold text-foreground">
+                    {formatVnDate(ci.checkInAt, {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-muted-foreground">Chưa ghi nhận check-in.</p>
+            )}
+          </div>
+        </div>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">

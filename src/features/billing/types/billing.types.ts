@@ -11,6 +11,8 @@ export type Membership = {
   id: number
   memberId: number
   packageId: number
+  packageName?: string
+  supportsPT: boolean
   startDate: string
   endDate: string
   status: "pending_payment" | "active" | "expired" | "cancelled"
@@ -21,6 +23,8 @@ export type Membership = {
 export type RenewalRequestResult = {
   id: number
   packageId: number
+  packageName?: string
+  supportsPT?: boolean
   status: string
 }
 
