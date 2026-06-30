@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Search, Utensils, History, Heart, Info, AlertTriangle, Globe } from "lucide-react"
+import Link from "next/link"
+import { Plus, Search, Utensils, History, Heart, Info, AlertTriangle, Globe, Lock } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -26,6 +27,7 @@ import {
 import { searchFoodItems } from "@/features/member-nutrition/api/member-nutrition.api"
 import { AiFoodScanCard } from "@/features/member-nutrition/components/AiFoodScanCard"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
+import { useMember360Data } from "@/features/member-360/api/member-360.queries"
 import {
   customFoodSchema,
   type CustomFoodFormInput,
@@ -112,6 +114,20 @@ export function FoodSearchPanel({
   const [previewFat, setPreviewFat] = useState(0)
 
   const accessToken = useAuthSessionStore((state) => state.session?.accessToken)
+  const role = useAuthSessionStore((state) => state.session?.role)
+  const memberProfileId = useAuthSessionStore(
+    (state) => state.session?.user?.memberProfileId,
+  )
+  // Tier mien phi = member CHUA co goi active. Backend chi cho 20 mon + chan AI;
+  // hien banner nhac mua goi de nang cap (full kho + quet AI).
+  const member360 = useMember360Data(
+    role === "member" && memberProfileId ? memberProfileId : null,
+  )
+  const isFreeTier =
+    role === "member" &&
+    !member360.isLoading &&
+    member360.data?.currentMembership?.status !== "active"
+
   const foods = useFoodSearch(query)
   const canSearch = query.trim().length >= 2
   // Tat tinh nang tim kiem TRUC TUYEN (Open Food Facts) theo yeu cau — chi dung DB noi bo + AI scan.
@@ -218,10 +234,32 @@ export function FoodSearchPanel({
             Cơ sở dữ liệu món ăn
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Tra cứu thực phẩm thô và món ăn chế biến sẵn chuẩn MyFitnessPal.
+            Tra cứu thực phẩm thô và món ăn có sẵn trong hệ thống.
           </p>
         </div>
       </div>
+
+      {/* Thong bao tier mien phi: chi 20 mon, can mua goi de mo full + quet AI */}
+      {isFreeTier && (
+        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3.5">
+          <Lock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-amber-600" />
+          <div className="min-w-0 text-sm">
+            <p className="font-semibold text-amber-700 dark:text-amber-300">
+              Bản miễn phí — chỉ 20 món
+            </p>
+            <p className="mt-0.5 leading-6 text-amber-700/90 dark:text-amber-200/80">
+              Bạn chưa có gói tập nên chỉ tìm được 20 món cơ bản và chưa dùng được quét ảnh AI.{" "}
+              <Link
+                href="/member/membership"
+                className="font-semibold underline underline-offset-2 hover:opacity-80"
+              >
+                Đăng ký gói tập
+              </Link>{" "}
+              để mở khóa toàn bộ kho món và tính năng quét AI.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="mt-5 flex border-b border-border">
@@ -309,7 +347,7 @@ export function FoodSearchPanel({
             </div>
             {canSearch && foods.data && foods.data.items.length > 0 && (
               <p className="text-xs font-semibold text-muted-foreground px-1">
-                Tìm thấy {foods.data.total.toLocaleString("vi-VN")} kết quả tương thích (trong tổng số 32,800 thực phẩm & món ăn).
+                Tìm thấy {foods.data.total.toLocaleString("vi-VN")} kết quả tương thích.
               </p>
             )}
 
