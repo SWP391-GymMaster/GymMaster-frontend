@@ -66,7 +66,7 @@ type FoodSearchPanelProps = {
   query: string
   selectedFoodId?: number
   onQueryChange: (query: string) => void
-  onSelectFood: (food: FoodItem) => void
+  onSelectFood: (food: FoodItem, grams?: number) => void
 }
 
 export function FoodSearchPanel({

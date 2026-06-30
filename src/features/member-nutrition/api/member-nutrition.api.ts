@@ -335,6 +335,7 @@ export type FoodScanItem = {
   requiresConfirmation: boolean
   food?: ScannedFoodDto
   draft?: FoodScanDraft
+  estimatedGrams?: number
 }
 
 export type FoodScanResult = { items: FoodScanItem[] }
