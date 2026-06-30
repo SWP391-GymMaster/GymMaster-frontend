@@ -251,7 +251,7 @@ function DirectoryMetricCard({
   tone = "primary",
   value,
 }: {
-  helper: string
+  helper?: string
   icon: LucideIcon
   label: string
   tone?: "primary" | "success" | "warning" | "neutral"
@@ -499,7 +499,7 @@ function MemberDirectoryTemplate({
             statusOptions={statusOptions}
           />
 
-          <div className="p-5">
+          <div>
             {isLoading ? (
               <StateBlock
                 description="Đang tải dữ liệu từ hệ thống..."
@@ -581,7 +581,7 @@ function MemberTable({
 
   return (
     <div data-testid="management-member-list">
-      <div className="overflow-hidden rounded-xl border border-border">
+      <div className="overflow-hidden rounded-xl border-0">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left">
             <thead className="border-b border-border bg-muted/40">
@@ -1221,7 +1221,7 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
         </div>
       </div>
 
-      <div className="grid gap-5 p-6 lg:grid-cols-2">
+      <div className="grid gap-5 p-3 lg:grid-cols-2">
         <section className="gm-panel-muted p-5">
           <p className="mb-5 text-sm font-semibold text-foreground">Thông tin hồ sơ</p>
           <div className="grid gap-3">
@@ -1322,7 +1322,7 @@ function UserRoleDirectoryTemplate({
           value="Người dùng"
         />
         <DirectoryMetricCard
-          helper="Backend spec 002"
+          // helper="Backend spec 002"
           icon={BadgeCheck}
           label="Nguồn"
           tone="success"

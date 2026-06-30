@@ -160,7 +160,7 @@ export function CheckInTerminal() {
             </p>
           ) : null}
 
-          <div className="mt-6 grid gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+          {/* <div className="mt-6 grid gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-zinc-400">Gợi ý nhanh</span>
               <span className="rounded-full bg-primary/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -182,7 +182,7 @@ export function CheckInTerminal() {
               <CheckCircle2 aria-hidden="true" className="size-4 text-primary" />
               Trạng thái gói, thanh toán và quyền vào phòng được kiểm tra trước.
             </div>
-          </div>
+          </div> */}
         </section>
 
         <section className="gm-panel p-5">

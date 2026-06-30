@@ -639,19 +639,19 @@ function UserDetailPanel({
         <div className="border-b border-border px-6 pt-5">
           <TabsList className="h-auto gap-7 rounded-none bg-transparent p-0">
             <TabsTrigger
-              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              className="rounded-none border-b-2 border-transparent bg-transparent px-2 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="profile"
             >
               Thông tin chung
             </TabsTrigger>
-            <TabsTrigger
-              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+            {/* <TabsTrigger
+              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="access"
             >
               Quyền hạn
-            </TabsTrigger>
+            </TabsTrigger> */}
             <TabsTrigger
-              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              className="rounded-none border-b-2 border-transparent bg-transparent px-2 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="security"
             >
               Bảo mật
@@ -720,13 +720,13 @@ function UserDetailHeader({ user }: { user: ManagedUser }) {
           </div>
         </div>
 
-        <button
+        {/* <button
           className="inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
           type="button"
         >
           <MoreVertical aria-hidden="true" className="size-4" />
           <span className="sr-only">Tùy chọn người dùng</span>
-        </button>
+        </button> */}
       </div>
     </div>
   )

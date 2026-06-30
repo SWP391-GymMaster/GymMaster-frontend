@@ -4,7 +4,7 @@ import { AdminUsersTemplateWorkspace } from "@/features/member-management/compon
 export default function AdminUsersPage() {
   return (
     <AdminPageFrame
-      description="Tạo tài khoản theo vai trò và kiểm tra quyền truy cập active theo backend spec 002."
+      description="Tạo tài khoản theo vai trò và kiểm tra quyền truy cập."
       title="Quản lý tài khoản"
     >
       <AdminUsersTemplateWorkspace />

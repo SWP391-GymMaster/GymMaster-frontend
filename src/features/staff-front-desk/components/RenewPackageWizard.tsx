@@ -179,11 +179,11 @@ export function RenewPackageWizard() {
 
   return (
     <div className="space-y-5">
-      <section className="grid gap-4 md:grid-cols-3">
+      {/* <section className="grid gap-4 md:grid-cols-3">
         <WorkflowCard icon={RefreshCw} label="Chế độ gia hạn" title="Xem trước & xác nhận" />
         <WorkflowCard icon={CalendarDays} label="Quy tắc gói" title="Nối từ ngày hết hạn" />
         <WorkflowCard icon={CreditCard} label="Thanh toán" title="Thu tiền tại quầy" />
-      </section>
+      </section> */}
 
       <StaffWizardStepper
         activeIndex={activeStep}
@@ -230,9 +230,8 @@ export function RenewPackageWizard() {
                   setValue("packageId", 0, { shouldValidate: false })
                 }}
                 selected={selectedMember?.id === member.id}
-                subtitle={`${member.memberCode} · ${
-                  member.currentPackageName ?? "Chưa có gói"
-                }`}
+                subtitle={`${member.memberCode} · ${member.currentPackageName ?? "Chưa có gói"
+                  }`}
               />
             ))}
           </StaffSearchPanel>
@@ -305,8 +304,8 @@ export function RenewPackageWizard() {
             <>
               <form onSubmit={handleRenewalSubmit(onSubmitRenewal)}>
                 {renewalErrors.memberId ||
-                renewalErrors.packageId ||
-                renewalErrors.startDate ? (
+                  renewalErrors.packageId ||
+                  renewalErrors.startDate ? (
                   <p className="mt-3 text-sm font-medium text-destructive">
                     {renewalErrors.memberId?.message ??
                       renewalErrors.packageId?.message ??

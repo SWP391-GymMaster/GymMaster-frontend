@@ -102,11 +102,11 @@ export function SellPackageWizard() {
 
   return (
     <div className="space-y-5">
-      <section className="grid gap-4 md:grid-cols-3">
+      {/* <section className="grid gap-4 md:grid-cols-3">
         <WorkflowCard icon={PackagePlus} label="Trạng thái bán" title={saleResult ? "Đã tạo đơn" : "Chờ thanh toán"} />
         <WorkflowCard icon={CreditCard} label="Nguồn gói" title="Gói tập GymMaster Final" />
         <WorkflowCard icon={WalletCards} label="Phương thức thanh toán" title="Xác nhận thủ công" />
-      </section>
+      </section> */}
 
       <StaffWizardStepper
         activeIndex={activeStep}
@@ -258,8 +258,8 @@ export function SellPackageWizard() {
                 <>
                   <form onSubmit={handleSaleSubmit(onSubmitSale)}>
                     {saleErrors.memberId ||
-                    saleErrors.packageId ||
-                    saleErrors.startDate ? (
+                      saleErrors.packageId ||
+                      saleErrors.startDate ? (
                       <p className="mt-3 text-sm font-medium text-destructive">
                         {saleErrors.memberId?.message ??
                           saleErrors.packageId?.message ??

@@ -4,7 +4,7 @@ import { ManagementWorkspace } from "@/features/member-management/components/Man
 export default function AdminMembersPage() {
   return (
     <AdminPageFrame
-      description="Tìm kiếm, tạo, cập nhật và soft-delete hồ sơ hội viên theo backend spec 002."
+      description="Tìm kiếm, tạo, cập nhật và soft-delete hồ sơ hội viên."
       title="Quản lý hội viên"
     >
       <ManagementWorkspace

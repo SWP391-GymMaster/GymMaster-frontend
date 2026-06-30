@@ -21,6 +21,7 @@ import {
   useCheckInsByDate,
 } from "@/features/billing/api/billing.queries"
 import { useManagedMembers } from "@/features/member-management/api/member-management.queries"
+import { cn } from "@/lib/utils"
 
 const actions = [
   {
@@ -163,10 +164,12 @@ export function StaffDashboard() {
             Chào buổi sáng, Staff
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            {view.tasks.length > 0
-              ? `Bạn có ${view.tasks.length} công việc cần xử lý hôm nay.`
-              : "Hiện chưa có công việc nào cần xử lý."}{" "}
-            Bắt đầu từ tra cứu hội viên, bán/gia hạn gói đến check-in và ghi nhận thanh toán.
+            <span className={cn(view.tasks.length > 0 ? "text-destructive" : "text-foreground")}>
+
+              {view.tasks.length > 0
+                ? `Bạn có ${view.tasks.length} công việc cần xử lý hôm nay!`
+                : "Hiện chưa có công việc nào cần xử lý."}{" "}
+            </span>
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-4">

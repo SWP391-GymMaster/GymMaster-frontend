@@ -49,26 +49,67 @@ test.describe("PT Dashboard Flow", () => {
       () => window.__GYMMASTER_MSW_READY__ === true,
     )
 
-    await page.getByRole("button", { name: "Tạo giáo án mới" }).click()
+    await page.getByRole("button", { name: "Tạo giáo án" }).first().click()
 
-    await expect(page.getByText("Trình tạo giáo án").first()).toBeVisible()
+    await expect(page.getByText("Tạo giáo án").first()).toBeVisible()
 
-    // Click step 2 'Bài tập' to fill the inputs
-    await page.getByRole("button").filter({ hasText: "Tùy chỉnh chi tiết" }).click()
+    // Open the exercise step to fill the inputs.
+    await page.getByRole("button").filter({ hasText: "Bài tập" }).click()
 
-    await page.getByLabel("Tên giáo án").fill("Deadline Strength Block")
+    await page.getByLabel("Tên buổi tập").fill("Deadline Strength Block")
     await page.getByPlaceholder("Tên bài tập custom").fill("Deadlift")
     await page.getByLabel("Sets").fill("5")
-    await page.getByLabel("Reps / Time").fill("5")
-    await page.getByLabel("Cue / note").fill("Stop one rep before form breaks.")
+    await page.getByLabel("Reps").fill("5")
+    await page.getByLabel("Cue / ghi chú").fill("Stop one rep before form breaks.")
 
-    // Click step 3 'Lưu' to see the submit button
-    await page.getByRole("button").filter({ hasText: "Kiểm tra lần cuối" }).click()
+    // Open the review step to see the submit button.
+    await page.getByRole("button").filter({ hasText: "Lưu" }).click()
     await page.getByTestId("workout-plan-submit-button").click()
 
     await expect(page.getByText("Đã lưu giáo án")).toBeVisible()
     await expect(page.getByText("Deadline Strength Block")).toBeVisible()
     await expect(page.getByAltText("Minh họa bài tập Deadlift")).toBeVisible()
+  })
+
+  test("PT applies PPL preset and sees preset exercises", async ({ page }) => {
+    await loginAsPT(page)
+    await page.goto("/pt/members/101/workout")
+    await page.waitForFunction(
+      () => window.__GYMMASTER_MSW_READY__ === true,
+    )
+
+    await page.getByRole("button", { name: "Tạo giáo án" }).first().click()
+    await page.getByRole("button", { name: "Strength" }).click()
+    await page.getByRole("button").filter({ hasText: "Preset" }).click()
+    await page.getByRole("button").filter({ hasText: "PPL" }).first().click()
+    await page.getByRole("button", { name: "Áp dụng buổi mẫu đầu tiên" }).click()
+
+    await expect(page.getByText("Bài tập & tùy chỉnh").first()).toBeVisible()
+    await expect(page.getByLabel("Tên buổi tập")).toHaveValue(
+      "PPL Push Day Strength · lịch 3 buổi/tuần",
+    )
+
+    for (const name of [
+      "Bench Press",
+      "Overhead Press",
+      "Incline Dumbbell Press",
+      "Dumbbell Lateral Raise",
+      "Cable Triceps Pushdown",
+    ]) {
+      await expect(page.getByRole("heading", { name })).toBeVisible()
+    }
+
+    await expect(
+      page.getByAltText("Minh họa bài tập Bench Press").first(),
+    ).toBeVisible()
+
+    await page.getByLabel("Chọn bài tập").first().click()
+    await expect(
+      page.getByRole("option", { name: /^Deadlift/ }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole("option", { name: /^World's Greatest Stretch/ }),
+    ).toBeVisible()
   })
 
   test("PT adds trainer note for assigned member", async ({ page }) => {

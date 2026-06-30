@@ -155,10 +155,10 @@ export function PtDashboardContent() {
               Coach Command Center
             </p>
             <h2 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight text-foreground md:text-5xl">
-              Quản lý học viên, giáo án và ghi chú trong một workspace rõ ràng.
+              Quản lý học viên, giáo án và ghi chú.
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
-              Mở hồ sơ 360, điểm danh học viên, tạo giáo án và ghi chú sau buổi tập mà không mất ngữ cảnh huấn luyện.
+              Mở hồ sơ 360, điểm danh học viên, tạo giáo án và ghi chú.
             </p>
 
             <div className="mt-7 flex flex-wrap gap-3">

@@ -681,84 +681,88 @@ function SortableCoachExerciseRow({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "grid gap-4 p-4 lg:grid-cols-[24px_96px_minmax(0,1fr)_86px_96px_auto] lg:items-center bg-card",
+        "flex flex-col gap-3 bg-card p-4 xl:flex-row xl:flex-wrap xl:items-center 2xl:flex-nowrap",
         isDragging && "z-50 shadow-lg border border-primary/20 rounded-xl"
       )}
     >
       <div
         {...attributes}
         {...listeners}
-        className="hidden cursor-grab active:cursor-grabbing text-muted-foreground lg:block px-2 py-4 select-none hover:text-foreground"
+        className="hidden cursor-grab select-none px-2 py-4 text-muted-foreground hover:text-foreground active:cursor-grabbing 2xl:block"
       >
         ::
       </div>
 
-      <div className="relative h-16 overflow-hidden rounded-lg border border-border bg-muted">
-        <img
-          alt={`Minh họa bài tập ${exercise.name}`}
-          className="absolute inset-0 size-full object-cover"
-          loading="lazy"
-          src={asset.src}
-        />
-      </div>
+      <div className="flex min-w-[220px] flex-1 items-center gap-3">
+        <div className="relative size-16 shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
+          <img
+            alt={`Minh họa bài tập ${exercise.name}`}
+            className="absolute inset-0 size-full object-cover"
+            loading="lazy"
+            src={asset.src}
+          />
+        </div>
 
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="min-w-0 flex-1">
           <Input
             value={exercise.name}
             onChange={(e) => onUpdate("name", e.target.value)}
             onFocus={handleFieldFocus}
             onBlur={handleFieldBlur}
-            className="h-8 font-semibold text-foreground bg-transparent border-none p-0 focus-visible:ring-1 focus-visible:ring-primary w-fit max-w-[200px]"
+            className="h-8 w-full border-none bg-transparent p-0 font-semibold text-foreground focus-visible:ring-1 focus-visible:ring-primary"
           />
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+          <span className="mt-1 inline-flex w-fit rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
             {getWorkoutCategoryLabel(asset.category)}
           </span>
+          <Input
+            value={exercise.note || ""}
+            placeholder="Cue kỹ thuật..."
+            onChange={(e) => onUpdate("note", e.target.value)}
+            onFocus={handleFieldFocus}
+            onBlur={handleFieldBlur}
+            className="mt-1 h-7 w-full border-none bg-transparent p-0 text-sm text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary"
+          />
         </div>
-        <Input
-          value={exercise.note || ""}
-          placeholder="Thêm ghi chú kỹ thuật..."
-          onChange={(e) => onUpdate("note", e.target.value)}
-          onFocus={handleFieldFocus}
-          onBlur={handleFieldBlur}
-          className="h-7 mt-1 text-sm text-muted-foreground bg-transparent border-none p-0 focus-visible:ring-1 focus-visible:ring-primary"
-        />
       </div>
 
-      <CoachInlineField
-        label="Sets"
-        value={String(exercise.sets)}
-        onChange={(val) => onUpdate("sets", Number(val) || 0)}
-        onFocus={handleFieldFocus}
-        onCommit={handleFieldBlur}
-      />
-      <CoachInlineField
-        label="Reps"
-        value={exercise.reps}
-        onChange={(val) => onUpdate("reps", val)}
-        onFocus={handleFieldFocus}
-        onCommit={handleFieldBlur}
-      />
+      <div className="ml-auto flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-end">
+        <div className="grid w-full grid-cols-2 gap-2 sm:w-[172px]">
+          <CoachInlineField
+            label="Sets"
+            value={String(exercise.sets)}
+            onChange={(val) => onUpdate("sets", Number(val) || 0)}
+            onFocus={handleFieldFocus}
+            onCommit={handleFieldBlur}
+          />
+          <CoachInlineField
+            label="Reps"
+            value={exercise.reps}
+            onChange={(val) => onUpdate("reps", val)}
+            onFocus={handleFieldFocus}
+            onCommit={handleFieldBlur}
+          />
+        </div>
 
-      <div className="flex items-center gap-2">
-        <Button
-          className="size-9 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.95]"
-          type="button"
-          variant="outline"
-          onClick={onCopy}
-          title="Sao chép"
-        >
-          <Copy aria-hidden="true" className="size-4" />
-        </Button>
-        <Button
-          className="size-9 rounded-xl border-destructive/20 bg-card text-destructive hover:bg-destructive/10 active:scale-[0.95]"
-          type="button"
-          variant="outline"
-          onClick={onDelete}
-          title="Xóa"
-        >
-          <Trash2 aria-hidden="true" className="size-4" />
-        </Button>
+        <div className="flex items-center justify-end gap-2 sm:pb-px">
+          <Button
+            className="size-9 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.95]"
+            type="button"
+            variant="outline"
+            onClick={onCopy}
+            title="Sao chép"
+          >
+            <Copy aria-hidden="true" className="size-4" />
+          </Button>
+          <Button
+            className="size-9 rounded-xl border-destructive/20 bg-card text-destructive hover:bg-destructive/10 active:scale-[0.95]"
+            type="button"
+            variant="outline"
+            onClick={onDelete}
+            title="Xóa"
+          >
+            <Trash2 aria-hidden="true" className="size-4" />
+          </Button>
+        </div>
       </div>
     </div>
   )

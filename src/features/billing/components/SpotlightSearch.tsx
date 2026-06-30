@@ -193,8 +193,8 @@ export function SpotlightSearch({
   }, [open]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 sm:max-w-[550px] overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
+    <Dialog open={open} onOpenChange={onOpenChange} >
+      <DialogContent className="p-0 sm:min-w-[45vw] overflow-hidden rounded-3xl border border-border bg-card shadow-2xl">
         <DialogTitle className="sr-only">Spotlight Search</DialogTitle>
         <DialogDescription className="sr-only">
           Tìm kiếm trang, chức năng hoặc hóa đơn.
@@ -225,11 +225,10 @@ export function SpotlightSearch({
                     key={item.href}
                     onClick={() => handleSelect(item.href)}
                     type="button"
-                    className={`flex items-start gap-3 rounded-2xl p-3 text-left w-full transition ${
-                      isSelected
-                        ? "bg-primary/10 text-foreground ring-1 ring-primary/30"
-                        : "hover:bg-muted/40 text-muted-foreground"
-                    }`}
+                    className={`flex items-start gap-3 rounded-2xl p-3 text-left w-full transition ${isSelected
+                      ? "bg-primary/10 text-foreground ring-1 ring-primary/30"
+                      : "hover:bg-muted/40 text-muted-foreground"
+                      }`}
                   >
                     <div
                       className={`p-2 rounded-xl shrink-0 ${isSelected ? "bg-primary text-primary-foreground" : "bg-muted"}`}

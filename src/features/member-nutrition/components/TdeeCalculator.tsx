@@ -314,7 +314,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                   value={age}
                   onChange={(e) => setAge(Number(e.target.value))}
                   className={cn(
-                    "mt-2 min-h-11 w-full bg-white/5 border text-white rounded-xl focus-visible:ring-primary/20",
+                    "mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20",
                     tdeeErrors.age ? "border-destructive focus-visible:border-destructive" : "border-white/10 focus-visible:border-primary"
                   )}
                 />
@@ -329,7 +329,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                   value={height}
                   onChange={(e) => setHeight(Number(e.target.value))}
                   className={cn(
-                    "mt-2 min-h-11 w-full bg-white/5 border text-white rounded-xl focus-visible:ring-primary/20",
+                    "mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border text-white rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20",
                     tdeeErrors.height ? "border-destructive focus-visible:border-destructive" : "border-white/10 focus-visible:border-primary"
                   )}
                 />
@@ -344,7 +344,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                   value={weight}
                   onChange={(e) => setWeight(Number(e.target.value))}
                   className={cn(
-                    "mt-2 min-h-11 w-full bg-white/5 border text-white rounded-xl focus-visible:ring-primary/20",
+                    "mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border text-white rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20",
                     tdeeErrors.weight ? "border-destructive focus-visible:border-destructive" : "border-white/10 focus-visible:border-primary"
                   )}
                 />
@@ -365,7 +365,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
               <label htmlFor="tdee-activity" className="text-xs font-bold uppercase tracking-wider text-white/40">
                 Mức độ vận động
               </label>
-              
+
               <select
                 id="tdee-activity"
                 value={activity}
@@ -385,12 +385,12 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                 value={activity.toString()}
                 onValueChange={(val) => setActivity(Number(val))}
               >
-                <SelectTrigger className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary">
+                <SelectTrigger className="mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border border-white/10 text-white rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20 focus-visible:border-primary">
                   <SelectValue placeholder="Chọn mức độ vận động" />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+                <SelectContent className="bg-primary border border-white/10 text-primary-foreground rounded-xl">
                   {activityOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value.toString()} className="focus:bg-white/5 focus:text-white">
+                    <SelectItem key={opt.value} value={opt.value.toString()}>
                       {opt.label} ({opt.value})
                     </SelectItem>
                   ))}
@@ -477,7 +477,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                 </div>
 
                 {/* Summary and Apply CTA */}
-                  <div className="pt-3 border-t border-white/5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="pt-3 border-t border-white/5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-xs font-bold text-white/40">Mục tiêu Calo đề xuất:</p>
                     <p className="text-lg font-black text-white">{proposedCalorie} kcal/ngày</p>
@@ -510,7 +510,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                 type="number"
                 value={manualCalorie}
                 onChange={(e) => handleManualCalorieChange(Math.max(0, Number(e.target.value)))}
-                className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border border-white/10 text-white rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20 focus-visible:border-primary"
               />
               {manualCalorie < 1200 && (
                 <p className="mt-1 text-xs text-destructive">Lượng calo tối thiểu khuyên dùng là 1200 kcal</p>
@@ -523,10 +523,10 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                 Chế độ ăn mẫu (Diet Templates)
               </label>
               <Select value={dietTemplate} onValueChange={handleDietTemplateChange}>
-                <SelectTrigger id="diet-template" className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary">
+                <SelectTrigger id="diet-template" className="mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border border-white/10 text-white rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20 focus-visible:border-primary">
                   <SelectValue placeholder="Chọn chế độ dinh dưỡng mẫu" />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+                <SelectContent className="bg-primary border border-white/10 text-primary-foreground rounded-xl">
                   {Object.entries(dietTemplates).map(([key, temp]) => (
                     <SelectItem key={key} value={key} className="focus:bg-white/5 focus:text-white">
                       {temp.label}
@@ -550,7 +550,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                     setManualProtein(Math.max(0, Number(e.target.value)));
                     setDietTemplate("custom");
                   }}
-                  className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border border-white/10 text-white rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20 focus-visible:border-primary"
                 />
               </div>
               <div className="min-w-0">
@@ -565,7 +565,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                     setManualCarbs(Math.max(0, Number(e.target.value)));
                     setDietTemplate("custom");
                   }}
-                  className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border border-white/10 text-white rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20 focus-visible:border-primary"
                 />
               </div>
               <div className="min-w-0">
@@ -580,7 +580,7 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
                     setManualFat(Math.max(0, Number(e.target.value)));
                     setDietTemplate("custom");
                   }}
-                  className="mt-2 min-h-11 w-full bg-white/5 border border-white/10 text-white rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="mt-2 min-h-11 w-full bg-primary/5 text-white focus:text-primary border border-white/10 text-white rounded-xl focus-visible:bg-primary/10 focus-visible:ring-primary/20 focus-visible:border-primary"
                 />
               </div>
             </div>
