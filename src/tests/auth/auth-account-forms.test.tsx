@@ -103,18 +103,24 @@ describe("auth account forms", () => {
     })
     fireEvent.click(screen.getByRole("button", { name: /gửi yêu cầu đặt lại/i }))
 
-    expect(
-      await screen.findByText(
-        "Nếu email tồn tại, yêu cầu đặt lại mật khẩu đã được tạo.",
-      ),
-    ).toBeInTheDocument()
-    expect(screen.getByText(/mock-reset-token/)).toBeInTheDocument()
+    // UX moi: gui thanh cong -> dieu huong sang trang dat lai mat khau (kem OTP).
+    await waitFor(() => {
+      expect(navigation.push).toHaveBeenCalledWith(
+        expect.stringContaining("/reset-password?"),
+      )
+    })
+    expect(navigation.push).toHaveBeenCalledWith(
+      expect.stringContaining("token=123456"),
+    )
   })
 
-  it("resets password with a valid reset token", async () => {
-    render(<ResetPasswordForm resetToken="mock-reset-token" />)
+  it("resets password with a valid OTP", async () => {
+    render(<ResetPasswordForm email="member@gymmaster.local" resetToken="123456" />)
 
     fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
+      target: { value: "NewPassword123!" },
+    })
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
     fireEvent.click(screen.getByRole("button", { name: /đặt lại mật khẩu/i }))
@@ -124,10 +130,13 @@ describe("auth account forms", () => {
     ).toBeInTheDocument()
   })
 
-  it("shows invalid reset token errors", async () => {
-    render(<ResetPasswordForm resetToken="expired-reset-token" />)
+  it("shows invalid OTP errors", async () => {
+    render(<ResetPasswordForm email="member@gymmaster.local" resetToken="000000" />)
 
     fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
+      target: { value: "NewPassword123!" },
+    })
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
     fireEvent.click(screen.getByRole("button", { name: /đặt lại mật khẩu/i }))
@@ -162,6 +171,9 @@ describe("auth account forms", () => {
     fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
+      target: { value: "NewPassword123!" },
+    })
     fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
 
     expect(
@@ -192,6 +204,9 @@ describe("auth account forms", () => {
     fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
+      target: { value: "NewPassword123!" },
+    })
     fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
 
     expect(await screen.findByText("Đã đổi mật khẩu.")).toBeInTheDocument()
@@ -204,6 +219,9 @@ describe("auth account forms", () => {
       target: { value: "Password123!" },
     })
     fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
+      target: { value: "NewPassword123!" },
+    })
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
     fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
