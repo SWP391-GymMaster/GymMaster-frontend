@@ -38,7 +38,7 @@ function initials(name: string) {
     .join("")
 }
 
-const cardClass = "rounded-2xl border border-border bg-card shadow-sm"
+const cardClass = "gm-panel"
 
 export function AdminPtAssignmentWorkspace() {
   const [activeView, setActiveView] = useState<"list" | "assign">("list")
@@ -127,7 +127,7 @@ export function AdminPtAssignmentWorkspace() {
         {activeView === "list" ? (
           <Button
             onClick={() => setActiveView("assign")}
-            className="min-h-11 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/95"
+            className="min-h-11 rounded-full bg-primary px-5 font-semibold text-primary-foreground hover:brightness-95"
             type="button"
           >
             Bắt đầu phân công PT
@@ -141,7 +141,7 @@ export function AdminPtAssignmentWorkspace() {
               setResult(null)
               setAssignmentError(null)
             }}
-            className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted"
+            className="min-h-11 rounded-full border-border bg-[var(--surface-panel)] px-5 text-foreground hover:bg-muted"
             type="button"
             variant="outline"
           >
@@ -176,7 +176,7 @@ export function AdminPtAssignmentWorkspace() {
 
       {activeView === "list" ? (
         <div className="space-y-6">
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+          <section className="gm-panel space-y-4 p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h3 className="text-lg font-bold text-foreground">Danh sách phân công hiện tại</h3>
@@ -186,7 +186,7 @@ export function AdminPtAssignmentWorkspace() {
               </div>
               <Button
                 onClick={() => setActiveView("assign")}
-                className="rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/95 active:scale-[0.98]"
+                className="rounded-full bg-primary px-5 font-semibold text-primary-foreground hover:brightness-95 active:scale-[0.98]"
               >
                 Tạo phân công mới
               </Button>
@@ -272,7 +272,7 @@ export function AdminPtAssignmentWorkspace() {
             <PanelHeader
               action={
                 <Button
-                  className="rounded-xl text-primary hover:bg-primary/10"
+                  className="rounded-full text-primary hover:bg-primary/10"
                   type="button"
                   variant="ghost"
                 >
@@ -300,7 +300,7 @@ export function AdminPtAssignmentWorkspace() {
                       "min-h-9 rounded-full border px-4 text-sm font-semibold transition active:scale-[0.98]",
                       specialty === item
                         ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
+                        : "border-border bg-[var(--surface-panel)] text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                     key={item}
                     onClick={() => setSpecialty(item)}
@@ -353,7 +353,7 @@ export function AdminPtAssignmentWorkspace() {
 
             <div className="border-t border-border p-4">
               <Button
-                className="min-h-14 w-full rounded-xl bg-primary text-base font-semibold text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+                className="min-h-14 w-full rounded-full bg-primary text-base font-semibold text-primary-foreground hover:brightness-95 active:scale-[0.98]"
                 data-testid="assignment-confirm-button"
                 disabled={!canConfirm || assignTrainer.isPending}
                 onClick={onConfirm}
@@ -385,12 +385,12 @@ function MetricCard({
 }) {
   const toneClass = {
     primary: "bg-primary/10 text-primary",
-    success: "bg-emerald-500/10 text-emerald-600",
-    neutral: "bg-violet-500/10 text-violet-600",
+    success: "bg-[var(--status-info-bg)] text-[var(--status-info-text)]",
+    neutral: "bg-muted text-muted-foreground",
   }[tone]
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <div className="gm-panel relative overflow-hidden p-5">
       <div className="absolute -right-8 -top-8 size-24 rounded-full bg-primary/5" />
       <div className="relative flex items-center gap-4">
         <span className={cn("flex size-14 shrink-0 items-center justify-center rounded-full", toneClass)}>
@@ -427,7 +427,7 @@ function SearchInput({
         className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
       />
       <input
-        className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+        className="gm-field min-h-11 w-full pl-11 pr-3 text-sm text-foreground transition placeholder:text-muted-foreground"
         data-testid={dataTestId}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
@@ -482,10 +482,10 @@ function MemberCard({
   return (
     <button
       className={cn(
-        "group flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200 active:scale-[0.99]",
+        "gm-interactive-card group flex w-full items-start gap-3 p-4 text-left active:scale-[0.99]",
         selected
-          ? "border-primary/40 bg-primary/5 shadow-sm ring-1 ring-primary/20"
-          : "border-border bg-background hover:bg-muted/35",
+          ? "border-primary/40 bg-primary/5 ring-1 ring-primary/20"
+          : "",
       )}
       data-testid="assignment-member-card"
       onClick={onSelect}
@@ -538,10 +538,10 @@ function TrainerCard({
   return (
     <button
       className={cn(
-        "relative w-full rounded-xl border p-4 text-left transition-all duration-200 active:scale-[0.99]",
+        "gm-interactive-card relative w-full p-4 text-left active:scale-[0.99]",
         selected
-          ? "border-primary/40 bg-primary/5 shadow-sm ring-1 ring-primary/20"
-          : "border-border bg-background hover:bg-muted/35",
+          ? "border-primary/40 bg-primary/5 ring-1 ring-primary/20"
+          : "",
       )}
       data-testid="assignment-trainer-card"
       onClick={onSelect}
@@ -593,7 +593,7 @@ function TrainerCard({
             "rounded-xl px-4 py-2 text-sm font-semibold",
             selected
               ? "bg-primary text-primary-foreground"
-              : "border border-border bg-card text-foreground",
+              : "border border-border/80 bg-[var(--surface-panel)] text-foreground",
           )}
         >
           {selected ? "Đã chọn" : "Chọn"}
@@ -651,7 +651,7 @@ function AssignmentPreview({
         />
 
         {selectedMember && selectedTrainer ? (
-          <section className="rounded-xl border border-border bg-background p-4">
+          <section className="gm-panel-muted p-4">
             <p className="text-sm font-semibold text-foreground">Tóm tắt phân công</p>
             <div className="mt-3 space-y-2 text-sm">
               <PreviewRow label="Hình thức" value={mode === "reassign" ? "Phân công lại" : "Phân công mới"} />
@@ -672,7 +672,7 @@ function AssignmentPreview({
             </div>
 
             {mode === "reassign" && selectedMember.currentTrainerName ? (
-              <p className="mt-3 rounded-lg border border-orange-200 bg-orange-50 p-3 text-xs leading-5 text-orange-800">
+              <p className="mt-3 rounded-[1rem] border border-[var(--status-warning)]/25 bg-[var(--status-warning)]/10 p-3 text-xs leading-5 text-[var(--status-warning)]">
                 Hội viên đang được {selectedMember.currentTrainerName} phụ trách. Cần
                 kết thúc phân công hiện tại trước khi gán PT mới.
               </p>
@@ -683,7 +683,7 @@ function AssignmentPreview({
 
       {assignmentError ? (
         <div
-          className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-destructive"
+          className="mt-4 rounded-[1.25rem] border border-destructive/20 bg-destructive/10 p-3 text-destructive"
           data-testid="assignment-error"
         >
           <p className="text-sm font-semibold">Không thể phân công PT</p>
@@ -693,7 +693,7 @@ function AssignmentPreview({
 
       {result ? (
         <div
-          className="mt-4 rounded-xl border border-primary/20 bg-primary/10 p-3"
+          className="mt-4 rounded-[1.25rem] border border-primary/20 bg-primary/10 p-3"
           data-testid="assignment-success"
         >
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
@@ -726,7 +726,7 @@ function PreviewBlock({
   subline?: string
 }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-4 text-center">
+    <div className="gm-panel-muted p-4 text-center">
       <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-primary/10 text-lg font-semibold text-primary">
         {name ? initials(name) : <UserRound aria-hidden="true" className="size-6" />}
       </div>

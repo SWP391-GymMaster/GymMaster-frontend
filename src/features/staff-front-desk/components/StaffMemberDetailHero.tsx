@@ -36,7 +36,7 @@ export function StaffMemberDetailHero() {
 
   if (detail.isLoading) {
     return (
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <section className="gm-panel p-6">
         <StateBlock
           description="Đang tải gói hội viên, thanh toán và check-in gần đây."
           title="Đang tải chi tiết hội viên..."
@@ -48,7 +48,7 @@ export function StaffMemberDetailHero() {
 
   if (error) {
     return (
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <section className="gm-panel p-6">
         <StateBlock
           description="Quay lại tìm hội viên hoặc thử lại sau khi kiểm tra mã hội viên."
           title={error.message}
@@ -60,7 +60,7 @@ export function StaffMemberDetailHero() {
 
   if (!detail.data) {
     return (
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <section className="gm-panel p-6">
         <StateBlock
           description="Quay lại tìm hội viên và chọn một hồ sơ hợp lệ."
           title="Không thể tải chi tiết hội viên."
@@ -74,7 +74,7 @@ export function StaffMemberDetailHero() {
 
   return (
     <div className="space-y-5">
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <section className="gm-panel relative overflow-hidden p-6">
         <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-primary/10 blur-3xl" />
 
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
@@ -121,7 +121,7 @@ export function StaffMemberDetailHero() {
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="gm-panel p-5">
           <p className="text-sm font-semibold text-foreground">Tổng quan hội viên</p>
           <div className="mt-4 grid gap-4 md:grid-cols-3">
             <InfoTile icon={CreditCard} label="Gói hiện tại" value={currentMembership?.packageName ?? "Chưa có"} />
@@ -130,7 +130,7 @@ export function StaffMemberDetailHero() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <aside className="gm-panel p-5">
           <h3 className="text-lg font-semibold text-foreground">Thao tác tiếp theo</h3>
           <div className="mt-4 grid gap-3">
             <Link
@@ -155,12 +155,12 @@ export function StaffMemberDetailHero() {
         </aside>
       </section>
 
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="gm-panel p-5">
         <p className="text-sm font-semibold text-foreground">Check-in gần đây</p>
         {recentCheckIns.length ? (
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             {recentCheckIns.slice(-6).map((checkin) => (
-              <div className="rounded-xl border border-border bg-background p-4" key={checkin.id}>
+              <div className="gm-panel-muted p-4" key={checkin.id}>
                 <p className="text-sm font-semibold text-foreground">Check-in thành công</p>
                 <p className="mt-1 text-sm text-muted-foreground">{checkin.checkInAt}</p>
               </div>
@@ -181,7 +181,7 @@ export function StaffMemberDetailHero() {
 
 function DetailMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-4">
+    <div className="gm-panel-muted p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </p>
@@ -200,7 +200,7 @@ function InfoTile({
   value: string
 }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-4">
+    <div className="gm-panel-muted p-4">
       <span className="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Icon aria-hidden="true" className="size-5" />
       </span>

@@ -83,9 +83,9 @@ type ManagementWorkspaceProps = {
 }
 
 const surfaceClass =
-  "rounded-2xl border border-border bg-card shadow-sm"
+  "gm-panel"
 const inputClass =
-  "min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+  "gm-field min-h-11 w-full px-3 text-sm text-foreground transition placeholder:text-muted-foreground"
 const labelClass =
   "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
 
@@ -254,18 +254,18 @@ function DirectoryMetricCard({
   helper: string
   icon: LucideIcon
   label: string
-  tone?: "primary" | "success" | "warning" | "purple"
+  tone?: "primary" | "success" | "warning" | "neutral"
   value: string
 }) {
   const toneClass = {
     primary: "bg-primary/10 text-primary",
-    success: "bg-emerald-500/10 text-emerald-600",
+    success: "bg-[var(--status-info-bg)] text-[var(--status-info-text)]",
     warning: "bg-orange-500/10 text-orange-600",
-    purple: "bg-violet-500/10 text-violet-600",
+    neutral: "bg-muted text-muted-foreground",
   }[tone]
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <div className="gm-panel relative overflow-hidden p-5">
       <div className="absolute -right-6 bottom-0 size-20 rounded-full bg-primary/5" />
       <div className="relative flex items-center gap-4">
         <span className={cn("flex size-12 shrink-0 items-center justify-center rounded-full", toneClass)}>
@@ -314,7 +314,7 @@ function SearchToolbar({
           className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
         />
         <Input
-          className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+          className="gm-field min-h-11 w-full pl-11 pr-3 text-sm text-foreground transition placeholder:text-muted-foreground"
           data-testid="management-search-input"
           data-shortcut-search
           onChange={(event) => onSearch(event.target.value)}
@@ -328,7 +328,7 @@ function SearchToolbar({
           <div className="relative">
             <Button
               className={cn(
-                "min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98] w-full sm:w-auto",
+                "min-h-11 rounded-full border-border bg-[var(--surface-panel)] text-foreground hover:bg-muted active:scale-[0.98] w-full sm:w-auto",
                 statusFilter && statusFilter !== "" ? "border-primary text-primary" : "",
               )}
               onClick={() => setIsOpen(!isOpen)}
@@ -345,7 +345,7 @@ function SearchToolbar({
                   className="fixed inset-0 z-30"
                   onClick={() => setIsOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border bg-card/95 p-2 shadow-xl backdrop-blur-md z-40 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="gm-panel absolute right-0 z-40 mt-2 w-56 p-2 backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="py-1">
                     <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                       Lọc theo trạng thái
@@ -381,7 +381,7 @@ function SearchToolbar({
           </div>
         ) : (
           <Button
-            className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+            className="min-h-11 rounded-full border-border bg-[var(--surface-panel)] text-foreground hover:bg-muted active:scale-[0.98]"
             type="button"
             variant="outline"
           >
@@ -467,7 +467,7 @@ function MemberDirectoryTemplate({
           helper="Chờ hoàn tất"
           icon={UserRound}
           label="Chờ kích hoạt"
-          tone="purple"
+          tone="neutral"
           value={String(pendingMembers)}
         />
       </div>
@@ -794,7 +794,7 @@ function PreviewInfo({
   value?: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
+    <div className="gm-panel-muted flex items-center gap-3 p-3">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Icon aria-hidden="true" className="size-4" />
       </span>
@@ -997,7 +997,7 @@ function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
       </div>
 
       <div className="grid gap-5 p-6">
-        <section className="rounded-xl border border-border bg-background p-5">
+        <section className="gm-panel-muted p-5">
           <p className="mb-5 text-sm font-semibold text-foreground">Thông tin tài khoản</p>
           <div className="grid gap-3">
             {[
@@ -1077,7 +1077,7 @@ function TrainerRosterTemplate({
           helper="Tất cả PT"
           icon={Dumbbell}
           label="Tổng PT"
-          tone="purple"
+          tone="neutral"
           value={String(total)}
         />
         <DirectoryMetricCard
@@ -1222,7 +1222,7 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
       </div>
 
       <div className="grid gap-5 p-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-background p-5">
+        <section className="gm-panel-muted p-5">
           <p className="mb-5 text-sm font-semibold text-foreground">Thông tin hồ sơ</p>
           <div className="grid gap-3">
             {infoRows.map((row) => (
@@ -1239,7 +1239,7 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-border bg-background p-5">
+        <section className="gm-panel-muted p-5">
           <p className="mb-5 text-sm font-semibold text-foreground">Giới thiệu</p>
           {trainer.bio ? (
             <p className="text-sm leading-6 text-muted-foreground">{trainer.bio}</p>
@@ -1318,7 +1318,7 @@ function UserRoleDirectoryTemplate({
           helper="/api/v1/users"
           icon={ShieldCheck}
           label="Hợp đồng"
-          tone="purple"
+          tone="neutral"
           value="Người dùng"
         />
         <DirectoryMetricCard

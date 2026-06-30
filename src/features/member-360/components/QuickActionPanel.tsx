@@ -31,7 +31,7 @@ export function QuickActionPanel({
   return (
     <section
       className={cn(
-        "rounded-2xl border border-border bg-card p-5 shadow-sm",
+        "gm-panel p-5",
         className,
       )}
     >
@@ -43,7 +43,7 @@ export function QuickActionPanel({
             const Icon = action.icon
             return (
               <Link
-                className="group flex items-center gap-3 rounded-xl border border-border bg-background p-3 text-sm font-medium text-foreground transition hover:border-primary/30 hover:bg-primary/5 active:scale-[0.98]"
+                className="gm-interactive-card group flex items-center gap-3 p-3 text-sm font-medium text-foreground active:scale-[0.98]"
                 href={action.href}
                 key={action.href}
               >

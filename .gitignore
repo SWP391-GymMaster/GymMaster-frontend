@@ -39,6 +39,8 @@
 !/openspec/changes/audit-app-flows-backend-alignment/**
 !/openspec/changes/handle-empty-protected-api-errors/
 !/openspec/changes/handle-empty-protected-api-errors/**
+!/openspec/changes/desktop-apple-fitness-uxui-rework/
+!/openspec/changes/desktop-apple-fitness-uxui-rework/**
 
 # debug
 npm-debug.log*

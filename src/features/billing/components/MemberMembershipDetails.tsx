@@ -271,7 +271,7 @@ export function MemberMembershipDetails() {
                     </>
                   ) : null}
                   {membership.status === "active" ? (
-                    <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800">
+                    <p className="mt-3 rounded-xl bg-primary/10 px-3 py-2 text-xs font-medium text-primary">
                       ✅ Gói còn hiệu lực đến {formatDate(membership.endDate)}.
                     </p>
                   ) : null}
@@ -320,7 +320,7 @@ export function MemberMembershipDetails() {
               return (
                 <div
                   key={order.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="gm-panel-muted flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
                     <p className="font-semibold text-foreground">
@@ -356,7 +356,7 @@ export function MemberMembershipDetails() {
 
       {/* ③ Mua / Đổi gói — LUÔN hiện (kiểu app thật) */}
       <section
-        className="rounded-[1.5rem] border border-border bg-card p-6 shadow-sm"
+        className="rounded-[1.5rem] border border-border/80 bg-[var(--surface-panel)] p-6 shadow-[var(--shadow-soft)]"
         data-testid="member-package-store"
       >
         <h3 className="text-lg font-bold tracking-tight text-foreground">
@@ -374,7 +374,7 @@ export function MemberMembershipDetails() {
       </section>
 
       {/* ③ Lịch sử hóa đơn */}
-      <div className="rounded-[1.5rem] border border-border bg-card p-6 shadow-sm">
+      <div className="rounded-[1.5rem] border border-border/80 bg-[var(--surface-panel)] p-6 shadow-[var(--shadow-soft)]">
         <h3 className="text-lg font-bold tracking-tight text-foreground mb-4">
           Lịch sử hóa đơn thanh toán
         </h3>

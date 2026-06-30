@@ -14,15 +14,15 @@ type StateBlockProps = {
 }
 
 const toneClasses: Record<StateBlockTone, string> = {
-  loading: "border-zinc-200 bg-zinc-50 text-zinc-700",
-  empty: "border-dashed border-zinc-300 bg-zinc-50 text-zinc-700",
-  error: "border-red-200 bg-red-50 text-red-800",
+  loading: "border-border/80 bg-[var(--surface-panel-muted)] text-foreground",
+  empty: "border-dashed border-border/90 bg-[var(--surface-panel-muted)] text-foreground",
+  error: "border-red-300/70 bg-red-50/80 text-red-900",
   info: "border-[color:var(--status-active-border)] bg-[var(--status-active-bg)] text-[var(--status-active-text)]",
 }
 
 const iconClasses: Record<StateBlockTone, string> = {
-  loading: "bg-zinc-200 text-zinc-600",
-  empty: "bg-white text-zinc-500",
+  loading: "bg-card text-muted-foreground ring-1 ring-border/80",
+  empty: "bg-card text-muted-foreground ring-1 ring-border/80",
   error: "bg-red-100 text-red-700",
   info: "bg-[var(--status-active-border)] text-[var(--status-active-text)]",
 }
@@ -46,7 +46,7 @@ export function StateBlock({
   return (
     <div
       className={cn(
-        "rounded-[1.25rem] border p-4",
+        "rounded-[1.25rem] border p-4 shadow-[var(--shadow-soft)]",
         toneClasses[tone],
         className,
       )}
@@ -64,10 +64,10 @@ export function StateBlock({
             className={cn("size-4", tone === "loading" ? "animate-spin" : "")}
           />
         </span>
-        <div>
+        <div className="min-w-0">
           <p className="text-sm font-semibold">{title}</p>
           {description ? (
-            <p className="mt-1 text-sm opacity-85">{description}</p>
+            <p className="mt-1 max-w-prose text-sm leading-6 opacity-80">{description}</p>
           ) : null}
         </div>
       </div>

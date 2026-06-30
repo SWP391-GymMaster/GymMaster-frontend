@@ -85,7 +85,7 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
       <DialogTrigger asChild>
         {trigger || (
           <Button
-            className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+            className="min-h-11 rounded-full bg-primary px-5 text-primary-foreground hover:brightness-95 active:scale-[0.98]"
             data-testid="member-progress-trigger"
           >
             <Plus className="size-4 mr-2" />
@@ -93,23 +93,24 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-md rounded-2xl p-0">
-        <DialogHeader className="border-b border-border p-6">
-          <DialogTitle className="text-xl font-bold">Ghi nhận chỉ số cơ thể</DialogTitle>
+      <DialogContent className="gm-dialog-surface max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] gap-0 p-0 sm:max-w-[40rem]">
+        <DialogHeader className="gm-dialog-header">
+          <DialogTitle>Ghi nhận chỉ số cơ thể</DialogTitle>
           <DialogDescription>
             Cập nhật cân nặng và tỷ lệ mỡ cơ thể hiện tại của bạn.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-6">
-          <div className="space-y-2">
-            <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="measuredAt">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+          <div className="gm-dialog-body space-y-5">
+            <div className="space-y-2">
+            <label className="gm-dialog-label" htmlFor="measuredAt">
               Ngày ghi nhận
             </label>
             <input
               id="measuredAt"
               type="date"
               max={todayStr}
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+              className="gm-field min-h-12 w-full px-4 text-sm font-semibold text-foreground outline-none transition-all placeholder:text-muted-foreground"
               data-testid="progress-form-date"
               {...register("measuredAt")}
             />
@@ -118,9 +119,9 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="weightKg">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="min-w-0 space-y-2">
+                <label className="gm-dialog-label min-h-8" htmlFor="weightKg">
                 Cân nặng (kg)
               </label>
               <input
@@ -128,7 +129,7 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
                 type="number"
                 step="0.1"
                 placeholder="Ví dụ: 72.5"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="gm-field min-h-12 w-full px-4 text-sm font-semibold text-foreground outline-none transition-all placeholder:text-muted-foreground"
                 data-testid="progress-form-weight"
                 {...register("weightKg")}
               />
@@ -137,8 +138,8 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
               )}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="bodyFatPct">
+              <div className="min-w-0 space-y-2">
+              <label className="gm-dialog-label min-h-8" htmlFor="bodyFatPct">
                 Tỷ lệ mỡ (%) <span className="text-muted-foreground font-normal">(Không bắt buộc)</span>
               </label>
               <input
@@ -146,7 +147,7 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
                 type="number"
                 step="0.1"
                 placeholder="Ví dụ: 18.5"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="gm-field min-h-12 w-full px-4 text-sm font-semibold text-foreground outline-none transition-all placeholder:text-muted-foreground"
                 data-testid="progress-form-fat"
                 {...register("bodyFatPct")}
               />
@@ -154,20 +155,21 @@ export function ProgressLogForm({ memberId, onSuccess, trigger }: ProgressLogFor
                 <p className="text-xs font-semibold text-destructive">{errors.bodyFatPct.message}</p>
               )}
             </div>
+            </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 border-t border-border pt-6">
+          <div className="gm-dialog-footer">
             <Button
               type="button"
               variant="outline"
-              className="min-h-11 rounded-xl"
+              className="min-h-11 rounded-full px-5"
               onClick={() => setOpen(false)}
             >
               Hủy
             </Button>
             <Button
               type="submit"
-              className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+              className="min-h-11 rounded-full bg-primary px-5 text-primary-foreground hover:brightness-95 active:scale-[0.98]"
               disabled={createEntry.isPending}
               data-testid="progress-form-submit"
             >

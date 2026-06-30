@@ -86,7 +86,7 @@ export function Member360Hero({
     return (
       <div
         className={cn(
-          "rounded-2xl border border-border bg-card p-6 shadow-sm",
+          "gm-panel p-6",
           className,
         )}
       >
@@ -105,7 +105,7 @@ export function Member360Hero({
   return (
     <section
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm",
+        "gm-panel relative overflow-hidden p-6",
         className,
       )}
     >
@@ -167,10 +167,10 @@ function HeroAttribute({
   value: string
 }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-4">
+    <div className="gm-panel-muted p-4">
       <div className="flex items-center gap-2">
         {Icon ? (
-          <span className="flex size-8 items-center justify-center rounded-full bg-orange-500/10 text-orange-600">
+          <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Icon aria-hidden="true" className="size-4" />
           </span>
         ) : null}

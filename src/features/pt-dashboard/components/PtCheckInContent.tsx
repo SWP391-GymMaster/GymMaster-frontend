@@ -119,12 +119,12 @@ export function PtCheckInContent() {
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
-                className="h-24 animate-pulse rounded-[1.5rem] border border-border bg-card"
+                className="gm-panel h-24 animate-pulse"
                 key={i}
               />
             ))}
           </div>
-          <div className="h-80 animate-pulse rounded-[1.5rem] border border-border bg-card" />
+          <div className="gm-panel h-80 animate-pulse" />
         </div>
       </div>
     )
@@ -209,7 +209,7 @@ export function PtCheckInContent() {
 
               return (
                 <div
-                  className="group rounded-[1.5rem] border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                  className="gm-interactive-card group p-5"
                   key={member.id}
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -280,7 +280,7 @@ export function PtCheckInContent() {
 
         {/* Right rail: summary + rules */}
         <div className="space-y-4">
-          <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
+          <div className="gm-panel p-5">
             <div className="flex items-center gap-2">
               <Activity className="size-4.5 text-primary" />
               <h4 className="text-sm font-bold text-foreground">Nhịp điểm danh hôm nay</h4>
@@ -308,7 +308,7 @@ export function PtCheckInContent() {
             ) : null}
           </div>
 
-          <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
+          <div className="gm-panel p-5">
             <div className="flex items-center gap-2">
               <ShieldCheck className="size-4.5 text-primary" />
               <h4 className="text-sm font-bold text-foreground">Lưu ý check-in</h4>

@@ -48,7 +48,7 @@ export function ProgressChartsPanel({ entries }: ProgressChartsPanelProps) {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {/* Cân nặng Trend */}
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <section className="gm-panel p-6">
         <div className="mb-4">
           <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
             Xu hướng Cân nặng (kg)
@@ -106,7 +106,7 @@ export function ProgressChartsPanel({ entries }: ProgressChartsPanelProps) {
       </section>
 
       {/* Tỷ lệ mỡ Trend */}
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <section className="gm-panel p-6">
         <div className="mb-4">
           <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
             Tỷ lệ mỡ cơ thể (%)

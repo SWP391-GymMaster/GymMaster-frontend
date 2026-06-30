@@ -95,7 +95,7 @@ export function PtDashboardContent() {
         <div className="grid gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
-              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+              className="gm-panel p-5"
               key={i}
             >
               <div className="h-3 w-20 animate-pulse rounded bg-muted" />
@@ -104,8 +104,8 @@ export function PtDashboardContent() {
           ))}
         </div>
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="h-80 animate-pulse rounded-2xl border border-border bg-card" />
-          <div className="h-80 animate-pulse rounded-2xl border border-border bg-card" />
+          <div className="gm-panel h-80 animate-pulse" />
+          <div className="gm-panel h-80 animate-pulse" />
         </div>
       </div>
     )
@@ -142,13 +142,13 @@ export function PtDashboardContent() {
           helper="Học viên đã đến hôm nay"
           icon={ShieldCheck}
           label="Check-in hôm nay"
-          tone="purple"
+          tone="info"
           value={String(todayCount)}
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_380px]">
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <div className="gm-panel relative overflow-hidden p-6">
           <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-primary/10 blur-3xl" />
           <div className="relative">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">
@@ -180,7 +180,7 @@ export function PtDashboardContent() {
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <aside className="gm-panel p-5">
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-foreground">Đã đến hôm nay</p>
             <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
@@ -192,7 +192,7 @@ export function PtDashboardContent() {
             <div className="mt-4 space-y-2">
               {todayAttendance.map(({ member, checkInAt }) => (
                 <div
-                  className="flex items-center gap-3 rounded-xl border border-border bg-background p-3"
+                  className="gm-panel-muted flex items-center gap-3 p-3"
                   key={member.id}
                 >
                   <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
@@ -215,7 +215,7 @@ export function PtDashboardContent() {
             </div>
           )}
 
-          <div className="mt-6 rounded-xl border border-border bg-background p-4">
+          <div className="gm-panel-muted mt-6 p-4">
             <p className="text-sm font-semibold text-foreground">Gợi ý ưu tiên</p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               Ưu tiên hội viên có trạng thái active, cập nhật giáo án hoặc ghi chú cho từng hồ sơ sau buổi tập.
@@ -225,7 +225,7 @@ export function PtDashboardContent() {
       </section>
 
       {members.length > 0 ? (
-        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <section className="gm-panel overflow-hidden">
           <div className="flex flex-col gap-4 border-b border-border p-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -246,7 +246,7 @@ export function PtDashboardContent() {
                 className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               />
               <input
-                className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="gm-field min-h-11 w-full pl-11 pr-3 text-sm text-foreground transition placeholder:text-muted-foreground"
                 placeholder="Tìm học viên..."
                 onChange={(event) => setSearch(event.target.value)}
                 value={search}
@@ -260,7 +260,7 @@ export function PtDashboardContent() {
                 const checkInAt = checkedInToday.get(member.id)
                 return (
                   <Link
-                    className="group rounded-2xl border border-border bg-background p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98]"
+                    className="gm-interactive-card group p-4 active:scale-[0.98]"
                     href={`/pt/members/${member.id}`}
                     key={member.id}
                   >
@@ -336,18 +336,18 @@ function CoachSummaryCard({
   helper: string
   icon: LucideIcon
   label: string
-  tone?: "primary" | "success" | "warning" | "purple"
+  tone?: "primary" | "success" | "warning" | "info"
   value: string
 }) {
   const toneClass = {
     primary: "bg-primary/10 text-primary",
-    success: "bg-emerald-500/10 text-emerald-600",
-    warning: "bg-orange-500/10 text-orange-600",
-    purple: "bg-violet-500/10 text-violet-600",
+    success: "bg-primary/10 text-primary",
+    warning: "bg-[var(--status-warning)]/15 text-[var(--status-warning)]",
+    info: "bg-[var(--status-info)]/15 text-[var(--status-info)]",
   }[tone]
 
   return (
-    <article className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <article className="gm-panel p-5">
       <div className="flex items-center gap-4">
         <span className={cn("flex size-12 shrink-0 items-center justify-center rounded-full", toneClass)}>
           <Icon aria-hidden="true" className="size-5" />

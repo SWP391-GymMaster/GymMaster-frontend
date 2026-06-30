@@ -132,7 +132,7 @@ export function WorkspaceShell({
   };
 
   return (
-    <main className="min-h-screen bg-background text-foreground transition-colors duration-200 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0">
+    <main className="min-h-screen bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] text-foreground selection:bg-primary/20 selection:text-foreground transition-colors duration-200 lg:pb-0">
       {/* Route Progress indicator */}
       <RouteProgressBar />
 
@@ -145,15 +145,15 @@ export function WorkspaceShell({
       {/* Main content shell layout wrapper */}
       <div
         className={cn(
-          "min-h-screen bg-[linear-gradient(135deg,hsl(var(--muted)/0.55),hsl(var(--background))_42%,hsl(var(--muted)/0.35))] transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] pt-16 lg:pt-0",
+          "min-h-screen pt-16 transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] [background:var(--workspace-canvas)] lg:pt-0",
           isCollapsed ? "lg:ml-[80px]" : "lg:ml-[280px]",
           "print:ml-0 print:bg-none"
         )}
       >
-        <header className="sticky top-0 z-20 hidden min-h-[72px] items-center justify-between gap-6 border-b border-border/70 bg-background/85 px-8 backdrop-blur-xl lg:flex print:hidden">
+        <header className="sticky top-0 z-20 hidden min-h-[76px] items-center justify-between gap-6 border-b border-border/70 bg-[color-mix(in_oklch,var(--surface-panel)_82%,transparent)] px-8 shadow-[0_1px_0_color-mix(in_oklch,var(--foreground)_6%,transparent)] backdrop-blur-2xl lg:flex print:hidden">
           {/* Spotlight Search Trigger */}
           <div
-            className="relative w-full max-w-sm cursor-pointer"
+            className="relative w-full max-w-[28rem] cursor-pointer"
             onClick={() => setIsSearchOpen(true)}
           >
             <Search
@@ -162,17 +162,17 @@ export function WorkspaceShell({
             />
             <input
               readOnly
-              className="h-11 w-full rounded-lg border border-border bg-muted/40 pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10 cursor-pointer"
+              className="h-11 w-full cursor-pointer rounded-2xl border border-border/80 bg-[var(--surface-input)] pl-11 pr-4 text-sm font-medium text-foreground outline-none shadow-[inset_0_1px_0_color-mix(in_oklch,var(--foreground)_4%,transparent)] transition placeholder:text-muted-foreground focus:border-primary/45 focus:bg-card focus:ring-4 focus:ring-primary/10"
               placeholder="Tìm hội viên, hóa đơn... (Cmd+K)"
               type="search"
             />
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3">
             {/* Theme Switcher circular view transition toggle */}
             <button
               onClick={handleToggleTheme}
-              className="inline-flex size-10 items-center justify-center rounded-full text-foreground transition hover:bg-muted active:scale-[0.96]"
+              className="inline-flex size-10 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-[0.96]"
               type="button"
               title="Chuyển đổi giao diện"
             >
@@ -187,7 +187,7 @@ export function WorkspaceShell({
             {/* Notifications drawer trigger */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
-              className="relative inline-flex size-10 items-center justify-center rounded-full text-foreground transition hover:bg-muted active:scale-[0.96]"
+              className="relative inline-flex size-10 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-[0.96]"
               type="button"
             >
               <Bell aria-hidden="true" className="size-5" />
@@ -202,41 +202,41 @@ export function WorkspaceShell({
             {/* Spotlight shortcut button */}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="inline-flex size-10 items-center justify-center rounded-full text-foreground transition hover:bg-muted active:scale-[0.96]"
+              className="inline-flex size-10 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground active:scale-[0.96]"
               type="button"
             >
               <Command aria-hidden="true" className="size-5" />
               <span className="sr-only">Command menu</span>
             </button>
 
-            <div className="h-10 w-px bg-border" />
+            <div className="mx-1 h-10 w-px bg-border/80" />
 
             {/* Config theme presets click handler */}
             <button
               onClick={() => setSettingsOpen(true)}
-              className="flex items-center gap-3 text-left hover:opacity-90 transition active:scale-[0.98]"
+              className="flex items-center gap-3 rounded-2xl px-2 py-1.5 text-left transition hover:bg-muted/70 active:scale-[0.98]"
               type="button"
             >
               <div className="text-right">
                 <p className="text-sm font-semibold text-foreground">
                   {userLabels[role]}
                 </p>
-                <span className="mt-1 inline-flex rounded-md bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                <span className="mt-1 inline-flex rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold text-primary-foreground shadow-[0_8px_20px_color-mix(in_oklch,var(--primary)_28%,transparent)]">
                   {roleBadges[role]}
                 </span>
               </div>
-              <div className="size-10 rounded-full border-2 border-primary bg-[radial-gradient(circle_at_30%_30%,hsl(var(--primary)/0.45),hsl(var(--foreground)))] shadow-sm shrink-0" />
+              <div className="size-10 shrink-0 rounded-full border border-primary/40 bg-[radial-gradient(circle_at_30%_30%,color-mix(in_oklch,var(--primary)_60%,white),var(--surface-panel-strong))] shadow-[var(--shadow-soft)]" />
             </button>
           </div>
         </header>
 
         {/* Content body with entry animation mount wrapper */}
-        <div className="px-4 py-5 md:px-8 lg:px-10 lg:py-10">
+        <div className="px-4 py-5 md:px-8 lg:px-10 lg:py-9">
           <PageAnimateWrapper>
-            <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6">
+            <div className="mx-auto flex w-full max-w-[1420px] flex-col gap-7">
               <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+                  <h1 className="max-w-4xl text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
                     {title}
                   </h1>
                   <p className="mt-2 max-w-3xl text-base leading-7 text-muted-foreground">
@@ -248,7 +248,7 @@ export function WorkspaceShell({
               {metrics.length > 0 ? (
                 <section
                   aria-label="Workspace metrics"
-                  className="grid gap-4 md:grid-cols-3"
+                  className="grid gap-4 md:grid-cols-3 xl:gap-5"
                 >
                   {metrics.map((metric) => {
                     const isDark = metric.tone === "dark";
@@ -256,16 +256,16 @@ export function WorkspaceShell({
                     return (
                       <div
                         className={cn(
-                          "rounded-2xl p-5 transition-[transform,box-shadow] duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-lg",
+                          "min-h-[128px] rounded-[1.5rem] p-5 transition-[transform,box-shadow,border-color] duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5",
                           isDark
-                            ? "border border-white/10 bg-foreground text-background shadow-xl"
-                            : "border border-border bg-card text-card-foreground shadow-sm",
+                            ? "border border-white/10 bg-[var(--surface-panel-strong)] text-background shadow-[var(--shadow-panel)]"
+                            : "border border-border/80 bg-[var(--surface-panel)] text-card-foreground shadow-[var(--shadow-soft)] hover:border-primary/25",
                         )}
                         key={`${metric.label}-${metric.value}`}
                       >
                         <p
                           className={cn(
-                            "text-sm",
+                            "text-xs font-semibold uppercase tracking-[0.12em]",
                             isDark
                               ? "text-background/70"
                               : "text-muted-foreground",
@@ -273,7 +273,7 @@ export function WorkspaceShell({
                         >
                           {metric.label}
                         </p>
-                        <p className="mt-3 text-2xl font-semibold">
+                        <p className="mt-4 text-2xl font-semibold tracking-tight">
                           {metric.value}
                         </p>
                       </div>

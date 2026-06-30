@@ -143,7 +143,7 @@ export function PtWorkoutPlanWorkspace() {
 
           {activeView === "list" ? (
             <div className="space-y-6">
-              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <section className="gm-panel p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <WorkoutPlanListHeader />
@@ -209,7 +209,7 @@ export function PtWorkoutPlanWorkspace() {
             </div>
           ) : (
             <div className="space-y-6">
-              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <section className="gm-panel p-5">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div>
                     <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -258,7 +258,7 @@ export function PtWorkoutPlanWorkspace() {
 
               <section className="grid gap-6 xl:grid-cols-[390px_minmax(0,1fr)]">
                 <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
-                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                  <section className="gm-panel p-5">
                     <div className="flex items-start gap-3">
                       <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                         <NotebookPen aria-hidden="true" className="size-5" />
@@ -290,7 +290,7 @@ export function PtWorkoutPlanWorkspace() {
                     </div>
                   </section>
 
-                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                  <section className="gm-panel p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <h3 className="text-lg font-semibold tracking-tight text-foreground">
@@ -309,7 +309,7 @@ export function PtWorkoutPlanWorkspace() {
                         className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
                       />
                       <input
-                        className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                        className="gm-field min-h-11 w-full pl-10 pr-3 text-sm text-foreground transition placeholder:text-muted-foreground"
                         placeholder="Tìm bài tập: squat, bench press..."
                         value={searchQuery}
                         onChange={(e) => {
@@ -375,7 +375,7 @@ export function PtWorkoutPlanWorkspace() {
                 </aside>
 
                 <main className="min-w-0 space-y-6">
-                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                  <section className="gm-panel p-5">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -472,7 +472,7 @@ function ExerciseLibraryItem({ name, tags, onAdd }: { name: string; tags: string
   const asset = getWorkoutAssetForExercise(name);
 
   return (
-    <article className="flex items-center gap-3 rounded-xl border border-border bg-background p-2 transition hover:border-primary/40 hover:bg-primary/5">
+    <article className="gm-interactive-card flex items-center gap-3 p-2">
       <div className="relative size-16 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
         <img
           alt={`Minh họa ${name}`}
@@ -509,7 +509,7 @@ function ExerciseLibraryItem({ name, tags, onAdd }: { name: string; tags: string
 
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-border bg-background p-3">
+    <div className="gm-panel-muted p-3">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
     </div>
@@ -528,7 +528,7 @@ function CoachWorkflowCard({
   title: string;
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-start gap-4">
         <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Icon aria-hidden="true" className="size-5" />

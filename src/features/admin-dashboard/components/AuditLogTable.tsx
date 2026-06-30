@@ -44,11 +44,11 @@ export function AuditLogTable({
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+      <div className="gm-panel p-4">
         <div className="space-y-3">
           {Array.from({ length: 7 }).map((_, index) => (
             <div
-              className="grid gap-4 rounded-xl border border-border bg-background p-4 md:grid-cols-[80px_180px_1fr_120px_80px]"
+              className="gm-panel-muted grid gap-4 p-4 md:grid-cols-[80px_180px_1fr_120px_80px]"
               key={index}
             >
               <div className="h-4 animate-pulse rounded bg-muted" />
@@ -78,7 +78,7 @@ export function AuditLogTable({
   }
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <section className="gm-panel overflow-hidden">
       <div className="grid grid-cols-[120px_minmax(180px,0.8fr)_minmax(240px,1.2fr)_120px_90px_32px] gap-4 border-b border-border bg-muted/40 px-5 py-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
         <span>Thời gian</span>
         <span>Người thực hiện</span>
@@ -234,7 +234,7 @@ function getSeverityClass(severity: AuditSeverity) {
     case "high":
       return "bg-destructive/10 text-destructive"
     case "medium":
-      return "bg-orange-500/10 text-orange-600"
+              return "bg-[var(--status-warning)]/15 text-[var(--status-warning)]"
     case "low":
       return "bg-primary/10 text-primary"
   }
@@ -252,18 +252,18 @@ function getActionIcon(action: string) {
 function getActionToneClass(action: string) {
   if (action.includes("PAYMENT") || action.includes("MEMBERSHIP")) return "bg-primary/10 text-primary"
   if (action.includes("LOCK")) return "bg-destructive/10 text-destructive"
-  if (action.includes("STAFF") || action.includes("PT")) return "bg-violet-500/10 text-violet-600"
-  if (action.includes("WORKOUT") || action.includes("NOTE")) return "bg-blue-500/10 text-blue-600"
-  if (action.includes("CHECK_IN")) return "bg-emerald-500/10 text-emerald-600"
+  if (action.includes("STAFF") || action.includes("PT")) return "bg-[var(--status-info)]/15 text-[var(--status-info)]"
+  if (action.includes("WORKOUT") || action.includes("NOTE")) return "bg-[var(--status-info)]/15 text-[var(--status-info)]"
+  if (action.includes("CHECK_IN")) return "bg-primary/10 text-primary"
   return "bg-muted text-muted-foreground"
 }
 
 function getActionBadgeClass(action: string) {
   if (action.includes("PAYMENT") || action.includes("MEMBERSHIP")) return "bg-primary/10 text-primary"
   if (action.includes("LOCK")) return "bg-destructive/10 text-destructive"
-  if (action.includes("STAFF") || action.includes("PT")) return "bg-violet-500/10 text-violet-600"
-  if (action.includes("WORKOUT") || action.includes("NOTE")) return "bg-blue-500/10 text-blue-600"
-  if (action.includes("CHECK_IN")) return "bg-emerald-500/10 text-emerald-600"
+  if (action.includes("STAFF") || action.includes("PT")) return "bg-[var(--status-info)]/15 text-[var(--status-info)]"
+  if (action.includes("WORKOUT") || action.includes("NOTE")) return "bg-[var(--status-info)]/15 text-[var(--status-info)]"
+  if (action.includes("CHECK_IN")) return "bg-primary/10 text-primary"
   return "bg-muted text-muted-foreground"
 }
 

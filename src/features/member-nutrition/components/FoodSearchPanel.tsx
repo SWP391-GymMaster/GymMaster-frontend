@@ -179,7 +179,7 @@ export function FoodSearchPanel({
       onSelectFood(newFood)
       setIsPreviewOpen(false)
     } catch (err) {
-      console.error("Save product from barcode failed:", err)
+      console.error("Save previewed product failed:", err)
       toast.error("Không thể lưu sản phẩm. Vui lòng thử lại.")
     } finally {
       setIsSavingProduct(false)
@@ -206,7 +206,7 @@ export function FoodSearchPanel({
   }
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-center gap-3">
         <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Utensils aria-hidden="true" className="size-5" />
@@ -279,7 +279,7 @@ export function FoodSearchPanel({
                     className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
                   />
                   <Input
-                    className="min-h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+                    className="gm-field min-h-12 w-full pl-11 pr-4 text-sm text-foreground transition placeholder:text-muted-foreground"
                     data-testid="member-food-search-input"
                     id="food-search"
                     onChange={(event) => onQueryChange(event.target.value)}
@@ -609,8 +609,8 @@ export function FoodSearchPanel({
 
       {/* Nutrition preview & confirm dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-md rounded-3xl p-0 border border-white/20 bg-background/95 backdrop-blur-xl shadow-2xl">
-          <DialogHeader className="border-b border-border p-6">
+        <DialogContent className="gm-dialog-surface max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] gap-0 p-0 sm:max-w-[40rem]">
+          <DialogHeader className="gm-dialog-header">
             <DialogTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Utensils aria-hidden="true" className="size-4" />
@@ -621,89 +621,91 @@ export function FoodSearchPanel({
               Sản phẩm tìm thấy từ tra cứu trực tuyến. Bạn có thể chỉnh sửa lại trước khi thêm.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 p-6">
+          <div className="gm-dialog-body space-y-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-name">
+              <label className="gm-dialog-label" htmlFor="preview-name">
                 Tên sản phẩm
               </label>
               <Input
                 id="preview-name"
-                className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="gm-field min-h-12 w-full px-3 text-sm focus-visible:ring-primary/20"
                 value={previewName}
                 onChange={(e) => setPreviewName(e.target.value)}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-unit">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="min-w-0 space-y-2">
+                <label className="gm-dialog-label min-h-8" htmlFor="preview-unit">
                   Đơn vị tính (Serving size)
                 </label>
                 <Input
                   id="preview-unit"
-                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="gm-field min-h-12 w-full px-3 text-sm focus-visible:ring-primary/20"
                   value={previewUnit}
                   onChange={(e) => setPreviewUnit(e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-calories">
+              <div className="min-w-0 space-y-2">
+                <label className="gm-dialog-label min-h-8" htmlFor="preview-calories">
                   Calo mỗi đơn vị
                 </label>
                 <Input
                   id="preview-calories"
                   type="number"
-                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="gm-field min-h-12 w-full px-3 text-sm focus-visible:ring-primary/20"
                   value={previewCalories}
                   onChange={(e) => setPreviewCalories(Math.max(0, Number(e.target.value)))}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-carbs">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="min-w-0 space-y-2">
+                <label className="gm-dialog-label" htmlFor="preview-carbs">
                   Carbs (g)
                 </label>
                 <Input
                   id="preview-carbs"
                   type="number"
-                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="gm-field min-h-12 w-full px-3 text-sm focus-visible:ring-primary/20"
                   value={previewCarbs}
                   onChange={(e) => setPreviewCarbs(Math.max(0, Number(e.target.value)))}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-protein">
+              <div className="min-w-0 space-y-2">
+                <label className="gm-dialog-label" htmlFor="preview-protein">
                   Protein (g)
                 </label>
                 <Input
                   id="preview-protein"
                   type="number"
-                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="gm-field min-h-12 w-full px-3 text-sm focus-visible:ring-primary/20"
                   value={previewProtein}
                   onChange={(e) => setPreviewProtein(Math.max(0, Number(e.target.value)))}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground" htmlFor="preview-fat">
+              <div className="min-w-0 space-y-2">
+                <label className="gm-dialog-label" htmlFor="preview-fat">
                   Fat (g)
                 </label>
                 <Input
                   id="preview-fat"
                   type="number"
-                  className="min-h-11 w-full bg-background px-3 text-sm border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                  className="gm-field min-h-12 w-full px-3 text-sm focus-visible:ring-primary/20"
                   value={previewFat}
                   onChange={(e) => setPreviewFat(Math.max(0, Number(e.target.value)))}
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-border">
+          </div>
+
+          <div className="gm-dialog-footer">
               <Button
                 type="button"
                 variant="outline"
-                className="rounded-xl"
+                className="min-h-11 rounded-full px-5"
                 onClick={() => {
                   setIsPreviewOpen(false)
                 }}
@@ -713,12 +715,11 @@ export function FoodSearchPanel({
               <Button
                 type="button"
                 disabled={isSavingProduct}
-                className="rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+                className="min-h-11 rounded-full bg-primary px-5 text-primary-foreground hover:brightness-95 active:scale-[0.98]"
                 onClick={handleConfirmProduct}
               >
                 {isSavingProduct ? "Đang lưu..." : "Xác nhận và Chọn"}
               </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -785,21 +786,22 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
           Tự tạo món ăn mới
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md rounded-2xl p-0">
-        <DialogHeader className="border-b border-border p-6">
+      <DialogContent className="gm-dialog-surface max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] gap-0 p-0 sm:max-w-[40rem]">
+        <DialogHeader className="gm-dialog-header">
           <DialogTitle className="text-xl font-bold">Tạo món ăn mới</DialogTitle>
           <DialogDescription>
             Tạo món ăn tùy chỉnh để thêm vào nhật ký bữa ăn của bạn.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 p-6">
-          <div className="space-y-2">
-            <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="custom-food-name">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+          <div className="gm-dialog-body space-y-4">
+            <div className="space-y-2">
+            <label className="gm-dialog-label" htmlFor="custom-food-name">
               Tên món ăn
             </label>
             <Input
               id="custom-food-name"
-              className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+              className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
               data-testid="member-custom-food-name"
               {...register("name")}
             />
@@ -808,14 +810,14 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="custom-food-unit">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="min-w-0 space-y-2">
+              <label className="gm-dialog-label min-h-8" htmlFor="custom-food-unit">
                 Đơn vị tính
               </label>
               <Input
                 id="custom-food-unit"
-                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 data-testid="member-custom-food-unit"
                 placeholder="Ví dụ: gam, cái, chén"
                 {...register("unit")}
@@ -825,14 +827,14 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               )}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground" htmlFor="custom-food-calories">
+            <div className="min-w-0 space-y-2">
+              <label className="gm-dialog-label min-h-8" htmlFor="custom-food-calories">
                 Calo mỗi đơn vị
               </label>
               <Input
                 id="custom-food-calories"
                 type="number"
-                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 data-testid="member-custom-food-calories"
                 {...register("caloriesPerUnit")}
               />
@@ -842,56 +844,57 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-carbs">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="min-w-0 space-y-2">
+              <label className="gm-dialog-label" htmlFor="custom-food-carbs">
                 Carbs (g)
               </label>
               <Input
                 id="custom-food-carbs"
                 type="number"
-                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 {...register("carbsG")}
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-protein">
+            <div className="min-w-0 space-y-2">
+              <label className="gm-dialog-label" htmlFor="custom-food-protein">
                 Protein (g)
               </label>
               <Input
                 id="custom-food-protein"
                 type="number"
-                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 {...register("proteinG")}
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground text-xs" htmlFor="custom-food-fat">
+            <div className="min-w-0 space-y-2">
+              <label className="gm-dialog-label" htmlFor="custom-food-fat">
                 Fat (g)
               </label>
               <Input
                 id="custom-food-fat"
                 type="number"
-                className="min-h-11 w-full bg-background px-3 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 {...register("fatG")}
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-border">
-            <DialogTrigger asChild>
+          </div>
+
+          <div className="gm-dialog-footer">
               <Button
                 type="button"
                 variant="outline"
-                className="rounded-xl"
+                className="min-h-11 rounded-full px-5"
+                onClick={() => setOpen(false)}
               >
                 Hủy
               </Button>
-            </DialogTrigger>
             <Button
               type="submit"
               disabled={isSubmitting || createFood.isPending}
-              className="rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+              className="min-h-11 rounded-full bg-primary px-5 text-primary-foreground hover:brightness-95 active:scale-[0.98]"
               data-testid="member-custom-food-submit"
             >
               {createFood.isPending ? "Đang tạo..." : "Tạo món"}
