@@ -114,6 +114,8 @@ export function FoodSearchPanel({
   const accessToken = useAuthSessionStore((state) => state.session?.accessToken)
   const foods = useFoodSearch(query)
   const canSearch = query.trim().length >= 2
+  // Tat tinh nang tim kiem TRUC TUYEN (Open Food Facts) theo yeu cau — chi dung DB noi bo + AI scan.
+  const ENABLE_ONLINE_SEARCH = false
 
   const onlineSearch = useFoodOnlineSearch(query, onlineSearchTriggered)
   const createFood = useCreateCustomFoodItem()
@@ -364,7 +366,7 @@ export function FoodSearchPanel({
               ))}
 
               {/* If local has results but online search is not triggered yet */}
-              {canSearch && foods.data && foods.data.items.length > 0 && !onlineSearchTriggered && (
+              {ENABLE_ONLINE_SEARCH && canSearch && foods.data && foods.data.items.length > 0 && !onlineSearchTriggered && (
                 <div className="mt-2 text-center">
                   <div className="inline-flex items-center gap-1 group relative">
                     <Button
@@ -395,33 +397,11 @@ export function FoodSearchPanel({
               {canSearch && foods.data?.items.length === 0 && !onlineSearchTriggered && (
                 <div className="space-y-4">
                   <StateBlock
-                    description="Không tìm thấy món phù hợp trong cơ sở dữ liệu. Bạn có thể tra cứu trực tuyến hoặc tự tạo món mới."
+                    description="Không tìm thấy món phù hợp trong cơ sở dữ liệu. Bạn có thể tự tạo món mới hoặc quét ảnh bằng AI."
                     title="Không tìm thấy món phù hợp"
                     tone="empty"
                   />
-                  <div className="flex flex-col gap-2">
-                    <div className="relative group w-full">
-                      <Button
-                        type="button"
-                        onClick={triggerOnlineSearch}
-                        disabled={cooldownSecs > 0}
-                        className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98] flex items-center justify-center gap-2"
-                        data-testid="online-search-trigger-btn"
-                      >
-                        <Search className="size-4" />
-                        {cooldownSecs > 0
-                          ? `Chờ ${cooldownSecs}s để tìm trực tuyến...`
-                          : `Tìm kiếm trực tuyến cho "${query}"`}
-                        {cooldownSecs === 0 && <Info className="size-3.5 opacity-80" />}
-                      </Button>
-                      {cooldownSecs === 0 && (
-                        <span className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded bg-zinc-950 p-2 text-xs text-zinc-100 shadow-md z-10 text-center pointer-events-none">
-                          Tra cứu dữ liệu Open Food Facts mở rộng. Yêu cầu kích hoạt thủ công do giới hạn 10 lần/phút của API.
-                        </span>
-                      )}
-                    </div>
-                    <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
-                  </div>
+                  <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
                 </div>
               )}
 
