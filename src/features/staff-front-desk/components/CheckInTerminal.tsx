@@ -37,7 +37,6 @@ import type {
 import { mapStaffOperationError } from "@/features/staff-front-desk/utils/staff-operation-errors"
 import { toStatusPillStatus } from "@/features/staff-front-desk/utils/staff-status"
 import { formatVnTime } from "@/lib/date/vn-time"
-import { speechAnnouncer } from "@/lib/speech-announcer"
 
 export function CheckInTerminal() {
   const [submittedQuery, setSubmittedQuery] = useState("")
@@ -79,29 +78,12 @@ export function CheckInTerminal() {
         safeMessage:
           "Từ chối check-in. Hội viên cần có gói đang hoạt động và đã thanh toán trước khi vào phòng.",
       })
-      speechAnnouncer.speakGreeting(
-        selectedMember.fullName,
-        selectedMember.membershipStatus === "locked" ? "locked" : "expired"
-      )
       return
     }
 
     const nextResult = (await checkIn.mutateAsync(selectedMember.id)) as CheckInResult
     setResult(nextResult)
     toast.success("Đã xác nhận check-in")
-
-    if (nextResult.status === "checked-in") {
-      speechAnnouncer.speakGreeting(selectedMember.fullName, "active")
-    } else {
-      speechAnnouncer.speakGreeting(
-        selectedMember.fullName,
-        nextResult.reasonCode === "LOCKED"
-          ? "locked"
-          : nextResult.reasonCode === "PAYMENT_PENDING"
-            ? "pending"
-            : "expired"
-      )
-    }
   }
 
   return (
