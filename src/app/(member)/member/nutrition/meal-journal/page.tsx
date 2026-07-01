@@ -16,7 +16,7 @@ export default function MemberMealJournalPage() {
         role="member"
         title="Nhật ký ăn"
       >
-        <MembershipGate>
+        <MembershipGate allowFreeTier>
           <MealJournalWorkspace />
         </MembershipGate>
       </WorkspaceShell>

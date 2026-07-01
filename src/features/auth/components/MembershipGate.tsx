@@ -10,6 +10,12 @@ import { StateBlock } from "@/components/feedback/StateBlock"
 
 type MembershipGateProps = {
   children: ReactNode
+  /**
+   * Cho phep member CHUA co goi tap di qua (tier mien phi). Dung cho trang Nhat ky an:
+   * nguoi chua mua goi van vao duoc de dung thu 20 mon dau. Backend tu gioi han 20 mon
+   * va van chan quet AI (403) nen khong lo bypass bao mat. Mac dinh false -> khoa nhu cu.
+   */
+  allowFreeTier?: boolean
 }
 
 /**
@@ -21,7 +27,7 @@ type MembershipGateProps = {
  *   - Goi active                               -> mo khoa.
  * Cac role khac (admin/staff/pt) di qua binh thuong.
  */
-export function MembershipGate({ children }: MembershipGateProps) {
+export function MembershipGate({ children, allowFreeTier = false }: MembershipGateProps) {
   const role = useAuthSessionStore((state) => state.session?.role)
   const memberProfileId = useAuthSessionStore(
     (state) => state.session?.user?.memberProfileId,
@@ -35,6 +41,11 @@ export function MembershipGate({ children }: MembershipGateProps) {
 
   // Role khac member -> di qua.
   if (!isMember) {
+    return <>{children}</>
+  }
+
+  // Tier mien phi: cho member chua co goi vao dung thu (backend tu gioi han 20 mon + chan AI).
+  if (allowFreeTier) {
     return <>{children}</>
   }
 

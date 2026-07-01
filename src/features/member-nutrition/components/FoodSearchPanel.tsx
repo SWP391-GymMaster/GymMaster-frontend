@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Plus, Search, Utensils, History, Heart, Info, AlertTriangle, Globe } from "lucide-react"
+import Link from "next/link"
+import { Plus, Search, Utensils, History, Heart, Info, AlertTriangle, Globe, Lock } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -26,6 +27,7 @@ import {
 import { searchFoodItems } from "@/features/member-nutrition/api/member-nutrition.api"
 import { AiFoodScanCard } from "@/features/member-nutrition/components/AiFoodScanCard"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
+import { useMember360Data } from "@/features/member-360/api/member-360.queries"
 import {
   customFoodSchema,
   type CustomFoodFormInput,
@@ -66,7 +68,7 @@ type FoodSearchPanelProps = {
   query: string
   selectedFoodId?: number
   onQueryChange: (query: string) => void
-  onSelectFood: (food: FoodItem) => void
+  onSelectFood: (food: FoodItem, grams?: number) => void
 }
 
 export function FoodSearchPanel({
@@ -112,8 +114,24 @@ export function FoodSearchPanel({
   const [previewFat, setPreviewFat] = useState(0)
 
   const accessToken = useAuthSessionStore((state) => state.session?.accessToken)
+  const role = useAuthSessionStore((state) => state.session?.role)
+  const memberProfileId = useAuthSessionStore(
+    (state) => state.session?.user?.memberProfileId,
+  )
+  // Tier mien phi = member CHUA co goi active. Backend chi cho 20 mon + chan AI;
+  // hien banner nhac mua goi de nang cap (full kho + quet AI).
+  const member360 = useMember360Data(
+    role === "member" && memberProfileId ? memberProfileId : null,
+  )
+  const isFreeTier =
+    role === "member" &&
+    !member360.isLoading &&
+    member360.data?.currentMembership?.status !== "active"
+
   const foods = useFoodSearch(query)
   const canSearch = query.trim().length >= 2
+  // Tat tinh nang tim kiem TRUC TUYEN (Open Food Facts) theo yeu cau — chi dung DB noi bo + AI scan.
+  const ENABLE_ONLINE_SEARCH = false
 
   const onlineSearch = useFoodOnlineSearch(query, onlineSearchTriggered)
   const createFood = useCreateCustomFoodItem()
@@ -216,10 +234,32 @@ export function FoodSearchPanel({
             Cơ sở dữ liệu món ăn
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Tra cứu thực phẩm thô và món ăn chế biến sẵn chuẩn MyFitnessPal.
+            Tra cứu thực phẩm thô và món ăn có sẵn trong hệ thống.
           </p>
         </div>
       </div>
+
+      {/* Thong bao tier mien phi: chi 20 mon, can mua goi de mo full + quet AI */}
+      {isFreeTier && (
+        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3.5">
+          <Lock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-amber-600" />
+          <div className="min-w-0 text-sm">
+            <p className="font-semibold text-amber-700 dark:text-amber-300">
+              Bản miễn phí — chỉ 20 món
+            </p>
+            <p className="mt-0.5 leading-6 text-amber-700/90 dark:text-amber-200/80">
+              Bạn chưa có gói tập nên chỉ tìm được 20 món cơ bản và chưa dùng được quét ảnh AI.{" "}
+              <Link
+                href="/member/membership"
+                className="font-semibold underline underline-offset-2 hover:opacity-80"
+              >
+                Đăng ký gói tập
+              </Link>{" "}
+              để mở khóa toàn bộ kho món và tính năng quét AI.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="mt-5 flex border-b border-border">
@@ -307,7 +347,7 @@ export function FoodSearchPanel({
             </div>
             {canSearch && foods.data && foods.data.items.length > 0 && (
               <p className="text-xs font-semibold text-muted-foreground px-1">
-                Tìm thấy {foods.data.total.toLocaleString("vi-VN")} kết quả tương thích (trong tổng số 32,800 thực phẩm & món ăn).
+                Tìm thấy {foods.data.total.toLocaleString("vi-VN")} kết quả tương thích.
               </p>
             )}
 
@@ -364,7 +404,7 @@ export function FoodSearchPanel({
               ))}
 
               {/* If local has results but online search is not triggered yet */}
-              {canSearch && foods.data && foods.data.items.length > 0 && !onlineSearchTriggered && (
+              {ENABLE_ONLINE_SEARCH && canSearch && foods.data && foods.data.items.length > 0 && !onlineSearchTriggered && (
                 <div className="mt-2 text-center">
                   <div className="inline-flex items-center gap-1 group relative">
                     <Button
@@ -395,33 +435,11 @@ export function FoodSearchPanel({
               {canSearch && foods.data?.items.length === 0 && !onlineSearchTriggered && (
                 <div className="space-y-4">
                   <StateBlock
-                    description="Không tìm thấy món phù hợp trong cơ sở dữ liệu. Bạn có thể tra cứu trực tuyến hoặc tự tạo món mới."
+                    description="Không tìm thấy món phù hợp trong cơ sở dữ liệu. Bạn có thể tự tạo món mới hoặc quét ảnh bằng AI."
                     title="Không tìm thấy món phù hợp"
                     tone="empty"
                   />
-                  <div className="flex flex-col gap-2">
-                    <div className="relative group w-full">
-                      <Button
-                        type="button"
-                        onClick={triggerOnlineSearch}
-                        disabled={cooldownSecs > 0}
-                        className="min-h-11 w-full rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98] flex items-center justify-center gap-2"
-                        data-testid="online-search-trigger-btn"
-                      >
-                        <Search className="size-4" />
-                        {cooldownSecs > 0
-                          ? `Chờ ${cooldownSecs}s để tìm trực tuyến...`
-                          : `Tìm kiếm trực tuyến cho "${query}"`}
-                        {cooldownSecs === 0 && <Info className="size-3.5 opacity-80" />}
-                      </Button>
-                      {cooldownSecs === 0 && (
-                        <span className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded bg-zinc-950 p-2 text-xs text-zinc-100 shadow-md z-10 text-center pointer-events-none">
-                          Tra cứu dữ liệu Open Food Facts mở rộng. Yêu cầu kích hoạt thủ công do giới hạn 10 lần/phút của API.
-                        </span>
-                      )}
-                    </div>
-                    <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
-                  </div>
+                  <CreateCustomFoodDialog initialName={query} onCreated={handleCustomFoodCreated} />
                 </div>
               )}
 
