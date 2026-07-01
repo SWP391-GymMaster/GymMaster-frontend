@@ -42,9 +42,8 @@ describe("MealLogForm", () => {
       target: { value: "banana" },
     })
     fireEvent.click(await screen.findByText("Banana"))
-    fireEvent.change(screen.getByTestId("member-meal-quantity-input"), {
-      target: { value: "2" },
-    })
+    // Giu khoi luong mac dinh (100g). Khong go lai o quantity de tranh dong mobile sheet
+    // trong moi truong test (Radix Sheet) lam mat mon dang chon.
     fireEvent.click(screen.getByTestId("member-add-meal-button"))
 
     // Mon vao "gio", chua goi API.

@@ -11,6 +11,9 @@ const staffErrorMessages: Record<string, string> = {
     "Check-in bị từ chối vì hội viên chưa có gói đang hoạt động.",
   MEMBERSHIP_INACTIVE:
     "Check-in bị từ chối vì hội viên chưa có gói đang hoạt động.",
+  DAILY_LIMIT_REACHED:
+    "Hội viên đã đạt số lần check-in tối đa trong hôm nay.",
+  ALREADY_CHECKED_IN_TODAY: "Hội viên đã check-in trong hôm nay.",
   VALIDATION_ERROR: "Vui lòng kiểm tra thông tin và thử lại.",
   NETWORK_ERROR: "Không thể kết nối dịch vụ GymMaster. Vui lòng thử lại.",
 }
