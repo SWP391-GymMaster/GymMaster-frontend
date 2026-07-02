@@ -2,12 +2,30 @@
 
 import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
-import { Bell, Command, Search, Sun, Moon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  Bell,
+  Command,
+  KeyRound,
+  LogOut,
+  Search,
+  Settings,
+  Sun,
+  Moon,
+  UserRound,
+} from "lucide-react";
 
 import {
   CommandRail,
   MobileCommandHeader,
 } from "@/components/layout/CommandRail";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/auth";
 import { useSidebarStore } from "@/stores/useSideBarStore";
@@ -20,6 +38,7 @@ import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper";
 import { RestTimerOverlay } from "@/components/premium/RestTimerOverlay";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { ShortcutsHelpOverlay } from "@/components/premium/ShortcutsHelpOverlay";
+import { useAuthSessionStore } from "@/features/auth/session/auth-session";
 
 export type WorkspaceShellMetric = {
   label: string;
@@ -42,10 +61,13 @@ export function WorkspaceShell({
   metrics = [],
   children,
 }: WorkspaceShellProps) {
+  const router = useRouter();
   const { isCollapsed, theme, setTheme, colorPreset, isSettingsOpen, setSettingsOpen } =
     useSidebarStore();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const logout = useAuthSessionStore((state) => state.logout);
 
   const { data: notifications = [] } = useNotifications(role);
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -131,6 +153,13 @@ export function WorkspaceShell({
     member: "Hội viên GymMaster",
   };
 
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    await logout();
+    router.push("/login");
+    setIsLoggingOut(false);
+  }
+
   return (
     <main className="min-h-screen bg-background text-foreground transition-colors duration-200 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0">
       {/* Route Progress indicator */}
@@ -211,22 +240,50 @@ export function WorkspaceShell({
 
             <div className="h-10 w-px bg-border" />
 
-            {/* Config theme presets click handler */}
-            <button
-              onClick={() => setSettingsOpen(true)}
-              className="flex items-center gap-3 text-left hover:opacity-90 transition active:scale-[0.98]"
-              type="button"
-            >
-              <div className="text-right">
-                <p className="text-sm font-semibold text-foreground">
-                  {userLabels[role]}
-                </p>
-                <span className="mt-1 inline-flex rounded-md bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                  {roleBadges[role]}
-                </span>
-              </div>
-              <div className="size-10 rounded-full border-2 border-primary bg-[radial-gradient(circle_at_30%_30%,hsl(var(--primary)/0.45),hsl(var(--foreground)))] shadow-sm shrink-0" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  aria-label="Mở menu tài khoản"
+                  className="flex items-center gap-3 text-left transition hover:opacity-90 active:scale-[0.98]"
+                  type="button"
+                >
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-foreground">
+                      {userLabels[role]}
+                    </p>
+                    <span className="mt-1 inline-flex rounded-md bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      {roleBadges[role]}
+                    </span>
+                  </div>
+                  <div className="size-10 rounded-full border-2 border-primary bg-[radial-gradient(circle_at_30%_30%,hsl(var(--primary)/0.45),hsl(var(--foreground)))] shadow-sm shrink-0" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 rounded-2xl">
+                {role === "member" ? (
+                  <DropdownMenuItem onSelect={() => router.push("/member/profile")}>
+                    <UserRound aria-hidden="true" className="size-4" />
+                    Hồ sơ của tôi
+                  </DropdownMenuItem>
+                ) : null}
+                <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
+                  <Settings aria-hidden="true" className="size-4" />
+                  Cấu hình giao diện
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => router.push("/change-password")}>
+                  <KeyRound aria-hidden="true" className="size-4" />
+                  Đổi mật khẩu
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={isLoggingOut}
+                  onSelect={() => void handleLogout()}
+                  variant="destructive"
+                >
+                  <LogOut aria-hidden="true" className="size-4" />
+                  {isLoggingOut ? "Đang đăng xuất..." : "Đăng xuất"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 

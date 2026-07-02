@@ -199,13 +199,13 @@ export const authHandlers = [
 
     return ok({
       message: "Neu email ton tai, he thong se tao yeu cau dat lai mat khau.",
-      resetToken: "mock-reset-token",
+      resetToken: "123456",
     })
   }),
   http.post("/api/v1/auth/reset-password", async ({ request }) => {
     const body = (await request.json()) as { resetToken?: string }
 
-    if (body.resetToken !== "mock-reset-token") {
+    if (body.resetToken !== "123456") {
       return fail("INVALID_RESET_TOKEN", "Invalid reset token", 401)
     }
 

@@ -173,6 +173,43 @@ describe("backend contract MSW handlers", () => {
     expect(body.error.code).toBe("DUPLICATE")
   })
 
+  it("serves member self-profile endpoints with PascalCase backend shape", async () => {
+    const profile = await fetch("/api/v1/members/me", {
+      headers: authHeaders.member,
+    })
+    const profileBody = await readJson<{
+      success: boolean
+      data: { Id: number; MemberCode: string; FullName: string; JoinedAt: string }
+    }>(profile)
+
+    expect(profile.status).toBe(200)
+    expect(profileBody.success).toBe(true)
+    expect(profileBody.data.Id).toBe(101)
+    expect(profileBody.data.MemberCode).toBe("GM-101")
+    expect(profileBody.data.JoinedAt).toMatch(/Z$/)
+
+    const updated = await fetch("/api/v1/members/me", {
+      method: "PUT",
+      headers: {
+        ...authHeaders.member,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        FullName: "Test",
+        Phone: "0900000999",
+      }),
+    })
+    const updatedBody = await readJson<{
+      success: boolean
+      data: { FullName: string; Phone: string }
+    }>(updated)
+
+    expect(updated.status).toBe(200)
+    expect(updatedBody.success).toBe(true)
+    expect(updatedBody.data.FullName).toBe("Test")
+    expect(updatedBody.data.Phone).toBe("0900000999")
+  })
+
   it("creates pending-payment memberships from sell package contract", async () => {
     const response = await fetch("/api/v1/memberships/sell", {
       method: "POST",

@@ -7,6 +7,13 @@ import { server } from "@/mocks/server"
 import { ok } from "@/mocks/utils/api-response"
 import { renderWithMemberSession } from "@/tests/member-nutrition/test-utils"
 
+type MockTarget = {
+  dailyCalories: unknown
+  proteinG: unknown
+  carbG: unknown
+  fatG: unknown
+}
+
 function mockSummary(data: Record<string, unknown>) {
   server.use(
     http.get("/api/v1/members/:id/calorie-summary", ({ request }) => {
@@ -20,14 +27,14 @@ function mockSummary(data: Record<string, unknown>) {
     http.get("/api/v1/meal-logs", () => ok([])),
     http.get("/api/v1/members/:id/calorie-target", () => {
       if (data.target == null) {
-        return ok(null) as any
+        return ok<MockTarget | null>(null)
       }
-      return ok({
+      return ok<MockTarget | null>({
         dailyCalories: data.target,
         proteinG: data.targetProteinG,
         carbG: data.targetCarbG,
         fatG: data.targetFatG,
-      }) as any
+      })
     }),
   )
 }

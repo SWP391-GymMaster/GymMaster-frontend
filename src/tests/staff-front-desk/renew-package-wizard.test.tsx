@@ -1,11 +1,17 @@
 import { fireEvent, screen } from "@testing-library/react"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { RenewPackageWizard } from "@/features/staff-front-desk/components/RenewPackageWizard"
 import { resetAuthSessionForTest } from "@/features/auth/session/auth-session"
 import { renderWithStaffSession } from "@/tests/staff-front-desk/test-utils"
 
+beforeEach(() => {
+  vi.useFakeTimers({ shouldAdvanceTime: true })
+  vi.setSystemTime(new Date("2026-06-01T00:00:00.000Z"))
+})
+
 afterEach(() => {
+  vi.useRealTimers()
   resetAuthSessionForTest()
 })
 

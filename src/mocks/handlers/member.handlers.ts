@@ -59,6 +59,59 @@ export const memberHandlers = [
 
     return created(member)
   }),
+  http.get("/api/v1/members/me", ({ request }) => {
+    const role = requireRole(request, ["member"])
+    if (typeof role !== "string") return role
+
+    const member = getOrCreateMockSelfProfile()
+
+    return ok(toPascalMemberResponse(member))
+  }),
+  http.put("/api/v1/members/me", async ({ request }) => {
+    const role = requireRole(request, ["member"])
+    if (typeof role !== "string") return role
+
+    const member = getOrCreateMockSelfProfile()
+    const index = members.findIndex((item) => item.id === member.id)
+    const body = (await request.json()) as {
+      FullName?: string | null
+      Phone?: string | null
+      DateOfBirth?: string | null
+      Gender?: string | null
+      Address?: string | null
+      EmergencyContact?: string | null
+    }
+
+    const normalizedPhone = body.Phone?.toLowerCase()
+    const duplicate = normalizedPhone
+      ? members.some(
+          (item) =>
+            item.id !== member.id &&
+            !item.isDeleted &&
+            item.phone.toLowerCase() === normalizedPhone,
+        )
+      : false
+
+    if (duplicate) {
+      return fail("DUPLICATE", "Phone already exists", 409)
+    }
+
+    members[index] = {
+      ...member,
+      fullName: body.FullName ?? member.fullName,
+      phone: body.Phone ?? member.phone,
+      dateOfBirth:
+        "DateOfBirth" in body ? body.DateOfBirth ?? undefined : member.dateOfBirth,
+      gender: "Gender" in body ? body.Gender ?? undefined : member.gender,
+      address: "Address" in body ? body.Address ?? undefined : member.address,
+      emergencyContact:
+        "EmergencyContact" in body
+          ? body.EmergencyContact ?? undefined
+          : member.emergencyContact,
+    }
+
+    return ok(toPascalMemberResponse(members[index]))
+  }),
   http.get("/api/v1/members/:id", ({ params, request }) => {
     const role = requireRole(request, ["admin", "staff", "pt", "member"])
     if (typeof role !== "string") return role
@@ -311,3 +364,42 @@ export const memberHandlers = [
     return created(trainer)
   }),
 ]
+
+function getOrCreateMockSelfProfile() {
+  const account = userAccounts.find((item) => item.role === "member")
+  let member = members.find(
+    (item) => item.email === "member@gymmaster.local" && !item.isDeleted,
+  )
+
+  if (!member) {
+    member = {
+      id: Math.max(...members.map((item) => item.id)) + 1,
+      memberCode: `GM-${Math.floor(100 + Math.random() * 900)}`,
+      fullName: account?.fullName ?? "Gym Member",
+      email: account?.email ?? "member@gymmaster.local",
+      phone: account?.phone ?? "",
+      status: "active",
+    }
+    members.push(member)
+  }
+
+  return member
+}
+
+function toPascalMemberResponse(member: (typeof members)[number]) {
+  return {
+    Id: member.id,
+    UserId: 4,
+    MemberCode: member.memberCode,
+    Email: member.email,
+    FullName: member.fullName,
+    Phone: member.phone || null,
+    DateOfBirth: member.dateOfBirth ?? null,
+    Gender: member.gender ?? null,
+    Address: member.address ?? null,
+    EmergencyContact: member.emergencyContact ?? null,
+    JoinedAt: "2026-06-01T00:00:00.000Z",
+    Status: "active",
+    CreatedAt: "2026-06-01T00:00:00.000Z",
+  }
+}

@@ -24,6 +24,7 @@ import {
   Settings,
   ShieldCheck,
   UserCog,
+  UserRound,
   Users,
   UtensilsCrossed,
   X,
@@ -144,6 +145,7 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
           label: "Gói tập",
         },
         { href: "/member/progress", icon: Activity, label: "Tiến độ" },
+        { href: "/member/profile", icon: UserRound, label: "Hồ sơ" },
       ],
     },
   ],
@@ -216,18 +218,6 @@ function getMobileNavItems(role: UserRole, activeMember: ActiveMemberContext) {
     : rawGroups;
 
   const allItems = flattenNavGroups(groups);
-  const priorityHrefs = mobilePrimaryHrefsByRole[role].map((href) => {
-    if (role === "pt" && activeMember) {
-      return href.replace("/:id", `/${activeMember.id}`);
-    }
-    if (role === "pt" && !activeMember) {
-      if (href.includes("/:id")) {
-        return "#";
-      }
-    }
-    return href;
-  });
-
   const primaryItems = mobilePrimaryHrefsByRole[role]
     .map((rawHref) => {
       return allItems.find((item) => (item.originalHref || item.href) === rawHref);

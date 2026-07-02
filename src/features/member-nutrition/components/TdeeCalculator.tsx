@@ -70,32 +70,36 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
   // Prefill target values from backend when open
   useEffect(() => {
     if (isOpen && targetData) {
-      const cal = targetData.dailyCalories ?? manualCalorie;
-      const p = targetData.proteinG ?? manualProtein;
-      const c = targetData.carbG ?? manualCarbs;
-      const f = targetData.fatG ?? manualFat;
+      const timeoutId = window.setTimeout(() => {
+        const cal = targetData.dailyCalories ?? manualCalorie;
+        const p = targetData.proteinG ?? manualProtein;
+        const c = targetData.carbG ?? manualCarbs;
+        const f = targetData.fatG ?? manualFat;
 
-      setManualCalorie(cal);
-      setProposedCalorie(cal);
-      setManualProtein(p);
-      setManualCarbs(c);
-      setManualFat(f);
+        setManualCalorie(cal);
+        setProposedCalorie(cal);
+        setManualProtein(p);
+        setManualCarbs(c);
+        setManualFat(f);
 
-      // Determine if it matches any diet template
-      let foundTemplate = "custom";
-      for (const [key, temp] of Object.entries(dietTemplates)) {
-        if (key === "custom") continue;
-        const expectedP = Math.round((cal * temp.pRatio) / 4);
-        const expectedC = Math.round((cal * temp.cRatio) / 4);
-        const expectedF = Math.round((cal * temp.fRatio) / 9);
-        if (Math.abs(expectedP - p) <= 2 && Math.abs(expectedC - c) <= 2 && Math.abs(expectedF - f) <= 2) {
-          foundTemplate = key;
-          break;
+        // Determine if it matches any diet template
+        let foundTemplate = "custom";
+        for (const [key, temp] of Object.entries(dietTemplates)) {
+          if (key === "custom") continue;
+          const expectedP = Math.round((cal * temp.pRatio) / 4);
+          const expectedC = Math.round((cal * temp.cRatio) / 4);
+          const expectedF = Math.round((cal * temp.fRatio) / 9);
+          if (Math.abs(expectedP - p) <= 2 && Math.abs(expectedC - c) <= 2 && Math.abs(expectedF - f) <= 2) {
+            foundTemplate = key;
+            break;
+          }
         }
-      }
-      setDietTemplate(foundTemplate);
+        setDietTemplate(foundTemplate);
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
     }
-  }, [isOpen, targetData]);
+  }, [isOpen, manualCalorie, manualCarbs, manualFat, manualProtein, targetData]);
 
   // Validation calculated on the fly during render for TDEE tab
   const tdeeErrors: { height?: string; weight?: string; age?: string } = {};
