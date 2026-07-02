@@ -42,6 +42,8 @@ type MemberSocialProfileProps = {
   unavailable?: {
     title: string
     description: string
+    actionHref?: string
+    actionLabel?: string
   }
 }
 
@@ -148,6 +150,15 @@ export function MemberSocialProfile({
           title={unavailable.title}
           tone="empty"
         />
+        {unavailable.actionHref && unavailable.actionLabel ? (
+          <Link
+            className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+            href={unavailable.actionHref}
+          >
+            {unavailable.actionLabel}
+            <ChevronRight aria-hidden="true" className="size-4" />
+          </Link>
+        ) : null}
       </section>
     )
   }
@@ -346,6 +357,7 @@ function SocialProfileHero({
           <span>{member.email}</span>
         </div>
         <div className="flex flex-wrap gap-2">
+          <SocialHeroLink href="/member/profile/edit" icon={UserRound} label="Chỉnh sửa hồ sơ" />
           <SocialHeroLink href="/member/progress" icon={TrendingUp} label="Cập nhật tiến độ" />
           <SocialHeroLink href="/member/nutrition/meal-journal" icon={UtensilsCrossed} label="Ghi bữa ăn" />
           <SocialHeroLink href="/member/workout" icon={Dumbbell} label="Xem giáo án" />
@@ -616,6 +628,7 @@ function SocialActionCard() {
     <section className="gm-panel p-5">
       <p className="text-sm font-semibold text-foreground">Hành động nhanh</p>
       <div className="mt-4 grid gap-2">
+        <ActionLink href="/member/profile/edit" icon={UserRound} label="Chỉnh sửa hồ sơ" />
         <ActionLink href="/member/progress" icon={TrendingUp} label="Cập nhật tiến độ" />
         <ActionLink href="/member/nutrition/meal-journal" icon={UtensilsCrossed} label="Ghi bữa ăn" />
         <ActionLink href="/member/membership" icon={CreditCard} label="Gói tập của tôi" />

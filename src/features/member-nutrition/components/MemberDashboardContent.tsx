@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   CalendarCheck,
@@ -62,14 +62,9 @@ export function MemberDashboardContent() {
   const membership = member360?.currentMembership;
   const pt = member360?.assignedPT;
   const checkIns = member360?.recentCheckIns ?? [];
+  const calorieGoal = summary.data?.target ?? null;
 
   const [isBmiOpen, setIsBmiOpen] = useState(false);
-  // null = chua dat muc tieu (BE la nguon su that). Khong bia 2200, khong doc localStorage.
-  const [calorieGoal, setCalorieGoal] = useState<number | null>(null);
-
-  useEffect(() => {
-    setCalorieGoal(summary.data?.target ?? null);
-  }, [summary.data?.target]);
 
   return (
     <div className="grid gap-6">

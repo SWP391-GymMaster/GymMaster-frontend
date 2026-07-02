@@ -55,6 +55,7 @@ function StaffPaymentsPageContent() {
   const searchParams = useSearchParams()
   const queryParam = searchParams?.get("query") ?? ""
   const [searchQuery, setSearchQuery] = useState(queryParam)
+  const [currentTime] = useState(() => Date.now())
 
   const { data: memberships, isLoading: isMembershipsLoading } = useMemberships()
   const { data: packages, isLoading: isPackagesLoading } = usePackages()
@@ -62,13 +63,13 @@ function StaffPaymentsPageContent() {
     useManagedMembers("")
   const confirmPayment = useConfirmMembershipPayment()
 
-  const members = membersResult?.items ?? []
+  const members = useMemo(() => membersResult?.items ?? [], [membersResult?.items])
   const isLoading = isMembershipsLoading || isPackagesLoading || isMembersLoading
 
   const rows = useMemo(() => {
     // Don pending qua 10 phut chua thanh toan -> coi nhu het han/huy.
     const PAYMENT_WINDOW_MS = 10 * 60 * 1000
-    const now = Date.now()
+    const now = currentTime
     return (memberships ?? [])
       .map((ms) => {
         const member = members.find((m) => m.id === ms.memberId)
@@ -96,7 +97,7 @@ function StaffPaymentsPageContent() {
       .sort((a, b) =>
         a.status === b.status ? 0 : a.status === "pending_payment" ? -1 : 1,
       )
-  }, [memberships, members, packages])
+  }, [currentTime, memberships, members, packages])
 
   // Chi don pending con han moi can thu.
   const pending = rows.filter((r) => r.status === "pending_payment" && !r.expired)
