@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
@@ -66,5 +66,30 @@ describe("WorkspaceShell", () => {
     expect(screen.getByText("Access")).toBeInTheDocument()
     expect(screen.getByText("Staff only")).toBeInTheDocument()
     expect(screen.queryByText("Skeleton only")).not.toBeInTheDocument()
+  })
+
+  it("opens a user menu from the desktop identity trigger", async () => {
+    render(
+      <WorkspaceShell
+        description="Member workspace"
+        role="member"
+        title="Member Dashboard"
+      />,
+    )
+
+    const trigger = screen.getByRole("button", { name: /mở menu người dùng/i })
+    fireEvent.pointerDown(trigger, {
+      button: 0,
+      ctrlKey: false,
+      pointerType: "mouse",
+    })
+
+    expect(
+      await screen.findByRole("menuitem", { name: /hồ sơ của tôi/i }),
+    ).toHaveAttribute("href", "/member/profile")
+    expect(
+      screen.getByRole("menuitem", { name: /cấu hình giao diện/i }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("dialog", { name: /cấu hình giao diện/i })).not.toBeInTheDocument()
   })
 })

@@ -37,6 +37,7 @@ export default function RootLayout({
     <html
       lang="vi"
       className={cn("h-full", "antialiased", interSans.variable, geistMono.variable)}
+      data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col">
         <AppProviders>{children}</AppProviders>

@@ -4,8 +4,9 @@ import { describe, expect, it } from "vitest"
 
 import {
   QuickActionPanel,
-  getPtActions,
   getAdminActions,
+  getMemberActions,
+  getPtActions,
   getStaffActions,
 } from "@/features/member-360/components/QuickActionPanel"
 
@@ -45,8 +46,8 @@ describe("getPtActions", () => {
     const actions = getPtActions(101)
 
     expect(actions).toHaveLength(3)
-    expect(actions[0].label).toBe("Thêm ghi chú PT")
-    expect(actions[1].label).toBe("Tạo giáo án")
+    expect(actions[0].label).toBe("Ghi chú PT")
+    expect(actions[1].label).toBe("Thiết kế giáo án")
     expect(actions[2].label).toBe("Xem tiến độ")
   })
 })
@@ -64,11 +65,25 @@ describe("getAdminActions", () => {
 
 describe("getStaffActions", () => {
   it("returns staff actions for a member", () => {
-    const actions = getStaffActions()
+    const actions = getStaffActions(101, "GM-101")
 
     expect(actions).toHaveLength(3)
     expect(actions[0].label).toBe("Check-in")
     expect(actions[1].label).toBe("Bán gói tập")
+    expect(actions[1].href).toContain("memberId=101")
     expect(actions[2].label).toBe("Gia hạn gói")
+  })
+})
+
+describe("getMemberActions", () => {
+  it("returns member self-service actions", () => {
+    const actions = getMemberActions()
+
+    expect(actions.map((action) => action.href)).toEqual([
+      "/member/membership",
+      "/member/progress",
+      "/member/workout",
+      "/member/notes",
+    ])
   })
 })

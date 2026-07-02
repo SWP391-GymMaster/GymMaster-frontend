@@ -23,6 +23,7 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  UserRound,
   UserCog,
   Users,
   UtensilsCrossed,
@@ -121,6 +122,7 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
       title: "Hôm nay",
       items: [
         { href: "/member/dashboard", icon: Home, label: "Trang chủ" },
+        { href: "/member/profile", icon: UserRound, label: "Hồ sơ" },
         { href: "/member/workout", icon: Dumbbell, label: "Giáo án" },
         { href: "/member/notes", icon: FileClock, label: "Ghi chú" },
       ],

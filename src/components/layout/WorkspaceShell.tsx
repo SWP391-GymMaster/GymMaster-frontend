@@ -2,7 +2,22 @@
 
 import type { ReactNode } from "react";
 import { useState, useEffect } from "react";
-import { Bell, Command, Search, Sun, Moon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Bell,
+  ChevronDown,
+  Command,
+  CreditCard,
+  KeyRound,
+  LayoutDashboard,
+  LogOut,
+  Search,
+  Settings,
+  Sun,
+  Moon,
+  UserRound,
+} from "lucide-react";
 
 import {
   CommandRail,
@@ -20,6 +35,15 @@ import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper";
 import { RestTimerOverlay } from "@/components/premium/RestTimerOverlay";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { ShortcutsHelpOverlay } from "@/components/premium/ShortcutsHelpOverlay";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuthSessionStore } from "@/features/auth/session/auth-session";
 
 export type WorkspaceShellMetric = {
   label: string;
@@ -44,8 +68,12 @@ export function WorkspaceShell({
 }: WorkspaceShellProps) {
   const { isCollapsed, theme, setTheme, colorPreset, isSettingsOpen, setSettingsOpen } =
     useSidebarStore();
+  const router = useRouter();
+  const currentUser = useAuthSessionStore((state) => state.session?.user ?? null);
+  const logout = useAuthSessionStore((state) => state.logout);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isLogoutPending, setIsLogoutPending] = useState(false);
 
   const { data: notifications = [] } = useNotifications(role);
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -131,6 +159,20 @@ export function WorkspaceShell({
     member: "Hội viên GymMaster",
   };
 
+  const dashboardHrefs: Record<UserRole, string> = {
+    admin: "/admin/dashboard",
+    staff: "/staff/dashboard",
+    pt: "/pt/dashboard",
+    member: "/member/dashboard",
+  };
+
+  async function handleLogout() {
+    setIsLogoutPending(true);
+    await logout();
+    router.push("/login");
+    setIsLogoutPending(false);
+  }
+
   return (
     <main className="min-h-screen bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] text-foreground selection:bg-primary/20 selection:text-foreground transition-colors duration-200 lg:pb-0">
       {/* Route Progress indicator */}
@@ -211,22 +253,91 @@ export function WorkspaceShell({
 
             <div className="mx-1 h-10 w-px bg-border/80" />
 
-            {/* Config theme presets click handler */}
-            <button
-              onClick={() => setSettingsOpen(true)}
-              className="flex items-center gap-3 rounded-2xl px-2 py-1.5 text-left transition hover:bg-muted/70 active:scale-[0.98]"
-              type="button"
-            >
-              <div className="text-right">
-                <p className="text-sm font-semibold text-foreground">
-                  {userLabels[role]}
-                </p>
-                <span className="mt-1 inline-flex rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold text-primary-foreground shadow-[0_8px_20px_color-mix(in_oklch,var(--primary)_28%,transparent)]">
-                  {roleBadges[role]}
-                </span>
-              </div>
-              <div className="size-10 shrink-0 rounded-full border border-primary/40 bg-[radial-gradient(circle_at_30%_30%,color-mix(in_oklch,var(--primary)_60%,white),var(--surface-panel-strong))] shadow-[var(--shadow-soft)]" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  aria-label="Mở menu người dùng"
+                  className="flex items-center gap-3 rounded-2xl px-2 py-1.5 text-left transition hover:bg-muted/70 active:scale-[0.98]"
+                  type="button"
+                >
+                  <div className="text-right">
+                    <p className="max-w-44 truncate text-sm font-semibold text-foreground">
+                      {currentUser?.fullName ?? userLabels[role]}
+                    </p>
+                    <span className="mt-1 inline-flex rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold text-primary-foreground shadow-[0_8px_20px_color-mix(in_oklch,var(--primary)_28%,transparent)]">
+                      {roleBadges[role]}
+                    </span>
+                  </div>
+                  <div className="size-10 shrink-0 rounded-full border border-primary/40 bg-[radial-gradient(circle_at_30%_30%,color-mix(in_oklch,var(--primary)_60%,white),var(--surface-panel-strong))] shadow-[var(--shadow-soft)]" />
+                  <ChevronDown
+                    aria-hidden="true"
+                    className="size-4 text-muted-foreground"
+                  />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-72 rounded-[1.5rem] border border-border/80 bg-popover/95 p-2 shadow-[var(--shadow-panel)] backdrop-blur-xl"
+                sideOffset={10}
+              >
+                <DropdownMenuLabel className="px-3 py-3">
+                  <span className="block truncate text-sm font-semibold text-foreground">
+                    {currentUser?.fullName ?? userLabels[role]}
+                  </span>
+                  <span className="mt-1 block truncate text-xs text-muted-foreground">
+                    {currentUser?.email ?? roleBadges[role]}
+                  </span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {role === "member" ? (
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/member/profile">
+                      <UserRound aria-hidden="true" className="size-4" />
+                      <span>Hồ sơ của tôi</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ) : null}
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href={dashboardHrefs[role]}>
+                    <LayoutDashboard aria-hidden="true" className="size-4" />
+                    <span>Bảng điều khiển</span>
+                  </Link>
+                </DropdownMenuItem>
+                {role === "member" ? (
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <Link href="/member/membership">
+                      <CreditCard aria-hidden="true" className="size-4" />
+                      <span>Gói tập của tôi</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ) : null}
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/change-password">
+                    <KeyRound aria-hidden="true" className="size-4" />
+                    <span>Đổi mật khẩu</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={() => setSettingsOpen(true)}
+                >
+                  <Settings aria-hidden="true" className="size-4" />
+                  <span>Cấu hình giao diện</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  disabled={isLogoutPending}
+                  onSelect={() => {
+                    void handleLogout();
+                  }}
+                  variant="destructive"
+                >
+                  <LogOut aria-hidden="true" className="size-4" />
+                  <span>{isLogoutPending ? "Đang đăng xuất..." : "Đăng xuất"}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 

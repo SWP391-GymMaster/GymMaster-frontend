@@ -41,6 +41,8 @@
 !/openspec/changes/handle-empty-protected-api-errors/**
 !/openspec/changes/desktop-apple-fitness-uxui-rework/
 !/openspec/changes/desktop-apple-fitness-uxui-rework/**
+!/openspec/changes/role-aware-member-profile/
+!/openspec/changes/role-aware-member-profile/**
 
 # debug
 npm-debug.log*

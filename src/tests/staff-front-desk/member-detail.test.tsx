@@ -19,10 +19,10 @@ describe("StaffMemberDetailHero", () => {
 
     expect(await screen.findByText("Nguyen Minh Anh")).toBeInTheDocument()
     expect(screen.getByText(/GM-101/)).toBeInTheDocument()
-    expect(screen.getByText("0900000101")).toBeInTheDocument()
-    expect(screen.getByText("member@gymmaster.local")).toBeInTheDocument()
+    expect(screen.getAllByText("0900000101").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("member@gymmaster.local").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Premium 30").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Đã thanh toán").length).toBeGreaterThan(0)
-    expect(screen.getByText("Check-in hội viên")).toBeInTheDocument()
+    expect(screen.getByText("Xác nhận vào phòng")).toBeInTheDocument()
   })
 })

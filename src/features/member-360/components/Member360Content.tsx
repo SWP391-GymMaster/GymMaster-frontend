@@ -1,40 +1,35 @@
 "use client"
 
-import {
-  Activity,
-  Bell,
-  CalendarDays,
-  Dumbbell,
-  UserPlus,
-  Scale,
-  Percent,
-} from "lucide-react"
-
+import { formatVnDate } from "@/lib/date/vn-time"
 import { useMemberProgress } from "@/features/member-progress-tracking/api/member-progress.queries"
 import { useMemberCheckIns } from "@/features/billing/api/billing.queries"
-import { formatVnDate } from "@/lib/date/vn-time"
-import { useMemberWorkoutPlans, useMemberTrainerNotes } from "@/features/pt-training/api/pt-training.queries"
+import {
+  useMemberTrainerNotes,
+  useMemberWorkoutPlans,
+} from "@/features/pt-training/api/pt-training.queries"
+import {
+  getAdminActions,
+  getMemberActions,
+  getPtActions,
+} from "@/features/member-360/components/QuickActionPanel"
+import {
+  RoleAwareMemberProfile,
+  type MemberProfileActivity,
+  type MemberProfileContext,
+} from "@/features/member-360/components/RoleAwareMemberProfile"
 
 import type { Member360Data } from "@/features/member-360/types/member-360.types"
-import { Member360Hero } from "@/features/member-360/components/Member360Hero"
-import { MembershipSummaryCard } from "@/features/member-360/components/MembershipSummaryCard"
-import { AssignedPTCard } from "@/features/member-360/components/AssignedPTCard"
-import { CheckInTimeline } from "@/features/member-360/components/CheckInTimeline"
-import {
-  QuickActionPanel,
-  getPtActions,
-  getAdminActions,
-  getStaffActions,
-} from "@/features/member-360/components/QuickActionPanel"
-
-type ViewContext = "pt" | "admin" | "staff"
 
 type Member360ContentProps = {
   data?: Member360Data
   isLoading?: boolean
   error?: Error | null
-  viewContext?: ViewContext
+  viewContext?: Exclude<MemberProfileContext, "staff">
   onRetry?: () => void
+  unavailable?: {
+    title: string
+    description: string
+  }
 }
 
 export function Member360Content({
@@ -43,351 +38,175 @@ export function Member360Content({
   error,
   viewContext = "admin",
   onRetry,
+  unavailable,
 }: Member360ContentProps) {
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6">
-        <p className="text-sm font-medium text-destructive">{error.message}</p>
-        {onRetry ? (
-          <button
-            className="mt-3 inline-flex min-h-10 items-center rounded-full bg-destructive px-4 text-sm font-medium text-destructive-foreground transition hover:brightness-95 active:scale-[0.97]"
-            onClick={onRetry}
-            type="button"
-          >
-            Thử lại
-          </button>
-        ) : null}
-      </div>
-    )
-  }
-
   const member = data?.member
-  const membership = data?.currentMembership
-  const pt = data?.assignedPT
-  const checkIns = data?.recentCheckIns
-
   const memberId = member?.id ?? 0
 
-  const roleActions =
-    viewContext === "pt"
-      ? getPtActions(memberId)
-      : viewContext === "admin"
-        ? getAdminActions(memberId)
-        : getStaffActions()
-
-  return (
-    <div className="space-y-6">
-      <div className="text-sm text-muted-foreground">
-        <span className="font-medium text-foreground">Member 360°</span>
-        <span className="mx-2">/</span>
-        <span>{member?.memberCode || "Đang tải hồ sơ"}</span>
-      </div>
-
-      <Member360Hero
-        dateOfBirth={member?.dateOfBirth}
-        email={member?.email ?? ""}
-        fullName={member?.fullName ?? ""}
-        gender={member?.gender}
-        isLoading={isLoading}
-        memberCode={member?.memberCode ?? ""}
-        phone={member?.phone ?? ""}
-        status={member?.status ?? "active"}
-        viewContext={viewContext}
-      />
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.42fr)_minmax(360px,0.58fr)]">
-        <div className="space-y-6">
-          <MembershipSummaryCard
-            endDate={membership?.endDate}
-            isLoading={isLoading}
-            membershipStatus={membership?.status}
-            packageName={membership?.packageName}
-            paymentStatus={membership?.paymentStatus}
-            startDate={membership?.startDate}
-          />
-
-          <CheckInTimeline entries={checkIns} isLoading={isLoading} />
-
-          <ActivityNotesPanel memberId={memberId} pt={pt} isLoading={isLoading} />
-        </div>
-
-        <aside className="space-y-6">
-          <AssignedPTCard
-            assignedAt={pt?.assignedAt}
-            fullName={pt?.fullName}
-            isLoading={isLoading}
-            specialty={pt?.specialty}
-          />
-
-          <MemberQuickStats memberId={memberId} isLoading={isLoading} />
-
-          {!isLoading && memberId > 0 ? (
-            <QuickActionPanel actions={roleActions} />
-          ) : null}
-
-          <MemberAttentionCard
-            endDate={membership?.endDate}
-            isLoading={isLoading}
-            membershipStatus={membership?.status}
-          />
-        </aside>
-      </div>
-    </div>
-  )
-}
-
-function MemberQuickStats({
-  memberId,
-  isLoading,
-}: {
-  memberId: number
-  isLoading?: boolean
-}) {
   const progressQuery = useMemberProgress(memberId || null)
   const checkinsQuery = useMemberCheckIns(memberId || null)
   const workoutsQuery = useMemberWorkoutPlans(memberId || null)
-
-  const progressEntries = progressQuery.data ?? []
-  const checkinsCount = checkinsQuery.data?.length ?? 0
-  const workoutsCount = workoutsQuery.data?.length ?? 0
-
-  const isStatsLoading =
-    isLoading ||
-    progressQuery.isLoading ||
-    checkinsQuery.isLoading ||
-    workoutsQuery.isLoading
-
-  if (isStatsLoading) {
-    return (
-      <section className="gm-panel p-5">
-        <div className="h-4 w-28 animate-pulse rounded bg-muted" />
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div className="h-20 animate-pulse rounded-xl bg-muted" key={index} />
-          ))}
-        </div>
-      </section>
-    )
-  }
-
-  // Sort by date descending
-  const sorted = [...progressEntries].sort(
-    (a, b) => new Date(b.measuredAt).getTime() - new Date(a.measuredAt).getTime(),
-  )
-  const latest = sorted[0]
-  const weightVal = latest ? `${latest.weightKg} kg` : "Chưa đo"
-  const fatVal =
-    latest?.bodyFatPct !== undefined && latest.bodyFatPct !== null
-      ? `${latest.bodyFatPct}%`
-      : "—"
-
-  return (
-    <section className="gm-panel p-5">
-      <p className="text-sm font-semibold text-foreground">Thống kê nhanh</p>
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <QuickStat icon={Activity} label="Tổng check-in" value={`${checkinsCount} lần`} />
-        <QuickStat icon={Dumbbell} label="Giáo án" value={`${workoutsCount} giáo án`} />
-        <QuickStat icon={Scale} label="Cân nặng" value={weightVal} />
-        <QuickStat icon={Percent} label="Tỷ lệ mỡ" value={fatVal} />
-      </div>
-    </section>
-  )
-}
-
-function QuickStat({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof Activity
-  label: string
-  value: string
-}) {
-  return (
-    <div className="gm-panel-muted p-3">
-      <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Icon aria-hidden="true" className="size-4" />
-      </span>
-      <p className="mt-3 text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-1 text-lg font-semibold tracking-tight text-foreground">
-        {value}
-      </p>
-    </div>
-  )
-}
-
-function ActivityNotesPanel({
-  memberId,
-  pt,
-  isLoading,
-}: {
-  memberId: number
-  pt?: Member360Data["assignedPT"]
-  isLoading?: boolean
-}) {
-  const checkinsQuery = useMemberCheckIns(memberId || null)
   const notesQuery = useMemberTrainerNotes(memberId || null)
 
-  const isPanelLoading = isLoading || checkinsQuery.isLoading || notesQuery.isLoading
+  const progressEntries = progressQuery.data ?? []
+  const sortedProgress = [...progressEntries].sort(
+    (a, b) => new Date(b.measuredAt).getTime() - new Date(a.measuredAt).getTime(),
+  )
+  const latestProgress = sortedProgress[0]
+  const checkIns = checkinsQuery.data ?? data?.recentCheckIns ?? []
+  const workouts = workoutsQuery.data ?? []
 
-  if (isPanelLoading) {
-    return (
-      <section className="gm-panel p-5">
-        <div className="h-4 w-40 animate-pulse rounded bg-muted" />
-        <div className="mt-4 space-y-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div className="h-14 animate-pulse rounded-xl bg-muted" key={index} />
-          ))}
-        </div>
-      </section>
-    )
+  const stats = {
+    checkInCount: checkIns.length,
+    workoutCount: workouts.length,
+    latestWeightKg: latestProgress?.weightKg ?? null,
+    latestBodyFatPct: latestProgress?.bodyFatPct ?? null,
+    progressUpdatedAt: latestProgress?.measuredAt ?? null,
   }
 
-  type TimelineEvent = {
-    id: string
-    title: string
-    description: string
-    meta: string
-    date: string
-    type: "checkin" | "note" | "assignment"
+  const activityEvents = buildActivityEvents({
+    checkIns,
+    notes: notesQuery.data ?? [],
+    assignedPT: data?.assignedPT,
+    membership: data?.currentMembership,
+    latestProgress,
+  })
+
+  const actions =
+    memberId > 0
+      ? viewContext === "pt"
+        ? getPtActions(memberId)
+        : viewContext === "member"
+          ? getMemberActions()
+          : getAdminActions(memberId)
+      : []
+
+  return (
+    <RoleAwareMemberProfile
+      actions={actions}
+      activityEvents={activityEvents}
+      assignedPT={data?.assignedPT ?? null}
+      checkIns={checkIns}
+      error={error}
+      isLoading={isLoading}
+      isStatsLoading={
+        progressQuery.isLoading ||
+        checkinsQuery.isLoading ||
+        workoutsQuery.isLoading ||
+        notesQuery.isLoading
+      }
+      member={
+        member
+          ? {
+              id: member.id,
+              dateOfBirth: member.dateOfBirth,
+              email: member.email,
+              fullName: member.fullName,
+              gender: member.gender,
+              memberCode: member.memberCode,
+              phone: member.phone,
+              status: member.status,
+            }
+          : undefined
+      }
+      membership={data?.currentMembership ?? null}
+      onRetry={onRetry}
+      stats={stats}
+      unavailable={unavailable}
+      viewContext={viewContext}
+    />
+  )
+}
+
+function buildActivityEvents({
+  checkIns,
+  notes,
+  assignedPT,
+  membership,
+  latestProgress,
+}: {
+  checkIns: Array<{ id: number; checkInAt: string; source?: string }>
+  notes: Array<{ id: number; content: string; createdAt: string }>
+  assignedPT?: Member360Data["assignedPT"]
+  membership?: Member360Data["currentMembership"] | null
+  latestProgress?: {
+    id: number
+    measuredAt: string
+    weightKg: number
+    bodyFatPct?: number
   }
+}) {
+  const events: MemberProfileActivity[] = []
 
-  const events: TimelineEvent[] = []
-
-  if (checkinsQuery.data) {
-    checkinsQuery.data.forEach((ci) => {
-      const formattedDate = formatVnDate(ci.checkInAt, {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-      events.push({
-        id: `checkin-${ci.id}`,
-        title: "Check-in hệ thống",
-        description: ci.source === "front-desk" ? "Check-in thành công tại quầy lễ tân." : "Tự check-in thành công qua ứng dụng.",
-        meta: formattedDate,
-        date: ci.checkInAt,
-        type: "checkin",
-      })
-    })
-  }
-
-  if (notesQuery.data) {
-    notesQuery.data.forEach((note) => {
-      const formattedDate = formatVnDate(note.createdAt, {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-      events.push({
-        id: `note-${note.id}`,
-        title: "Ghi chú huấn luyện",
-        description: note.content,
-        meta: `Bởi PT · ${formattedDate}`,
-        date: note.createdAt,
-        type: "note",
-      })
-    })
-  }
-
-  if (pt) {
-    const formattedDate = formatVnDate(pt.assignedAt, {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+  checkIns.forEach((checkIn) => {
     events.push({
-      id: `assignment-${pt.id}`,
+      id: `checkin-${checkIn.id}`,
+      title: "Check-in thành công",
+      description:
+        checkIn.source === "front-desk"
+          ? "Hội viên được xác nhận vào phòng tại quầy lễ tân."
+          : "Hội viên được ghi nhận qua ứng dụng.",
+      meta: formatDateTime(checkIn.checkInAt),
+      date: checkIn.checkInAt,
+      type: "checkin",
+    })
+  })
+
+  notes.forEach((note) => {
+    events.push({
+      id: `note-${note.id}`,
+      title: "Ghi chú PT",
+      description: note.content,
+      meta: formatDateTime(note.createdAt),
+      date: note.createdAt,
+      type: "note",
+    })
+  })
+
+  if (assignedPT) {
+    events.push({
+      id: `assignment-${assignedPT.id}`,
       title: "Phân công PT",
-      description: `Huấn luyện viên ${pt.fullName} được chỉ định phụ trách hội viên.`,
-      meta: `Hệ thống · ${formattedDate}`,
-      date: pt.assignedAt,
+      description: `${assignedPT.fullName} đang phụ trách hội viên này.`,
+      meta: formatDateTime(assignedPT.assignedAt),
+      date: assignedPT.assignedAt,
       type: "assignment",
     })
   }
 
-  events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  if (membership) {
+    events.push({
+      id: `membership-${membership.id}`,
+      title: "Gói hội viên",
+      description: `${membership.packageName} đang ở trạng thái ${membership.status}.`,
+      meta: formatDateTime(membership.startDate),
+      date: membership.startDate,
+      type: "membership",
+    })
+  }
 
-  return (
-    <section className="gm-panel p-5">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-foreground">
-          Ghi chú & hoạt động gần đây
-        </p>
-      </div>
+  if (latestProgress) {
+    events.push({
+      id: `progress-${latestProgress.id}`,
+      title: "Cập nhật tiến độ",
+      description: `Cân nặng ${latestProgress.weightKg} kg${
+        latestProgress.bodyFatPct ? `, body fat ${latestProgress.bodyFatPct}%` : ""
+      }.`,
+      meta: formatDateTime(latestProgress.measuredAt),
+      date: latestProgress.measuredAt,
+      type: "progress",
+    })
+  }
 
-      {events.length === 0 ? (
-        <p className="text-sm text-muted-foreground mt-4">Chưa ghi nhận hoạt động nào.</p>
-      ) : (
-        <div className="mt-4 space-y-4">
-          {events.map((evt) => (
-            <div className="flex gap-3" key={evt.id} data-testid={`timeline-event-${evt.type}`}>
-              <span className="mt-1 flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                {evt.type === "note" ? (
-                  <Bell aria-hidden="true" className="size-4" />
-                ) : evt.type === "assignment" ? (
-                  <UserPlus aria-hidden="true" className="size-4" />
-                ) : (
-                  <Activity aria-hidden="true" className="size-4" />
-                )}
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-foreground">{evt.title}</p>
-                <p className="mt-0.5 text-sm text-muted-foreground">{evt.description}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{evt.meta}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </section>
-  )
+  return events
 }
 
-function MemberAttentionCard({
-  endDate,
-  isLoading,
-  membershipStatus,
-}: {
-  endDate?: string
-  isLoading?: boolean
-  membershipStatus?: "active" | "pending_payment" | "expired" | "cancelled"
-}) {
-  if (isLoading) return null
-
-  const isExpired = membershipStatus === "expired"
-
-  return (
-    <section className="rounded-[1.5rem] border border-[var(--status-warning)]/25 bg-[var(--status-warning)]/10 p-5 shadow-[var(--shadow-soft)]">
-      <p className="text-sm font-semibold text-[var(--status-warning)]">Cần lưu ý</p>
-      <div className="mt-3 flex items-start gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--status-warning)]/15 text-[var(--status-warning)]">
-          <CalendarDays aria-hidden="true" className="size-4" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-foreground">
-            {isExpired ? "Gói tập đã hết hạn" : "Theo dõi thời hạn gói tập"}
-          </p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {endDate ? `Ngày kết thúc: ${formatDate(endDate)}` : "Chưa có ngày kết thúc"}
-          </p>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function formatDate(dateStr?: string) {
-  if (!dateStr) return ""
+function formatDateTime(dateStr: string) {
   return formatVnDate(dateStr, {
-    day: "numeric",
-    month: "short",
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   })
 }
