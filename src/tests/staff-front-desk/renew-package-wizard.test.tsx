@@ -1,17 +1,21 @@
 import { fireEvent, screen } from "@testing-library/react"
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { afterEach, describe, expect, it } from "vitest"
 
 import { RenewPackageWizard } from "@/features/staff-front-desk/components/RenewPackageWizard"
 import { resetAuthSessionForTest } from "@/features/auth/session/auth-session"
 import { renderWithStaffSession } from "@/tests/staff-front-desk/test-utils"
+import { vnTodayIso } from "@/lib/date/vn-time"
 
-beforeEach(() => {
-  vi.useFakeTimers({ shouldAdvanceTime: true })
-  vi.setSystemTime(new Date("2026-06-01T00:00:00.000Z"))
-})
+// Goi mock cua hoi vien da het han (endDate qua khu co dinh) -> gia han noi tiep tu HOM NAY.
+// Tinh dong theo gio VN de test khong phu thuoc ngay chay (tranh "bom hen gio" theo ngay).
+function renewalWindow(durationDays: number) {
+  const start = vnTodayIso()
+  const end = new Date(`${start}T00:00:00Z`)
+  end.setUTCDate(end.getUTCDate() + durationDays)
+  return `${start} đến ${end.toISOString().slice(0, 10)}`
+}
 
 afterEach(() => {
-  vi.useRealTimers()
   resetAuthSessionForTest()
 })
 
@@ -43,7 +47,7 @@ describe("RenewPackageWizard", () => {
 
     fireEvent.click(await screen.findByText("Strength 90"))
     expect(screen.getByTestId("staff-renew-summary")).toHaveTextContent(
-      "2026-06-30 đến 2026-09-28",
+      renewalWindow(90),
     )
 
     fireEvent.click(screen.getByTestId("staff-renew-submit-button"))

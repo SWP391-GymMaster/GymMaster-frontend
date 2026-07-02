@@ -86,6 +86,10 @@ import {
 import { workoutPlanSchema } from "@/features/pt-training/schemas/pt-training.schemas"
 import type { WorkoutPlanFormValues } from "@/features/pt-training/schemas/pt-training.schemas"
 import type { WorkoutPlanDraft } from "@/features/pt-training/types/pt-training.types"
+import {
+  getWorkoutAssetForExercise,
+  getWorkoutCategoryLabel,
+} from "@/features/pt-training/data/workout-assets"
 import { cn } from "@/lib/utils"
 
 type WorkoutPlanFormProps = {
@@ -105,19 +109,19 @@ const defaultExercise = {
 const steps = [
   {
     title: "Bối cảnh",
-    description: "Mục tiêu & môi trường",
+    description: "Nơi tập",
   },
   {
     title: "Preset",
-    description: "Cấu trúc giáo án",
+    description: "Khung tập",
   },
   {
     title: "Bài tập",
-    description: "Tùy chỉnh chi tiết",
+    description: "Sets/reps",
   },
   {
     title: "Lưu",
-    description: "Kiểm tra lần cuối",
+    description: "Xem lại",
   },
 ] as const
 
@@ -179,7 +183,7 @@ export function WorkoutPlanForm({
             note: exercise.defaultNote || "",
           })
         }
-        toast.success(`Đã thêm bài tập: ${exercise.name}`)
+        toast.success(`Đã thêm ${exercise.name}`)
         setActiveStep(2) // Switch to step 3 (index 2: "Bài tập")
       }
       onExternalExerciseAdded?.()
@@ -211,7 +215,7 @@ export function WorkoutPlanForm({
       return {
         items: filteredPresets,
         mode: "exact" as const,
-        message: "Preset khớp chính xác với bộ lọc hiện tại.",
+        message: "Buổi mẫu khớp chính xác với bộ lọc hiện tại.",
       }
     }
 
@@ -224,7 +228,7 @@ export function WorkoutPlanForm({
         items: sameSplitAndDays,
         mode: "near" as const,
         message:
-          "Chưa có preset khớp 100%. Đang gợi ý preset cùng split và số buổi/tuần.",
+          "Chưa có buổi mẫu khớp 100%. Đang gợi ý cùng split và lịch tuần.",
       }
     }
 
@@ -235,7 +239,7 @@ export function WorkoutPlanForm({
         items: sameSplit,
         mode: "near" as const,
         message:
-          "Chưa có preset khớp 100%. Đang gợi ý preset cùng kiểu split.",
+          "Chưa có buổi mẫu khớp 100%. Đang gợi ý cùng kiểu split.",
       }
     }
 
@@ -243,15 +247,19 @@ export function WorkoutPlanForm({
       items: allPresets,
       mode: "fallback" as const,
       message:
-        "Chưa có preset khớp bộ lọc. Đang hiển thị toàn bộ preset có sẵn.",
+        "Chưa có buổi mẫu khớp bộ lọc. Đang hiển thị toàn bộ mẫu có sẵn.",
     }
   }, [daysPerWeek, filteredPresets, split, allPresets])
 
   const selectedPreset =
     recommendedPresets.items.find((preset) => preset.id === presetId) ?? null
 
-  const selectExerciseOptions =
-    filteredExercises.length > 0 ? filteredExercises : exerciseLibrary
+  const recommendedExerciseIds = useMemo(
+    () => new Set(filteredExercises.map((exercise) => exercise.id)),
+    [filteredExercises],
+  )
+
+  const selectExerciseOptions = exerciseLibrary
 
   async function handleSubmit(values: WorkoutPlanFormValues) {
     await onSubmit({
@@ -331,21 +339,22 @@ export function WorkoutPlanForm({
   }
 
   function applyPreset(preset: WorkoutPreset) {
-    form.setValue("title", preset.name, { shouldValidate: true })
-    replace(
-      preset.exercises.map((item) => {
-        const exercise = getExerciseById(item.exerciseId)
+    const presetExercises = preset.exercises.map((item) => {
+      const exercise = getExerciseById(item.exerciseId)
 
-        return {
-          name: item.name ?? exercise?.name ?? "",
-          sets: item.sets ?? exercise?.defaultSets ?? 3,
-          reps: item.reps ?? exercise?.defaultReps ?? "10",
-          note: item.note ?? exercise?.defaultNote ?? "",
-        }
-      }),
-    )
+      return {
+        name: item.name ?? exercise?.name ?? "",
+        sets: item.sets ?? exercise?.defaultSets ?? 3,
+        reps: item.reps ?? exercise?.defaultReps ?? "10",
+        note: item.note ?? exercise?.defaultNote ?? "",
+      }
+    })
+
+    form.setValue("title", preset.name, { shouldValidate: true })
+    replace(presetExercises)
     setPresetId(preset.id)
-    toast.success(`Đã áp dụng preset: ${preset.name}`)
+    setActiveStep(2)
+    toast.success(`Đã nạp ${presetExercises.length} bài từ buổi mẫu`)
   }
 
   function onPresetSelect(value: string) {
@@ -356,36 +365,40 @@ export function WorkoutPlanForm({
 
   return (
     <form
-      className="rounded-2xl border border-border bg-card shadow-sm"
+      className="gm-panel"
       onSubmit={form.handleSubmit(handleSubmit)}
     >
-      <div className="border-b border-border p-5">
+      <div className="border-b border-border p-4 sm:p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex items-start gap-3">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <Sparkles aria-hidden="true" className="size-5" />
             </span>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
-                Trình tạo giáo án nhanh
+                Tạo giáo án
               </h3>
-              <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                Tạo giáo án theo từng bước để form gọn hơn: chọn bối cảnh, áp dụng preset, chỉnh bài tập rồi lưu.
+              <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+                Chọn bối cảnh, áp buổi mẫu, chỉnh bài và lưu.
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <SummaryPill label={`${filteredExercises.length || exerciseLibrary.length} bài tập`} />
-            <SummaryPill label={`${recommendedPresets.items.length} preset gợi ý`} />
+            <SummaryPill label={`${exerciseLibrary.length} bài trong thư viện`} />
             <SummaryPill
-              label={`${daysPerWeek} buổi/tuần`}
+              label={`${filteredExercises.length} gợi ý`}
+              tone="muted"
+            />
+            <SummaryPill label={`${recommendedPresets.items.length} buổi mẫu`} />
+            <SummaryPill
+              label={`Lịch ${daysPerWeek} buổi/tuần`}
               tone="muted"
             />
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 lg:grid-cols-4">
+        <div className="mt-5 grid gap-2 lg:grid-cols-4">
           {steps.map((step, index) => {
             const isDone = index < activeStep
             const isActive = index === activeStep
@@ -393,7 +406,7 @@ export function WorkoutPlanForm({
             return (
               <button
                 className={cn(
-                  "flex min-h-16 items-center gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.98]",
+                  "flex min-h-12 items-center gap-3 rounded-2xl border p-3 text-left transition active:scale-[0.98]",
                   isActive
                     ? "border-primary bg-primary/10 shadow-sm"
                     : isDone
@@ -420,7 +433,7 @@ export function WorkoutPlanForm({
                   <span className="block truncate text-sm font-semibold text-foreground">
                     {step.title}
                   </span>
-                  <span className="block truncate text-xs text-muted-foreground">
+                  <span className="hidden truncate text-xs text-muted-foreground sm:block">
                     {step.description}
                   </span>
                 </span>
@@ -430,7 +443,7 @@ export function WorkoutPlanForm({
         </div>
       </div>
 
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         {activeStep === 0 ? (
           <TrainingContextStep
             environment={environment}
@@ -478,6 +491,7 @@ export function WorkoutPlanForm({
             fields={fields}
             form={form}
             remove={remove}
+            recommendedExerciseIds={recommendedExerciseIds}
             selectExerciseOptions={selectExerciseOptions}
             recentExercises={recentExercises}
           />
@@ -496,7 +510,7 @@ export function WorkoutPlanForm({
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-border bg-muted/20 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 border-t border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <Button
           className="min-h-11 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
           disabled={activeStep === 0}
@@ -525,7 +539,7 @@ export function WorkoutPlanForm({
               disabled={isPending}
               type="submit"
             >
-              {isPending ? "Đang lưu giáo án..." : "Lưu giáo án"}
+              {isPending ? "Đang lưu..." : "Lưu giáo án"}
             </Button>
           )}
         </div>
@@ -551,7 +565,7 @@ function TrainingContextStep({
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
       <div>
         <StepHeading
-          description="Chọn nơi học viên sẽ tập và mục tiêu chính của giáo án. Thư viện bài tập sẽ tự lọc theo lựa chọn này."
+          description="Chọn nơi tập và mục tiêu chính."
           eyebrow="Bước 1"
           title="Bối cảnh tập luyện"
         />
@@ -587,7 +601,7 @@ function TrainingContextStep({
         </div>
       </div>
 
-      <aside className="rounded-2xl border border-border bg-background p-4">
+      <aside className="gm-panel-muted p-4">
         <p className="text-sm font-semibold text-foreground">Kết quả lọc</p>
         <p className="mt-3 text-4xl font-semibold tracking-tight text-primary">
           {filteredExercisesCount}
@@ -628,9 +642,9 @@ function PresetStep({
   return (
     <section>
       <StepHeading
-        description="Chọn kiểu split và số buổi tập mỗi tuần. Nếu không có preset khớp 100%, hệ thống vẫn gợi ý preset gần nhất."
+        description="Chọn split và buổi mẫu theo lịch tuần tham chiếu."
         eyebrow="Bước 2"
-        title="Chọn preset giáo án"
+        title="Chọn buổi mẫu"
       />
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -649,9 +663,9 @@ function PresetStep({
             ))}
           </div>
 
-          <div className="rounded-2xl border border-border bg-background p-4">
+          <div className="gm-panel-muted p-4">
             <p className="text-sm font-semibold text-foreground">
-              Số buổi tập mỗi tuần
+              Lịch tuần tham chiếu
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {trainingDaysPerWeekOptions.map((option) => (
@@ -677,20 +691,20 @@ function PresetStep({
               "rounded-2xl border p-4",
               recommendedPresets.mode === "exact"
                 ? "border-primary/20 bg-primary/5 dark:border-primary/10 dark:bg-primary/5"
-                : "border-orange-200 bg-orange-50 dark:border-orange-500/20 dark:bg-orange-950/20",
+                : "border-[var(--status-warning)]/30 bg-[var(--status-warning)]/10",
             )}
           >
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
               <div>
                 <p className="text-sm font-semibold text-foreground">
-                  Preset gợi ý
+                  Buổi mẫu gợi ý
                 </p>
                 <p
                   className={cn(
                     "mt-1 text-xs leading-5",
                     recommendedPresets.mode === "exact"
                       ? "text-muted-foreground"
-                      : "text-orange-800 dark:text-orange-300",
+                      : "text-[var(--status-warning)]",
                   )}
                 >
                   {recommendedPresets.message}
@@ -701,23 +715,23 @@ function PresetStep({
                   "w-fit rounded-full px-3 py-1 text-xs font-semibold",
                   recommendedPresets.mode === "exact"
                     ? "bg-primary/10 text-primary"
-                    : "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300",
+                    : "bg-[var(--status-warning)]/15 text-[var(--status-warning)]",
                 )}
               >
-                {recommendedPresets.items.length} preset
+                {recommendedPresets.items.length} mẫu
               </span>
             </div>
 
             <div className="mt-4 grid gap-3">
               <FilterSelect
-                label="Chọn preset"
+                label="Chọn buổi mẫu"
                 onChange={onPresetSelect}
                 value={presetId}
                 options={recommendedPresets.items.map((preset) => ({
                   value: preset.id,
                   label: preset.name,
                 }))}
-                placeholder="Chọn preset để tự điền giáo án"
+                placeholder="Chọn buổi mẫu để nạp bài"
               />
 
               <Button
@@ -728,14 +742,14 @@ function PresetStep({
                 variant="outline"
               >
                 <Dumbbell aria-hidden="true" className="size-4" />
-                Áp dụng gợi ý đầu tiên
+                Áp dụng buổi mẫu đầu tiên
               </Button>
             </div>
           </div>
         </div>
 
-        <aside className="rounded-2xl border border-border bg-background p-4">
-          <p className="text-sm font-semibold text-foreground">Preset đang chọn</p>
+        <aside className="gm-panel-muted p-4">
+          <p className="text-sm font-semibold text-foreground">Buổi mẫu đang chọn</p>
           {selectedPreset ? (
             <div className="mt-4">
               <p className="text-xl font-semibold tracking-tight text-foreground">
@@ -746,13 +760,13 @@ function PresetStep({
               </p>
               <div className="mt-4 grid gap-2">
                 <ReviewRow label="Split" value={formatSplit(selectedPreset.split)} />
-                <ReviewRow label="Buổi/tuần" value={`${selectedPreset.daysPerWeek}`} />
+                <ReviewRow label="Lịch tuần" value={`${selectedPreset.daysPerWeek} buổi/tuần`} />
                 <ReviewRow label="Số bài tập" value={`${selectedPreset.exercises.length}`} />
               </div>
             </div>
           ) : (
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              Chọn preset hoặc dùng gợi ý đầu tiên để tự điền danh sách bài tập.
+              Chọn buổi mẫu hoặc dùng gợi ý đầu tiên để nạp danh sách bài tập.
             </p>
           )}
         </aside>
@@ -768,6 +782,7 @@ function ExerciseEditorStep({
   fields,
   form,
   remove,
+  recommendedExerciseIds,
   selectExerciseOptions,
   recentExercises,
 }: {
@@ -777,6 +792,7 @@ function ExerciseEditorStep({
   fields: ReturnType<typeof useFieldArray<WorkoutPlanFormValues, "exercises">>["fields"]
   form: ReturnType<typeof useForm<WorkoutPlanFormValues>>
   remove: (index: number) => void
+  recommendedExerciseIds: Set<string>
   selectExerciseOptions: typeof exerciseLibrary
   recentExercises: string[]
 }) {
@@ -784,7 +800,7 @@ function ExerciseEditorStep({
     <section>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <StepHeading
-          description="Đặt tên giáo án, chọn bài trong library và chỉnh lại sets, reps hoặc cue nếu cần."
+          description="Đặt tên, thêm bài, chỉnh sets/reps/cue."
           eyebrow="Bước 3"
           title="Bài tập & tùy chỉnh"
         />
@@ -804,7 +820,7 @@ function ExerciseEditorStep({
           className="text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground"
           htmlFor="workout-title"
         >
-          Tên giáo án
+          Tên buổi tập
         </label>
         <Input
           className="mt-2"
@@ -830,150 +846,208 @@ function ExerciseEditorStep({
           const currentName = form.watch(`exercises.${index}.name`)
           const selectedExerciseId = getExerciseIdByName(currentName) ?? "__custom__"
           const selectedExercise = getExerciseById(selectedExerciseId)
+          const asset = getWorkoutAssetForExercise(currentName || "")
+          const isRecommended =
+            selectedExercise ? recommendedExerciseIds.has(selectedExercise.id) : false
 
           return (
-            <div
-              className="rounded-2xl border border-border bg-background p-4"
+            <article
+              className="overflow-hidden rounded-[1.5rem] border border-border bg-card/70 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-lg"
               key={field.id}
             >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-foreground">Bài tập {index + 1}</p>
-                  {selectedExercise ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {selectedExercise.category} · {selectedExercise.level} · {selectedExercise.equipment.join(", ")}
-                    </p>
-                  ) : (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Custom exercise
-                    </p>
-                  )}
+              <div className="grid gap-0 xl:grid-cols-[168px_minmax(0,1fr)]">
+                <div className="relative min-h-36 overflow-hidden bg-muted xl:min-h-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    alt={`Minh họa bài tập ${currentName || `số ${index + 1}`}`}
+                    className="absolute inset-0 size-full object-cover"
+                    loading="lazy"
+                    src={asset.src}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/85 via-background/10 to-transparent" />
+                  <span className="absolute left-3 top-3 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold text-foreground shadow-sm">
+                    {selectedExercise ? getWorkoutCategoryLabel(asset.category) : "Custom"}
+                  </span>
+                  <span className="absolute bottom-3 left-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
+                    #{String(index + 1).padStart(2, "0")}
+                  </span>
                 </div>
 
-                <Button
-                  aria-label={`Xóa bài tập ${index + 1}`}
-                  className="size-9 rounded-full border-destructive/20 text-destructive hover:bg-destructive/10 active:scale-[0.98]"
-                  disabled={fields.length === 1}
-                  onClick={() => remove(index)}
-                  type="button"
-                  variant="outline"
-                >
-                  <Trash2 aria-hidden="true" className="size-4" />
-                </Button>
-              </div>
+                <div className="min-w-0 p-4 sm:p-5">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-primary">
+                        Bài tập {index + 1}
+                      </p>
+                      <h3 className="mt-1 truncate text-lg font-semibold tracking-tight text-foreground">
+                        {currentName || "Chưa chọn bài tập"}
+                      </h3>
+                      <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                        {selectedExercise
+                          ? `${selectedExercise.category} · ${selectedExercise.level} · ${selectedExercise.equipment.join(", ")}`
+                          : "Nhập tay hoặc chọn từ thư viện"}
+                      </p>
+                    </div>
 
-              <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_96px_130px]">
-                <div>
-                  <label
-                    className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
-                    htmlFor={`exercise-select-${index}`}
-                  >
-                    Chọn bài tập
-                  </label>
-                  <Select
-                    value={selectedExerciseId}
-                    onValueChange={(val: string) => applyExercise(index, val)}
-                  >
-                    <SelectTrigger className="mt-2 w-full bg-card border border-border px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
-                      <SelectValue placeholder="Custom / nhập tay" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl max-h-[300px] overflow-y-auto">
-                      <SelectItem value="__custom__" className="focus:bg-white/5 focus:text-white">Custom / nhập tay</SelectItem>
-                      {groupExercisesByCategory(selectExerciseOptions).map((group) => (
-                        <SelectGroup key={group.category}>
-                          <SelectLabel className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">{group.category}</SelectLabel>
-                          {group.items.map((exercise) => (
-                            <SelectItem key={exercise.id} value={exercise.id} className="focus:bg-white/5 focus:text-white">
-                              {exercise.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    <Button
+                      aria-label={`Xóa bài tập ${index + 1}`}
+                      className="size-9 shrink-0 rounded-full border-destructive/20 text-destructive hover:bg-destructive/10 active:scale-[0.98]"
+                      disabled={fields.length === 1}
+                      onClick={() => remove(index)}
+                      type="button"
+                      variant="outline"
+                    >
+                      <Trash2 aria-hidden="true" className="size-4" />
+                    </Button>
+                  </div>
 
-                  {selectedExerciseId === "__custom__" ? (
-                    <>
-                      <Input
-                        className="mt-2"
-                        id={`exercise-name-${index}`}
-                        placeholder="Tên bài tập custom"
-                        {...form.register(`exercises.${index}.name`)}
-                      />
-                      {recentExercises.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1.5">
-                          {recentExercises.map((name) => (
-                            <button
-                              key={name}
-                              type="button"
-                              onClick={() => {
-                                form.setValue(`exercises.${index}.name`, name, { shouldValidate: true })
-                              }}
-                              className={cn(
-                                "px-2.5 py-0.5 text-xs rounded-full border transition active:scale-95",
-                                currentName === name
-                                  ? "border-primary bg-primary/10 text-primary font-semibold"
-                                  : "border-border bg-card hover:bg-muted text-muted-foreground"
-                              )}
-                            >
-                              {name}
-                            </button>
+                  <div className="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_88px_132px]">
+                    <div className="min-w-0">
+                      <label
+                        className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+                        htmlFor={`exercise-select-${index}`}
+                      >
+                        Chọn bài tập
+                      </label>
+                      <Select
+                        value={selectedExerciseId}
+                        onValueChange={(val: string) => applyExercise(index, val)}
+                      >
+                        <SelectTrigger
+                          className="mt-2 min-h-11 w-full border border-border bg-card px-3 text-sm text-foreground focus-visible:border-primary focus-visible:ring-primary/20"
+                          id={`exercise-select-${index}`}
+                        >
+                          <SelectValue placeholder="Custom / nhập tay" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[360px] overflow-y-auto rounded-xl border border-white/10 bg-zinc-950 text-white">
+                          <SelectItem
+                            className="focus:bg-white/5 focus:text-white"
+                            value="__custom__"
+                          >
+                            Custom / nhập tay
+                          </SelectItem>
+                          {groupExercisesByCategory(selectExerciseOptions).map((group) => (
+                            <SelectGroup key={group.category}>
+                              <SelectLabel className="px-2 py-1.5 text-xs font-semibold text-zinc-400">
+                                {group.category}
+                              </SelectLabel>
+                              {group.items.map((exercise) => (
+                                <SelectItem
+                                  className="focus:bg-white/5 focus:text-white"
+                                  key={exercise.id}
+                                  value={exercise.id}
+                                >
+                                  <span className="flex min-w-0 items-center gap-2">
+                                    <span className="truncate">{exercise.name}</span>
+                                    {recommendedExerciseIds.has(exercise.id) ? (
+                                      <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                                        Gợi ý
+                                      </span>
+                                    ) : null}
+                                  </span>
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
                           ))}
+                        </SelectContent>
+                      </Select>
+
+                      {selectedExerciseId === "__custom__" ? (
+                        <div className="mt-2 space-y-2">
+                          <Input
+                            id={`exercise-name-${index}`}
+                            placeholder="Tên bài tập custom"
+                            {...form.register(`exercises.${index}.name`)}
+                          />
+                          {recentExercises.length > 0 ? (
+                            <div className="flex flex-wrap gap-1.5">
+                              {recentExercises.map((name) => (
+                                <button
+                                  className={cn(
+                                    "rounded-full border px-2.5 py-1 text-xs transition active:scale-95",
+                                    currentName === name
+                                      ? "border-primary bg-primary/10 font-semibold text-primary"
+                                      : "border-border bg-card text-muted-foreground hover:bg-muted",
+                                  )}
+                                  key={name}
+                                  onClick={() => {
+                                    form.setValue(`exercises.${index}.name`, name, {
+                                      shouldValidate: true,
+                                    })
+                                  }}
+                                  type="button"
+                                >
+                                  {name}
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
-                      )}
-                    </>
-                  ) : null}
+                      ) : null}
 
-                  {errors.exercises?.[index]?.name ? (
-                    <p className="mt-2 text-xs font-medium text-destructive">
-                      {errors.exercises[index]?.name?.message}
-                    </p>
-                  ) : null}
+                      {errors.exercises?.[index]?.name ? (
+                        <p className="mt-2 text-xs font-medium text-destructive">
+                          {errors.exercises[index]?.name?.message}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <FieldShell label="Sets">
+                      <Input
+                        className="min-h-11"
+                        id={`exercise-sets-${index}`}
+                        min={1}
+                        type="number"
+                        {...form.register(`exercises.${index}.sets`, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                    </FieldShell>
+
+                    <FieldShell label="Reps">
+                      <Input
+                        className="min-h-11"
+                        id={`exercise-reps-${index}`}
+                        placeholder="8-10 / 30 giây"
+                        {...form.register(`exercises.${index}.reps`)}
+                      />
+                    </FieldShell>
+                  </div>
+
+                  <div className="mt-4 grid gap-2">
+                    <label
+                      className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
+                      htmlFor={`exercise-note-${index}`}
+                    >
+                      Cue / ghi chú
+                    </label>
+                    <textarea
+                      className="min-h-16 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
+                      id={`exercise-note-${index}`}
+                      placeholder="Cue kỹ thuật, tempo hoặc lưu ý an toàn"
+                      {...form.register(`exercises.${index}.note`)}
+                    />
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {selectedExercise ? (
+                      <>
+                        <ExerciseBadge label={selectedExercise.category} />
+                        <ExerciseBadge label={selectedExercise.level} />
+                        {selectedExercise.muscleGroups.slice(0, 3).map((group) => (
+                          <ExerciseBadge key={group} label={group} />
+                        ))}
+                        {isRecommended ? (
+                          <ExerciseBadge label="Gợi ý theo bối cảnh" />
+                        ) : null}
+                      </>
+                    ) : (
+                      <ExerciseBadge label="Custom" />
+                    )}
+                  </div>
                 </div>
-
-                <FieldShell label="Sets">
-                  <Input
-                    id={`exercise-sets-${index}`}
-                    min={1}
-                    type="number"
-                    {...form.register(`exercises.${index}.sets`, {
-                      valueAsNumber: true,
-                    })}
-                  />
-                </FieldShell>
-
-                <FieldShell label="Reps / Time">
-                  <Input
-                    id={`exercise-reps-${index}`}
-                    placeholder="8-10"
-                    {...form.register(`exercises.${index}.reps`)}
-                  />
-                </FieldShell>
               </div>
-
-              <label
-                className="mt-3 block text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
-                htmlFor={`exercise-note-${index}`}
-              >
-                Cue / note
-              </label>
-              <textarea
-                className="mt-2 min-h-20 w-full rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10"
-                id={`exercise-note-${index}`}
-                placeholder="Cue kỹ thuật, tempo hoặc lưu ý an toàn"
-                {...form.register(`exercises.${index}.note`)}
-              />
-
-              {selectedExercise ? (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <ExerciseBadge label={selectedExercise.category} />
-                  <ExerciseBadge label={selectedExercise.level} />
-                  {selectedExercise.muscleGroups.slice(0, 3).map((group) => (
-                    <ExerciseBadge key={group} label={group} />
-                  ))}
-                </div>
-              ) : null}
-            </div>
+            </article>
           )
         })}
       </div>
@@ -1044,21 +1118,21 @@ function ReviewStep({
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
       <div>
         <StepHeading
-          description="Kiểm tra lại tên giáo án, số bài tập và cue trước khi lưu."
+          description="Kiểm tra nhanh trước khi lưu."
           eyebrow="Bước 4"
           title="Xem trước & lưu"
         />
 
-        <div className="mt-5 overflow-hidden rounded-2xl border border-border bg-background">
+        <div className="gm-panel-muted mt-5 overflow-hidden">
           <div className="border-b border-border bg-primary/10 p-4">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-              Workout Preview
+              Xem trước
             </p>
             <h3 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
-              {title || "Chưa đặt tên giáo án"}
+              {title || "Chưa đặt tên buổi tập"}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              {exercises.length} bài tập · {daysPerWeek} buổi/tuần · {formatSplit(split)}
+              {exercises.length} bài tập · buổi mẫu trong lịch {daysPerWeek} buổi/tuần · {formatSplit(split)}
             </p>
           </div>
 
@@ -1095,14 +1169,14 @@ function ReviewStep({
         </div>
       </div>
 
-      <aside className="rounded-2xl border border-border bg-background p-4 flex flex-col justify-between">
+      <aside className="gm-panel-muted flex flex-col justify-between p-4">
         <div>
-          <p className="text-sm font-semibold text-foreground">Tóm tắt giáo án</p>
+          <p className="text-sm font-semibold text-foreground">Tóm tắt buổi tập</p>
           <div className="mt-4 grid gap-3">
             <ReviewRow label="Môi trường" value={formatEnvironment(environment)} />
             <ReviewRow label="Mục tiêu" value={formatGoal(goal)} />
             <ReviewRow label="Split" value={formatSplit(split)} />
-            <ReviewRow label="Số buổi/tuần" value={`${daysPerWeek}`} />
+            <ReviewRow label="Lịch tuần tham chiếu" value={`${daysPerWeek} buổi/tuần`} />
             <ReviewRow label="Số bài tập" value={`${exercises.length}`} />
           </div>
         </div>
@@ -1120,7 +1194,7 @@ function ReviewStep({
           </DialogTrigger>
           <DialogContent className="max-w-md rounded-2xl p-6 bg-zinc-950 border border-white/10 text-white">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold">Lưu giáo án thành Preset</DialogTitle>
+              <DialogTitle className="text-xl font-bold">Lưu buổi mẫu thành preset</DialogTitle>
               <DialogDescription className="text-zinc-400">
                 Preset này sẽ xuất hiện trong danh sách gợi ý để bạn áp dụng cho hội viên khác.
               </DialogDescription>
@@ -1192,7 +1266,7 @@ function StepHeading({
       <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
         {title}
       </h2>
-      <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
+      <p className="mt-1 max-w-xl text-sm leading-6 text-muted-foreground">
         {description}
       </p>
     </div>
@@ -1233,7 +1307,7 @@ function SelectableCard({
       </span>
       <span>
         <span className="block font-semibold text-foreground">{title}</span>
-        <span className="mt-1 block text-sm leading-6 text-muted-foreground">
+        <span className="mt-1 block line-clamp-2 text-xs leading-5 text-muted-foreground">
           {description}
         </span>
       </span>

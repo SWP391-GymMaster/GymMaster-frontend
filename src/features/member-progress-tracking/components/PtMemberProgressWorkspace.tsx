@@ -78,7 +78,7 @@ export function PtMemberProgressWorkspace({ memberId }: PtMemberProgressWorkspac
           </div>
 
           {/* Hero Banner with Latest Stats */}
-          <section className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <section className="gm-panel relative overflow-hidden p-6">
             <div className="pointer-events-none absolute -right-24 -top-24 size-64 rounded-full bg-primary/10 blur-3xl" />
             <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
@@ -94,7 +94,7 @@ export function PtMemberProgressWorkspace({ memberId }: PtMemberProgressWorkspac
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[400px]">
-                <div className="rounded-xl border border-border bg-background p-4">
+                <div className="gm-panel-muted p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground flex items-center gap-1">
                     <TrendingUp className="size-3.5 text-primary" />
                     Cân nặng mới nhất
@@ -107,7 +107,7 @@ export function PtMemberProgressWorkspace({ memberId }: PtMemberProgressWorkspac
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-border bg-background p-4">
+                <div className="gm-panel-muted p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground flex items-center gap-1">
                     <Percent className="size-3.5 text-primary" />
                     Tỷ lệ mỡ mới nhất

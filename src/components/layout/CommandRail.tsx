@@ -23,8 +23,8 @@ import {
   Search,
   Settings,
   ShieldCheck,
-  UserCog,
   UserRound,
+  UserCog,
   Users,
   UtensilsCrossed,
   X,
@@ -122,6 +122,7 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
       title: "Hôm nay",
       items: [
         { href: "/member/dashboard", icon: Home, label: "Trang chủ" },
+        { href: "/member/profile", icon: UserRound, label: "Hồ sơ" },
         { href: "/member/workout", icon: Dumbbell, label: "Giáo án" },
         { href: "/member/notes", icon: FileClock, label: "Ghi chú" },
       ],
@@ -145,7 +146,6 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
           label: "Gói tập",
         },
         { href: "/member/progress", icon: Activity, label: "Tiến độ" },
-        { href: "/member/profile", icon: UserRound, label: "Hồ sơ" },
       ],
     },
   ],
@@ -218,6 +218,7 @@ function getMobileNavItems(role: UserRole, activeMember: ActiveMemberContext) {
     : rawGroups;
 
   const allItems = flattenNavGroups(groups);
+
   const primaryItems = mobilePrimaryHrefsByRole[role]
     .map((rawHref) => {
       return allItems.find((item) => (item.originalHref || item.href) === rawHref);
@@ -289,7 +290,7 @@ export function CommandRail({ role }: CommandRailProps) {
     <>
       <motion.aside
         aria-label={`Điều hướng ${roleWorkspaceLabels[role]}`}
-        className="fixed left-0 top-0 z-40 hidden h-dvh flex-col overflow-x-hidden bg-sidebar p-4 text-sidebar-foreground shadow-xl lg:flex"
+        className="fixed left-0 top-0 z-40 hidden h-dvh flex-col overflow-x-hidden border-r border-sidebar-border bg-sidebar p-4 text-sidebar-foreground shadow-[14px_0_40px_color-mix(in_oklch,var(--foreground)_8%,transparent)] lg:flex"
         data-testid="command-rail"
         initial={false}
         animate={{ width: isCollapsed ? 80 : 280 }}
@@ -298,13 +299,13 @@ export function CommandRail({ role }: CommandRailProps) {
         {/* Brand Header */}
         <div
           className={cn(
-            "flex shrink-0 items-center gap-3 border-b border-white/5 px-2 pb-6",
+            "flex shrink-0 items-center gap-3 border-b border-sidebar-border/70 px-2 pb-6",
             isCollapsed ? "justify-center" : "",
           )}
         >
           <span
             aria-hidden="true"
-            className="size-12 shrink-0 rounded-xl bg-contain bg-center bg-no-repeat shadow-md ring-1 ring-white/10"
+            className="size-12 shrink-0 rounded-[1.15rem] bg-contain bg-center bg-no-repeat shadow-[0_12px_28px_color-mix(in_oklch,var(--foreground)_12%,transparent)] ring-1 ring-sidebar-border"
             style={{ backgroundImage: `url(${gymMasterAssets.brand.mark})` }}
           />
           {!isCollapsed && (
@@ -349,14 +350,14 @@ export function CommandRail({ role }: CommandRailProps) {
             <div key={idx} className="flex w-full shrink-0 flex-col gap-1">
               {/* PT Active Member Context Card */}
               {role === "pt" && group.title === "Giáo án & Ghi chú" && !isCollapsed && (
-                <div className="mx-3 mb-3 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-md">
+                <div className="mx-3 mb-3 rounded-[1.25rem] border border-sidebar-border bg-sidebar-accent p-3 shadow-[inset_0_1px_0_color-mix(in_oklch,var(--foreground)_5%,transparent)] backdrop-blur-md">
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0 flex-1">
                       <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-primary/80">
                         Học viên đang chọn
                       </p>
                       {activeMember ? (
-                        <p className="mt-1 truncate text-xs font-semibold text-white">
+                        <p className="mt-1 truncate text-xs font-semibold text-sidebar-foreground">
                           🟢 {activeMember.fullName}
                         </p>
                       ) : (
@@ -369,7 +370,7 @@ export function CommandRail({ role }: CommandRailProps) {
                       <button
                         onClick={handleClearContext}
                         type="button"
-                        className="rounded-md p-1 hover:bg-white/10 text-sidebar-foreground/50 hover:text-white transition"
+                        className="rounded-md p-1 text-sidebar-foreground/50 transition hover:bg-sidebar-accent hover:text-sidebar-foreground"
                         title="Xóa ngữ cảnh"
                       >
                         <X className="size-3" />
@@ -381,7 +382,7 @@ export function CommandRail({ role }: CommandRailProps) {
 
               {/* Group Title */}
               {!isCollapsed && (
-                <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40">
+                <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/45">
                   {group.title}
                 </p>
               )}
@@ -398,7 +399,7 @@ export function CommandRail({ role }: CommandRailProps) {
                           onClick={() => toast.warning("Vui lòng chọn học viên từ danh sách để tiếp tục.")}
                           type="button"
                           className={cn(
-                            "relative flex min-h-10 w-full items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98] text-sidebar-foreground/35 cursor-not-allowed",
+                            "relative flex min-h-10 w-full cursor-not-allowed items-center rounded-xl text-sm font-semibold text-sidebar-foreground/35 transition-all duration-200 active:scale-[0.98]",
                             isCollapsed
                               ? "mx-auto size-10 justify-center"
                               : "gap-3 px-3",
@@ -411,13 +412,13 @@ export function CommandRail({ role }: CommandRailProps) {
                         <Link
                           aria-current={active ? "page" : undefined}
                           className={cn(
-                            "relative flex min-h-10 items-center rounded-lg text-sm font-semibold transition-all duration-200 active:scale-[0.98]",
+                            "relative flex min-h-10 items-center rounded-xl text-sm font-semibold transition-all duration-200 active:scale-[0.98]",
                             isCollapsed
                               ? "mx-auto size-10 justify-center"
                               : "w-full gap-3 px-3",
                             active
-                              ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-inner"
-                              : "text-sidebar-foreground/75 hover:bg-white/10 hover:text-sidebar-foreground",
+                              ? "bg-[color-mix(in_oklch,var(--sidebar-primary)_16%,transparent)] text-sidebar-foreground ring-1 ring-sidebar-primary/25 shadow-[inset_0_1px_0_color-mix(in_oklch,var(--foreground)_6%,transparent)]"
+                              : "text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-foreground",
                           )}
                           href={item.href}
                         >
@@ -428,7 +429,7 @@ export function CommandRail({ role }: CommandRailProps) {
 
                       {/* Premium CSS Absolute Tooltip on Collapse */}
                       {isCollapsed && (
-                        <div className="pointer-events-none absolute left-14 top-1/2 z-50 ml-2 -translate-x-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl ring-1 ring-white/10 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+                        <div className="pointer-events-none absolute left-14 top-1/2 z-50 ml-2 -translate-x-2 -translate-y-1/2 whitespace-nowrap rounded-xl bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl ring-1 ring-white/10 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
                           {item.label}
                         </div>
                       )}
@@ -441,13 +442,13 @@ export function CommandRail({ role }: CommandRailProps) {
         </nav>
 
         {/* Footer controls */}
-        <div className="mt-auto flex shrink-0 flex-col gap-2.5 border-t border-white/5 pt-4">
+        <div className="mt-auto flex shrink-0 flex-col gap-2.5 border-t border-sidebar-border/70 pt-4">
           {/* Settings button */}
           <button
             onClick={() => setSettingsOpen(true)}
             type="button"
             className={cn(
-              "group relative flex h-10 w-full items-center rounded-lg text-sidebar-foreground/75 transition-all duration-200 hover:bg-white/10 hover:text-sidebar-foreground active:scale-[0.98]",
+              "group relative flex h-10 w-full items-center rounded-xl text-sidebar-foreground/72 transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-foreground active:scale-[0.98]",
               isCollapsed
                 ? "mx-auto size-10 justify-center px-0"
                 : "gap-3 px-3",
@@ -457,7 +458,7 @@ export function CommandRail({ role }: CommandRailProps) {
             <Settings className="size-4 shrink-0" />
             {!isCollapsed && <span>Cấu hình</span>}
             {isCollapsed && (
-              <div className="pointer-events-none absolute left-14 top-1/2 z-50 ml-2 -translate-x-2 -translate-y-1/2 whitespace-nowrap rounded-md bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl ring-1 ring-white/10 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
+              <div className="pointer-events-none absolute left-14 top-1/2 z-50 ml-2 -translate-x-2 -translate-y-1/2 whitespace-nowrap rounded-xl bg-zinc-950 px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-xl ring-1 ring-white/10 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100">
                 Cấu hình giao diện
               </div>
             )}
@@ -469,7 +470,7 @@ export function CommandRail({ role }: CommandRailProps) {
           <button
             onClick={toggleSidebar}
             type="button"
-            className="flex h-10 w-full items-center justify-center rounded-lg text-sidebar-foreground/50 transition hover:bg-white/5 hover:text-sidebar-foreground active:scale-95"
+            className="flex h-10 w-full items-center justify-center rounded-xl text-sidebar-foreground/50 transition hover:bg-sidebar-accent hover:text-sidebar-foreground active:scale-95"
             title={isCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
           >
             {isCollapsed ? (

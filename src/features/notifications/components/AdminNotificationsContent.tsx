@@ -47,12 +47,12 @@ const typeLabels: Record<NotificationType, string> = {
 }
 
 const badgeColors = {
-  checkin: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  checkin: "bg-primary/10 text-primary border-primary/20",
   payment: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   alert: "bg-destructive/10 text-destructive border-destructive/20",
-  system: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  system: "bg-[var(--status-info)]/15 text-[var(--status-info)] border-[var(--status-info)]/25",
   workout: "bg-lime-500/10 text-lime-600 border-lime-500/20",
-  note: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+  note: "bg-[var(--status-info)]/15 text-[var(--status-info)] border-[var(--status-info)]/25",
 }
 
 export function AdminNotificationsContent() {
@@ -121,7 +121,7 @@ export function AdminNotificationsContent() {
   return (
     <div className="flex flex-col gap-6">
       {/* Search & Actions Bar */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between bg-card border border-border p-4 rounded-2xl shadow-sm">
+      <div className="gm-panel flex flex-col gap-4 p-4 md:flex-row md:items-center md:justify-between">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
@@ -132,7 +132,7 @@ export function AdminNotificationsContent() {
               setPage(1)
             }}
             placeholder="Tìm kiếm tiêu đề hoặc nội dung thông báo..."
-            className="h-10 w-full rounded-xl border border-border bg-muted/30 pl-10 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-background focus:ring-4 focus:ring-primary/10"
+            className="gm-field h-10 w-full pl-10 pr-4 text-sm text-foreground transition placeholder:text-muted-foreground"
           />
         </div>
 
@@ -141,7 +141,7 @@ export function AdminNotificationsContent() {
             <button
               onClick={handleMarkAllRead}
               disabled={markAllReadMutation.isPending}
-              className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 px-4 text-xs font-bold transition duration-200 active:scale-[0.98] disabled:opacity-50"
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 text-xs font-bold text-primary transition duration-200 hover:bg-primary/20 active:scale-[0.98] disabled:opacity-50"
             >
               <CheckSquare className="size-4" />
               Đọc tất cả
@@ -153,7 +153,7 @@ export function AdminNotificationsContent() {
       {/* Grid: Left Filters Bento, Right Table Bento */}
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
         {/* Left Filters Rail */}
-        <div className="flex flex-col gap-5 bg-card border border-border p-5 rounded-2xl shadow-sm h-fit">
+        <div className="gm-panel flex h-fit flex-col gap-5 p-5">
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Trạng thái</h3>
             <div className="flex flex-col gap-1.5">
@@ -171,7 +171,7 @@ export function AdminNotificationsContent() {
                     setPage(1)
                   }}
                   className={cn(
-                    "w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200",
+                    "w-full rounded-full px-3 py-2 text-left text-xs font-semibold transition-all duration-200",
                     filterStatus === status.id
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -194,7 +194,7 @@ export function AdminNotificationsContent() {
                   setPage(1)
                 }}
                 className={cn(
-                  "w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200",
+                    "w-full rounded-full px-3 py-2 text-left text-xs font-semibold transition-all duration-200",
                   filterType === "all"
                     ? "bg-primary/15 text-primary border border-primary/20"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -229,10 +229,10 @@ export function AdminNotificationsContent() {
         {/* Right Table Panel */}
         <div className="flex flex-col gap-4">
           {isLoading ? (
-            <div className="rounded-2xl border border-border bg-card p-4 shadow-sm space-y-3">
+            <div className="gm-panel space-y-3 p-4">
               {Array.from({ length: 6 }).map((_, index) => (
                 <div
-                  className="grid gap-4 rounded-xl border border-border bg-background p-4 grid-cols-[120px_100px_1fr_80px_60px]"
+                  className="gm-panel-muted grid grid-cols-[120px_100px_1fr_80px_60px] gap-4 p-4"
                   key={index}
                 >
                   <div className="h-4 animate-pulse rounded bg-muted" />
@@ -244,7 +244,7 @@ export function AdminNotificationsContent() {
               ))}
             </div>
           ) : paginatedList.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center shadow-sm">
+            <div className="rounded-[1.5rem] border border-dashed border-border bg-[var(--surface-panel)] p-12 text-center shadow-[var(--shadow-soft)]">
               <Inbox className="mx-auto size-10 text-muted-foreground/60" />
               <h4 className="mt-3 text-sm font-semibold text-foreground">Không có thông báo nào</h4>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -252,7 +252,7 @@ export function AdminNotificationsContent() {
               </p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+            <div className="gm-panel overflow-hidden">
               {/* Table Header */}
               <div className="hidden md:grid grid-cols-[160px_120px_1fr_100px_80px] gap-4 border-b border-border bg-muted/30 px-5 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 <span>Thời gian</span>

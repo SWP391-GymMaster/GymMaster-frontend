@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import {
-  CalendarDays,
-  CheckCircle2,
+  ArrowLeft,
+  BookOpen,
   Dumbbell,
-  NotebookPen,
+  ListChecks,
   Plus,
   Search,
   Sparkles,
@@ -26,31 +26,76 @@ import {
 } from "@/features/pt-training/api/pt-training.queries";
 import { TrainingMemberContext } from "@/features/pt-training/components/TrainingMemberContext";
 import { WorkoutPlanForm } from "@/features/pt-training/components/WorkoutPlanForm";
-import {
-  WorkoutPlanList,
-  WorkoutPlanListHeader,
-} from "@/features/pt-training/components/WorkoutPlanList";
-import {
-  getWorkoutAssetForExercise,
-} from "@/features/pt-training/data/workout-assets";
+import { WorkoutPlanList } from "@/features/pt-training/components/WorkoutPlanList";
 import { exerciseLibrary } from "@/features/pt-training/data/exercise-library";
+import { getWorkoutAssetForExercise } from "@/features/pt-training/data/workout-assets";
 import type {
   WorkoutPlan,
   WorkoutPlanDraft,
 } from "@/features/pt-training/types/pt-training.types";
+
+const exerciseFilters = [
+  { label: "Tất cả", categories: [] },
+  { label: "Ngực", categories: ["Chest"] },
+  { label: "Lưng", categories: ["Back"] },
+  { label: "Vai", categories: ["Shoulders"] },
+  { label: "Chân", categories: ["Legs", "Glutes"] },
+  { label: "Core", categories: ["Core"] },
+] as const;
+
+type ExerciseFilter = (typeof exerciseFilters)[number]["label"];
 
 export function PtWorkoutPlanWorkspace() {
   const params = useParams<{ id: string }>();
   const memberId = Number(params.id);
   const validMemberId =
     Number.isFinite(memberId) && memberId > 0 ? memberId : null;
+
   const memberQuery = useMember360Data(validMemberId);
   const plansQuery = useMemberWorkoutPlans(validMemberId);
   const createPlan = useCreateMemberWorkoutPlan(validMemberId ?? 0);
   const updatePlan = useUpdateMemberWorkoutPlan(validMemberId ?? 0);
   const deletePlan = useDeleteMemberWorkoutPlan(validMemberId ?? 0);
 
-  // Map a (possibly edited) plan to the backend draft shape used by PUT/POST.
+  const [activeView, setActiveView] = useState<"list" | "create">("list");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<ExerciseFilter>("Tất cả");
+  const [visibleCount, setVisibleCount] = useState(5);
+  const [externalExerciseToAdd, setExternalExerciseToAdd] = useState<string>();
+
+  const plans = plansQuery.data ?? [];
+  const plansCount = plans.length;
+  const totalExercisesCount = plans.reduce(
+    (sum, plan) => sum + plan.exercises.length,
+    0,
+  );
+  const latestPlan = plans[0];
+
+  const filteredExercises = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    const activeFilter = exerciseFilters.find(
+      (filter) => filter.label === activeCategory,
+    );
+    const targetCategories = (activeFilter?.categories ?? []) as readonly string[];
+
+    return exerciseLibrary.filter((exercise) => {
+      const matchesSearch =
+        !query ||
+        exercise.name.toLowerCase().includes(query) ||
+        exercise.category.toLowerCase().includes(query) ||
+        exercise.muscleGroups.some((group) =>
+          group.toLowerCase().includes(query),
+        );
+      const matchesCategory =
+        targetCategories.length === 0 ||
+        targetCategories.includes(exercise.category);
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [activeCategory, searchQuery]);
+
+  const displayedExercises = filteredExercises.slice(0, visibleCount);
+
   function toDraft(plan: WorkoutPlan): WorkoutPlanDraft {
     return {
       title: plan.title,
@@ -79,51 +124,28 @@ export function PtWorkoutPlanWorkspace() {
     });
   }
 
-  const [activeView, setActiveView] = useState<"list" | "create">("list");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("Tất cả");
-  const [visibleCount, setVisibleCount] = useState(5);
-  const [externalExerciseToAdd, setExternalExerciseToAdd] = useState<string | undefined>(undefined);
-
-  const plansCount = plansQuery.data?.length ?? 0;
-  const totalExercisesCount =
-    plansQuery.data?.reduce((sum, plan) => sum + plan.exercises.length, 0) ?? 0;
-
-  const categoryMapping: Record<string, string[]> = {
-    "Tất cả": [],
-    "Ngực": ["Chest"],
-    "Lưng": ["Back"],
-    "Vai": ["Shoulders"],
-    "Chân": ["Legs", "Glutes"],
-    "Core": ["Core"],
-  };
-
-  const filteredExercises = exerciseLibrary.filter((exercise) => {
-    const matchesSearch = exercise.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      exercise.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      exercise.muscleGroups.some(m => m.toLowerCase().includes(searchQuery.toLowerCase()));
-
-    const targetCategories = categoryMapping[activeCategory] || [];
-    const matchesCategory = targetCategories.length === 0 || targetCategories.includes(exercise.category);
-
-    return matchesSearch && matchesCategory;
-  });
-
-  const displayedExercises = filteredExercises.slice(0, visibleCount);
-
   async function handleCreatePlan(draft: WorkoutPlanDraft) {
     await createPlan.mutateAsync(draft);
     setActiveView("list");
   }
 
+  function handleAddLibraryExercise(name: string) {
+    setExternalExerciseToAdd(name);
+    setActiveView("create");
+  }
+
+  function resetLibraryList() {
+    setVisibleCount(5);
+  }
+
   return (
     <PermissionGuard allowedRoles={["pt"]}>
       <WorkspaceShell
-        description="Tạo giáo án chi tiết cho hội viên, kèm preset, bài tập minh họa và cue kỹ thuật."
+        description="Tạo, chỉnh và sắp xếp giáo án cho hội viên."
         role="pt"
-        title="Thiết kế giáo án luyện tập"
+        title="Thiết kế giáo án"
       >
-        <div className="space-y-6">
+        <div className="space-y-5">
           <TrainingMemberContext
             data={memberQuery.data}
             isLoading={memberQuery.isLoading}
@@ -131,7 +153,7 @@ export function PtWorkoutPlanWorkspace() {
 
           {memberQuery.error ? (
             <StateBlock
-              description="Kiểm tra hội viên này có thuộc workspace huấn luyện của bạn."
+              description="Kiểm tra quyền phụ trách hội viên trước khi tạo giáo án."
               title={
                 memberQuery.error instanceof Error
                   ? memberQuery.error.message
@@ -141,288 +163,172 @@ export function PtWorkoutPlanWorkspace() {
             />
           ) : null}
 
-          {activeView === "list" ? (
-            <div className="space-y-6">
-              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <WorkoutPlanListHeader />
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground font-medium">
-                      Danh sách giáo án đã thiết kế cho hội viên này. Bấm nút bên phải để bắt đầu tạo giáo án mới.
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-4 sm:w-[360px] shrink-0">
-                    <div className="grid grid-cols-2 gap-2">
-                      <MiniStat label="Giáo án" value={String(plansCount)} />
-                      <MiniStat
-                        label="Bài tập"
-                        value={String(totalExercisesCount)}
-                      />
-                    </div>
-                    <Button
-                      onClick={() => setActiveView("create")}
-                      className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/95 active:scale-[0.98] font-bold"
-                    >
-                      <Plus className="mr-2 size-4" />
-                      Tạo giáo án mới
-                    </Button>
-                  </div>
+          <section className="gm-panel overflow-hidden">
+            <div className="flex flex-col gap-5 p-5 xl:flex-row xl:items-center xl:justify-between">
+              <div className="flex min-w-0 items-start gap-4">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Dumbbell aria-hidden="true" className="size-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
+                    Thiết kế giáo án
+                  </p>
+                  <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
+                    {activeView === "list"
+                      ? "Giáo án của hội viên"
+                      : "Tạo giáo án mới"}
+                  </h2>
                 </div>
+              </div>
 
-                <div className="mt-5">
-                  <WorkoutPlanList
-                    error={
-                      plansQuery.error instanceof Error
-                        ? plansQuery.error
-                        : null
-                    }
-                    isLoading={plansQuery.isLoading}
-                    mediaMode="coach"
-                    plans={plansQuery.data}
-                    onPersistPlan={handlePersistPlan}
-                    onDeletePlan={handleDeletePlan}
-                    onDuplicatePlan={handleDuplicatePlan}
-                  />
-                </div>
-              </section>
-
-              <section className="grid gap-4 md:grid-cols-3">
-                <CoachWorkflowCard
-                  description="Chọn môi trường, mục tiêu, split và preset."
+              <div className="flex flex-wrap gap-2">
+                <ViewButton
+                  active={activeView === "list"}
+                  icon={ListChecks}
+                  label="Danh sách"
+                  onClick={() => setActiveView("list")}
+                />
+                <ViewButton
+                  active={activeView === "create"}
                   icon={Plus}
-                  label="Bước 1"
-                  title="Thông tin"
+                  label="Tạo giáo án"
+                  onClick={() => setActiveView("create")}
                 />
-                <CoachWorkflowCard
-                  description="Xem ảnh minh họa và cue trước khi lưu."
-                  icon={Dumbbell}
-                  label="Bước 2"
-                  title="Bài tập"
-                />
-                <CoachWorkflowCard
-                  description="Kiểm tra tổng bài, thời lượng và tần suất."
-                  icon={CalendarDays}
-                  label="Bước 3"
-                  title="Tổng kết"
-                />
-              </section>
+              </div>
             </div>
-          ) : (
-            <div className="space-y-6">
-              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+
+            <div className="grid gap-3 border-t border-border/70 bg-background/50 p-5 sm:grid-cols-3">
+              <SummaryMetric
+                icon={ListChecks}
+                label="Giáo án"
+                value={String(plansCount)}
+              />
+              <SummaryMetric
+                icon={Dumbbell}
+                label="Bài tập"
+                value={String(totalExercisesCount)}
+              />
+              <SummaryMetric
+                icon={Sparkles}
+                label="Đang mở"
+                value={latestPlan?.title ?? "Chưa có"}
+              />
+            </div>
+          </section>
+
+          {activeView === "list" ? (
+            <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+              <main className="gm-panel min-w-0 p-5">
+                <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-                      Workout Builder
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
+                      Giáo án
                     </p>
-                    <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-                      Thiết kế giáo án có minh họa bài tập
-                    </h2>
-                    <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                      PT chọn preset, kiểm tra thư viện bài tập và xem ảnh minh họa
-                      ngay trong workspace trước khi lưu giáo án.
-                    </p>
+                    <h3 className="mt-1 text-xl font-semibold tracking-tight text-foreground">
+                      Giáo án đang có
+                    </h3>
                   </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      onClick={() => setActiveView("list")}
-                      className="rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
-                      type="button"
-                      variant="outline"
-                    >
-                      ← Quay lại danh sách giáo án
-                    </Button>
-                  </div>
+                  <Button
+                    className="min-h-11 rounded-full bg-primary px-5 text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+                    onClick={() => setActiveView("create")}
+                    type="button"
+                  >
+                    <Plus aria-hidden="true" className="size-4" />
+                    Tạo giáo án
+                  </Button>
                 </div>
 
-                <div className="mt-5 grid gap-3 lg:grid-cols-3">
-                  <BuilderStep
-                    active
-                    index={1}
-                    label="Thông tin giáo án"
-                    title="Mục tiêu & lịch tập"
-                  />
-                  <BuilderStep
-                    index={2}
-                    label="Xây dựng buổi tập"
-                    title="Bài tập & cue"
-                  />
-                  <BuilderStep
-                    index={3}
-                    label="Tổng kết & lưu"
-                    title="Kiểm tra lần cuối"
-                  />
+                <WorkoutPlanList
+                  error={plansQuery.error instanceof Error ? plansQuery.error : null}
+                  isLoading={plansQuery.isLoading}
+                  mediaMode="coach"
+                  plans={plansQuery.data}
+                  onPersistPlan={handlePersistPlan}
+                  onDeletePlan={handleDeletePlan}
+                  onDuplicatePlan={handleDuplicatePlan}
+                />
+              </main>
+
+              <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+                <BuilderPrompt onCreate={() => setActiveView("create")} />
+                <WorkoutLibraryPanel
+                  activeCategory={activeCategory}
+                  displayedExercises={displayedExercises}
+                  filteredCount={filteredExercises.length}
+                  onAddExercise={handleAddLibraryExercise}
+                  onCategoryChange={(category) => {
+                    setActiveCategory(category);
+                    resetLibraryList();
+                  }}
+                  onLoadMore={() => setVisibleCount((count) => count + 5)}
+                  onSearchChange={(value) => {
+                    setSearchQuery(value);
+                    resetLibraryList();
+                  }}
+                  searchQuery={searchQuery}
+                  visibleCount={visibleCount}
+                />
+              </aside>
+            </section>
+          ) : (
+            <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+              <main className="min-w-0">
+                <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <Button
+                    className="w-fit rounded-full border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+                    onClick={() => setActiveView("list")}
+                    type="button"
+                    variant="outline"
+                  >
+                    <ArrowLeft aria-hidden="true" className="size-4" />
+                    Danh sách
+                  </Button>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Preset, kiểm tra dữ liệu và thao tác lưu vẫn giữ nguyên.
+                  </p>
                 </div>
-              </section>
 
-              <section className="grid gap-6 xl:grid-cols-[390px_minmax(0,1fr)]">
-                <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
-                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <NotebookPen aria-hidden="true" className="size-5" />
-                      </span>
-                      <div>
-                        <h3 className="text-lg font-semibold tracking-tight text-foreground">
-                          Thông tin giáo án
-                        </h3>
-                        <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                          Form bên phải vẫn giữ toàn bộ logic tạo giáo án, preset và
-                          submit hiện tại.
-                        </p>
-                      </div>
-                    </div>
+                <WorkoutPlanForm
+                  isPending={createPlan.isPending}
+                  onSubmit={handleCreatePlan}
+                  externalExerciseToAdd={externalExerciseToAdd}
+                  onExternalExerciseAdded={() => setExternalExerciseToAdd(undefined)}
+                />
 
-                    <div className="mt-5 grid gap-3">
-                      <div className="rounded-xl border border-primary/20 bg-primary/10 p-4">
-                        <div className="flex items-start gap-3">
-                          <CheckCircle2
-                            aria-hidden="true"
-                            className="mt-0.5 size-5 shrink-0 text-primary"
-                          />
-                          <p className="text-sm leading-6 text-foreground">
-                            Gợi ý: 4-6 buổi/tuần, tập trung nhóm cơ chính và
-                            progressive overload.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </section>
+                {createPlan.error ? (
+                  <StateBlock
+                    className="mt-4"
+                    description="Kiểm tra quyền phụ trách hội viên và dữ liệu bài tập."
+                    title={
+                      createPlan.error instanceof Error
+                        ? createPlan.error.message
+                        : "Không thể lưu giáo án."
+                    }
+                    tone="error"
+                  />
+                ) : null}
+              </main>
 
-                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <h3 className="text-lg font-semibold tracking-tight text-foreground">
-                          Thư viện bài tập
-                        </h3>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                          Xem nhanh ảnh minh họa trước khi thêm vào giáo án.
-                        </p>
-                      </div>
-                    </div>
-
-                    <label className="relative mt-4 block">
-                      <span className="sr-only">Tìm bài tập</span>
-                      <Search
-                        aria-hidden="true"
-                        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                      />
-                      <input
-                        className="min-h-11 w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
-                        placeholder="Tìm bài tập: squat, bench press..."
-                        value={searchQuery}
-                        onChange={(e) => {
-                          setSearchQuery(e.target.value);
-                          setVisibleCount(5);
-                        }}
-                      />
-                    </label>
-
-                    <div className="mt-4 flex gap-2 overflow-x-auto custom-scrollbar pb-1">
-                      {["Tất cả", "Ngực", "Lưng", "Vai", "Chân", "Core"].map(
-                        (tab) => {
-                          const isActive = activeCategory === tab;
-                          return (
-                            <button
-                              className={`min-h-9 shrink-0 rounded-full px-3 text-sm font-semibold transition ${
-                                isActive
-                                  ? "bg-primary text-primary-foreground"
-                                  : "border border-border bg-background text-foreground hover:bg-muted"
-                              }`}
-                              key={tab}
-                              onClick={() => {
-                                setActiveCategory(tab);
-                                setVisibleCount(5);
-                              }}
-                              type="button"
-                            >
-                              {tab}
-                            </button>
-                          );
-                        }
-                      )}
-                    </div>
-
-                    <div className="mt-4 grid gap-3">
-                      {displayedExercises.length > 0 ? (
-                        displayedExercises.map((exercise) => (
-                          <ExerciseLibraryItem
-                            key={exercise.id}
-                            name={exercise.name}
-                            tags={exercise.muscleGroups}
-                            onAdd={() => setExternalExerciseToAdd(exercise.name)}
-                          />
-                        ))
-                      ) : (
-                        <p className="text-center py-4 text-sm text-muted-foreground">
-                          Không tìm thấy bài tập phù hợp.
-                        </p>
-                      )}
-                    </div>
-
-                    {filteredExercises.length > visibleCount && (
-                      <Button
-                        className="mt-4 min-h-11 w-full rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
-                        type="button"
-                        variant="outline"
-                        onClick={() => setVisibleCount((prev) => prev + 5)}
-                      >
-                        Xem thêm bài tập ({filteredExercises.length - visibleCount})
-                      </Button>
-                    )}
-                  </section>
-                </aside>
-
-                <main className="min-w-0 space-y-6">
-                  <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div>
-                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
-                          Plan Builder
-                        </p>
-                        <h3 className="mt-1 text-xl font-semibold tracking-tight text-foreground">
-                          Tạo giáo án mới
-                        </h3>
-                        <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">
-                          Wizard bên dưới xử lý preset, môi trường tập và danh sách
-                          bài tập; cột trái chỉ đóng vai trò preview nhanh.
-                        </p>
-                      </div>
-                      <div className="flex w-fit items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground">
-                        <Sparkles
-                          aria-hidden="true"
-                          className="size-4 text-primary"
-                        />
-                        Clean stepper
-                      </div>
-                    </div>
-
-                    <div className="mt-5">
-                      <WorkoutPlanForm
-                        isPending={createPlan.isPending}
-                        onSubmit={handleCreatePlan}
-                        externalExerciseToAdd={externalExerciseToAdd}
-                        onExternalExerciseAdded={() => setExternalExerciseToAdd(undefined)}
-                      />
-                    </div>
-
-                    {createPlan.error ? (
-                      <StateBlock
-                        className="mt-4"
-                        description="Kiểm tra quyền phụ trách hội viên và các dòng bài tập trước khi lưu lại."
-                        title={
-                          createPlan.error instanceof Error
-                            ? createPlan.error.message
-                            : "Không thể lưu giáo án."
-                        }
-                        tone="error"
-                      />
-                    ) : null}
-                  </section>
-                </main>
-              </section>
-            </div>
+              <aside className="xl:sticky xl:top-24 xl:self-start">
+                <WorkoutLibraryPanel
+                  activeCategory={activeCategory}
+                  displayedExercises={displayedExercises}
+                  filteredCount={filteredExercises.length}
+                  onAddExercise={handleAddLibraryExercise}
+                  onCategoryChange={(category) => {
+                    setActiveCategory(category);
+                    resetLibraryList();
+                  }}
+                  onLoadMore={() => setVisibleCount((count) => count + 5)}
+                  onSearchChange={(value) => {
+                    setSearchQuery(value);
+                    resetLibraryList();
+                  }}
+                  searchQuery={searchQuery}
+                  visibleCount={visibleCount}
+                />
+              </aside>
+            </section>
           )}
         </div>
       </WorkspaceShell>
@@ -430,50 +336,204 @@ export function PtWorkoutPlanWorkspace() {
   );
 }
 
-function BuilderStep({
+function ViewButton({
   active,
-  index,
+  icon: Icon,
   label,
-  title,
+  onClick,
 }: {
-  active?: boolean;
-  index: number;
+  active: boolean;
+  icon: LucideIcon;
   label: string;
-  title: string;
+  onClick: () => void;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <span
-        className={`flex size-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${
-          active
-            ? "border-primary bg-primary text-primary-foreground"
-            : "border-border bg-background text-muted-foreground"
-        }`}
-      >
-        {index}
-      </span>
-      <span className="min-w-0">
-        <span
-          className={`block text-xs font-semibold uppercase tracking-[0.1em] ${
-            active ? "text-primary" : "text-muted-foreground"
-          }`}
-        >
-          {label}
+    <button
+      className={`inline-flex min-h-10 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition active:scale-[0.98] ${
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-background text-foreground hover:bg-muted"
+      }`}
+      onClick={onClick}
+      type="button"
+    >
+      <Icon aria-hidden="true" className="size-4" />
+      {label}
+    </button>
+  );
+}
+
+function SummaryMetric({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl border border-border/70 bg-card/80 p-4">
+      <div className="flex items-center gap-3">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Icon aria-hidden="true" className="size-4" />
         </span>
-        <span className="mt-0.5 block truncate text-sm font-semibold text-foreground">
-          {title}
-        </span>
-      </span>
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
+          <p className="mt-0.5 truncate text-base font-semibold tracking-tight text-foreground">
+            {value}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
 
-function ExerciseLibraryItem({ name, tags, onAdd }: { name: string; tags: string[]; onAdd: () => void }) {
+function BuilderPrompt({ onCreate }: { onCreate: () => void }) {
+  return (
+    <section className="gm-panel p-5">
+      <div className="flex items-start gap-3">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <Sparkles aria-hidden="true" className="size-5" />
+        </span>
+        <div>
+          <h3 className="text-lg font-semibold tracking-tight text-foreground">
+            Tạo giáo án mới
+          </h3>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">
+            Chọn bối cảnh, áp preset, chỉnh bài và lưu.
+          </p>
+        </div>
+      </div>
+      <Button
+        className="mt-5 min-h-11 w-full rounded-full bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]"
+        onClick={onCreate}
+        type="button"
+      >
+        <Plus aria-hidden="true" className="size-4" />
+        Mở builder
+      </Button>
+    </section>
+  );
+}
+
+function WorkoutLibraryPanel({
+  activeCategory,
+  displayedExercises,
+  filteredCount,
+  onAddExercise,
+  onCategoryChange,
+  onLoadMore,
+  onSearchChange,
+  searchQuery,
+  visibleCount,
+}: {
+  activeCategory: ExerciseFilter;
+  displayedExercises: typeof exerciseLibrary;
+  filteredCount: number;
+  onAddExercise: (name: string) => void;
+  onCategoryChange: (category: ExerciseFilter) => void;
+  onLoadMore: () => void;
+  onSearchChange: (value: string) => void;
+  searchQuery: string;
+  visibleCount: number;
+}) {
+  return (
+    <section className="gm-panel p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">
+            Thư viện
+          </p>
+          <h3 className="mt-1 text-lg font-semibold tracking-tight text-foreground">
+            Thư viện bài tập
+          </h3>
+        </div>
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <BookOpen aria-hidden="true" className="size-4" />
+        </span>
+      </div>
+
+      <label className="relative mt-4 block">
+        <span className="sr-only">Tìm bài tập</span>
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+        />
+        <input
+          className="gm-field min-h-11 w-full pl-10 pr-3 text-sm text-foreground transition placeholder:text-muted-foreground"
+          placeholder="Tìm squat, bench..."
+          value={searchQuery}
+          onChange={(event) => onSearchChange(event.target.value)}
+        />
+      </label>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {exerciseFilters.map((filter) => {
+          const isActive = activeCategory === filter.label;
+
+          return (
+            <button
+              className={`min-h-9 shrink-0 rounded-full px-3 text-xs font-semibold transition active:scale-[0.98] ${
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border bg-background text-foreground hover:bg-muted"
+              }`}
+              key={filter.label}
+              onClick={() => onCategoryChange(filter.label)}
+              type="button"
+            >
+              {filter.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-4 space-y-2">
+        {displayedExercises.length > 0 ? (
+          displayedExercises.map((exercise) => (
+            <ExerciseLibraryItem
+              key={exercise.id}
+              name={exercise.name}
+              tags={exercise.muscleGroups}
+              onAdd={() => onAddExercise(exercise.name)}
+            />
+          ))
+        ) : (
+          <p className="rounded-2xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground">
+            Không có bài phù hợp.
+          </p>
+        )}
+      </div>
+
+      {filteredCount > visibleCount ? (
+        <Button
+          className="mt-4 min-h-11 w-full rounded-full border-border bg-card text-foreground hover:bg-muted active:scale-[0.98]"
+          onClick={onLoadMore}
+          type="button"
+          variant="outline"
+        >
+          Xem thêm {filteredCount - visibleCount}
+        </Button>
+      ) : null}
+    </section>
+  );
+}
+
+function ExerciseLibraryItem({
+  name,
+  onAdd,
+  tags,
+}: {
+  name: string;
+  onAdd: () => void;
+  tags: string[];
+}) {
   const asset = getWorkoutAssetForExercise(name);
 
   return (
-    <article className="flex items-center gap-3 rounded-xl border border-border bg-background p-2 transition hover:border-primary/40 hover:bg-primary/5">
-      <div className="relative size-16 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
+    <article className="group flex items-center gap-3 rounded-2xl border border-border/70 bg-background/70 p-2.5 transition hover:-translate-y-0.5 hover:border-primary/30 hover:bg-primary/5">
+      <div className="relative size-14 shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
         <img
           alt={`Minh họa ${name}`}
           className="absolute inset-0 size-full object-cover"
@@ -483,66 +543,19 @@ function ExerciseLibraryItem({ name, tags, onAdd }: { name: string; tags: string
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-foreground">{name}</p>
-        <div className="mt-1 flex flex-wrap gap-1">
-          {tags.slice(0, 3).map((tag) => (
-            <span
-              className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
-              key={tag}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+        <p className="mt-0.5 truncate text-xs text-muted-foreground">
+          {tags.slice(0, 2).join(" · ")}
+        </p>
       </div>
       <Button
-        className="h-9 rounded-xl border-border bg-card px-3 text-primary hover:bg-primary/10 font-bold active:scale-[0.95]"
+        aria-label={`Thêm ${name}`}
+        className="size-9 shrink-0 rounded-full border-border bg-card p-0 text-primary hover:bg-primary/10 active:scale-[0.95]"
+        onClick={onAdd}
         type="button"
         variant="outline"
-        onClick={onAdd}
       >
         <Plus aria-hidden="true" className="size-4" />
-        Thêm
       </Button>
     </article>
-  );
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-background p-3">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
-    </div>
-  );
-}
-
-function CoachWorkflowCard({
-  description,
-  icon: Icon,
-  label,
-  title,
-}: {
-  description: string;
-  icon: LucideIcon;
-  label: string;
-  title: string;
-}) {
-  return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex items-start gap-4">
-        <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Icon aria-hidden="true" className="size-5" />
-        </span>
-        <div>
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className="mt-1 text-lg font-semibold tracking-tight text-foreground">
-            {title}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {description}
-          </p>
-        </div>
-      </div>
-    </section>
   );
 }

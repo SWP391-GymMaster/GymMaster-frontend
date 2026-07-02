@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   CalendarCheck,
@@ -65,7 +65,11 @@ export function MemberDashboardContent() {
 
   const [isBmiOpen, setIsBmiOpen] = useState(false);
   // null = chua dat muc tieu (BE la nguon su that). Khong bia 2200, khong doc localStorage.
-  const calorieGoal = summary.data?.target ?? null;
+  const [calorieGoal, setCalorieGoal] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCalorieGoal(summary.data?.target ?? null);
+  }, [summary.data?.target]);
 
   return (
     <div className="grid gap-6">
@@ -166,7 +170,7 @@ export function MemberDashboardContent() {
 
             return (
               <Link
-                className="group flex items-center gap-2.5 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary/5 hover:shadow-md active:scale-[0.98] lg:gap-4 lg:p-4"
+                className="gm-interactive-card group flex items-center gap-2.5 p-3 active:scale-[0.98] lg:gap-4 lg:p-4"
                 href={action.href}
                 key={action.href}
               >
@@ -193,7 +197,7 @@ export function MemberDashboardContent() {
 
       {/* PT + Check-in gần đây */}
       <section className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="gm-panel p-5">
           <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             <User aria-hidden="true" className="size-4 text-primary" />
             <span>Huấn luyện viên cá nhân</span>
@@ -222,7 +226,7 @@ export function MemberDashboardContent() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="gm-panel p-5">
           <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             <CalendarCheck aria-hidden="true" className="size-4 text-primary" />
             <span>Check-in gần đây</span>
@@ -297,7 +301,7 @@ function HeroChip({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background p-4">
+    <div className="gm-panel-muted p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
@@ -321,7 +325,7 @@ function SupportCard({
 }) {
   return (
     <Link
-      className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]"
+      className="gm-interactive-card group overflow-hidden active:scale-[0.98]"
       href={href}
     >
       <div

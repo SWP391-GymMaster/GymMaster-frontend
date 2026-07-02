@@ -123,28 +123,28 @@ export function AdminDashboardContent() {
         aria-label="Chỉ số quản trị"
       >
         <DashboardMetricCard
-          className="min-h-[190px] rounded-2xl border-border bg-card shadow-sm"
+          className="min-h-[176px]"
           icon={DollarSign}
           label="DOANH THU THÁNG"
           trend={revenueTrend}
           value={formatCompactVnd(revenue)}
         />
         <DashboardMetricCard
-          className="min-h-[190px] rounded-2xl border-border bg-card shadow-sm"
+          className="min-h-[176px]"
           icon={Users}
           label="HỘI VIÊN HOẠT ĐỘNG"
           trend={activeTrend}
           value={data?.activeCount ?? 0}
         />
         <DashboardMetricCard
-          className="min-h-[190px] rounded-2xl border-border bg-card shadow-sm"
+          className="min-h-[176px]"
           icon={UserCheck}
           label="CHECK-IN HÔM NAY"
           trend={{ direction: "neutral", label: peakLabel }}
           value={todayCheckIns}
         />
         <DashboardMetricCard
-          className="min-h-[190px] rounded-2xl border-l-4 border-border border-l-amber-500 bg-card shadow-sm"
+          className="min-h-[176px] border-l-4 border-l-amber-500/80"
           icon={AlertTriangle}
           iconColor="warning"
           label="THANH TOÁN CHỜ XỬ LÝ"
@@ -157,7 +157,7 @@ export function AdminDashboardContent() {
       </section>
 
       <section>
-        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+        <div className="rounded-[1.5rem] border border-border/80 bg-[var(--surface-panel)] p-6 shadow-[var(--shadow-soft)]">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
               Tăng trưởng doanh thu

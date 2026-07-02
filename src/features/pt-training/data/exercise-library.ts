@@ -729,12 +729,12 @@ export const exerciseLibrary: ExerciseOption[] = [
 export const workoutPresets: WorkoutPreset[] = [
   {
     id: "full-body-2-gym-beginner",
-    name: "Full Body Foundation · 2 buổi/tuần",
+    name: "Full Body Foundation Day · lịch 2 buổi/tuần",
     split: "full_body",
     daysPerWeek: 2,
     environment: "gym",
     goal: "beginner",
-    description: "Cơ bản, dễ kiểm soát, phù hợp học viên mới ở phòng gym.",
+    description: "Một buổi full body nền tảng trong lịch 2 buổi/tuần.",
     exercises: [
       { exerciseId: "goblet-squat" },
       { exerciseId: "lat-pulldown" },
@@ -745,12 +745,12 @@ export const workoutPresets: WorkoutPreset[] = [
   },
   {
     id: "full-body-3-home-no-equipment-fat-loss",
-    name: "Full Body Fat Loss · Home · 3 buổi/tuần",
+    name: "Full Body Fat Loss Day · Home · lịch 3 buổi/tuần",
     split: "full_body",
     daysPerWeek: 3,
     environment: "home_no_equipment",
     goal: "fat_loss",
-    description: "Bodyweight circuit cho học viên tập tại nhà không dụng cụ.",
+    description: "Một buổi bodyweight circuit trong lịch giảm mỡ 3 buổi/tuần.",
     exercises: [
       { exerciseId: "bodyweight-squat", sets: 4, reps: "15" },
       { exerciseId: "push-up", sets: 4, reps: "8-12" },
@@ -761,12 +761,12 @@ export const workoutPresets: WorkoutPreset[] = [
   },
   {
     id: "upper-lower-4-gym-hypertrophy",
-    name: "Upper / Lower Hypertrophy · 4 buổi/tuần",
+    name: "Upper Day Hypertrophy · lịch 4 buổi/tuần",
     split: "upper_lower",
     daysPerWeek: 4,
     environment: "gym",
     goal: "hypertrophy",
-    description: "Mẫu buổi Upper đại diện, PT có thể duplicate cho Lower day.",
+    description: "Một buổi Upper đại diện, PT có thể duplicate cho Lower day.",
     exercises: [
       { exerciseId: "bench-press", sets: 4, reps: "6-8" },
       { exerciseId: "lat-pulldown", sets: 4, reps: "8-12" },
@@ -779,12 +779,12 @@ export const workoutPresets: WorkoutPreset[] = [
   },
   {
     id: "ppl-3-gym-strength",
-    name: "PPL Strength Base · 3 buổi/tuần",
+    name: "PPL Push Day Strength · lịch 3 buổi/tuần",
     split: "ppl",
     daysPerWeek: 3,
     environment: "gym",
     goal: "strength",
-    description: "Mẫu Push day đại diện cho lịch PPL 3 buổi/tuần.",
+    description: "Một buổi Push day đại diện cho lịch PPL 3 buổi/tuần.",
     exercises: [
       { exerciseId: "bench-press", sets: 4, reps: "5-8" },
       { exerciseId: "overhead-press", sets: 4, reps: "6-8" },
@@ -795,12 +795,12 @@ export const workoutPresets: WorkoutPreset[] = [
   },
   {
     id: "ppl-6-gym-hypertrophy",
-    name: "PPL Hypertrophy · 6 buổi/tuần",
+    name: "PPL Pull Day Hypertrophy · lịch 6 buổi/tuần",
     split: "ppl",
     daysPerWeek: 6,
     environment: "gym",
     goal: "hypertrophy",
-    description: "Mẫu Pull day volume cao cho lịch PPL 6 buổi/tuần.",
+    description: "Một buổi Pull day volume cao trong lịch PPL 6 buổi/tuần.",
     exercises: [
       { exerciseId: "pull-up", sets: 4, reps: "6-10" },
       { exerciseId: "lat-pulldown", sets: 3, reps: "10-12" },
@@ -812,12 +812,12 @@ export const workoutPresets: WorkoutPreset[] = [
   },
   {
     id: "arnold-6-gym-hypertrophy",
-    name: "Arnold Split · 6 buổi/tuần",
+    name: "Arnold Chest/Back Day · lịch 6 buổi/tuần",
     split: "arnold",
     daysPerWeek: 6,
     environment: "gym",
     goal: "hypertrophy",
-    description: "Mẫu Chest/Back day theo Arnold split.",
+    description: "Một buổi Chest/Back trong Arnold split.",
     exercises: [
       { exerciseId: "bench-press", sets: 4, reps: "6-8" },
       { exerciseId: "pull-up", sets: 4, reps: "6-10" },
@@ -828,12 +828,12 @@ export const workoutPresets: WorkoutPreset[] = [
   },
   {
     id: "arnold-3-home-equipment",
-    name: "Arnold Split Lite · Home Equipment · 3 buổi/tuần",
+    name: "Arnold Lite Day · Home Equipment · lịch 3 buổi/tuần",
     split: "arnold",
     daysPerWeek: 3,
     environment: "home_equipment",
     goal: "hypertrophy",
-    description: "Phiên bản rút gọn cho học viên có dumbbell/band tại nhà.",
+    description: "Một buổi rút gọn cho học viên có dumbbell/band tại nhà.",
     exercises: [
       { exerciseId: "dumbbell-floor-press", sets: 4, reps: "8-12" },
       { exerciseId: "dumbbell-row", sets: 4, reps: "10-12 mỗi bên" },
@@ -844,7 +844,7 @@ export const workoutPresets: WorkoutPreset[] = [
   },
   {
     id: "mobility-rehab-2-home",
-    name: "Mobility Recovery · 2 buổi/tuần",
+    name: "Mobility Recovery Day · lịch 2 buổi/tuần",
     split: "full_body",
     daysPerWeek: 2,
     environment: "mobility_rehab",

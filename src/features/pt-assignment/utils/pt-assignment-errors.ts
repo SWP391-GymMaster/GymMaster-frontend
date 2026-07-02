@@ -5,6 +5,8 @@ const messages: Record<string, string> = {
     "Hội viên này đang có PT active. Hãy kết thúc assignment cũ trước khi phân công mới.",
   FORBIDDEN: "Bạn không có quyền phân công PT.",
   NOT_FOUND: "Không tìm thấy hội viên hoặc PT đã chọn.",
+  PACKAGE_PT_REQUIRED:
+    "Hội viên chưa đăng ký gói tập có hỗ trợ PT nên không thể phân công.",
   UNAUTHORIZED: "Vui lòng đăng nhập lại.",
   VALIDATION_ERROR: "Chọn một hội viên và một PT trước khi xác nhận.",
 }

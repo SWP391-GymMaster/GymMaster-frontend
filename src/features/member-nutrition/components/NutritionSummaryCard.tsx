@@ -100,7 +100,7 @@ export function NutritionSummaryCard({
 
   return (
     <section
-      className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-sm h-full"
+      className="gm-panel h-full overflow-hidden"
       data-testid="member-nutrition-summary-card"
     >
       <div className="grid gap-0 lg:grid-cols-[250px_minmax(0,1fr)] h-full">
@@ -168,7 +168,7 @@ export function NutritionSummaryCard({
             </div>
           </div>
 
-          <div className="flex flex-col justify-center text-left lg:text-center lg:mt-5 rounded-2xl border border-border bg-card px-3.5 py-2.5 lg:px-4 lg:py-3 shadow-sm max-w-[180px]">
+          <div className="gm-panel-muted flex max-w-[180px] flex-col justify-center px-3.5 py-2.5 text-left lg:mt-5 lg:px-4 lg:py-3 lg:text-center">
             <p className="flex items-center lg:justify-center gap-1.5 text-[11px] lg:text-xs font-semibold text-muted-foreground">
               <Info className="size-3.5 text-primary" />
               Tiến độ ăn
@@ -305,7 +305,7 @@ function MetricCard({
   const toneClasses = {
     orange: "border-orange-100 bg-orange-50 text-orange-600",
     green: "border-primary/20 bg-primary/10 text-primary",
-    blue: "border-blue-100 bg-blue-50 text-blue-600",
+    blue: "border-[var(--status-info)]/25 bg-[var(--status-info)]/10 text-[var(--status-info)]",
   }[tone];
 
   return (

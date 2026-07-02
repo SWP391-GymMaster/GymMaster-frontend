@@ -87,7 +87,7 @@ export function normalizeApiPath(path: string) {
 
 function getApiUrl(path: string) {
   if (
-    process.env.NEXT_PUBLIC_API_MOCKING === "enabled" ||
+    process.env.NEXT_PUBLIC_API_MOCKING?.toLowerCase() === "enabled" ||
     process.env.NODE_ENV === "test"
   ) {
     return path

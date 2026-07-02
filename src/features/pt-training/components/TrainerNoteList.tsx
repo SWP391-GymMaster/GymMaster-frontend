@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import type { TrainerNote } from "@/features/pt-training/types/pt-training.types"
+import { formatVnDateTime } from "@/lib/date/vn-time"
 import { cn } from "@/lib/utils"
 
 type TrainerNoteListProps = {
@@ -28,10 +29,7 @@ type TrainerNoteListProps = {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value))
+  return formatVnDateTime(value, { dateStyle: "medium", timeStyle: "short" })
 }
 
 export function TrainerNoteList({
@@ -47,7 +45,7 @@ export function TrainerNoteList({
       <div className="space-y-3" data-testid="trainer-note-loading">
         {Array.from({ length: 3 }).map((_, index) => (
           <div
-            className="h-28 animate-pulse rounded-2xl border border-border bg-card"
+            className="gm-panel h-28 animate-pulse"
             key={index}
           />
         ))}
@@ -156,7 +154,7 @@ function TrainerNoteItem({
   return (
     <article
       className={cn(
-        "relative rounded-2xl border border-border bg-card p-5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
+        "gm-interactive-card relative p-5",
         variant === "member" && "ml-4",
       )}
     >
@@ -212,7 +210,7 @@ function TrainerNoteItem({
               <textarea
                 aria-label="Nội dung ghi chú"
                 autoFocus
-                className="min-h-28 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm leading-6 text-foreground outline-none transition focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="gm-field min-h-28 w-full px-4 py-3 text-sm leading-6 text-foreground transition"
                 onChange={(e) => setDraft(e.target.value)}
                 value={draft}
               />

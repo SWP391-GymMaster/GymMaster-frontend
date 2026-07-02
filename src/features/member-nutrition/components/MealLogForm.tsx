@@ -110,7 +110,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
       foodItemId: 0,
       logDate: date,
       mealType: defaultMealType,
-      quantity: 1,
+      quantity: 100,
     },
   })
 
@@ -121,12 +121,16 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
 
   const quantity = Number(watch("quantity") || 0)
   const estimatedCalories = selectedFood
-    ? Math.round(selectedFood.caloriesPerUnit * quantity)
+    ? Math.round(selectedFood.caloriesPerUnit * (quantity / 100))
     : 0
 
-  function selectFood(food: FoodItem) {
+  function selectFood(food: FoodItem, grams?: number) {
     setSelectedFood(food)
     setValue("foodItemId", food.id, { shouldValidate: true })
+    // AI quét ra thành phần kèm gram ước lượng -> điền sẵn khối lượng.
+    if (grams && grams > 0) {
+      setValue("quantity", Math.round(grams), { shouldValidate: true })
+    }
     // On mobile (no lg grid visible): open bottom sheet
     setMobileFormOpen(true)
   }
@@ -154,7 +158,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
       foodItemId: 0,
       logDate: values.logDate,
       mealType: values.mealType,
-      quantity: 1,
+      quantity: 100,
     })
     setSelectedFood(null)
     setMobileFormOpen(false)
@@ -176,7 +180,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
     for (const line of cart) {
       const key = `${line.mealType}|${line.logDate}`
       const group = groups.get(key) ?? { mealType: line.mealType, logDate: line.logDate, items: [] }
-      group.items.push({ foodItemId: line.food.id, quantity: line.quantity })
+      group.items.push({ foodItemId: line.food.id, quantity: line.quantity / 100 })
       groups.set(key, group)
     }
 
@@ -196,7 +200,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
         foodItemId: 0,
         logDate: getValues("logDate"),
         mealType: getValues("mealType"),
-        quantity: 1,
+        quantity: 100,
       })
       onSuccess?.()
     } catch {
@@ -205,14 +209,14 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
   }
 
   const cartTotalCalories = cart.reduce(
-    (sum, line) => sum + Math.round(line.food.caloriesPerUnit * line.quantity),
+    (sum, line) => sum + Math.round(line.food.caloriesPerUnit * (line.quantity / 100)),
     0,
   )
 
   // Calculate macro distribution percentages (MyFitnessPal Donut Chart)
-  const cG = selectedFood ? Math.round((selectedFood.carbsG || 0) * quantity) : 0
-  const pG = selectedFood ? Math.round((selectedFood.proteinG || 0) * quantity) : 0
-  const fG = selectedFood ? Math.round((selectedFood.fatG || 0) * quantity) : 0
+  const cG = selectedFood ? Math.round((selectedFood.carbsG || 0) * (quantity / 100)) : 0
+  const pG = selectedFood ? Math.round((selectedFood.proteinG || 0) * (quantity / 100)) : 0
+  const fG = selectedFood ? Math.round((selectedFood.fatG || 0) * (quantity / 100)) : 0
 
   const cCal = cG * 4
   const pCal = pG * 4
@@ -261,17 +265,17 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
                 </div>
               </div>
               <div className="flex-1 grid grid-cols-3 gap-2 w-full text-center">
-                <div className="rounded-xl bg-background border border-border/80 p-2">
+                <div className="gm-panel-muted p-2">
                   <p className="text-xs font-bold uppercase tracking-[0.1em] text-green-500">Carbs</p>
                   <p className="mt-1 text-sm font-bold text-foreground">{cG}g</p>
                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">{carbsPct}% calo</p>
                 </div>
-                <div className="rounded-xl bg-background border border-border/80 p-2">
+                <div className="gm-panel-muted p-2">
                   <p className="text-xs font-bold uppercase tracking-[0.1em] text-sky-500">Protein</p>
                   <p className="mt-1 text-sm font-bold text-foreground">{pG}g</p>
                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">{proteinPct}% calo</p>
                 </div>
-                <div className="rounded-xl bg-background border border-border/80 p-2">
+                <div className="gm-panel-muted p-2">
                   <p className="text-xs font-bold uppercase tracking-[0.1em] text-amber-500">Fat</p>
                   <p className="mt-1 text-sm font-bold text-foreground">{fG}g</p>
                   <p className="text-[11px] text-muted-foreground/80 mt-0.5">{fatPct}% calo</p>
@@ -338,19 +342,19 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
             </Field>
 
             <div className="space-y-2">
-              <Field label="Số phần ăn (khẩu phần)" icon={Scale}>
+              <Field label="Khối lượng (gram)" icon={Scale}>
                 <Input
                   className="min-h-11 w-full bg-background px-4 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
                   data-testid="member-meal-quantity-input"
                   id="meal-quantity"
                   min="0"
-                  step="0.1"
+                  step="10"
                   type="number"
                   {...register("quantity")}
                 />
               </Field>
               <div className="flex gap-2 flex-wrap">
-                {[0.5, 1, 1.5, 2, 3].map((mult) => (
+                {[50, 100, 150, 200, 250].map((mult) => (
                   <button
                     key={mult}
                     type="button"
@@ -362,7 +366,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
                         : "border-border bg-background hover:bg-muted text-muted-foreground"
                     )}
                   >
-                    {mult}x
+                    {mult}g
                   </button>
                 ))}
               </div>
@@ -375,7 +379,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-background p-4 mt-2">
+          <div className="gm-panel-muted mt-2 p-4">
             <div className="flex items-center justify-between gap-4">
               <span className="text-sm text-muted-foreground">Ước tính lượng Calo</span>
               <span className="text-lg font-bold text-foreground">{formatCalories(estimatedCalories)}</span>
@@ -407,7 +411,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
 
   function CartSection() {
     return (
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="gm-panel p-5">
         <div className="flex items-center gap-2">
           <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
             <ClipboardList className="size-4.5" />
@@ -435,7 +439,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
               {cart.map((line) => (
                 <li
                   key={line.uid}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background p-3"
+                  className="gm-panel-muted flex items-center justify-between gap-3 p-3"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -447,9 +451,9 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
                       </span>
                     </div>
                     <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {line.quantity}x ·{" "}
+                      {line.quantity}g ·{" "}
                       {formatCalories(
-                        Math.round(line.food.caloriesPerUnit * line.quantity),
+                        Math.round(line.food.caloriesPerUnit * (line.quantity / 100)),
                       )}
                     </span>
                   </div>
@@ -465,7 +469,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
               ))}
             </ul>
 
-            <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-background p-4">
+            <div className="gm-panel-muted mt-4 flex items-center justify-between p-4">
               <span className="text-sm text-muted-foreground">Tổng calo</span>
               <span className="text-lg font-bold text-foreground">
                 {formatCalories(cartTotalCalories)}
@@ -502,7 +506,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
 
       {/* DESKTOP: always-visible right panel (hidden on mobile) */}
       {isDesktop && (
-        <section className="hidden lg:flex flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <section className="gm-panel hidden flex-col p-5 lg:flex">
           <div className="flex items-start gap-3">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
               <Utensils aria-hidden="true" className="size-5" />

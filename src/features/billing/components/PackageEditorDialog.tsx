@@ -141,7 +141,7 @@ export function PackageEditorDialog({
               id="name"
               type="text"
               placeholder="Ví dụ: Premium 30"
-              className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+              className="gm-field min-h-11 w-full px-3 text-sm text-foreground transition-all placeholder:text-muted-foreground"
               data-testid="package-form-name"
               {...register("name")}
             />
@@ -162,7 +162,7 @@ export function PackageEditorDialog({
                 id="durationDays"
                 type="number"
                 placeholder="30"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+                className="gm-field min-h-11 w-full px-3 text-sm text-foreground transition-all placeholder:text-muted-foreground"
                 data-testid="package-form-duration"
                 {...register("durationDays")}
               />
@@ -184,7 +184,7 @@ export function PackageEditorDialog({
                 id="price"
                 type="number"
                 placeholder="500000"
-                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+                className="gm-field min-h-11 w-full px-3 text-sm text-foreground transition-all placeholder:text-muted-foreground"
                 data-testid="package-form-price"
                 {...register("price")}
               />
@@ -231,7 +231,7 @@ export function PackageEditorDialog({
           </div>
 
           {/* Phan loai goi: co ho tro PT hay khong (SupportsPT) */}
-          <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-3 py-3">
+          <div className="gm-panel-muted flex items-center justify-between gap-3 px-3 py-3">
             <div>
               <label htmlFor="supportsPT" className="text-sm font-semibold text-foreground">
                 Gói có hỗ trợ PT

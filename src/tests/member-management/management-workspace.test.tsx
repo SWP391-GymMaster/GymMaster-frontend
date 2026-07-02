@@ -63,8 +63,8 @@ describe("ManagementWorkspace", () => {
     renderWithRole("admin", "staff")
 
     expect(await screen.findByText("Quản lý nhân sự")).toBeInTheDocument()
-    expect(screen.getByText("Đội ngũ Lễ tân")).toBeInTheDocument()
     expect((await screen.findAllByText("Front Desk Staff")).length).toBeGreaterThan(0)
+    expect(screen.getByText("Đội ngũ Lễ tân")).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole("button", { name: "Thêm nhân sự" }))
     fireEvent.change(screen.getByTestId("user-create-name"), {
@@ -86,8 +86,8 @@ describe("ManagementWorkspace", () => {
     renderWithRole("admin", "trainers")
 
     expect(await screen.findByText("Quản lý huấn luyện viên")).toBeInTheDocument()
-    expect(screen.getByText("Danh sách PT")).toBeInTheDocument()
     expect((await screen.findAllByText("Coach PT")).length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Danh sách PT").length).toBeGreaterThan(0)
 
     fireEvent.click(screen.getByRole("button", { name: "Thêm PT" }))
     fireEvent.change(screen.getByTestId("trainer-create-name"), {

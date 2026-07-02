@@ -54,6 +54,7 @@ import {
 } from "@/features/pt-training/data/workout-assets"
 import { exerciseLibrary } from "@/features/pt-training/data/exercise-library"
 import type { WorkoutPlan, WorkoutExercise } from "@/features/pt-training/types/pt-training.types"
+import { formatVnDate } from "@/lib/date/vn-time"
 import { cn } from "@/lib/utils"
 
 type WorkoutPlanListProps = {
@@ -70,11 +71,7 @@ type WorkoutPlanListProps = {
 function formatDate(value?: string) {
   if (!value) return "Chưa có ngày bắt đầu"
 
-  return new Intl.DateTimeFormat("vi-VN", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(new Date(value))
+  return formatVnDate(value, { month: "short", day: "numeric", year: "numeric" })
 }
 
 export function WorkoutPlanList({
@@ -99,7 +96,7 @@ export function WorkoutPlanList({
       <div className="space-y-3" data-testid="workout-plan-loading">
         {Array.from({ length: 2 }).map((_, index) => (
           <div
-            className="h-40 animate-pulse rounded-2xl border border-border bg-card"
+            className="gm-panel h-40 animate-pulse"
             key={index}
           />
         ))}
@@ -371,7 +368,7 @@ function CoachWorkoutPlanCard({
   const exerciseIds = plan.exercises.map((ex, idx) => (ex.id ? String(ex.id) : `${ex.name}-${idx}`))
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <article className="gm-panel overflow-hidden">
       <div className="flex flex-col gap-4 border-b border-border p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-3">
@@ -684,84 +681,88 @@ function SortableCoachExerciseRow({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "grid gap-4 p-4 lg:grid-cols-[24px_96px_minmax(0,1fr)_86px_96px_auto] lg:items-center bg-card",
+        "flex flex-col gap-3 bg-card p-4 xl:flex-row xl:flex-wrap xl:items-center 2xl:flex-nowrap",
         isDragging && "z-50 shadow-lg border border-primary/20 rounded-xl"
       )}
     >
       <div
         {...attributes}
         {...listeners}
-        className="hidden cursor-grab active:cursor-grabbing text-muted-foreground lg:block px-2 py-4 select-none hover:text-foreground"
+        className="hidden cursor-grab select-none px-2 py-4 text-muted-foreground hover:text-foreground active:cursor-grabbing 2xl:block"
       >
         ::
       </div>
 
-      <div className="relative h-16 overflow-hidden rounded-lg border border-border bg-muted">
-        <img
-          alt={`Minh họa bài tập ${exercise.name}`}
-          className="absolute inset-0 size-full object-cover"
-          loading="lazy"
-          src={asset.src}
-        />
-      </div>
+      <div className="flex min-w-[220px] flex-1 items-center gap-3">
+        <div className="relative size-16 shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
+          <img
+            alt={`Minh họa bài tập ${exercise.name}`}
+            className="absolute inset-0 size-full object-cover"
+            loading="lazy"
+            src={asset.src}
+          />
+        </div>
 
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="min-w-0 flex-1">
           <Input
             value={exercise.name}
             onChange={(e) => onUpdate("name", e.target.value)}
             onFocus={handleFieldFocus}
             onBlur={handleFieldBlur}
-            className="h-8 font-semibold text-foreground bg-transparent border-none p-0 focus-visible:ring-1 focus-visible:ring-primary w-fit max-w-[200px]"
+            className="h-8 w-full border-none bg-transparent p-0 font-semibold text-foreground focus-visible:ring-1 focus-visible:ring-primary"
           />
-          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
+          <span className="mt-1 inline-flex w-fit rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
             {getWorkoutCategoryLabel(asset.category)}
           </span>
+          <Input
+            value={exercise.note || ""}
+            placeholder="Cue kỹ thuật..."
+            onChange={(e) => onUpdate("note", e.target.value)}
+            onFocus={handleFieldFocus}
+            onBlur={handleFieldBlur}
+            className="mt-1 h-7 w-full border-none bg-transparent p-0 text-sm text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary"
+          />
         </div>
-        <Input
-          value={exercise.note || ""}
-          placeholder="Thêm ghi chú kỹ thuật..."
-          onChange={(e) => onUpdate("note", e.target.value)}
-          onFocus={handleFieldFocus}
-          onBlur={handleFieldBlur}
-          className="h-7 mt-1 text-sm text-muted-foreground bg-transparent border-none p-0 focus-visible:ring-1 focus-visible:ring-primary"
-        />
       </div>
 
-      <CoachInlineField
-        label="Sets"
-        value={String(exercise.sets)}
-        onChange={(val) => onUpdate("sets", Number(val) || 0)}
-        onFocus={handleFieldFocus}
-        onCommit={handleFieldBlur}
-      />
-      <CoachInlineField
-        label="Reps"
-        value={exercise.reps}
-        onChange={(val) => onUpdate("reps", val)}
-        onFocus={handleFieldFocus}
-        onCommit={handleFieldBlur}
-      />
+      <div className="ml-auto flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-end">
+        <div className="grid w-full grid-cols-2 gap-2 sm:w-[172px]">
+          <CoachInlineField
+            label="Sets"
+            value={String(exercise.sets)}
+            onChange={(val) => onUpdate("sets", Number(val) || 0)}
+            onFocus={handleFieldFocus}
+            onCommit={handleFieldBlur}
+          />
+          <CoachInlineField
+            label="Reps"
+            value={exercise.reps}
+            onChange={(val) => onUpdate("reps", val)}
+            onFocus={handleFieldFocus}
+            onCommit={handleFieldBlur}
+          />
+        </div>
 
-      <div className="flex items-center gap-2">
-        <Button
-          className="size-9 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.95]"
-          type="button"
-          variant="outline"
-          onClick={onCopy}
-          title="Sao chép"
-        >
-          <Copy aria-hidden="true" className="size-4" />
-        </Button>
-        <Button
-          className="size-9 rounded-xl border-destructive/20 bg-card text-destructive hover:bg-destructive/10 active:scale-[0.95]"
-          type="button"
-          variant="outline"
-          onClick={onDelete}
-          title="Xóa"
-        >
-          <Trash2 aria-hidden="true" className="size-4" />
-        </Button>
+        <div className="flex items-center justify-end gap-2 sm:pb-px">
+          <Button
+            className="size-9 rounded-xl border-border bg-card text-foreground hover:bg-muted active:scale-[0.95]"
+            type="button"
+            variant="outline"
+            onClick={onCopy}
+            title="Sao chép"
+          >
+            <Copy aria-hidden="true" className="size-4" />
+          </Button>
+          <Button
+            className="size-9 rounded-xl border-destructive/20 bg-card text-destructive hover:bg-destructive/10 active:scale-[0.95]"
+            type="button"
+            variant="outline"
+            onClick={onDelete}
+            title="Xóa"
+          >
+            <Trash2 aria-hidden="true" className="size-4" />
+          </Button>
+        </div>
       </div>
     </div>
   )
@@ -802,7 +803,7 @@ function DefaultWorkoutPlanCard({
   plan: WorkoutPlan
 }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+    <article className="gm-interactive-card overflow-hidden transition-all duration-200">
       <div className="border-b border-border bg-primary/5 p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -927,7 +928,7 @@ function ExerciseRow({
   }
 
   return (
-    <div className="grid gap-3 rounded-xl border border-border bg-background p-3 text-sm sm:grid-cols-[1fr_auto_auto]">
+    <div className="gm-panel-muted grid gap-3 p-3 text-sm sm:grid-cols-[1fr_auto_auto]">
       <div className="flex items-center gap-3">
         <span className="flex size-9 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
           {index + 1}

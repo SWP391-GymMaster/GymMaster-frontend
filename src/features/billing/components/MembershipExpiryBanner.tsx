@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AlertTriangle, Clock } from "lucide-react";
 
-import { formatVnDate } from "@/lib/date/vn-time";
+import { formatVnDate, vnDateIso, vnTodayIso } from "@/lib/date/vn-time";
 
 type MembershipExpiryBannerProps = {
   endDate?: string;
@@ -11,10 +11,13 @@ type MembershipExpiryBannerProps = {
   className?: string;
 };
 
-// Tinh o ham rieng (khong goi Date.now() truc tiep trong than component) de tranh
+// So ngay con lai tinh theo NGAY lich gio VN (nhat quan toan app, on dinh theo bien
+// nua dem VN — khong lech theo gio/ mui gio trinh duyet). Tach ham rieng de tranh
 // loi lint react-hooks/purity "impure function during render".
 function getDaysLeft(endDate: string): number {
-  return Math.ceil((new Date(endDate).getTime() - Date.now()) / 86400000);
+  const end = new Date(`${vnDateIso(endDate)}T00:00:00Z`).getTime();
+  const today = new Date(`${vnTodayIso()}T00:00:00Z`).getTime();
+  return Math.round((end - today) / 86400000);
 }
 
 export function MembershipExpiryBanner({

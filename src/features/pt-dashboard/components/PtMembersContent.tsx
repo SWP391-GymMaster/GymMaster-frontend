@@ -111,12 +111,12 @@ export function PtMembersContent() {
           <div className="space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div
-                className="h-28 animate-pulse rounded-[1.5rem] border border-border bg-card p-5"
+                className="gm-panel h-28 animate-pulse p-5"
                 key={i}
               />
             ))}
           </div>
-          <div className="h-80 animate-pulse rounded-[1.5rem] border border-border bg-card" />
+          <div className="gm-panel h-80 animate-pulse" />
         </div>
       </div>
     )
@@ -125,7 +125,7 @@ export function PtMembersContent() {
   return (
     <div className="space-y-6">
       {/* Search & Quick Filters Header */}
-      <div className="rounded-[1.5rem] border border-border bg-card p-4 md:p-5 shadow-sm">
+      <div className="gm-panel p-4 md:p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           {/* Search box */}
           <div className="relative flex-1">
@@ -160,7 +160,7 @@ export function PtMembersContent() {
               value={sortBy}
               onValueChange={(val: string) => setSortBy(val as "name" | "code")}
             >
-              <SelectTrigger className="min-h-10 rounded-xl border border-border bg-background px-3 text-xs font-medium text-foreground outline-none focus-visible:ring-primary/20 focus-visible:border-primary">
+              <SelectTrigger className="gm-field min-h-10 px-3 text-xs font-medium text-foreground">
                 <SelectValue placeholder="Chọn kiểu sắp xếp" />
               </SelectTrigger>
               <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
@@ -212,7 +212,7 @@ export function PtMembersContent() {
             filteredAndSortedMembers.map((member) => (
               <div
                 key={member.id}
-                className="group rounded-[1.5rem] border border-border bg-card p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+                className="gm-interactive-card group p-5"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   {/* Member basic details */}
@@ -266,21 +266,21 @@ export function PtMembersContent() {
                 <div className="mt-4 grid grid-cols-2 gap-2 border-t border-border/40 pt-4 sm:flex sm:items-center sm:gap-3">
                   <Link
                     href={`/pt/members/${member.id}/workout`}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-semibold text-foreground px-4 transition active:scale-[0.98]"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-[var(--surface-panel)] px-4 text-xs font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
                   >
                     <ClipboardList className="size-3.5 text-muted-foreground" />
                     Thiết lập giáo án
                   </Link>
                   <Link
                     href={`/pt/members/${member.id}/notes`}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-semibold text-foreground px-4 transition active:scale-[0.98]"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-[var(--surface-panel)] px-4 text-xs font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
                   >
                     <FileClock className="size-3.5 text-muted-foreground" />
                     Ghi chú HLV
                   </Link>
                   <Link
                     href={`/pt/members/${member.id}/progress`}
-                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-semibold text-foreground px-4 transition active:scale-[0.98] col-span-2 sm:col-span-1"
+                    className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border/80 bg-[var(--surface-panel)] px-4 text-xs font-semibold text-foreground transition hover:bg-muted active:scale-[0.98] col-span-2 sm:col-span-1"
                   >
                     <Activity className="size-3.5 text-muted-foreground" />
                     Chỉ số PT
@@ -299,7 +299,7 @@ export function PtMembersContent() {
 
         {/* Right Side: Quick info & PT coaching guidelines */}
         <div className="space-y-4">
-          <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
+          <div className="gm-panel p-5">
             <h4 className="font-bold text-sm text-foreground">Tóm tắt danh sách</h4>
             <div className="mt-4 space-y-3">
               <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
@@ -308,20 +308,20 @@ export function PtMembersContent() {
               </div>
               <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
                 <span>Đang tập luyện:</span>
-                <span className="text-emerald-500 font-bold">
+                <span className="font-bold text-primary">
                   {members.filter((m) => m.status === "active").length}
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
                 <span>Chờ kích hoạt:</span>
-                <span className="text-orange-500 font-bold">
+                <span className="font-bold text-[var(--status-warning)]">
                   {members.filter((m) => m.status === "pending").length}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
+          <div className="gm-panel p-5">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="size-4.5 text-primary" />
               <h4 className="font-bold text-sm text-foreground">Quy chuẩn Huấn luyện</h4>

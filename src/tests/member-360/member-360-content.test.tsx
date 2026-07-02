@@ -78,10 +78,9 @@ describe("Member360Content", () => {
   it("renders empty data gracefully", () => {
     render(<Member360Content viewContext="admin" />)
 
-    // The hero should show with empty props (no crash)
-    expect(screen.getByText("Hồ sơ hội viên")).toBeInTheDocument()
-    expect(screen.getByText("Chưa có gói hội viên active")).toBeInTheDocument()
-    expect(screen.getByText("Chưa phân công PT")).toBeInTheDocument()
-    expect(screen.getByText("Chưa có lượt check-in")).toBeInTheDocument()
+    expect(screen.getByText("Không có dữ liệu hồ sơ.")).toBeInTheDocument()
+    expect(
+      screen.getByText("Chọn một hội viên hợp lệ hoặc quay lại danh sách để tìm hồ sơ khác."),
+    ).toBeInTheDocument()
   })
 })

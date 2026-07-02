@@ -1,7 +1,15 @@
 import { z } from "zod"
 
+import { vnTodayIso } from "@/lib/date/vn-time"
+
 export const progressEntrySchema = z.object({
-  measuredAt: z.string().min(1, "Vui lòng chọn ngày ghi nhận."),
+  measuredAt: z
+    .string()
+    .min(1, "Vui lòng chọn ngày ghi nhận.")
+    .refine(
+      (value) => value <= vnTodayIso(),
+      "Không thể ghi nhận cho ngày trong tương lai.",
+    ),
   weightKg: z.coerce
     .number({
       message: "Cân nặng phải là một số.",

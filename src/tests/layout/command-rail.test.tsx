@@ -29,4 +29,14 @@ describe("CommandRail", () => {
     expect(within(rail).queryByRole("link", { name: /tài khoản/i })).not.toBeInTheDocument()
     expect(within(rail).queryByRole("link", { name: /nhật ký/i })).not.toBeInTheDocument()
   })
+
+  it("renders Member profile navigation for Member role", () => {
+    render(<CommandRail role="member" />)
+
+    const rail = screen.getByTestId("command-rail")
+    expect(within(rail).getByRole("link", { name: /hồ sơ/i })).toHaveAttribute(
+      "href",
+      "/member/profile",
+    )
+  })
 })

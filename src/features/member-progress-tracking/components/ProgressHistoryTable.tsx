@@ -26,7 +26,7 @@ export function ProgressHistoryTable({ entries }: ProgressHistoryTableProps) {
   )
 
   return (
-    <section className="rounded-2xl border border-border bg-card overflow-hidden shadow-sm">
+    <section className="gm-panel overflow-hidden">
       <div className="p-6 border-b border-border">
         <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground">
           Lịch sử ghi nhận chỉ số

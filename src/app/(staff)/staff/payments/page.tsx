@@ -62,13 +62,13 @@ function StaffPaymentsPageContent() {
     useManagedMembers("")
   const confirmPayment = useConfirmMembershipPayment()
 
-  const [now] = useState(() => Date.now())
-  const members = useMemo(() => membersResult?.items ?? [], [membersResult?.items])
+  const members = membersResult?.items ?? []
   const isLoading = isMembershipsLoading || isPackagesLoading || isMembersLoading
 
   const rows = useMemo(() => {
     // Don pending qua 10 phut chua thanh toan -> coi nhu het han/huy.
     const PAYMENT_WINDOW_MS = 10 * 60 * 1000
+    const now = Date.now()
     return (memberships ?? [])
       .map((ms) => {
         const member = members.find((m) => m.id === ms.memberId)
@@ -96,7 +96,7 @@ function StaffPaymentsPageContent() {
       .sort((a, b) =>
         a.status === b.status ? 0 : a.status === "pending_payment" ? -1 : 1,
       )
-  }, [memberships, members, packages, now])
+  }, [memberships, members, packages])
 
   // Chi don pending con han moi can thu.
   const pending = rows.filter((r) => r.status === "pending_payment" && !r.expired)
@@ -153,7 +153,7 @@ function StaffPaymentsPageContent() {
           />
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <section className="gm-panel overflow-hidden">
           <div className="flex flex-col gap-4 border-b border-border p-5 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -170,14 +170,14 @@ function StaffPaymentsPageContent() {
 
             <div className="flex flex-wrap gap-2">
               <Link
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-border/80 bg-[var(--surface-panel)] px-4 text-sm font-semibold text-foreground transition hover:bg-muted active:scale-[0.98]"
                 href={staffRoutes.sellPackage}
               >
                 <CreditCard aria-hidden="true" className="size-4" />
                 Bán gói
               </Link>
               <Link
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
                 href={staffRoutes.renewPackage}
               >
                 <RefreshCw aria-hidden="true" className="size-4" />
@@ -194,7 +194,7 @@ function StaffPaymentsPageContent() {
                 className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               />
               <input
-                className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                className="gm-field min-h-11 w-full pl-11 pr-4 text-sm text-foreground transition placeholder:text-muted-foreground"
                 placeholder="Tìm theo tên hội viên, mã hội viên, mã đơn..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -284,13 +284,13 @@ function PaymentMetricCard({
   value: string
 }) {
   const toneClass = {
-    warning: "bg-orange-500/10 text-orange-600",
+    warning: "bg-[var(--status-warning)]/15 text-[var(--status-warning)]",
     success: "bg-primary/10 text-primary",
-    info: "bg-blue-500/10 text-blue-600",
+    info: "bg-[var(--status-info)]/15 text-[var(--status-info)]",
   }[tone]
 
   return (
-    <article className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <article className="gm-panel p-5">
       <div className="flex items-center gap-4">
         <span
           className={`flex size-12 shrink-0 items-center justify-center rounded-full ${toneClass}`}
@@ -370,7 +370,7 @@ function PaymentQueueRow({
               ? "bg-primary/10 text-primary"
               : isCancelled
                 ? "bg-destructive/10 text-destructive"
-                : "bg-orange-500/10 text-orange-600"
+                : "bg-[var(--status-warning)]/15 text-[var(--status-warning)]"
           }`}
         >
           {isDone ? "Đã thanh toán" : isCancelled ? "Đã bị hủy" : "Chờ thanh toán"}
@@ -387,7 +387,7 @@ function PaymentQueueRow({
         <button
           disabled={pending}
           onClick={onConfirm}
-          className="inline-flex min-h-10 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98] disabled:opacity-50"
+          className="inline-flex min-h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98] disabled:opacity-50"
           type="button"
         >
           {pending ? "Đang xử lý..." : "Ghi nhận"}
@@ -409,7 +409,7 @@ function GuidanceCard({
   title: string
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-start gap-3">
         <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Icon aria-hidden="true" className="size-5" />
@@ -425,7 +425,7 @@ function GuidanceCard({
       <div className="mt-5 grid gap-2">
         {items.map((item) => (
           <div
-            className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground"
+            className="gm-panel-muted flex items-center gap-2 px-3 py-2 text-sm text-foreground"
             key={item}
           >
             <CheckCircle2

@@ -4,7 +4,7 @@ import { AdminPtAssignmentWorkspace } from "@/features/pt-assignment/components/
 export default function AdminAssignmentsPage() {
   return (
     <AdminPageFrame
-      description="Phân công PT cho hội viên theo rule một PT active và giữ bằng chứng audit."
+      description="Phân công PT cho hội viên."
       title="Phân công PT"
     >
       <AdminPtAssignmentWorkspace />

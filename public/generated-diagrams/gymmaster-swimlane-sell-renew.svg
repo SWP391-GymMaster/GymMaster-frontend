@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1500" viewBox="0 0 1800 1500">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#111111" />
+    </marker>
+    <style>
+      .lane { fill: #ffffff; stroke: #111111; stroke-width: 2; }
+      .header { fill: #f8fafc; stroke: #111111; stroke-width: 2; }
+      .header-text { font: 700 18px Arial, sans-serif; fill: #111111; }
+      .node { fill: #78c9ea; stroke: #111111; stroke-width: 1.7; }
+      .decision { fill: #d8f1ff; stroke: #111111; stroke-width: 1.7; }
+      .node-text { font: 600 16px Arial, sans-serif; fill: #111111; }
+      .label { font: 600 15px Arial, sans-serif; fill: #111111; }
+      .note { font: 400 13px Arial, sans-serif; fill: #64748b; }
+      .arrow { fill: none; stroke: #111111; stroke-width: 1.8; marker-end: url(#arrow); }
+      .start-end { fill: #000000; stroke: #000000; stroke-width: 2; }
+      .end-ring { fill: #ffffff; stroke: #000000; stroke-width: 3; }
+    </style>
+  </defs>
+
+  <rect x="24" y="24" width="1752" height="1432" class="lane" />
+  <rect x="24" y="24" width="1752" height="42" class="header" />
+
+  <line x1="360" y1="24" x2="360" y2="1456" stroke="#111111" stroke-width="2" />
+  <line x1="640" y1="24" x2="640" y2="1456" stroke="#111111" stroke-width="2" />
+  <line x1="1260" y1="24" x2="1260" y2="1456" stroke="#111111" stroke-width="2" />
+
+  <text x="192" y="51" text-anchor="middle" class="header-text">Staff</text>
+  <text x="500" y="51" text-anchor="middle" class="header-text">Hội viên</text>
+  <text x="950" y="51" text-anchor="middle" class="header-text">GymMaster OS</text>
+  <text x="1518" y="51" text-anchor="middle" class="header-text">Payment Gateway</text>
+
+  <!-- Start / end -->
+  <circle cx="192" cy="100" r="12" class="start-end" />
+  <circle cx="950" cy="1440" r="16" class="end-ring" />
+  <circle cx="950" cy="1440" r="9" class="start-end" />
+
+  <!-- Staff lane nodes -->
+  <rect x="92" y="130" width="200" height="66" rx="18" class="node" />
+  <text x="192" y="169" text-anchor="middle" class="node-text">Đăng nhập</text>
+
+  <rect x="92" y="300" width="220" height="74" rx="18" class="node" />
+  <text x="202" y="331" text-anchor="middle" class="node-text">Tìm hội viên</text>
+  <text x="202" y="353" text-anchor="middle" class="node-text">theo mã / SĐT</text>
+
+  <rect x="92" y="455" width="220" height="74" rx="18" class="node" />
+  <text x="202" y="486" text-anchor="middle" class="node-text">Chọn hội viên</text>
+  <text x="202" y="508" text-anchor="middle" class="node-text">cần xử lý</text>
+
+  <rect x="92" y="675" width="230" height="74" rx="18" class="node" />
+  <text x="207" y="706" text-anchor="middle" class="node-text">Chọn gói tập</text>
+  <text x="207" y="728" text-anchor="middle" class="node-text">và phương thức</text>
+
+  <rect x="100" y="1040" width="215" height="66" rx="18" class="node" />
+  <text x="207" y="1079" text-anchor="middle" class="node-text">Thử lại / đổi cách trả</text>
+
+  <rect x="92" y="1130" width="230" height="66" rx="18" class="node" />
+  <text x="207" y="1158" text-anchor="middle" class="node-text">Thu tiền tại quầy</text>
+  <text x="207" y="1180" text-anchor="middle" class="node-text">cash / card / transfer</text>
+
+  <rect x="92" y="1370" width="230" height="66" rx="18" class="node" />
+  <text x="207" y="1398" text-anchor="middle" class="node-text">Thông báo kết quả</text>
+  <text x="207" y="1420" text-anchor="middle" class="node-text">cho hội viên</text>
+
+  <!-- Member lane nodes -->
+  <rect x="410" y="565" width="220" height="74" rx="18" class="node" />
+  <text x="520" y="596" text-anchor="middle" class="node-text">Xác nhận nhu cầu</text>
+  <text x="520" y="618" text-anchor="middle" class="node-text">mua / gia hạn</text>
+
+  <rect x="400" y="1370" width="235" height="66" rx="18" class="node" />
+  <text x="517" y="1398" text-anchor="middle" class="node-text">Nhận xác nhận</text>
+  <text x="517" y="1420" text-anchor="middle" class="node-text">gói tập active</text>
+
+  <!-- GymMaster OS lane nodes -->
+  <rect x="800" y="130" width="300" height="66" rx="18" class="node" />
+  <text x="950" y="157" text-anchor="middle" class="node-text">Xác thực tài khoản</text>
+  <text x="950" y="179" text-anchor="middle" class="node-text">và quyền Staff</text>
+
+  <rect x="800" y="230" width="300" height="66" rx="18" class="node" />
+  <text x="950" y="257" text-anchor="middle" class="node-text">Mở workspace</text>
+  <text x="950" y="279" text-anchor="middle" class="node-text">bán / gia hạn gói</text>
+
+  <rect x="800" y="320" width="300" height="66" rx="18" class="node" />
+  <text x="950" y="347" text-anchor="middle" class="node-text">Tra cứu hồ sơ</text>
+  <text x="950" y="369" text-anchor="middle" class="node-text">và trạng thái gói</text>
+
+  <rect x="800" y="455" width="300" height="74" rx="18" class="node" />
+  <text x="950" y="486" text-anchor="middle" class="node-text">Hiển thị hồ sơ,</text>
+  <text x="950" y="508" text-anchor="middle" class="node-text">membership, payment</text>
+
+  <rect x="800" y="675" width="320" height="74" rx="18" class="node" />
+  <text x="960" y="706" text-anchor="middle" class="node-text">Kiểm tra form</text>
+  <text x="960" y="728" text-anchor="middle" class="node-text">và tính hạn gói mới</text>
+
+  <rect x="800" y="790" width="320" height="74" rx="18" class="node" />
+  <text x="960" y="821" text-anchor="middle" class="node-text">Tạo giao dịch membership</text>
+  <text x="960" y="843" text-anchor="middle" class="node-text">chờ thanh toán</text>
+
+  <polygon points="960,890 1055,950 960,1010 865,950" class="decision" />
+  <text x="960" y="944" text-anchor="middle" class="node-text">Thanh toán</text>
+  <text x="960" y="966" text-anchor="middle" class="node-text">online?</text>
+
+  <rect x="800" y="1240" width="320" height="74" rx="18" class="node" />
+  <text x="960" y="1271" text-anchor="middle" class="node-text">Ghi nhận payment paid</text>
+  <text x="960" y="1293" text-anchor="middle" class="node-text">và kích hoạt membership</text>
+
+  <!-- Payment gateway lane nodes -->
+  <rect x="1400" y="810" width="235" height="74" rx="18" class="node" />
+  <text x="1518" y="841" text-anchor="middle" class="node-text">Xử lý thanh toán</text>
+  <text x="1518" y="863" text-anchor="middle" class="node-text">online</text>
+
+  <polygon points="1518,900 1610,960 1518,1020 1426,960" class="decision" />
+  <text x="1518" y="966" text-anchor="middle" class="node-text">Thành công?</text>
+
+  <!-- Main flow arrows -->
+  <path d="M192 112 V130" class="arrow" />
+  <path d="M292 163 H800" class="arrow" />
+  <path d="M950 196 V230" class="arrow" />
+  <path d="M800 263 H202 V300" class="arrow" />
+  <path d="M312 337 H800" class="arrow" />
+  <path d="M950 386 V455" class="arrow" />
+  <path d="M800 492 H312" class="arrow" />
+  <path d="M202 529 V565 H410" class="arrow" />
+  <path d="M520 639 V712 H322" class="arrow" />
+  <path d="M322 712 H800" class="arrow" />
+  <path d="M960 749 V790" class="arrow" />
+  <path d="M960 864 V890" class="arrow" />
+
+  <!-- Online branch -->
+  <path d="M1055 950 H1340 V847 H1400" class="arrow" />
+  <text x="1165" y="939" class="label">Có</text>
+  <path d="M1518 884 V900" class="arrow" />
+  <path d="M1518 1020 V1277 H1120" class="arrow" />
+  <text x="1531" y="1145" class="label">Có</text>
+
+  <!-- Online failed branch -->
+  <path d="M1426 960 H1280 V1073 H315" class="arrow" />
+  <text x="1310" y="1046" class="label">Không</text>
+  <path d="M207 1106 V1130" class="arrow" />
+
+  <!-- Offline branch -->
+  <path d="M865 950 H50 V1163 H92" class="arrow" />
+  <text x="575" y="938" class="label">Không</text>
+  <path d="M207 1196 V1277 H800" class="arrow" />
+
+  <!-- Success confirmation and end -->
+  <path d="M960 1314 V1340 H207 V1370" class="arrow" />
+  <path d="M322 1403 H400" class="arrow" />
+  <path d="M635 1403 H950 V1424" class="arrow" />
+
+  <text x="1600" y="1480" text-anchor="middle" class="note">Reference layout for Visual Paradigm Community 18</text>
+</svg>

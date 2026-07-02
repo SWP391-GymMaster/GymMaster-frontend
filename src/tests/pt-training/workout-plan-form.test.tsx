@@ -33,7 +33,7 @@ describe("WorkoutPlanForm", () => {
     // Go to step 2 to input data
     fireEvent.click(screen.getByText("Bài tập"))
 
-    fireEvent.change(screen.getByLabelText("Tên giáo án"), {
+    fireEvent.change(screen.getByLabelText("Tên buổi tập"), {
       target: { value: "Strength Block" },
     })
     fireEvent.change(screen.getByPlaceholderText("Tên bài tập custom"), {
@@ -42,10 +42,10 @@ describe("WorkoutPlanForm", () => {
     fireEvent.change(screen.getByLabelText("Sets"), {
       target: { value: "5" },
     })
-    fireEvent.change(screen.getByLabelText("Reps / Time"), {
+    fireEvent.change(screen.getByLabelText("Reps"), {
       target: { value: "5" },
     })
-    fireEvent.change(screen.getByLabelText("Cue / note"), {
+    fireEvent.change(screen.getByLabelText("Cue / ghi chú"), {
       target: { value: "Stop one rep before form breaks." },
     })
     fireEvent.click(screen.getByText("Lưu"))
@@ -87,8 +87,9 @@ describe("WorkoutPlanForm", () => {
       </AppProviders>
     )
 
-    expect(await screen.findByText("Đã thêm bài tập: Back Squat")).toBeInTheDocument()
-    expect(screen.getByDisplayValue("Back Squat")).toBeInTheDocument()
+    expect(await screen.findByText("Đã thêm Back Squat")).toBeInTheDocument()
+    // Bai tap da duoc nap vao editor (hien trong select/danh sach bai tap).
+    expect((await screen.findAllByText("Back Squat")).length).toBeGreaterThan(0)
     expect(onAdded).toHaveBeenCalled()
   })
 
@@ -98,7 +99,7 @@ describe("WorkoutPlanForm", () => {
 
     // Go to step 3 (Exercises) to write something
     fireEvent.click(screen.getByText("Bài tập"))
-    fireEvent.change(screen.getByLabelText("Tên giáo án"), {
+    fireEvent.change(screen.getByLabelText("Tên buổi tập"), {
       target: { value: "My Power Plan" },
     })
     fireEvent.change(screen.getByPlaceholderText("Tên bài tập custom"), {

@@ -1,19 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react"
-import { beforeEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
-import { useSidebarStore } from "@/stores/useSideBarStore"
-import type { UserRole } from "@/types/auth"
-
-const navigation = vi.hoisted(() => ({
-  push: vi.fn(),
-  replace: vi.fn(),
-  refresh: vi.fn(),
-}))
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/staff/dashboard",
-  useRouter: () => navigation,
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }))
 
 vi.mock("@/features/notifications/api/notifications.queries", () => ({
@@ -36,11 +28,6 @@ vi.mock("@/features/notifications/api/notifications.queries", () => ({
 }))
 
 describe("WorkspaceShell", () => {
-  beforeEach(() => {
-    navigation.push.mockClear()
-    useSidebarStore.setState({ isSettingsOpen: false })
-  })
-
   it("does not render placeholder metrics when metrics are omitted", () => {
     render(
       <WorkspaceShell
@@ -81,8 +68,8 @@ describe("WorkspaceShell", () => {
     expect(screen.queryByText("Skeleton only")).not.toBeInTheDocument()
   })
 
-  it("shows profile menu item only for member role", async () => {
-    const memberView = render(
+  it("opens a user menu from the desktop identity trigger", async () => {
+    render(
       <WorkspaceShell
         description="Member workspace"
         role="member"
@@ -90,45 +77,19 @@ describe("WorkspaceShell", () => {
       />,
     )
 
-    fireEvent.pointerDown(screen.getByLabelText("Mở menu tài khoản"))
+    const trigger = screen.getByRole("button", { name: /mở menu người dùng/i })
+    fireEvent.pointerDown(trigger, {
+      button: 0,
+      ctrlKey: false,
+      pointerType: "mouse",
+    })
 
-    expect(await screen.findByText("Hồ sơ của tôi")).toBeInTheDocument()
-    expect(screen.getByText("Cấu hình giao diện")).toBeInTheDocument()
-    memberView.unmount()
-
-    render(
-      <WorkspaceShell
-        description="Staff workspace"
-        role="staff"
-        title="Staff Dashboard"
-      />,
-    )
-
-    fireEvent.pointerDown(screen.getByLabelText("Mở menu tài khoản"))
-
-    expect(await screen.findByText("Cấu hình giao diện")).toBeInTheDocument()
-    expect(screen.queryByText("Hồ sơ của tôi")).not.toBeInTheDocument()
-  })
-
-  it("opens settings dialog from the user menu for every role", async () => {
-    const roles: UserRole[] = ["admin", "staff", "pt", "member"]
-
-    for (const role of roles) {
-      const view = render(
-        <WorkspaceShell
-          description={`${role} workspace`}
-          role={role}
-          title={`${role} Dashboard`}
-        />,
-      )
-
-      fireEvent.pointerDown(screen.getByLabelText("Mở menu tài khoản"))
-      fireEvent.click(await screen.findByText("Cấu hình giao diện"))
-
-      expect(await screen.findByText("Chế độ màn hình")).toBeInTheDocument()
-
-      view.unmount()
-      useSidebarStore.setState({ isSettingsOpen: false })
-    }
+    expect(
+      await screen.findByRole("menuitem", { name: /hồ sơ của tôi/i }),
+    ).toHaveAttribute("href", "/member/profile")
+    expect(
+      screen.getByRole("menuitem", { name: /cấu hình giao diện/i }),
+    ).toBeInTheDocument()
+    expect(screen.queryByRole("dialog", { name: /cấu hình giao diện/i })).not.toBeInTheDocument()
   })
 })

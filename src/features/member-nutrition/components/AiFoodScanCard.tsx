@@ -33,7 +33,7 @@ function toFoodItem(food: ScannedFoodDto): FoodItem {
 }
 
 type AiFoodScanCardProps = {
-  onSelectFood: (food: FoodItem) => void
+  onSelectFood: (food: FoodItem, grams?: number) => void
 }
 
 /**
@@ -80,7 +80,7 @@ export function AiFoodScanCard({ onSelectFood }: AiFoodScanCardProps) {
         setSavedFoods((prev) => ({ ...prev, [item.recognizedName]: food as ScannedFoodDto }))
       }
       if (!food) return
-      onSelectFood(toFoodItem(food))
+      onSelectFood(toFoodItem(food), item.estimatedGrams)
       toast.success(`Đã chọn: ${food.name}`)
     } catch {
       toast.error("Không thể chọn món này. Vui lòng thử lại.")
@@ -90,7 +90,7 @@ export function AiFoodScanCard({ onSelectFood }: AiFoodScanCardProps) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background/60 p-4">
+    <div className="gm-panel-muted p-4">
       <input
         ref={fileInputRef}
         accept="image/jpeg,image/png"
@@ -162,6 +162,9 @@ export function AiFoodScanCard({ onSelectFood }: AiFoodScanCardProps) {
                         </span>
                       </div>
                       <span className="mt-0.5 block text-xs text-muted-foreground">
+                        {item.estimatedGrams && item.estimatedGrams > 0 ? (
+                          <span className="font-semibold text-foreground">~{Math.round(item.estimatedGrams)}g · </span>
+                        ) : null}
                         {Math.round(cal)} kcal/100g · P {p}g · C {c}g · F {f}g
                       </span>
                     </div>

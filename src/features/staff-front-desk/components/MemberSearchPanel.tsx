@@ -95,7 +95,7 @@ export function MemberSearchPanel() {
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <section className="gm-panel overflow-hidden">
           <div className="border-b border-border p-5">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
               Member CRM
@@ -119,7 +119,7 @@ export function MemberSearchPanel() {
                   className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
                 />
                 <input
-                  className="min-h-12 w-full rounded-xl border border-border bg-background pl-12 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10"
+                  className="gm-field min-h-12 w-full pl-12 pr-4 text-sm text-foreground transition placeholder:text-muted-foreground"
                   data-testid="staff-member-search-input"
                   data-shortcut-search
                   id="staff-member-search"
@@ -237,7 +237,7 @@ export function MemberSearchPanel() {
 
 function ContextCard({ label, title }: { label: string; title: string }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="mt-2 text-xl font-semibold tracking-tight text-foreground">{title}</p>
     </section>
@@ -256,7 +256,7 @@ function MetricCard({
   value: string
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-center gap-4">
         <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Icon aria-hidden="true" className="size-5" />
@@ -278,7 +278,7 @@ function MemberPreview({
 }) {
   if (!member) {
     return (
-      <aside className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <aside className="gm-panel p-6">
         <StateBlock
           description="Tìm và chọn một hội viên để xem member 360 nhanh."
           title="Chưa chọn hội viên"
@@ -289,7 +289,7 @@ function MemberPreview({
   }
 
   return (
-    <aside className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <aside className="gm-panel overflow-hidden">
       <div className="flex items-center justify-between border-b border-border p-5">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">
@@ -352,7 +352,7 @@ function PreviewRow({
   value: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
+    <div className="gm-panel-muted flex items-center gap-3 p-3">
       <span className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary">
         <Icon aria-hidden="true" className="size-4" />
       </span>

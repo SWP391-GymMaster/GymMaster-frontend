@@ -27,16 +27,18 @@ describe("auth account forms", () => {
   it("creates a member account without role selection", async () => {
     render(<SignupForm />)
 
-    fireEvent.change(screen.getByTestId("signup-full-name-input"), {
+    fireEvent.change(screen.getByLabelText("Họ tên"), {
       target: { value: "New Member" },
     })
-    fireEvent.change(screen.getByTestId("signup-email-input"), {
+    fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "new-member@gymmaster.local" },
     })
-    fireEvent.change(screen.getByTestId("signup-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
       target: { value: "Password123!" },
     })
-    fireEvent.click(screen.getByTestId("signup-submit-button"))
+    fireEvent.click(
+      screen.getByRole("button", { name: /tạo tài khoản hội viên/i }),
+    )
 
     await waitFor(() => {
       expect(navigation.push).toHaveBeenCalledWith("/member/dashboard")
@@ -49,16 +51,18 @@ describe("auth account forms", () => {
   it("shows duplicate email error on signup", async () => {
     render(<SignupForm />)
 
-    fireEvent.change(screen.getByTestId("signup-full-name-input"), {
+    fireEvent.change(screen.getByLabelText("Họ tên"), {
       target: { value: "Existing Member" },
     })
-    fireEvent.change(screen.getByTestId("signup-email-input"), {
+    fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "member@gymmaster.local" },
     })
-    fireEvent.change(screen.getByTestId("signup-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
       target: { value: "Password123!" },
     })
-    fireEvent.click(screen.getByTestId("signup-submit-button"))
+    fireEvent.click(
+      screen.getByRole("button", { name: /tạo tài khoản hội viên/i }),
+    )
 
     expect(
       await screen.findByText("Email này đã được đăng ký."),
@@ -69,19 +73,21 @@ describe("auth account forms", () => {
   it("shows duplicate phone error on signup", async () => {
     render(<SignupForm />)
 
-    fireEvent.change(screen.getByTestId("signup-full-name-input"), {
+    fireEvent.change(screen.getByLabelText("Họ tên"), {
       target: { value: "Existing Phone" },
     })
-    fireEvent.change(screen.getByTestId("signup-email-input"), {
+    fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "new-phone@gymmaster.local" },
     })
-    fireEvent.change(screen.getByTestId("signup-phone-input"), {
+    fireEvent.change(screen.getByLabelText(/Số điện thoại/), {
       target: { value: "0900000000" },
     })
-    fireEvent.change(screen.getByTestId("signup-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu"), {
       target: { value: "Password123!" },
     })
-    fireEvent.click(screen.getByTestId("signup-submit-button"))
+    fireEvent.click(
+      screen.getByRole("button", { name: /tạo tài khoản hội viên/i }),
+    )
 
     expect(
       await screen.findByText("Số điện thoại này đã được đăng ký."),
@@ -92,44 +98,48 @@ describe("auth account forms", () => {
   it("creates a forgot password reset request", async () => {
     render(<ForgotPasswordForm />)
 
-    fireEvent.change(screen.getByTestId("forgot-email-input"), {
+    fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "member@gymmaster.local" },
     })
-    fireEvent.click(screen.getByTestId("forgot-submit-button"))
+    fireEvent.click(screen.getByRole("button", { name: /gửi yêu cầu đặt lại/i }))
 
+    // UX moi: gui thanh cong -> dieu huong sang trang dat lai mat khau (kem OTP).
     await waitFor(() => {
       expect(navigation.push).toHaveBeenCalledWith(
-        "/reset-password?email=member%40gymmaster.local&token=123456",
+        expect.stringContaining("/reset-password?"),
       )
     })
+    expect(navigation.push).toHaveBeenCalledWith(
+      expect.stringContaining("token=123456"),
+    )
   })
 
-  it("resets password with a valid reset token", async () => {
+  it("resets password with a valid OTP", async () => {
     render(<ResetPasswordForm email="member@gymmaster.local" resetToken="123456" />)
 
-    fireEvent.change(screen.getByTestId("reset-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.change(screen.getByTestId("reset-confirm-password-input"), {
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.click(screen.getByTestId("reset-submit-button"))
+    fireEvent.click(screen.getByRole("button", { name: /đặt lại mật khẩu/i }))
 
     expect(
       await screen.findByText("Đã đặt lại mật khẩu. Bạn có thể đăng nhập ngay."),
     ).toBeInTheDocument()
   })
 
-  it("shows invalid reset token errors", async () => {
+  it("shows invalid OTP errors", async () => {
     render(<ResetPasswordForm email="member@gymmaster.local" resetToken="000000" />)
 
-    fireEvent.change(screen.getByTestId("reset-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.change(screen.getByTestId("reset-confirm-password-input"), {
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.click(screen.getByTestId("reset-submit-button"))
+    fireEvent.click(screen.getByRole("button", { name: /đặt lại mật khẩu/i }))
 
     expect(
       await screen.findByText(
@@ -155,16 +165,16 @@ describe("auth account forms", () => {
 
     render(<ChangePasswordForm />)
 
-    fireEvent.change(screen.getByTestId("change-current-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu hiện tại"), {
       target: { value: "wrong" },
     })
-    fireEvent.change(screen.getByTestId("change-new-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.change(screen.getByTestId("change-confirm-password-input"), {
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.click(screen.getByTestId("change-submit-button"))
+    fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
 
     expect(
       await screen.findByText("Mật khẩu hiện tại không đúng."),
@@ -188,16 +198,16 @@ describe("auth account forms", () => {
 
     render(<ChangePasswordForm />)
 
-    fireEvent.change(screen.getByTestId("change-current-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu hiện tại"), {
       target: { value: "Password123!" },
     })
-    fireEvent.change(screen.getByTestId("change-new-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.change(screen.getByTestId("change-confirm-password-input"), {
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.click(screen.getByTestId("change-submit-button"))
+    fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
 
     expect(await screen.findByText("Đã đổi mật khẩu.")).toBeInTheDocument()
   })
@@ -205,16 +215,16 @@ describe("auth account forms", () => {
   it("requires an active session before changing password", async () => {
     render(<ChangePasswordForm />)
 
-    fireEvent.change(screen.getByTestId("change-current-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu hiện tại"), {
       target: { value: "Password123!" },
     })
-    fireEvent.change(screen.getByTestId("change-new-password-input"), {
+    fireEvent.change(screen.getByLabelText("Mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.change(screen.getByTestId("change-confirm-password-input"), {
+    fireEvent.change(screen.getByLabelText("Nhập lại mật khẩu mới"), {
       target: { value: "NewPassword123!" },
     })
-    fireEvent.click(screen.getByTestId("change-submit-button"))
+    fireEvent.click(screen.getByRole("button", { name: /đổi mật khẩu/i }))
 
     expect(
       await screen.findByText("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."),

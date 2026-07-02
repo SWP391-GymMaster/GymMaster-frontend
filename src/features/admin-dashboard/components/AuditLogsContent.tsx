@@ -150,18 +150,18 @@ function AuditMetricCard({
   helper: string
   icon: typeof FileText
   label: string
-  tone: "success" | "danger" | "info" | "purple"
+  tone: "success" | "danger" | "info" | "warning"
   value: string
 }) {
   const toneClass = {
     success: "bg-primary/10 text-primary",
     danger: "bg-destructive/10 text-destructive",
-    info: "bg-blue-500/10 text-blue-600",
-    purple: "bg-violet-500/10 text-violet-600",
+    info: "bg-[var(--status-info)]/15 text-[var(--status-info)]",
+    warning: "bg-[var(--status-warning)]/15 text-[var(--status-warning)]",
   }[tone]
 
   return (
-    <article className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <article className="gm-panel relative overflow-hidden p-5">
       <div className="absolute -right-8 -top-8 size-24 rounded-full bg-primary/5" />
       <div className="relative flex items-center gap-4">
         <span className={cn("flex size-14 shrink-0 items-center justify-center rounded-2xl", toneClass)}>
@@ -184,7 +184,7 @@ function AuditMetricCard({
 function AuditLogDetailPanel({ log }: { log: AuditLogEntry | null }) {
   if (!log) {
     return (
-      <aside className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <aside className="gm-panel p-6">
         <div className="flex min-h-[560px] flex-col items-center justify-center text-center">
           <span className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
             <Database aria-hidden="true" className="size-6" />
@@ -204,7 +204,7 @@ function AuditLogDetailPanel({ log }: { log: AuditLogEntry | null }) {
   const severityLabel = getSeverityLabel(severity)
 
   return (
-    <aside className="sticky top-24 self-start overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <aside className="gm-panel sticky top-24 self-start overflow-hidden">
       <header className="flex items-center justify-between gap-3 border-b border-border p-5">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -255,7 +255,7 @@ function AuditLogDetailPanel({ log }: { log: AuditLogEntry | null }) {
         </DetailSection>
 
         <DetailSection title="Đối tượng bị ảnh hưởng">
-          <div className="rounded-xl border border-border bg-background p-4">
+          <div className="gm-panel-muted p-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold capitalize text-foreground">

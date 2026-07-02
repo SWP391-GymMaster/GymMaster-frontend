@@ -102,11 +102,11 @@ export function SellPackageWizard() {
 
   return (
     <div className="space-y-5">
-      <section className="grid gap-4 md:grid-cols-3">
+      {/* <section className="grid gap-4 md:grid-cols-3">
         <WorkflowCard icon={PackagePlus} label="Trạng thái bán" title={saleResult ? "Đã tạo đơn" : "Chờ thanh toán"} />
         <WorkflowCard icon={CreditCard} label="Nguồn gói" title="Gói tập GymMaster Final" />
         <WorkflowCard icon={WalletCards} label="Phương thức thanh toán" title="Xác nhận thủ công" />
-      </section>
+      </section> */}
 
       <StaffWizardStepper
         activeIndex={activeStep}
@@ -158,7 +158,7 @@ export function SellPackageWizard() {
 
         {activeStep === 1 && (
           <div className="space-y-5">
-            <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <div className="gm-panel flex flex-col gap-3 p-5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Hội viên đang chọn</p>
@@ -179,7 +179,7 @@ export function SellPackageWizard() {
               </div>
             </div>
 
-            <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+            <section className="gm-panel p-5">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <h2 className="text-xl font-semibold tracking-tight text-foreground">
@@ -212,7 +212,7 @@ export function SellPackageWizard() {
               </div>
 
               {selectedPackage ? (
-                <div className="mt-5 rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm font-medium text-foreground">
+                <div className="mt-5 rounded-[1.25rem] border border-primary/20 bg-primary/10 p-4 text-sm font-medium text-foreground">
                   Gợi ý: {selectedPackage.name} phù hợp để bắt đầu hoặc duy trì lịch tập ổn định.
                 </div>
               ) : null}
@@ -223,15 +223,15 @@ export function SellPackageWizard() {
         {activeStep === 2 && (
           <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_26rem]">
             <div className="space-y-5">
-              <div className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
+              <div className="gm-panel space-y-4 p-5">
                 <h3 className="text-lg font-bold text-foreground">Thông tin đơn hàng</h3>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-xl bg-muted/50 p-4">
+                  <div className="gm-panel-muted p-4">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Hội viên</p>
                     <p className="text-sm font-bold text-foreground mt-1">{selectedMember?.fullName}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{selectedMember?.phone}</p>
                   </div>
-                  <div className="rounded-xl bg-muted/50 p-4">
+                  <div className="gm-panel-muted p-4">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Gói tập</p>
                     <p className="text-sm font-bold text-foreground mt-1">{selectedPackage?.name}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">{selectedPackage?.durationDays} ngày | {selectedPackage?.price.toLocaleString("vi-VN")} VND</p>
@@ -258,8 +258,8 @@ export function SellPackageWizard() {
                 <>
                   <form onSubmit={handleSaleSubmit(onSubmitSale)}>
                     {saleErrors.memberId ||
-                    saleErrors.packageId ||
-                    saleErrors.startDate ? (
+                      saleErrors.packageId ||
+                      saleErrors.startDate ? (
                       <p className="mt-3 text-sm font-medium text-destructive">
                         {saleErrors.memberId?.message ??
                           saleErrors.packageId?.message ??
@@ -267,7 +267,7 @@ export function SellPackageWizard() {
                       </p>
                     ) : null}
                     <button
-                      className="mt-4 min-h-12 w-full rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="mt-4 min-h-12 w-full rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_12px_26px_color-mix(in_oklch,var(--primary)_26%,transparent)] transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                       data-testid="staff-sell-submit-button"
                       disabled={sell.isPending}
                       type="submit"
@@ -309,7 +309,7 @@ export function SellPackageWizard() {
         {activeStep === 3 && saleResult && (
           <div className="space-y-5">
             <section
-              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+              className="gm-panel p-5"
               data-testid="staff-sell-result"
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -345,7 +345,7 @@ export function SellPackageWizard() {
                   setValue("memberId", 0)
                   setValue("packageId", 0)
                 }}
-                className="rounded-xl bg-foreground text-background hover:bg-foreground/90 font-bold active:scale-[0.98]"
+                className="rounded-full bg-foreground px-5 font-bold text-background hover:bg-foreground/90 active:scale-[0.98]"
               >
                 Tạo đơn bán mới
               </Button>
@@ -367,7 +367,7 @@ function WorkflowCard({
   title: string
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-center gap-4">
         <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Icon aria-hidden="true" className="size-5" />

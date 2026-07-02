@@ -156,12 +156,8 @@ export function RenewPackageWizard() {
       packages.data &&
       !renewalPackages.some((item) => item.id === selectedPackageId)
     ) {
-      const timeoutId = window.setTimeout(() => {
-        setSelectedPackageId(null)
-        setValue("packageId", 0, { shouldValidate: false })
-      }, 0)
-
-      return () => window.clearTimeout(timeoutId)
+      setSelectedPackageId(null)
+      setValue("packageId", 0, { shouldValidate: false })
     }
   }, [packages.data, renewalPackages, selectedPackageId, setValue])
 
@@ -183,11 +179,11 @@ export function RenewPackageWizard() {
 
   return (
     <div className="space-y-5">
-      <section className="grid gap-4 md:grid-cols-3">
+      {/* <section className="grid gap-4 md:grid-cols-3">
         <WorkflowCard icon={RefreshCw} label="Chế độ gia hạn" title="Xem trước & xác nhận" />
         <WorkflowCard icon={CalendarDays} label="Quy tắc gói" title="Nối từ ngày hết hạn" />
         <WorkflowCard icon={CreditCard} label="Thanh toán" title="Thu tiền tại quầy" />
-      </section>
+      </section> */}
 
       <StaffWizardStepper
         activeIndex={activeStep}
@@ -234,15 +230,14 @@ export function RenewPackageWizard() {
                   setValue("packageId", 0, { shouldValidate: false })
                 }}
                 selected={selectedMember?.id === member.id}
-                subtitle={`${member.memberCode} · ${
-                  member.currentPackageName ?? "Chưa có gói"
-                }`}
+                subtitle={`${member.memberCode} · ${member.currentPackageName ?? "Chưa có gói"
+                  }`}
               />
             ))}
           </StaffSearchPanel>
 
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <div className="rounded-xl border border-border bg-background p-4">
+          <section className="gm-panel p-5">
+            <div className="gm-panel-muted p-4">
               <p className="text-sm font-semibold text-foreground">2. Gói hiện tại</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {currentMembership
@@ -269,7 +264,7 @@ export function RenewPackageWizard() {
             </div>
 
             {currentMembershipIsActive ? (
-              <p className="mt-4 rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-foreground">
+              <p className="mt-4 rounded-[1.25rem] border border-primary/20 bg-primary/10 px-4 py-3 text-sm font-medium text-foreground">
                 Membership còn hiệu lực nên chỉ chọn được gói cùng loại PT với gói hiện tại.
               </p>
             ) : null}
@@ -309,8 +304,8 @@ export function RenewPackageWizard() {
             <>
               <form onSubmit={handleRenewalSubmit(onSubmitRenewal)}>
                 {renewalErrors.memberId ||
-                renewalErrors.packageId ||
-                renewalErrors.startDate ? (
+                  renewalErrors.packageId ||
+                  renewalErrors.startDate ? (
                   <p className="mt-3 text-sm font-medium text-destructive">
                     {renewalErrors.memberId?.message ??
                       renewalErrors.packageId?.message ??
@@ -318,7 +313,7 @@ export function RenewPackageWizard() {
                   </p>
                 ) : null}
                 <button
-                  className="mt-4 min-h-12 w-full rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-4 min-h-12 w-full rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_12px_26px_color-mix(in_oklch,var(--primary)_26%,transparent)] transition hover:brightness-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                   data-testid="staff-renew-submit-button"
                   disabled={renew.isPending}
                   type="submit"
@@ -365,7 +360,7 @@ export function RenewPackageWizard() {
 
       {renewalResult ? (
         <section
-          className="rounded-2xl border border-border bg-card p-5 shadow-sm"
+          className="gm-panel p-5"
           data-testid="staff-renew-result"
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -395,7 +390,7 @@ function WorkflowCard({
   title: string
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <section className="gm-panel p-5">
       <div className="flex items-center gap-4">
         <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <Icon aria-hidden="true" className="size-5" />
@@ -419,7 +414,7 @@ function RenewalBox({
   value: string
 }) {
   return (
-    <div className={`rounded-xl border p-4 text-center ${emphasis ? "border-primary bg-primary/10" : "border-border bg-background"}`}>
+    <div className={`rounded-[1.25rem] border p-4 text-center ${emphasis ? "border-primary bg-primary/10" : "border-border/80 bg-[var(--surface-panel-muted)]"}`}>
       <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">{label}</p>
       <p className="mt-2 text-lg font-semibold text-foreground">{value}</p>
     </div>

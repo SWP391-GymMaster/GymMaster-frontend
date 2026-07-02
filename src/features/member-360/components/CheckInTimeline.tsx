@@ -38,7 +38,7 @@ export function CheckInTimeline({
     return (
       <div
         className={cn(
-          "rounded-2xl border border-border bg-card p-5 shadow-sm",
+          "gm-panel p-5",
           className,
         )}
       >
@@ -57,7 +57,7 @@ export function CheckInTimeline({
   return (
     <section
       className={cn(
-        "rounded-2xl border border-border bg-card p-5 shadow-sm",
+        "gm-panel p-5",
         className,
       )}
     >
@@ -80,7 +80,7 @@ export function CheckInTimeline({
                 >
                   <CheckCircle2 aria-hidden="true" className="size-4" />
                 </span>
-                <div className="flex-1 rounded-xl border border-border bg-background p-4">
+                <div className="gm-panel-muted flex-1 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <p className="text-lg font-semibold text-foreground">

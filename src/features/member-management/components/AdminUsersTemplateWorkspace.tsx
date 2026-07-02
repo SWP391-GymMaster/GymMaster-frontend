@@ -114,7 +114,7 @@ function Field({
 }
 
 const inputClass =
-  "min-h-11 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary/50 focus:bg-card focus:ring-4 focus:ring-primary/10 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+  "gm-field min-h-11 w-full px-3 text-sm text-foreground transition-all placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
 
 export function AdminUsersTemplateWorkspace() {
   const [query, setQuery] = useState("")
@@ -176,7 +176,7 @@ export function AdminUsersTemplateWorkspace() {
       </div>
 
       <div className="grid min-h-[calc(100dvh-320px)] gap-6 xl:grid-cols-[minmax(360px,0.92fr)_minmax(0,1.28fr)]">
-        <aside className="flex min-h-[720px] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <aside className="gm-panel flex min-h-[720px] flex-col overflow-hidden">
           <div className="border-b border-border p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -197,7 +197,7 @@ export function AdminUsersTemplateWorkspace() {
                 className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               />
               <Input
-                className="min-h-11 w-full rounded-xl border border-border bg-background pl-11 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:border-primary/50 focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/10"
+                className="gm-field min-h-11 w-full pl-11 pr-3 text-sm text-foreground transition placeholder:text-muted-foreground"
                 data-testid="admin-user-search-input"
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Tìm theo tên, email..."
@@ -295,7 +295,7 @@ export function AdminUsersTemplateWorkspace() {
         </aside>
 
         <main className="min-w-0">
-          <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm h-full">
+          <section className="gm-panel h-full overflow-hidden">
             {selectedUser ? (
               <UserDetailPanel
                 onTemporaryPassword={setTemporaryPassword}
@@ -329,7 +329,7 @@ function UserMetricCard({
   value: string
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <div className="gm-panel relative overflow-hidden p-5">
       <div className="absolute -right-5 bottom-0 size-20 rounded-full bg-primary/5" />
       <div className="flex items-center gap-4">
         <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -553,7 +553,7 @@ function UserSecurityPanel({
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <section className="rounded-xl border border-border bg-background p-5">
+      <section className="gm-panel-muted p-5">
         <div className="flex items-start gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             <ShieldCheck aria-hidden="true" className="size-5" />
@@ -639,19 +639,19 @@ function UserDetailPanel({
         <div className="border-b border-border px-6 pt-5">
           <TabsList className="h-auto gap-7 rounded-none bg-transparent p-0">
             <TabsTrigger
-              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              className="rounded-none border-b-2 border-transparent bg-transparent px-2 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="profile"
             >
               Thông tin chung
             </TabsTrigger>
-            <TabsTrigger
-              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+            {/* <TabsTrigger
+              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="access"
             >
               Quyền hạn
-            </TabsTrigger>
+            </TabsTrigger> */}
             <TabsTrigger
-              className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-3 pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              className="rounded-none border-b-2 border-transparent bg-transparent px-2 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="security"
             >
               Bảo mật
@@ -681,7 +681,7 @@ function UserDetailPanel({
 
 function UserDetailHeader({ user }: { user: ManagedUser }) {
   return (
-    <div className="relative overflow-hidden border-b border-border bg-card p-6">
+    <div className="relative overflow-hidden border-b border-border bg-[var(--surface-panel)] p-6">
       <div className="pointer-events-none absolute -right-20 -top-24 size-52 rounded-full bg-primary/10 blur-3xl" />
       <div className="pointer-events-none absolute -left-16 bottom-0 size-40 rounded-full bg-primary/5 blur-3xl" />
 
@@ -720,13 +720,13 @@ function UserDetailHeader({ user }: { user: ManagedUser }) {
           </div>
         </div>
 
-        <button
+        {/* <button
           className="inline-flex size-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-muted hover:text-foreground"
           type="button"
         >
           <MoreVertical aria-hidden="true" className="size-4" />
           <span className="sr-only">Tùy chọn người dùng</span>
-        </button>
+        </button> */}
       </div>
     </div>
   )
@@ -925,7 +925,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
 function UserAccessPanel({ user }: { user: ManagedUser }) {
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
-      <section className="rounded-xl border border-border bg-background p-5">
+      <section className="gm-panel-muted p-5">
         <div className="flex items-start gap-3">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
             <ShieldCheck aria-hidden="true" className="size-5" />
@@ -948,7 +948,7 @@ function UserAccessPanel({ user }: { user: ManagedUser }) {
             "Ghi nhận thao tác vận hành",
           ].map((permission, index) => (
             <label
-              className="flex items-start gap-3 rounded-xl border border-border bg-card p-4"
+              className="gm-panel-muted flex items-start gap-3 p-4"
               key={permission}
             >
               <span className="mt-0.5 flex size-5 items-center justify-center rounded-md border border-primary bg-primary text-primary-foreground">

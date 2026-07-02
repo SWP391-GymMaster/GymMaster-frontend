@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Camera, Search, AlertCircle, X, Keyboard, Volume2 } from "lucide-react"
+import { Camera, Search, AlertCircle, Keyboard, Volume2 } from "lucide-react"
 import { BrowserMultiFormatReader } from "@zxing/library"
 import { toast } from "sonner"
 
@@ -145,9 +145,9 @@ export function BarcodeScannerDialog({ isOpen, onClose, onDetected }: BarcodeSca
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="max-w-md rounded-3xl p-0 border border-white/20 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
-        <DialogHeader className="border-b border-border p-6 flex flex-row items-center justify-between">
-          <div>
+      <DialogContent className="gm-dialog-surface max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] gap-0 p-0 sm:max-w-[42rem]">
+        <DialogHeader className="gm-dialog-header flex-row items-start justify-between gap-4">
+          <div className="min-w-0">
             <DialogTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <Volume2 className="size-4" />
@@ -158,26 +158,18 @@ export function BarcodeScannerDialog({ isOpen, onClose, onDetected }: BarcodeSca
               Tra cứu thông tin dinh dưỡng tự động qua barcode.
             </DialogDescription>
           </div>
-          <button
-            onClick={onClose}
-            type="button"
-            className="rounded-full p-1.5 hover:bg-muted text-muted-foreground transition active:scale-95"
-            aria-label="Đóng"
-          >
-            <X className="size-5" />
-          </button>
         </DialogHeader>
 
         {/* Tab switcher */}
-        <div className="flex border-b border-border px-6 py-2 bg-muted/30">
+        <div className="mx-5 mt-4 grid grid-cols-2 gap-1 rounded-full border border-border/70 bg-[var(--surface-panel-muted)] p-1">
           <button
             type="button"
             onClick={() => setScanMode("camera")}
             className={cn(
-              "flex-1 py-2 text-xs font-bold uppercase tracking-wider border-b-2 transition flex items-center justify-center gap-2",
+              "min-h-10 rounded-full px-3 text-xs font-bold transition flex items-center justify-center gap-2 active:scale-[0.98]",
               scanMode === "camera"
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-card/50 hover:text-foreground"
             )}
           >
             <Camera className="size-4" />
@@ -187,10 +179,10 @@ export function BarcodeScannerDialog({ isOpen, onClose, onDetected }: BarcodeSca
             type="button"
             onClick={() => setScanMode("manual")}
             className={cn(
-              "flex-1 py-2 text-xs font-bold uppercase tracking-wider border-b-2 transition flex items-center justify-center gap-2",
+              "min-h-10 rounded-full px-3 text-xs font-bold transition flex items-center justify-center gap-2 active:scale-[0.98]",
               scanMode === "manual"
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-card/50 hover:text-foreground"
             )}
           >
             <Keyboard className="size-4" />
@@ -198,7 +190,7 @@ export function BarcodeScannerDialog({ isOpen, onClose, onDetected }: BarcodeSca
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="gm-dialog-body space-y-5 pt-4">
           {scanMode === "camera" && (
             <div className="space-y-4">
               {/* Video container */}
@@ -248,13 +240,13 @@ export function BarcodeScannerDialog({ isOpen, onClose, onDetected }: BarcodeSca
           {scanMode === "manual" && (
             <form onSubmit={handleManualSearch} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground" htmlFor="barcode-input">
+                <label className="gm-dialog-label" htmlFor="barcode-input">
                   Nhập mã vạch (EAN-13 / UPC)
                 </label>
                 <div className="relative flex items-center">
                   <Input
                     id="barcode-input"
-                    className="min-h-12 w-full bg-background pl-4 pr-12 text-sm text-foreground border border-border rounded-xl focus-visible:ring-primary/20 focus-visible:border-primary"
+                    className="gm-field min-h-12 w-full pl-4 pr-12 text-sm text-foreground focus-visible:ring-primary/20"
                     placeholder="Gõ mã vạch (ví dụ: 8934563138061)..."
                     value={manualBarcode}
                     onChange={(e) => setManualBarcode(e.target.value.replace(/\D/g, ""))} // Only digits
@@ -272,11 +264,11 @@ export function BarcodeScannerDialog({ isOpen, onClose, onDetected }: BarcodeSca
           )}
 
           {/* Quick Demo selection */}
-          <div className="mt-5 border-t border-border pt-4">
+          <div className="border-t border-border/70 pt-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
               Mã vạch sản phẩm mẫu (Dành cho Demo)
             </h4>
-            <div className="grid gap-2">
+            <div className="grid max-h-52 gap-2 overflow-y-auto pr-1">
               {sampleBarcodes.map((item) => (
                 <button
                   key={item.barcode}
@@ -286,7 +278,7 @@ export function BarcodeScannerDialog({ isOpen, onClose, onDetected }: BarcodeSca
                     onDetected(item.barcode)
                   }}
                   type="button"
-                  className="flex flex-col text-left p-3 rounded-xl border border-border bg-card/50 hover:bg-primary/5 hover:border-primary/40 transition active:scale-[0.99]"
+                  className="gm-interactive-card flex flex-col p-3 text-left active:scale-[0.99]"
                 >
                   <span className="font-semibold text-xs text-foreground flex justify-between items-center w-full">
                     <span>{item.name}</span>

@@ -40,10 +40,10 @@ export function BmiCalculator({ open, onOpenChange }: BmiCalculatorProps) {
 
   // 2. Classify BMI
   let bmiClass = "Bình thường";
-  let bmiColor = "text-emerald-500";
+  let bmiColor = "text-primary";
   if (bmi < 18.5) {
     bmiClass = "Thiếu cân";
-    bmiColor = "text-cyan-500";
+    bmiColor = "text-[var(--status-info)]";
   } else if (bmi >= 25 && bmi < 30) {
     bmiClass = "Thừa cân";
     bmiColor = "text-amber-500";
@@ -113,7 +113,7 @@ export function BmiCalculator({ open, onOpenChange }: BmiCalculatorProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-md max-h-[90dvh] overflow-y-auto bg-zinc-950/95 border border-white/10 text-white rounded-[2rem] p-6 shadow-2xl backdrop-blur-xl">
+      <DialogContent className="gm-dialog-surface gm-dialog-dark max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] overflow-y-auto p-6 text-white sm:max-w-[40rem]">
         <DialogHeader className="border-b border-white/5 pb-4">
           <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
             📊 Bộ đo Chỉ số Cơ thể BMI & Mỡ (Body Fat)
