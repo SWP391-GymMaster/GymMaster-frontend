@@ -2,6 +2,7 @@ import { apiRequest } from "@/lib/api/http-client"
 import type {
   CreateMemberInput,
   CreateTrainerInput,
+  CreateTrainerResult,
   CreateUserInput,
   ManagedMember,
   ManagedTrainer,
@@ -140,7 +141,7 @@ export function createManagedTrainer(
   accessToken: string,
   input: CreateTrainerInput,
 ) {
-  return apiRequest<ManagedTrainer>("/api/v1/trainers", {
+  return apiRequest<CreateTrainerResult>("/api/v1/trainers", {
     method: "POST",
     headers: authHeaders(accessToken),
     body: JSON.stringify(input),

@@ -2,6 +2,8 @@ import { fireEvent, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { AdminUsersTemplateWorkspace } from "@/features/member-management/components/AdminUsersTemplateWorkspace";
+import { mapMemberManagementError } from "@/features/member-management/utils/member-management-errors";
+import { ApiClientError } from "@/lib/api/http-client";
 import { renderWithAdminSession } from "@/tests/admin-dashboard/test-utils";
 
 describe("AdminUsersTemplateWorkspace", () => {
@@ -33,13 +35,13 @@ describe("AdminUsersTemplateWorkspace", () => {
     });
     fireEvent.click(screen.getByTestId("user-edit-submit"));
 
-    expect(await screen.findByText("Đã cập nhật thông tin người dùng")).toBeInTheDocument();
+    expect(await screen.findByText("Da cap nhat thong tin nguoi dung")).toBeInTheDocument();
     expect(
       (await screen.findAllByText("Template Fidelity Lead")).length,
     ).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByTestId("user-toggle-lock-button"));
-    expect(await screen.findByText("Đã khóa tài khoản")).toBeInTheDocument();
+    expect(await screen.findByText("Da khoa tai khoan")).toBeInTheDocument();
     expect((await screen.findAllByText("Đã khóa")).length).toBeGreaterThan(0);
 
     const securityTab = screen.getByRole("tab", { name: "Bảo mật" });
@@ -59,5 +61,42 @@ describe("AdminUsersTemplateWorkspace", () => {
     await waitFor(() => {
       expect(screen.queryAllByText("Template Fidelity Lead")).toHaveLength(0);
     });
+  });
+
+  it("limits create-user role choices to staff and admin", async () => {
+    renderWithAdminSession(<AdminUsersTemplateWorkspace />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Thêm người dùng" }));
+
+    const select = screen.getByTestId("user-create-role") as HTMLSelectElement;
+    expect(Array.from(select.options).map((option) => option.value)).toEqual([
+      "staff",
+      "admin",
+    ]);
+    expect(screen.getByText(/Man nay chi tao tai khoan van hanh/)).toBeInTheDocument();
+  });
+
+  it("keeps persona account roles read-only in the edit form", async () => {
+    renderWithAdminSession(<AdminUsersTemplateWorkspace />);
+
+    fireEvent.click(await screen.findByText("Gym Member"));
+
+    expect(screen.queryByTestId("user-edit-role")).not.toBeInTheDocument();
+    expect(await screen.findByText(/Tai khoan/)).toBeInTheDocument();
+    expect(screen.getByText(/Quan ly tai man Hoi vien/)).toBeInTheDocument();
+  });
+
+  it("maps blocked role transition errors to the role guard message", () => {
+    const result = mapMemberManagementError(
+      new ApiClientError(
+        {
+          code: "ROLE_TRANSITION_NOT_ALLOWED",
+          message: "Cannot transition role",
+        },
+        422,
+      ),
+    );
+
+    expect(result.message).toMatch(/Khong the chuyen vai tro/);
   });
 });

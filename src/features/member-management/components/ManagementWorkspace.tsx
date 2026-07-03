@@ -67,6 +67,7 @@ import {
   type CreateUserFormValues,
 } from "@/features/member-management/schemas/member-management.schemas"
 import type {
+  CreateTrainerResult,
   ManagedMember,
   ManagedTrainer,
   ManagedUser,
@@ -1484,14 +1485,14 @@ function CreateTrainerDialog() {
       <DialogTrigger asChild>
         <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]">
           <UserPlus aria-hidden="true" className="size-4" />
-          Thêm PT
+          Them PT
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-xl rounded-2xl p-0">
         <DialogHeader className="border-b border-border p-6">
-          <DialogTitle>Tạo hồ sơ PT</DialogTitle>
+          <DialogTitle>Tao ho so PT</DialogTitle>
           <DialogDescription>
-            Thêm hồ sơ huấn luyện viên và chuyên môn chính.
+            Tao tai khoan dang nhap role PT va ho so huan luyen vien trong mot buoc.
           </DialogDescription>
         </DialogHeader>
         <div className="p-6">
@@ -1564,23 +1565,22 @@ function CreateUserPanel({
             {...register("role")}
           >
             <option value="staff">Lễ tân</option>
-            <option value="pt">PT</option>
-            <option value="member">Hội viên</option>
+            <option value="admin">Quan tri vien</option>
           </select>
 
           <Select
             value={watch("role")}
-            onValueChange={(val: string) => setValue("role", val as "staff" | "pt" | "member", { shouldValidate: true })}
+            onValueChange={(val: string) => setValue("role", val as "staff" | "admin", { shouldValidate: true })}
           >
             <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
               <SelectValue placeholder="Chọn vai trò" />
             </SelectTrigger>
             <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
               <SelectItem value="staff" className="focus:bg-white/5 focus:text-white">Lễ tân</SelectItem>
-              <SelectItem value="pt" className="focus:bg-white/5 focus:text-white">PT</SelectItem>
-              <SelectItem value="member" className="focus:bg-white/5 focus:text-white">Hội viên</SelectItem>
+              <SelectItem value="admin" className="focus:bg-white/5 focus:text-white">Quan tri vien</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-xs leading-5 text-muted-foreground">Man nay chi tao tai khoan van hanh (Le tan/Quan tri vien). Hoi vien tao o man Hoi vien, PT tao o man Huan luyen vien.</p>
         </Field>
       ) : null}
       <Field error={errors.password?.message} label="Mật khẩu">
@@ -1596,6 +1596,8 @@ function CreateUserPanel({
 
 function CreateTrainerPanel({ onCreated }: { onCreated?: () => void }) {
   const createTrainer = useCreateManagedTrainer()
+  const [showLinkExisting, setShowLinkExisting] = useState(false)
+  const [createdTrainer, setCreatedTrainer] = useState<CreateTrainerResult | null>(null)
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
@@ -1604,40 +1606,159 @@ function CreateTrainerPanel({ onCreated }: { onCreated?: () => void }) {
   } = useForm<CreateTrainerFormValues>({
     resolver: zodResolver(createTrainerSchema),
     defaultValues: {
+      bio: "",
+      dateOfBirth: "",
+      email: "",
       fullName: "",
+      gender: "",
+      password: "",
+      phone: "",
       specialty: "",
+      userId: "",
+      yearsOfExperience: "",
     },
   })
 
+  function resetForAnotherTrainer() {
+    reset({
+      bio: "",
+      dateOfBirth: "",
+      email: "",
+      fullName: "",
+      gender: "",
+      password: "",
+      phone: "",
+      specialty: "",
+      userId: "",
+      yearsOfExperience: "",
+    })
+    setShowLinkExisting(false)
+    setCreatedTrainer(null)
+  }
+
   async function onSubmit(values: CreateTrainerFormValues) {
+    const userId = values.userId?.trim()
+    const yearsOfExperience = values.yearsOfExperience?.trim()
+    const input = userId
+      ? {
+          specialty: values.specialty.trim(),
+          bio: values.bio?.trim() || undefined,
+          gender: values.gender?.trim() || undefined,
+          dateOfBirth: values.dateOfBirth || undefined,
+          yearsOfExperience: yearsOfExperience ? Number(yearsOfExperience) : undefined,
+          userId: Number(userId),
+        }
+      : {
+          fullName: values.fullName?.trim() || undefined,
+          email: values.email?.trim() || undefined,
+          phone: values.phone?.trim() || undefined,
+          password: values.password || undefined,
+          specialty: values.specialty.trim(),
+          bio: values.bio?.trim() || undefined,
+          gender: values.gender?.trim() || undefined,
+          dateOfBirth: values.dateOfBirth || undefined,
+          yearsOfExperience: yearsOfExperience ? Number(yearsOfExperience) : undefined,
+        }
+
     try {
-      await createTrainer.mutateAsync({
-        fullName: values.fullName,
-        specialty: values.specialty,
-        userId: values.userId ? Number(values.userId) : undefined,
-      })
-      reset()
-      toast.success("Đã tạo hồ sơ PT")
+      const result = await createTrainer.mutateAsync(input)
+      if (result.initialPassword) {
+        setCreatedTrainer(result)
+        return
+      }
+
+      resetForAnotherTrainer()
+      toast.success("Da tao ho so PT")
       onCreated?.()
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
   }
 
+  if (createdTrainer?.initialPassword) {
+    return (
+      <div className="grid gap-5">
+        <div className="rounded-xl border border-primary/20 bg-primary/10 p-4">
+          <h3 className="text-lg font-semibold text-foreground">Da tao tai khoan PT</h3>
+          <p className="mt-2 text-sm text-muted-foreground">Email: {createdTrainer.trainer.email}</p>
+          <p className="mt-3 rounded-lg border border-primary/20 bg-background px-3 py-2 font-mono text-sm font-semibold text-foreground">
+            Mat khau tam thoi: {createdTrainer.initialPassword}
+          </p>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Gui mat khau nay cho PT va nhac ho doi mat khau sau lan dang nhap dau.
+          </p>
+        </div>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <Button className="rounded-xl" onClick={resetForAnotherTrainer} type="button" variant="outline">
+            Tao PT khac
+          </Button>
+          <Button className="rounded-xl bg-primary text-primary-foreground" onClick={onCreated} type="button">
+            Dong
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <Field error={errors.fullName?.message} label="Họ và tên">
-        <Input className={inputClass} data-testid="trainer-create-name" {...register("fullName")} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field error={errors.fullName?.message} label="Ho va ten">
+          <Input className={inputClass} data-testid="trainer-create-name" {...register("fullName")} />
+        </Field>
+        <Field error={errors.email?.message} label="Email">
+          <Input className={inputClass} data-testid="trainer-create-email" type="email" {...register("email")} />
+        </Field>
+        <Field label="So dien thoai">
+          <Input className={inputClass} {...register("phone")} />
+        </Field>
+        <Field error={errors.password?.message} label="Mat khau">
+          <Input className={inputClass} placeholder="De trong de su dung mat khau tam thoi" type="password" {...register("password")} />
+        </Field>
+        <Field error={errors.specialty?.message} label="Chuyen mon">
+          <Input className={inputClass} data-testid="trainer-create-specialty" {...register("specialty")} />
+        </Field>
+        <Field label="Gioi tinh">
+          <Input className={inputClass} placeholder="Nam/Nu" {...register("gender")} />
+        </Field>
+        <Field label="Ngay sinh">
+          <Input className={inputClass} type="date" {...register("dateOfBirth")} />
+        </Field>
+        <Field error={errors.yearsOfExperience?.message} label="So nam kinh nghiem">
+          <Input className={inputClass} min={0} type="number" {...register("yearsOfExperience")} />
+        </Field>
+      </div>
+
+      <Field label="Gioi thieu">
+        <textarea
+          className="gm-field min-h-24 w-full resize-none px-3 py-2 text-sm text-foreground transition placeholder:text-muted-foreground"
+          {...register("bio")}
+        />
       </Field>
-      <Field error={errors.specialty?.message} label="Chuyên môn">
-        <Input className={inputClass} data-testid="trainer-create-specialty" {...register("specialty")} />
-      </Field>
-      <Field label="ID người dùng liên kết">
-        <Input className={inputClass} type="number" {...register("userId")} />
-      </Field>
+
+      <div className="rounded-xl border border-border p-4">
+        <button
+          className="text-sm font-semibold text-primary"
+          onClick={() => setShowLinkExisting((value) => !value)}
+          type="button"
+        >
+          Lien ket tai khoan PT co san
+        </button>
+        {showLinkExisting ? (
+          <div className="mt-4 grid gap-2">
+            <Field label="ID nguoi dung">
+              <Input className={inputClass} type="number" {...register("userId")} />
+            </Field>
+            <p className="text-xs leading-5 text-muted-foreground">
+              Chi dung khi tai khoan role PT da ton tai tu truoc.
+            </p>
+          </div>
+        ) : null}
+      </div>
+
       <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="trainer-create-submit" disabled={isSubmitting || createTrainer.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
-        Tạo hồ sơ PT
+        Tao ho so PT
       </Button>
     </form>
   )

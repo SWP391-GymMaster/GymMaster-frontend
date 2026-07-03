@@ -68,7 +68,7 @@ import type { ManagedUser } from "@/features/member-management/types/member-mana
 import { mapMemberManagementError } from "@/features/member-management/utils/member-management-errors"
 import { cn } from "@/lib/utils"
 
-const roles = ["staff", "pt", "member"] as const
+const roles = ["staff", "admin"] as const
 
 function initials(name: string) {
   return name
@@ -85,6 +85,10 @@ function roleLabel(role: ManagedUser["role"]) {
   if (role === "member") return "Hội viên"
   if (role === "admin") return "Quản trị viên"
   return role
+}
+
+function isOperationalRole(role: ManagedUser["role"]): role is "staff" | "admin" {
+  return role === "staff" || role === "admin"
 }
 
 function toStatus(status: ManagedUser["status"]) {
@@ -453,7 +457,7 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
 
           <Select
             value={watch("role")}
-            onValueChange={(val: string) => setValue("role", val as "staff" | "pt" | "member", { shouldValidate: true })}
+            onValueChange={(val: string) => setValue("role", val as "staff" | "admin", { shouldValidate: true })}
           >
             <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
               <SelectValue placeholder="Chọn vai trò" />
@@ -466,6 +470,7 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
               ))}
             </SelectContent>
           </Select>
+          <p className="text-xs leading-5 text-muted-foreground">Man nay chi tao tai khoan van hanh (Le tan/Quan tri vien). Hoi vien tao o man Hoi vien, PT tao o man Huan luyen vien.</p>
         </Field>
       </div>
 
@@ -735,6 +740,10 @@ function UserDetailHeader({ user }: { user: ManagedUser }) {
 function UserProfileForm({ user }: { user: ManagedUser }) {
   const updateUser = useUpdateManagedUser()
   const updateStatus = useUpdateManagedUserStatus()
+  const editableRole: "staff" | "admin" | undefined = isOperationalRole(user.role)
+    ? user.role
+    : undefined
+  const canEditRole = Boolean(editableRole)
 
   const {
     formState: { errors, isSubmitting },
@@ -749,18 +758,22 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
       email: user.email,
       fullName: user.fullName,
       phone: user.phone ?? "",
-      role: user.role === "admin" ? "staff" : user.role,
+      role: editableRole,
     },
   })
 
   useEffect(() => {
+    const nextEditableRole: "staff" | "admin" | undefined = isOperationalRole(user.role)
+      ? user.role
+      : undefined
+
     reset({
       email: user.email,
       fullName: user.fullName,
       phone: user.phone ?? "",
-      role: user.role === "admin" ? "staff" : user.role,
+      role: nextEditableRole,
     })
-  }, [reset, user.userId])
+  }, [reset, user.email, user.fullName, user.phone, user.role, user.userId])
 
   async function onSubmit(values: UpdateUserFormValues) {
     try {
@@ -770,10 +783,10 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
           email: values.email,
           fullName: values.fullName,
           phone: values.phone || undefined,
-          role: user.role === "admin" ? undefined : values.role,
+          role: canEditRole ? values.role : undefined,
         },
       })
-      toast.success("Đã cập nhật thông tin người dùng")
+      toast.success("Da cap nhat thong tin nguoi dung")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -785,7 +798,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
         userId: user.userId,
         input: { status: user.status === "locked" ? "active" : "locked" },
       })
-      toast.success(user.status === "locked" ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản")
+      toast.success(user.status === "locked" ? "Da mo khoa tai khoan" : "Da khoa tai khoan")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -794,7 +807,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
   return (
     <form className="flex h-full flex-col p-6" onSubmit={handleSubmit(onSubmit)}>
       <div className="grid gap-5 lg:grid-cols-2">
-        <Field error={errors.fullName?.message} label="Họ và tên">
+        <Field error={errors.fullName?.message} label="Ho va ten">
           <Input
             className={inputClass}
             data-testid="user-edit-name"
@@ -802,37 +815,50 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
           />
         </Field>
 
-        <Field error={errors.role?.message} label="Vai trò">
-          {/* Visually hidden native select for Playwright test compatibility & React Hook Form registration */}
-          <select
-            className="sr-only"
-            data-testid="user-edit-role"
-            disabled={user.role === "admin"}
-            {...register("role")}
-          >
-            {roles.map((role) => (
-              <option key={role} value={role}>
-                {roleLabel(role)}
-              </option>
-            ))}
-          </select>
+        <Field error={errors.role?.message} label="Vai tro">
+          {canEditRole ? (
+            <>
+              <select
+                className="sr-only"
+                data-testid="user-edit-role"
+                {...register("role")}
+              >
+                {roles.map((role) => (
+                  <option key={role} value={role}>
+                    {roleLabel(role)}
+                  </option>
+                ))}
+              </select>
 
-          <Select
-            value={watch("role")}
-            onValueChange={(val: string) => setValue("role", val as "staff" | "pt" | "member", { shouldValidate: true })}
-            disabled={user.role === "admin"}
-          >
-            <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground">
-              <SelectValue placeholder="Chọn vai trò" />
-            </SelectTrigger>
-            <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
-              {roles.map((role) => (
-                <SelectItem key={role} value={role} className="focus:bg-white/5 focus:text-white">
-                  {roleLabel(role)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              <Select
+                value={watch("role")}
+                onValueChange={(val: string) => setValue("role", val as "staff" | "admin", { shouldValidate: true })}
+              >
+                <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground">
+                  <SelectValue placeholder="Chon vai tro" />
+                </SelectTrigger>
+                <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
+                  {roles.map((role) => (
+                    <SelectItem key={role} value={role} className="focus:bg-white/5 focus:text-white">
+                      {roleLabel(role)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          ) : (
+            <div className="rounded-xl border border-border bg-muted/30 p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <RoleBadge role={user.role} />
+                <span className="text-sm font-semibold text-foreground">
+                  Tai khoan {roleLabel(user.role)}
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                Quan ly tai man {user.role === "member" ? "Hoi vien" : "Huan luyen vien"}, khong doi vai tro tai day.
+              </p>
+            </div>
+          )}
         </Field>
 
         <Field error={errors.email?.message} label="Email">
@@ -844,7 +870,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
           />
         </Field>
 
-        <Field label="Số điện thoại">
+        <Field label="So dien thoai">
           <Input
             className={inputClass}
             data-testid="user-edit-phone"
@@ -852,15 +878,15 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
           />
         </Field>
 
-        <Field label="Trạng thái">
+        <Field label="Trang thai">
           <Input
             className={inputClass}
             readOnly
-            value={user.status === "active" ? "Đang hoạt động" : "Đã khóa"}
+            value={user.status === "active" ? "Dang hoat dong" : "Da khoa"}
           />
         </Field>
 
-        <Field label="Mã tài khoản">
+        <Field label="Ma tai khoan">
           <Input
             className={inputClass}
             readOnly
@@ -888,7 +914,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
           ) : (
             <Lock aria-hidden="true" className="size-4" />
           )}
-          {user.status === "locked" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+          {user.status === "locked" ? "Mo khoa tai khoan" : "Khoa tai khoan"}
         </Button>
 
         <div className="flex flex-col-reverse gap-3 sm:flex-row">
@@ -899,13 +925,13 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
                 email: user.email,
                 fullName: user.fullName,
                 phone: user.phone ?? "",
-                role: user.role === "admin" ? "staff" : user.role,
+                role: isOperationalRole(user.role) ? user.role : undefined,
               })
             }
             type="button"
             variant="outline"
           >
-            Hủy
+            Huy
           </Button>
 
           <Button
@@ -914,7 +940,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
             disabled={isSubmitting || updateUser.isPending}
             type="submit"
           >
-            Lưu thay đổi
+            Luu thay doi
           </Button>
         </div>
       </div>

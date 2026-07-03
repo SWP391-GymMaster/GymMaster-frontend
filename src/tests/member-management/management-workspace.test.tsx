@@ -89,15 +89,19 @@ describe("ManagementWorkspace", () => {
     expect((await screen.findAllByText("Coach PT")).length).toBeGreaterThan(0)
     expect(screen.getAllByText("Danh sách PT").length).toBeGreaterThan(0)
 
-    fireEvent.click(screen.getByRole("button", { name: "Thêm PT" }))
+    fireEvent.click(screen.getByRole("button", { name: "Them PT" }))
     fireEvent.change(screen.getByTestId("trainer-create-name"), {
       target: { value: "Template Trainer Component" },
+    })
+    fireEvent.change(screen.getByTestId("trainer-create-email"), {
+      target: { value: "template-trainer-component@gymmaster.local" },
     })
     fireEvent.change(screen.getByTestId("trainer-create-specialty"), {
       target: { value: "Corrective Strength" },
     })
     fireEvent.click(screen.getByTestId("trainer-create-submit"))
 
-    expect(await screen.findByText("Template Trainer Component")).toBeInTheDocument()
+    expect(await screen.findByText("Da tao tai khoan PT")).toBeInTheDocument()
+    expect(await screen.findByText(/Mat khau tam thoi:/)).toBeInTheDocument()
   })
 })
