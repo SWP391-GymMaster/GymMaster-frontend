@@ -16,6 +16,7 @@ import {
   Settings,
   Sun,
   Moon,
+  UserCog,
   UserRound,
 } from "lucide-react";
 
@@ -296,15 +297,13 @@ export function WorkspaceShell({
                   </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {role !== "member" ? (
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onSelect={() => setIsAccountOpen(true)}
-                  >
-                    <UserRound aria-hidden="true" className="size-4" />
-                    <span>Tài khoản của tôi</span>
-                  </DropdownMenuItem>
-                ) : null}
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={() => setIsAccountOpen(true)}
+                >
+                  <UserCog aria-hidden="true" className="size-4" />
+                  <span>Tài khoản của tôi</span>
+                </DropdownMenuItem>
                 {role === "member" ? (
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/member/profile">
@@ -426,9 +425,7 @@ export function WorkspaceShell({
         onClose={() => setIsNotificationsOpen(false)}
       />
       <SettingsDialog open={isSettingsOpen} onOpenChange={setSettingsOpen} />
-      {role !== "member" ? (
-        <AccountDialog open={isAccountOpen} onOpenChange={setIsAccountOpen} />
-      ) : null}
+      <AccountDialog open={isAccountOpen} onOpenChange={setIsAccountOpen} />
       <RestTimerOverlay />
       <ShortcutsHelpOverlay />
     </main>

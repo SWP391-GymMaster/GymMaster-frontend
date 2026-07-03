@@ -159,7 +159,7 @@ describe("AccountDialog", () => {
     resetAuthSessionForTest()
   })
 
-  it.each(["admin", "staff", "pt"] as const)(
+  it.each(["admin", "staff", "pt", "member"] as const)(
     "opens from the workspace user menu for %s",
     async (role) => {
       renderShell(role)
@@ -171,6 +171,54 @@ describe("AccountDialog", () => {
       ).toBeInTheDocument()
     },
   )
+
+  it("shows the member profile section with a full profile link", async () => {
+    renderAccountDialog("member")
+
+    expect(await screen.findByText("Hồ sơ hội viên")).toBeInTheDocument()
+    expect(await screen.findByText("GM-101")).toBeInTheDocument()
+    expect(
+      screen.getByRole("link", { name: /Mở hồ sơ đầy đủ/i }),
+    ).toHaveAttribute("href", "/member/profile")
+    expect(screen.queryByText("Hồ sơ chuyên môn")).not.toBeInTheDocument()
+  })
+
+  it("shows the PT professional profile and admin-managed note", async () => {
+    renderAccountDialog("pt")
+
+    expect(await screen.findByText("Hồ sơ chuyên môn")).toBeInTheDocument()
+    expect(await screen.findByText("Strength and conditioning")).toBeInTheDocument()
+    expect(screen.getByText("5 năm")).toBeInTheDocument()
+    expect(
+      screen.getByText("Do quản trị viên quản lý — liên hệ admin để cập nhật."),
+    ).toBeInTheDocument()
+    expect(screen.queryByText("Hồ sơ hội viên")).not.toBeInTheDocument()
+  })
+
+  it("shows the PT missing-profile state when trainer profile is not found", async () => {
+    server.use(
+      http.get("/api/v1/trainers/me", () =>
+        fail(
+          "NOT_FOUND",
+          "Khong tim thay ho so huan luyen vien.",
+          404,
+        ),
+      ),
+    )
+
+    renderAccountDialog("pt")
+
+    expect(
+      await screen.findByText("Chưa có hồ sơ chuyên môn — liên hệ quản trị viên."),
+    ).toBeInTheDocument()
+  })
+
+  it("does not show role-specific account sections for staff", () => {
+    renderAccountDialog("staff")
+
+    expect(screen.queryByText("Hồ sơ hội viên")).not.toBeInTheDocument()
+    expect(screen.queryByText("Hồ sơ chuyên môn")).not.toBeInTheDocument()
+  })
 
   it("maps DUPLICATE phone conflicts to the phone field", async () => {
     server.use(

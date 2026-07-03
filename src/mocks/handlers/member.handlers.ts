@@ -329,6 +329,25 @@ export const memberHandlers = [
 
     return noContent()
   }),
+  http.get("/api/v1/trainers/me", ({ request }) => {
+    const role = requireRole(request, ["pt"])
+    if (typeof role !== "string") return role
+
+    const account = userAccounts.find((item) => item.role === "pt")
+    const trainer = trainers.find(
+      (item) => item.userId === account?.userId && item.status !== "locked",
+    )
+
+    if (!trainer) {
+      return fail(
+        "NOT_FOUND",
+        "Khong tim thay ho so huan luyen vien.",
+        404,
+      )
+    }
+
+    return ok(toPascalTrainerResponse(trainer))
+  }),
   http.get("/api/v1/trainers", ({ request }) => {
     const role = requireRole(request, ["admin"])
     if (typeof role !== "string") return role
@@ -403,5 +422,23 @@ function toPascalMemberResponse(member: (typeof members)[number]) {
     JoinedAt: "2026-06-01T00:00:00.000Z",
     Status: "active",
     CreatedAt: "2026-06-01T00:00:00.000Z",
+  }
+}
+
+function toPascalTrainerResponse(trainer: (typeof trainers)[number]) {
+  const account = userAccounts.find((item) => item.userId === trainer.userId)
+
+  return {
+    Id: trainer.id,
+    UserId: trainer.userId,
+    Email: trainer.email ?? account?.email ?? "",
+    FullName: trainer.fullName,
+    Status: trainer.status,
+    Specialty: trainer.specialty ?? null,
+    Bio: trainer.bio ?? null,
+    Gender: trainer.gender ?? null,
+    DateOfBirth: trainer.dateOfBirth ?? null,
+    YearsOfExperience: trainer.yearsOfExperience ?? null,
+    CreatedAt: trainer.createdAt ?? "2026-05-01T00:00:00.000Z",
   }
 }

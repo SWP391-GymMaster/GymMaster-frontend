@@ -96,7 +96,7 @@ describe("WorkspaceShell", () => {
   })
 
   it.each(["admin", "staff", "pt"] as const)(
-    "shows the account identity item for %s",
+    "shows only the account identity item for %s",
     async (role) => {
       renderShell(role)
 
@@ -114,17 +114,17 @@ describe("WorkspaceShell", () => {
     },
   )
 
-  it("shows the profile identity item for members only", async () => {
+  it("shows account and profile identity items for members", async () => {
     renderShell("member")
 
     openUserMenu()
 
     expect(
-      await screen.findByRole("menuitem", { name: /Hồ sơ của tôi/i }),
-    ).toHaveAttribute("href", "/member/profile")
+      await screen.findByRole("menuitem", { name: /Tài khoản của tôi/i }),
+    ).toBeInTheDocument()
     expect(
-      screen.queryByRole("menuitem", { name: /Tài khoản của tôi/i }),
-    ).not.toBeInTheDocument()
+      screen.getByRole("menuitem", { name: /Hồ sơ của tôi/i }),
+    ).toHaveAttribute("href", "/member/profile")
     expect(
       screen.getByRole("menuitem", { name: /Cấu hình giao diện/i }),
     ).toBeInTheDocument()

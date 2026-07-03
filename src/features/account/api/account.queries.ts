@@ -1,9 +1,10 @@
 "use client"
 
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import {
+  getMyTrainerProfile,
   postMyAvatar,
   putMyAccount,
   type UpdateMyAccountInput,
@@ -14,6 +15,11 @@ import { memberProfileKeys } from "@/features/member-profile/api/member-profile.
 import type { MyProfile } from "@/features/member-profile/types/member-profile.types"
 import { ApiClientError } from "@/lib/api/http-client"
 import type { AuthUser } from "@/types/auth"
+
+export const accountKeys = {
+  all: ["account"] as const,
+  trainerMe: () => [...accountKeys.all, "trainer-me"] as const,
+}
 
 function useAccessToken() {
   return useAuthSessionStore((state) => state.session?.accessToken)
@@ -119,5 +125,16 @@ export function useUploadMyAvatar() {
           : "Không tải được ảnh đại diện. Vui lòng thử lại.",
       )
     },
+  })
+}
+
+export function useMyTrainerProfile(options?: { enabled?: boolean }) {
+  const accessToken = useAccessToken()
+
+  return useQuery({
+    queryKey: accountKeys.trainerMe(),
+    queryFn: () => getMyTrainerProfile(accessToken ?? ""),
+    enabled: Boolean(accessToken) && (options?.enabled ?? true),
+    retry: false,
   })
 }

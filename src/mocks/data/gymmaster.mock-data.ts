@@ -62,7 +62,13 @@ export type MockTrainer = {
   id: number
   userId: number
   fullName: string
+  email?: string
   specialty: string
+  bio?: string | null
+  gender?: string | null
+  dateOfBirth?: string | null
+  yearsOfExperience?: number | null
+  createdAt?: string
   status: "active" | "locked"
 }
 
@@ -242,7 +248,13 @@ export const trainers: MockTrainer[] = [
     id: 301,
     userId: 3,
     fullName: "Coach PT",
+    email: "pt@gymmaster.local",
     specialty: "Strength and conditioning",
+    bio: "Huấn luyện sức mạnh, kỹ thuật compound lift và kế hoạch tiến bộ an toàn.",
+    gender: "male",
+    dateOfBirth: "1994-05-12T00:00:00.000Z",
+    yearsOfExperience: 5,
+    createdAt: "2026-05-01T00:00:00.000Z",
     status: "active",
   },
   {

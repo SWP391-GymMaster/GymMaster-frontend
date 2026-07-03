@@ -10,6 +10,45 @@ export type UpdateMyAccountInput = Partial<{
   phone: string | null
 }>
 
+export type MyTrainerProfile = {
+  id: number
+  userId: number
+  email: string
+  fullName: string
+  status: string
+  specialty: string | null
+  bio: string | null
+  gender: string | null
+  dateOfBirth: string | null
+  yearsOfExperience: number | null
+  createdAt: string
+}
+
+type RawTrainerProfile = {
+  Id?: number
+  id?: number
+  UserId?: number
+  userId?: number
+  Email?: string
+  email?: string
+  FullName?: string
+  fullName?: string
+  Status?: string
+  status?: string
+  Specialty?: string | null
+  specialty?: string | null
+  Bio?: string | null
+  bio?: string | null
+  Gender?: string | null
+  gender?: string | null
+  DateOfBirth?: string | null
+  dateOfBirth?: string | null
+  YearsOfExperience?: number | null
+  yearsOfExperience?: number | null
+  CreatedAt?: string
+  createdAt?: string
+}
+
 function authHeaders(accessToken: string) {
   return {
     Authorization: `Bearer ${accessToken}`,
@@ -30,6 +69,22 @@ function toUpdatePayload(input: UpdateMyAccountInput) {
   return payload
 }
 
+function normalizeTrainerProfile(raw: RawTrainerProfile): MyTrainerProfile {
+  return {
+    id: raw.Id ?? raw.id ?? 0,
+    userId: raw.UserId ?? raw.userId ?? 0,
+    email: raw.Email ?? raw.email ?? "",
+    fullName: raw.FullName ?? raw.fullName ?? "",
+    status: raw.Status ?? raw.status ?? "",
+    specialty: raw.Specialty ?? raw.specialty ?? null,
+    bio: raw.Bio ?? raw.bio ?? null,
+    gender: raw.Gender ?? raw.gender ?? null,
+    dateOfBirth: raw.DateOfBirth ?? raw.dateOfBirth ?? null,
+    yearsOfExperience: raw.YearsOfExperience ?? raw.yearsOfExperience ?? null,
+    createdAt: raw.CreatedAt ?? raw.createdAt ?? "",
+  }
+}
+
 export async function putMyAccount(
   accessToken: string,
   input: UpdateMyAccountInput,
@@ -41,6 +96,16 @@ export async function putMyAccount(
   })
 
   return normalizeAuthUser(raw)
+}
+
+export async function getMyTrainerProfile(
+  accessToken: string,
+): Promise<MyTrainerProfile> {
+  const raw = await apiRequest<RawTrainerProfile>("/api/v1/trainers/me", {
+    headers: authHeaders(accessToken),
+  })
+
+  return normalizeTrainerProfile(raw)
 }
 
 export async function postMyAvatar(

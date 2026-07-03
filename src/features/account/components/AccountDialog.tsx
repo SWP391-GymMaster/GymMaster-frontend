@@ -3,7 +3,16 @@
 import Link from "next/link"
 import { useEffect, useState, type ReactNode } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { BadgeCheck, Hash, KeyRound, Mail, Save, ShieldCheck } from "lucide-react"
+import {
+  BadgeCheck,
+  BriefcaseBusiness,
+  CalendarDays,
+  Hash,
+  KeyRound,
+  Mail,
+  Save,
+  ShieldCheck,
+} from "lucide-react"
 import { useForm, useWatch, type FieldErrors } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
@@ -17,14 +26,20 @@ import {
 import { Input } from "@/components/ui/input"
 import { RoleBadge } from "@/components/data/RoleBadge"
 import { StatusPill, type Status } from "@/components/data/StatusPill"
-import { useUpdateMyAccount } from "@/features/account/api/account.queries"
+import {
+  useMyTrainerProfile,
+  useUpdateMyAccount,
+} from "@/features/account/api/account.queries"
 import { AccountAvatarUploader } from "@/features/account/components/AccountAvatarUploader"
 import {
   accountSchema,
   type AccountFormValues,
 } from "@/features/account/schemas/account.schema"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
+import { useMyProfile } from "@/features/member-profile/api/member-profile.queries"
 import { ApiClientError } from "@/lib/api/http-client"
+import { formatVnDate } from "@/lib/date/vn-time"
+import type { UserRole } from "@/types/auth"
 
 type AccountDialogProps = {
   open: boolean
@@ -33,6 +48,8 @@ type AccountDialogProps = {
 
 const inputClassName =
   "min-h-11 rounded-2xl border-border bg-background px-3 text-sm text-foreground"
+
+const emptyValue = "Chưa cập nhật"
 
 function ReadOnlyRow({
   icon: Icon,
@@ -54,6 +71,218 @@ function ReadOnlyRow({
       </span>
     </div>
   )
+}
+
+function RoleDetailRow({
+  label,
+  multiline,
+  value,
+}: {
+  label: string
+  multiline?: boolean
+  value: ReactNode
+}) {
+  return (
+    <div
+      className={
+        multiline
+          ? "grid gap-1.5 py-2.5"
+          : "flex items-center justify-between gap-3 py-2.5"
+      }
+    >
+      <span className="text-xs font-medium text-muted-foreground">
+        {label}
+      </span>
+      <span
+        className={
+          multiline
+            ? "text-sm leading-6 text-foreground"
+            : "min-w-0 truncate text-right text-sm font-medium text-foreground"
+        }
+      >
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function SectionStateLine({ children }: { children: ReactNode }) {
+  return (
+    <p className="mt-3 rounded-2xl border border-border bg-[var(--surface-panel-muted)] px-4 py-3 text-sm text-muted-foreground">
+      {children}
+    </p>
+  )
+}
+
+function displayText(value?: string | null) {
+  const trimmed = value?.trim() ?? ""
+
+  return trimmed.length > 0 ? trimmed : emptyValue
+}
+
+function formatRoleDate(value?: string | null) {
+  if (!value) {
+    return emptyValue
+  }
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return emptyValue
+  }
+
+  return formatVnDate(date, {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+}
+
+function formatGender(value?: string | null) {
+  const normalized = value?.trim().toLowerCase()
+
+  if (!normalized) {
+    return emptyValue
+  }
+
+  if (normalized === "male" || normalized === "nam") {
+    return "Nam"
+  }
+
+  if (normalized === "female" || normalized === "nu" || normalized === "nữ") {
+    return "Nữ"
+  }
+
+  if (normalized === "other" || normalized === "khac" || normalized === "khác") {
+    return "Khác"
+  }
+
+  return value ?? emptyValue
+}
+
+function formatExperience(value?: number | null) {
+  return value == null ? emptyValue : `${value} năm`
+}
+
+function AccountRoleSection({
+  open,
+  role,
+}: {
+  open: boolean
+  role: UserRole | null
+}) {
+  const memberProfileQuery = useMyProfile({
+    enabled: open && role === "member",
+  })
+  const trainerProfileQuery = useMyTrainerProfile({
+    enabled: open && role === "pt",
+  })
+
+  if (role === "member") {
+    const profile = memberProfileQuery.data
+
+    return (
+      <section className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+              Hồ sơ hội viên
+            </p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Dữ liệu hội viên do hồ sơ đầy đủ quản lý, không lặp lại biểu mẫu tại đây.
+            </p>
+          </div>
+          <Button
+            asChild
+            className="min-h-9 rounded-full active:scale-[0.98]"
+            size="sm"
+            variant="outline"
+          >
+            <Link href="/member/profile">Mở hồ sơ đầy đủ</Link>
+          </Button>
+        </div>
+
+        {memberProfileQuery.isLoading ? (
+          <SectionStateLine>Đang tải hồ sơ hội viên...</SectionStateLine>
+        ) : memberProfileQuery.isError ? (
+          <SectionStateLine>Chưa tải được hồ sơ hội viên.</SectionStateLine>
+        ) : (
+          <div className="mt-3 divide-y divide-border">
+            <ReadOnlyRow icon={Hash} label="Mã hội viên">
+              {profile?.memberCode || emptyValue}
+            </ReadOnlyRow>
+            <ReadOnlyRow icon={CalendarDays} label="Ngày tham gia">
+              {formatRoleDate(profile?.joinedAt)}
+            </ReadOnlyRow>
+          </div>
+        )}
+      </section>
+    )
+  }
+
+  if (role === "pt") {
+    const profile = trainerProfileQuery.data
+    const isNotFound =
+      trainerProfileQuery.error instanceof ApiClientError &&
+      trainerProfileQuery.error.code === "NOT_FOUND"
+
+    return (
+      <section className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+            <BriefcaseBusiness aria-hidden="true" className="size-4" />
+          </span>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+              Hồ sơ chuyên môn
+            </p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Thông tin nghề nghiệp được đồng bộ từ hồ sơ PT do quản trị viên quản lý.
+            </p>
+          </div>
+        </div>
+
+        {trainerProfileQuery.isLoading ? (
+          <SectionStateLine>Đang tải hồ sơ chuyên môn...</SectionStateLine>
+        ) : isNotFound ? (
+          <SectionStateLine>
+            Chưa có hồ sơ chuyên môn — liên hệ quản trị viên.
+          </SectionStateLine>
+        ) : trainerProfileQuery.isError ? (
+          <SectionStateLine>Chưa tải được hồ sơ chuyên môn.</SectionStateLine>
+        ) : (
+          <div className="mt-3 divide-y divide-border">
+            <RoleDetailRow
+              label="Chuyên môn"
+              value={displayText(profile?.specialty)}
+            />
+            <RoleDetailRow
+              label="Kinh nghiệm"
+              value={formatExperience(profile?.yearsOfExperience)}
+            />
+            <RoleDetailRow
+              label="Ngày sinh"
+              value={formatRoleDate(profile?.dateOfBirth)}
+            />
+            <RoleDetailRow
+              label="Giới tính"
+              value={formatGender(profile?.gender)}
+            />
+            <RoleDetailRow
+              label="Bio"
+              multiline
+              value={displayText(profile?.bio)}
+            />
+          </div>
+        )}
+
+        <p className="mt-3 text-xs text-muted-foreground">
+          Do quản trị viên quản lý — liên hệ admin để cập nhật.
+        </p>
+      </section>
+    )
+  }
+
+  return null
 }
 
 function FormErrorSummary({
@@ -254,6 +483,8 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
                 Email và trạng thái do hệ thống quản lý, không thể tự chỉnh sửa.
               </p>
             </div>
+
+            <AccountRoleSection open={open} role={role} />
 
             {/* Bảo mật: gợi ý Google thu gọn + nút đổi mật khẩu */}
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-border bg-[var(--surface-panel-muted)] px-4 py-3">

@@ -41,7 +41,7 @@ function syncMemberProfileId(profile: MyProfile) {
   }
 }
 
-export function useMyProfile() {
+export function useMyProfile(options?: { enabled?: boolean }) {
   const accessToken = useAccessToken()
 
   return useQuery({
@@ -51,7 +51,7 @@ export function useMyProfile() {
       syncMemberProfileId(profile)
       return profile
     },
-    enabled: Boolean(accessToken),
+    enabled: Boolean(accessToken) && (options?.enabled ?? true),
   })
 }
 
