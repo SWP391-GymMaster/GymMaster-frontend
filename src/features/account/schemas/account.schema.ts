@@ -13,4 +13,22 @@ export const accountSchema = z.object({
     }),
 })
 
+const today = new Date()
+today.setHours(0, 0, 0, 0)
+
+export const accountPersonalProfileSchema = z.object({
+  dateOfBirth: z
+    .string()
+    .optional()
+    .refine((value) => {
+      if (!value) return true
+      const date = new Date(value)
+      return !Number.isNaN(date.getTime()) && date <= today
+    }, "Ngày sinh không được ở tương lai."),
+  gender: z.enum(["", "male", "female", "other"]).optional(),
+  address: z.string().trim().optional(),
+  emergencyContact: z.string().trim().optional(),
+})
+
 export type AccountFormValues = z.infer<typeof accountSchema>
+export type AccountPersonalProfileFormValues = z.infer<typeof accountPersonalProfileSchema>

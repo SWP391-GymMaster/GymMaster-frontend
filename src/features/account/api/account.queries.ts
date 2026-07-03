@@ -4,9 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import {
+  getMyPersonalProfile,
   getMyTrainerProfile,
   postMyAvatar,
   putMyAccount,
+  putMyPersonalProfile,
+  type UpdateMyPersonalProfileInput,
   type UpdateMyAccountInput,
 } from "@/features/account/api/account.api"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
@@ -18,6 +21,7 @@ import type { AuthUser } from "@/types/auth"
 
 export const accountKeys = {
   all: ["account"] as const,
+  personalProfile: () => [...accountKeys.all, "personal-profile"] as const,
   trainerMe: () => [...accountKeys.all, "trainer-me"] as const,
 }
 
@@ -123,6 +127,39 @@ export function useUploadMyAvatar() {
         error instanceof Error && error.message
           ? error.message
           : "Không tải được ảnh đại diện. Vui lòng thử lại.",
+      )
+    },
+  })
+}
+
+export function useMyPersonalProfile(options?: { enabled?: boolean }) {
+  const accessToken = useAccessToken()
+
+  return useQuery({
+    queryKey: accountKeys.personalProfile(),
+    queryFn: () => getMyPersonalProfile(accessToken ?? ""),
+    enabled: Boolean(accessToken) && (options?.enabled ?? true),
+    retry: false,
+  })
+}
+
+export function useUpdateMyPersonalProfile() {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: UpdateMyPersonalProfileInput) =>
+      putMyPersonalProfile(accessToken ?? "", input),
+    onSuccess: async (profile) => {
+      queryClient.setQueryData(accountKeys.personalProfile(), profile)
+      await queryClient.invalidateQueries({ queryKey: accountKeys.personalProfile() })
+      toast.success("Đã cập nhật thông tin cá nhân.")
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Không cập nhật được thông tin cá nhân. Vui lòng thử lại.",
       )
     },
   })

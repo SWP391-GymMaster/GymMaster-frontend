@@ -10,6 +10,20 @@ export type UpdateMyAccountInput = Partial<{
   phone: string | null
 }>
 
+export type MyPersonalProfile = {
+  dateOfBirth: string | null
+  gender: string | null
+  address: string | null
+  emergencyContact: string | null
+}
+
+export type UpdateMyPersonalProfileInput = Partial<{
+  dateOfBirth: string | null
+  gender: string | null
+  address: string | null
+  emergencyContact: string | null
+}>
+
 export type MyTrainerProfile = {
   id: number
   userId: number
@@ -22,6 +36,17 @@ export type MyTrainerProfile = {
   dateOfBirth: string | null
   yearsOfExperience: number | null
   createdAt: string
+}
+
+type RawPersonalProfile = {
+  DateOfBirth?: string | null
+  dateOfBirth?: string | null
+  Gender?: string | null
+  gender?: string | null
+  Address?: string | null
+  address?: string | null
+  EmergencyContact?: string | null
+  emergencyContact?: string | null
 }
 
 type RawTrainerProfile = {
@@ -69,6 +94,37 @@ function toUpdatePayload(input: UpdateMyAccountInput) {
   return payload
 }
 
+function toPersonalProfilePayload(input: UpdateMyPersonalProfileInput) {
+  const payload: Record<string, string | null> = {}
+
+  if ("dateOfBirth" in input) {
+    payload.DateOfBirth = input.dateOfBirth || null
+  }
+
+  if ("gender" in input) {
+    payload.Gender = input.gender?.trim() || null
+  }
+
+  if ("address" in input) {
+    payload.Address = input.address?.trim() || null
+  }
+
+  if ("emergencyContact" in input) {
+    payload.EmergencyContact = input.emergencyContact?.trim() || null
+  }
+
+  return payload
+}
+
+function normalizePersonalProfile(raw: RawPersonalProfile): MyPersonalProfile {
+  return {
+    dateOfBirth: raw.DateOfBirth ?? raw.dateOfBirth ?? null,
+    gender: raw.Gender ?? raw.gender ?? null,
+    address: raw.Address ?? raw.address ?? null,
+    emergencyContact: raw.EmergencyContact ?? raw.emergencyContact ?? null,
+  }
+}
+
 function normalizeTrainerProfile(raw: RawTrainerProfile): MyTrainerProfile {
   return {
     id: raw.Id ?? raw.id ?? 0,
@@ -83,6 +139,29 @@ function normalizeTrainerProfile(raw: RawTrainerProfile): MyTrainerProfile {
     yearsOfExperience: raw.YearsOfExperience ?? raw.yearsOfExperience ?? null,
     createdAt: raw.CreatedAt ?? raw.createdAt ?? "",
   }
+}
+
+export async function getMyPersonalProfile(
+  accessToken: string,
+): Promise<MyPersonalProfile> {
+  const raw = await apiRequest<RawPersonalProfile>("/api/v1/users/me/profile", {
+    headers: authHeaders(accessToken),
+  })
+
+  return normalizePersonalProfile(raw)
+}
+
+export async function putMyPersonalProfile(
+  accessToken: string,
+  input: UpdateMyPersonalProfileInput,
+): Promise<MyPersonalProfile> {
+  const raw = await apiRequest<RawPersonalProfile>("/api/v1/users/me/profile", {
+    method: "PUT",
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(toPersonalProfilePayload(input)),
+  })
+
+  return normalizePersonalProfile(raw)
 }
 
 export async function putMyAccount(

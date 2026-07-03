@@ -32,7 +32,6 @@ import { SpotlightSearch } from "@/features/billing/components/SpotlightSearch";
 import { NotificationsDrawer } from "@/components/feedback/NotificationsDrawer";
 import { useNotifications } from "@/features/notifications/api/notifications.queries";
 import { SettingsDialog } from "@/features/billing/components/SettingsDialog";
-import { AccountDialog } from "@/features/account/components/AccountDialog";
 import { RouteProgressBar } from "@/components/feedback/RouteProgressBar";
 import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper";
 import { RestTimerOverlay } from "@/components/premium/RestTimerOverlay";
@@ -76,7 +75,6 @@ export function WorkspaceShell({
   const logout = useAuthSessionStore((state) => state.logout);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isLogoutPending, setIsLogoutPending] = useState(false);
 
   const { data: notifications = [] } = useNotifications(role);
@@ -168,6 +166,13 @@ export function WorkspaceShell({
     staff: "/staff/dashboard",
     pt: "/pt/dashboard",
     member: "/member/dashboard",
+  };
+
+  const profileHrefs: Record<UserRole, string> = {
+    admin: "/admin/profile",
+    staff: "/staff/profile",
+    pt: "/pt/profile",
+    member: "/member/profile/edit",
   };
 
   async function handleLogout() {
@@ -262,6 +267,7 @@ export function WorkspaceShell({
                 <button
                   aria-label="Mở menu người dùng"
                   className="flex items-center gap-3 rounded-2xl px-2 py-1.5 text-left transition hover:bg-muted/70 active:scale-[0.98]"
+                  data-testid="workspace-user-menu-trigger"
                   type="button"
                 >
                   <div className="text-right">
@@ -297,12 +303,11 @@ export function WorkspaceShell({
                   </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onSelect={() => setIsAccountOpen(true)}
-                >
-                  <UserCog aria-hidden="true" className="size-4" />
-                  <span>Tài khoản của tôi</span>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link data-testid="my-account-link" href={profileHrefs[role]}>
+                    <UserCog aria-hidden="true" className="size-4" />
+                    <span>Tài khoản của tôi</span>
+                  </Link>
                 </DropdownMenuItem>
                 {role === "member" ? (
                   <DropdownMenuItem asChild className="cursor-pointer">
@@ -425,7 +430,6 @@ export function WorkspaceShell({
         onClose={() => setIsNotificationsOpen(false)}
       />
       <SettingsDialog open={isSettingsOpen} onOpenChange={setSettingsOpen} />
-      <AccountDialog open={isAccountOpen} onOpenChange={setIsAccountOpen} />
       <RestTimerOverlay />
       <ShortcutsHelpOverlay />
     </main>

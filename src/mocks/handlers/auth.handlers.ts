@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw"
 
-import { members, userAccounts } from "@/mocks/data/gymmaster.mock-data"
+import { members, trainers, userAccounts } from "@/mocks/data/gymmaster.mock-data"
 import type { ApiResponse, AuthUser, LoginSuccess, UserRole } from "@/types/auth"
 import {
   created,
@@ -152,6 +152,47 @@ function hasDuplicatePhone(role: UserRole, phone?: string | null) {
   )
 }
 
+function toPascalPersonalProfile(profile: {
+  dateOfBirth?: string | null
+  gender?: string | null
+  address?: string | null
+  emergencyContact?: string | null
+}) {
+  return {
+    DateOfBirth: profile.dateOfBirth ?? null,
+    Gender: profile.gender ?? null,
+    Address: profile.address ?? null,
+    EmergencyContact: profile.emergencyContact ?? null,
+  }
+}
+
+function readPersonalProfileBody(body: {
+  DateOfBirth?: string | null
+  dateOfBirth?: string | null
+  Gender?: string | null
+  gender?: string | null
+  Address?: string | null
+  address?: string | null
+  EmergencyContact?: string | null
+  emergencyContact?: string | null
+}) {
+  return {
+    dateOfBirth: "DateOfBirth" in body ? body.DateOfBirth : body.dateOfBirth,
+    gender: "Gender" in body ? body.Gender : body.gender,
+    address: "Address" in body ? body.Address : body.address,
+    emergencyContact:
+      "EmergencyContact" in body ? body.EmergencyContact : body.emergencyContact,
+  }
+}
+
+function findSelfAccount(role: UserRole) {
+  return userAccounts.find((account) => account.userId === demoUsers[role].userId)
+}
+
+function getSelfTrainer(role: UserRole) {
+  return trainers.find((trainer) => trainer.userId === demoUsers[role].userId)
+}
+
 function loginSuccess(
   role: UserRole,
   refreshToken = `refresh-${role}`,
@@ -262,6 +303,105 @@ export const authHandlers = [
     syncMockAccount(demoUsers[role])
 
     return ok(toPascalAuthUser(demoUsers[role]))
+  }),
+  http.get("/api/v1/users/me/profile", ({ request }) => {
+    const role = getRoleFromRequest(request)
+
+    if (!role) {
+      return fail("UNAUTHORIZED", "Unauthorized", 401)
+    }
+
+    if (role === "member") {
+      return fail("NOT_SUPPORTED", "Member profile is managed by /members/me", 400)
+    }
+
+    if (role === "pt") {
+      const trainer = getSelfTrainer(role)
+      if (!trainer) {
+        return fail("NOT_FOUND", "Trainer profile not found", 404)
+      }
+
+      return ok(toPascalPersonalProfile(trainer))
+    }
+
+    const account = findSelfAccount(role)
+    if (!account) {
+      return ok(toPascalPersonalProfile({}))
+    }
+
+    return ok(toPascalPersonalProfile(account))
+  }),
+  http.put("/api/v1/users/me/profile", async ({ request }) => {
+    const role = getRoleFromRequest(request)
+
+    if (!role) {
+      return fail("UNAUTHORIZED", "Unauthorized", 401)
+    }
+
+    if (role === "member") {
+      return fail("NOT_SUPPORTED", "Member profile is managed by /members/me", 400)
+    }
+
+    const body = readPersonalProfileBody(
+      (await request.json()) as Parameters<typeof readPersonalProfileBody>[0],
+    )
+
+    if (role === "pt") {
+      const trainerIndex = trainers.findIndex(
+        (trainer) => trainer.userId === demoUsers[role].userId,
+      )
+      if (trainerIndex < 0) {
+        return fail("NOT_FOUND", "Trainer profile not found", 404)
+      }
+
+      trainers[trainerIndex] = {
+        ...trainers[trainerIndex],
+        dateOfBirth:
+          body.dateOfBirth !== undefined
+            ? body.dateOfBirth
+            : trainers[trainerIndex].dateOfBirth,
+        gender: body.gender !== undefined ? body.gender : trainers[trainerIndex].gender,
+        address:
+          body.address !== undefined ? body.address : trainers[trainerIndex].address,
+        emergencyContact:
+          body.emergencyContact !== undefined
+            ? body.emergencyContact
+            : trainers[trainerIndex].emergencyContact,
+      }
+
+      return ok(toPascalPersonalProfile(trainers[trainerIndex]))
+    }
+
+    let accountIndex = userAccounts.findIndex(
+      (account) => account.userId === demoUsers[role].userId,
+    )
+    if (accountIndex < 0) {
+      userAccounts.push({
+        userId: demoUsers[role].userId,
+        fullName: demoUsers[role].fullName,
+        email: demoUsers[role].email,
+        phone: demoUsers[role].phone ?? undefined,
+        role,
+        status: demoUsers[role].status === "locked" ? "locked" : "active",
+      })
+      accountIndex = userAccounts.length - 1
+    }
+
+    userAccounts[accountIndex] = {
+      ...userAccounts[accountIndex],
+      dateOfBirth:
+        body.dateOfBirth !== undefined
+          ? body.dateOfBirth
+          : userAccounts[accountIndex].dateOfBirth,
+      gender: body.gender !== undefined ? body.gender : userAccounts[accountIndex].gender,
+      address: body.address !== undefined ? body.address : userAccounts[accountIndex].address,
+      emergencyContact:
+        body.emergencyContact !== undefined
+          ? body.emergencyContact
+          : userAccounts[accountIndex].emergencyContact,
+    }
+
+    return ok(toPascalPersonalProfile(userAccounts[accountIndex]))
   }),
   http.post("/api/v1/users/me/avatar", async ({ request }) => {
     const role = getRoleFromRequest(request)
