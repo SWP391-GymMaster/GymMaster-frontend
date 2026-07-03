@@ -31,7 +31,10 @@ export const updateUserSchema = z.object({
   fullName: z.string().min(2, "Ho ten phai co it nhat 2 ky tu."),
   email: z.email("Nhap email hop le."),
   phone: z.string().optional(),
-  role: z.enum(["staff", "admin"]).optional(),
+  dateOfBirth: z.string().optional(),
+  gender: z.string().optional(),
+  address: z.string().optional(),
+  emergencyContact: z.string().optional(),
 })
 
 export const createTrainerSchema = z
@@ -55,6 +58,8 @@ export const createTrainerSchema = z
         message: "So nam kinh nghiem khong hop le.",
       }),
     bio: z.string().optional(),
+    address: z.string().optional(),
+    emergencyContact: z.string().optional(),
     userId: z.string().optional(),
   })
   .superRefine((value, ctx) => {
@@ -78,7 +83,23 @@ export const createTrainerSchema = z
     }
   })
 
+export const updateTrainerSchema = z.object({
+  specialty: z.string().min(2, "Vui long nhap chuyen mon."),
+  gender: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  yearsOfExperience: z
+    .string()
+    .optional()
+    .refine((value) => !value || Number(value) >= 0, {
+      message: "So nam kinh nghiem khong hop le.",
+    }),
+  bio: z.string().optional(),
+  address: z.string().optional(),
+  emergencyContact: z.string().optional(),
+})
+
 export type CreateMemberFormValues = z.infer<typeof createMemberSchema>
 export type CreateUserFormValues = z.infer<typeof createUserSchema>
 export type UpdateUserFormValues = z.infer<typeof updateUserSchema>
 export type CreateTrainerFormValues = z.infer<typeof createTrainerSchema>
+export type UpdateTrainerFormValues = z.infer<typeof updateTrainerSchema>

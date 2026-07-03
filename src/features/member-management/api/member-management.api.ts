@@ -10,6 +10,7 @@ import type {
   PagedResult,
   ResetUserPasswordResult,
   UpdateMemberInput,
+  UpdateTrainerInput,
   UpdateUserInput,
   UpdateUserStatusInput,
 } from "@/features/member-management/types/member-management.types"
@@ -143,6 +144,18 @@ export function createManagedTrainer(
 ) {
   return apiRequest<CreateTrainerResult>("/api/v1/trainers", {
     method: "POST",
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(input),
+  })
+}
+
+export function updateManagedTrainer(
+  accessToken: string,
+  trainerId: number,
+  input: UpdateTrainerInput,
+) {
+  return apiRequest<ManagedTrainer>(`/api/v1/trainers/${trainerId}`, {
+    method: "PUT",
     headers: authHeaders(accessToken),
     body: JSON.stringify(input),
   })

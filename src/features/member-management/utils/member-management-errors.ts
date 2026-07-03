@@ -7,7 +7,7 @@ const messages: Record<string, string> = {
   INVALID_ROLE: "Tai khoan lien ket khong co vai tro PT.",
   NOT_FOUND: "Khong tim thay ban ghi nay.",
   ROLE_TRANSITION_NOT_ALLOWED:
-    "Khong the chuyen vai tro giua nhan su van hanh va Hoi vien/PT. Dung man Hoi vien hoac Huan luyen vien.",
+    "Vai tro duoc gan khi tao tai khoan va khong the thay doi. Muon doi vai tro: tao tai khoan moi o man tuong ung va khoa/xoa tai khoan cu.",
   UNAUTHORIZED: "Vui long dang nhap lai.",
   VALIDATION_ERROR: "Vui long kiem tra cac truong trong form.",
 }

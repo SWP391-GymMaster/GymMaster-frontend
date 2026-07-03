@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -6,9 +6,6 @@ import {
   ChevronRight,
   KeyRound,
   Lock,
-  Mail,
-  MoreVertical,
-  Phone,
   Search,
   ShieldCheck,
   Trash2,
@@ -80,10 +77,10 @@ function initials(name: string) {
 }
 
 function roleLabel(role: ManagedUser["role"]) {
-  if (role === "pt") return "Huấn luyện viên"
-  if (role === "staff") return "Lễ tân"
-  if (role === "member") return "Hội viên"
-  if (role === "admin") return "Quản trị viên"
+  if (role === "pt") return "Huáº¥n luyá»‡n viÃªn"
+  if (role === "staff") return "Lá»… tÃ¢n"
+  if (role === "member") return "Há»™i viÃªn"
+  if (role === "admin") return "Quáº£n trá»‹ viÃªn"
   return role
 }
 
@@ -137,26 +134,26 @@ export function AdminUsersTemplateWorkspace() {
     return [
       {
         icon: UsersRound,
-        label: "Tổng người dùng",
-        helper: "Tất cả tài khoản",
+        label: "Tá»•ng ngÆ°á»i dÃ¹ng",
+        helper: "Táº¥t cáº£ tÃ i khoáº£n",
         value: String(usersQuery.data?.total ?? 0),
       },
       {
         icon: UserCheck,
-        label: "Đang hoạt động",
-        helper: "Sẵn sàng truy cập",
+        label: "Äang hoáº¡t Ä‘á»™ng",
+        helper: "Sáºµn sÃ ng truy cáº­p",
         value: String(active),
       },
       {
         icon: Lock,
-        label: "Đã khóa",
-        helper: "Cần kiểm tra",
+        label: "ÄÃ£ khÃ³a",
+        helper: "Cáº§n kiá»ƒm tra",
         value: String(locked),
       },
       {
         icon: UserCog,
-        label: "Huấn luyện viên",
-        helper: "Tài khoản PT",
+        label: "Huáº¥n luyá»‡n viÃªn",
+        helper: "TÃ i khoáº£n PT",
         value: String(trainers),
       },
     ]
@@ -185,17 +182,17 @@ export function AdminUsersTemplateWorkspace() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                  Danh sách người dùng
+                  Danh sÃ¡ch ngÆ°á»i dÃ¹ng
                 </p>
                 <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">
-                  Tài khoản hệ thống
+                  TÃ i khoáº£n há»‡ thá»‘ng
                 </h2>
               </div>
               <CreateUserDialog />
             </div>
 
             <label className="relative mt-5 block">
-              <span className="sr-only">Tìm kiếm người dùng</span>
+              <span className="sr-only">TÃ¬m kiáº¿m ngÆ°á»i dÃ¹ng</span>
               <Search
                 aria-hidden="true"
                 className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -204,7 +201,7 @@ export function AdminUsersTemplateWorkspace() {
                 className="gm-field min-h-11 w-full pl-11 pr-3 text-sm text-foreground transition placeholder:text-muted-foreground"
                 data-testid="admin-user-search-input"
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Tìm theo tên, email..."
+                placeholder="TÃ¬m theo tÃªn, email..."
                 value={query}
               />
             </label>
@@ -212,22 +209,22 @@ export function AdminUsersTemplateWorkspace() {
 
           <div className="flex-1 space-y-2 overflow-y-auto p-3">
             {usersQuery.isLoading ? (
-              <StateBlock title="Đang tải người dùng..." tone="loading" />
+              <StateBlock title="Äang táº£i ngÆ°á»i dÃ¹ng..." tone="loading" />
             ) : null}
             {usersQuery.error ? (
               <StateBlock
                 title={
                   usersQuery.error instanceof Error
                     ? usersQuery.error.message
-                    : "Không thể tải danh sách người dùng."
+                    : "KhÃ´ng thá»ƒ táº£i danh sÃ¡ch ngÆ°á»i dÃ¹ng."
                 }
                 tone="error"
               />
             ) : null}
             {!usersQuery.isLoading && users.length === 0 ? (
               <StateBlock
-                description="Tạo tài khoản mới hoặc điều chỉnh từ khóa tìm kiếm."
-                title="Không tìm thấy người dùng"
+                description="Táº¡o tÃ i khoáº£n má»›i hoáº·c Ä‘iá»u chá»‰nh tá»« khÃ³a tÃ¬m kiáº¿m."
+                title="KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i dÃ¹ng"
                 tone="empty"
               />
             ) : null}
@@ -283,7 +280,7 @@ export function AdminUsersTemplateWorkspace() {
                         : "bg-destructive/10 text-destructive",
                     )}
                   >
-                    {user.status === "active" ? "Đang hoạt động" : "Đã khóa"}
+                    {user.status === "active" ? "Äang hoáº¡t Ä‘á»™ng" : "ÄÃ£ khÃ³a"}
                   </span>
                   <ChevronRight
                     aria-hidden="true"
@@ -309,8 +306,8 @@ export function AdminUsersTemplateWorkspace() {
             ) : (
               <StateBlock
                 className="m-6"
-                description="Chọn một tài khoản từ danh sách để xem hồ sơ."
-                title="Chưa chọn người dùng"
+                description="Chá»n má»™t tÃ i khoáº£n tá»« danh sÃ¡ch Ä‘á»ƒ xem há»“ sÆ¡."
+                title="ChÆ°a chá»n ngÆ°á»i dÃ¹ng"
                 tone="empty"
               />
             )}
@@ -358,19 +355,19 @@ function CreateUserDialog() {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button className="min-h-10 rounded-xl bg-primary px-4 text-primary-foreground hover:brightness-95 active:scale-[0.98]">
+        <Button className="min-h-10 rounded-xl bg-primary px-4 text-primary-foreground hover:brightness-95 active:scale-[0.98]" data-testid="user-create-open">
           <UserPlus aria-hidden="true" className="size-4" />
-          Thêm người dùng
+          ThÃªm ngÆ°á»i dÃ¹ng
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl rounded-2xl border-border p-0">
         <DialogHeader className="border-b border-border p-6">
           <DialogTitle className="text-2xl font-semibold tracking-tight">
-            Tạo tài khoản hệ thống
+            Táº¡o tÃ i khoáº£n há»‡ thá»‘ng
           </DialogTitle>
           <DialogDescription>
-            Thêm nhân sự, PT hoặc hội viên. Vai trò được lưu vào hồ sơ tài khoản,
-            không chọn ở màn đăng nhập.
+            ThÃªm nhÃ¢n sá»±, PT hoáº·c há»™i viÃªn. Vai trÃ² Ä‘Æ°á»£c lÆ°u vÃ o há»“ sÆ¡ tÃ i khoáº£n,
+            khÃ´ng chá»n á»Ÿ mÃ n Ä‘Äƒng nháº­p.
           </DialogDescription>
         </DialogHeader>
         <div className="p-6">
@@ -419,7 +416,7 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field error={errors.fullName?.message} label="Họ và tên">
+        <Field error={errors.fullName?.message} label="Há» vÃ  tÃªn">
           <Input
             className={inputClass}
             data-testid="user-create-name"
@@ -434,14 +431,14 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
             {...register("email")}
           />
         </Field>
-        <Field label="Số điện thoại">
+        <Field label="Sá»‘ Ä‘iá»‡n thoáº¡i">
           <Input
             className={inputClass}
             data-testid="user-create-phone"
             {...register("phone")}
           />
         </Field>
-        <Field error={errors.role?.message} label="Vai trò">
+        <Field error={errors.role?.message} label="Vai trÃ²">
           {/* Visually hidden native select for Playwright test compatibility & React Hook Form registration */}
           <select
             className="sr-only"
@@ -460,7 +457,7 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
             onValueChange={(val: string) => setValue("role", val as "staff" | "admin", { shouldValidate: true })}
           >
             <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
-              <SelectValue placeholder="Chọn vai trò" />
+              <SelectValue placeholder="Chá»n vai trÃ²" />
             </SelectTrigger>
             <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
               {roles.map((role) => (
@@ -475,11 +472,11 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
       </div>
 
       <div className="mt-4">
-        <Field error={errors.password?.message} label="Mật khẩu">
+        <Field error={errors.password?.message} label="Máº­t kháº©u">
           <Input
             className={inputClass}
             data-testid="user-create-password"
-            placeholder="Để trống để tạo mật khẩu tạm"
+            placeholder="Äá»ƒ trá»‘ng Ä‘á»ƒ táº¡o máº­t kháº©u táº¡m"
             type="password"
             {...register("password")}
           />
@@ -493,7 +490,7 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
             type="button"
             variant="outline"
           >
-            Hủy
+            Há»§y
           </Button>
         </DialogTrigger>
         <Button
@@ -503,7 +500,7 @@ function CreateUserForm({ onCreated }: { onCreated?: () => void }) {
           type="submit"
         >
           <UserPlus aria-hidden="true" className="size-4" />
-          Tạo tài khoản
+          Táº¡o tÃ i khoáº£n
         </Button>
       </div>
     </form>
@@ -530,7 +527,7 @@ function UserSecurityPanel({
         userId: user.userId,
         input: { status: user.status === "locked" ? "active" : "locked" },
       })
-      toast.success(user.status === "locked" ? "Đã mở khóa tài khoản" : "Đã khóa tài khoản")
+      toast.success(user.status === "locked" ? "ÄÃ£ má»Ÿ khÃ³a tÃ i khoáº£n" : "ÄÃ£ khÃ³a tÃ i khoáº£n")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -540,7 +537,7 @@ function UserSecurityPanel({
     try {
       const result = await resetPassword.mutateAsync(user.userId)
       onTemporaryPassword(result.temporaryPassword)
-      toast.success("Đã tạo mật khẩu tạm thời")
+      toast.success("ÄÃ£ táº¡o máº­t kháº©u táº¡m thá»i")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -550,7 +547,7 @@ function UserSecurityPanel({
     try {
       await deleteUser.mutateAsync(user.userId)
       onTemporaryPassword(null)
-      toast.success("Đã vô hiệu hóa tài khoản")
+      toast.success("ÄÃ£ vÃ´ hiá»‡u hÃ³a tÃ i khoáº£n")
     } catch (error) {
       toast.error(mapMemberManagementError(error).message)
     }
@@ -565,18 +562,18 @@ function UserSecurityPanel({
           </span>
           <div>
             <h3 className="text-base font-semibold text-foreground">
-              Bảo mật tài khoản
+              Báº£o máº­t tÃ i khoáº£n
             </h3>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Khóa tài khoản khi cần tạm dừng truy cập, hoặc tạo mật khẩu tạm
-              để hỗ trợ người dùng đăng nhập lại.
+              KhÃ³a tÃ i khoáº£n khi cáº§n táº¡m dá»«ng truy cáº­p, hoáº·c táº¡o máº­t kháº©u táº¡m
+              Ä‘á»ƒ há»— trá»£ ngÆ°á»i dÃ¹ng Ä‘Äƒng nháº­p láº¡i.
             </p>
           </div>
         </div>
 
         {temporaryPassword ? (
           <p className="mt-5 rounded-xl border border-primary/20 bg-primary/10 px-3 py-2 font-mono text-xs font-semibold text-foreground">
-            Mật khẩu tạm thời: {temporaryPassword}
+            Máº­t kháº©u táº¡m thá»i: {temporaryPassword}
           </p>
         ) : null}
       </section>
@@ -595,7 +592,7 @@ function UserSecurityPanel({
           ) : (
             <Lock aria-hidden="true" className="size-4" />
           )}
-          {user.status === "locked" ? "Mở khóa tài khoản" : "Khóa tài khoản"}
+          {user.status === "locked" ? "Má»Ÿ khÃ³a tÃ i khoáº£n" : "KhÃ³a tÃ i khoáº£n"}
         </Button>
 
         <Button
@@ -607,7 +604,7 @@ function UserSecurityPanel({
           variant="outline"
         >
           <KeyRound aria-hidden="true" className="size-4" />
-          Đặt lại mật khẩu
+          Äáº·t láº¡i máº­t kháº©u
         </Button>
 
         <Button
@@ -619,7 +616,7 @@ function UserSecurityPanel({
           variant="destructive"
         >
           <Trash2 aria-hidden="true" className="size-4" />
-          Xóa tài khoản
+          XÃ³a tÃ i khoáº£n
         </Button>
       </aside>
     </div>
@@ -647,19 +644,19 @@ function UserDetailPanel({
               className="rounded-none border-b-2 border-transparent bg-transparent px-2 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="profile"
             >
-              Thông tin chung
+              ThÃ´ng tin chung
             </TabsTrigger>
             {/* <TabsTrigger
               className="rounded-none border-b-2 border-transparent bg-transparent px-0 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="access"
             >
-              Quyền hạn
+              Quyá»n háº¡n
             </TabsTrigger> */}
             <TabsTrigger
               className="rounded-none border-b-2 border-transparent bg-transparent px-2 pb-0 rounded-t-lg pt-0 text-sm font-semibold text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
               value="security"
             >
-              Bảo mật
+              Báº£o máº­t
             </TabsTrigger>
           </TabsList>
         </div>
@@ -720,7 +717,7 @@ function UserDetailHeader({ user }: { user: ManagedUser }) {
             </div>
 
             <p className="mt-2 text-sm text-muted-foreground">
-              ID: USR-{user.userId} · Hồ sơ tài khoản hệ thống
+              ID: USR-{user.userId} Â· Há»“ sÆ¡ tÃ i khoáº£n há»‡ thá»‘ng
             </p>
           </div>
         </div>
@@ -730,7 +727,7 @@ function UserDetailHeader({ user }: { user: ManagedUser }) {
           type="button"
         >
           <MoreVertical aria-hidden="true" className="size-4" />
-          <span className="sr-only">Tùy chọn người dùng</span>
+          <span className="sr-only">TÃ¹y chá»n ngÆ°á»i dÃ¹ng</span>
         </button> */}
       </div>
     </div>
@@ -740,40 +737,37 @@ function UserDetailHeader({ user }: { user: ManagedUser }) {
 function UserProfileForm({ user }: { user: ManagedUser }) {
   const updateUser = useUpdateManagedUser()
   const updateStatus = useUpdateManagedUserStatus()
-  const editableRole: "staff" | "admin" | undefined = isOperationalRole(user.role)
-    ? user.role
-    : undefined
-  const canEditRole = Boolean(editableRole)
+  const canEditPersonalProfile = isOperationalRole(user.role)
 
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
     register,
     reset,
-    setValue,
-    watch,
   } = useForm<UpdateUserFormValues>({
     resolver: zodResolver(updateUserSchema),
     defaultValues: {
       email: user.email,
       fullName: user.fullName,
       phone: user.phone ?? "",
-      role: editableRole,
+      dateOfBirth: toDateInputValue(user.dateOfBirth),
+      gender: user.gender ?? "",
+      address: user.address ?? "",
+      emergencyContact: user.emergencyContact ?? "",
     },
   })
 
   useEffect(() => {
-    const nextEditableRole: "staff" | "admin" | undefined = isOperationalRole(user.role)
-      ? user.role
-      : undefined
-
     reset({
       email: user.email,
       fullName: user.fullName,
       phone: user.phone ?? "",
-      role: nextEditableRole,
+      dateOfBirth: toDateInputValue(user.dateOfBirth),
+      gender: user.gender ?? "",
+      address: user.address ?? "",
+      emergencyContact: user.emergencyContact ?? "",
     })
-  }, [reset, user.email, user.fullName, user.phone, user.role, user.userId])
+  }, [reset, user.address, user.dateOfBirth, user.email, user.emergencyContact, user.fullName, user.gender, user.phone, user.userId])
 
   async function onSubmit(values: UpdateUserFormValues) {
     try {
@@ -783,7 +777,10 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
           email: values.email,
           fullName: values.fullName,
           phone: values.phone || undefined,
-          role: canEditRole ? values.role : undefined,
+          dateOfBirth: canEditPersonalProfile ? values.dateOfBirth || undefined : undefined,
+          gender: canEditPersonalProfile ? values.gender || undefined : undefined,
+          address: canEditPersonalProfile ? values.address || undefined : undefined,
+          emergencyContact: canEditPersonalProfile ? values.emergencyContact || undefined : undefined,
         },
       })
       toast.success("Da cap nhat thong tin nguoi dung")
@@ -808,90 +805,58 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
     <form className="flex h-full flex-col p-6" onSubmit={handleSubmit(onSubmit)}>
       <div className="grid gap-5 lg:grid-cols-2">
         <Field error={errors.fullName?.message} label="Ho va ten">
-          <Input
-            className={inputClass}
-            data-testid="user-edit-name"
-            {...register("fullName")}
-          />
+          <Input className={inputClass} data-testid="user-edit-name" {...register("fullName")} />
         </Field>
 
-        <Field error={errors.role?.message} label="Vai tro">
-          {canEditRole ? (
-            <>
-              <select
-                className="sr-only"
-                data-testid="user-edit-role"
-                {...register("role")}
-              >
-                {roles.map((role) => (
-                  <option key={role} value={role}>
-                    {roleLabel(role)}
-                  </option>
-                ))}
-              </select>
-
-              <Select
-                value={watch("role")}
-                onValueChange={(val: string) => setValue("role", val as "staff" | "admin", { shouldValidate: true })}
-              >
-                <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground">
-                  <SelectValue placeholder="Chon vai tro" />
-                </SelectTrigger>
-                <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
-                  {roles.map((role) => (
-                    <SelectItem key={role} value={role} className="focus:bg-white/5 focus:text-white">
-                      {roleLabel(role)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </>
-          ) : (
-            <div className="rounded-xl border border-border bg-muted/30 p-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <RoleBadge role={user.role} />
-                <span className="text-sm font-semibold text-foreground">
-                  Tai khoan {roleLabel(user.role)}
-                </span>
-              </div>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                Quan ly tai man {user.role === "member" ? "Hoi vien" : "Huan luyen vien"}, khong doi vai tro tai day.
-              </p>
+        <Field label="Vai tro">
+          <div className="rounded-xl border border-border bg-muted/30 p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <RoleBadge role={user.role} />
+              <span className="text-sm font-semibold text-foreground">Tai khoan {roleLabel(user.role)}</span>
             </div>
-          )}
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+              Vai tro duoc gan khi tao tai khoan va khong the thay doi. Muon doi vai tro: tao tai khoan moi o man tuong ung va khoa/xoa tai khoan cu.
+            </p>
+          </div>
         </Field>
 
         <Field error={errors.email?.message} label="Email">
-          <Input
-            className={inputClass}
-            data-testid="user-edit-email"
-            type="email"
-            {...register("email")}
-          />
+          <Input className={inputClass} data-testid="user-edit-email" type="email" {...register("email")} />
         </Field>
 
         <Field label="So dien thoai">
-          <Input
-            className={inputClass}
-            data-testid="user-edit-phone"
-            {...register("phone")}
-          />
+          <Input className={inputClass} data-testid="user-edit-phone" {...register("phone")} />
         </Field>
 
+        {canEditPersonalProfile ? (
+          <>
+            <Field label="Ngay sinh">
+              <Input className={inputClass} type="date" {...register("dateOfBirth")} />
+            </Field>
+            <Field label="Gioi tinh">
+              <Input className={inputClass} {...register("gender")} />
+            </Field>
+            <Field label="Dia chi">
+              <Input className={inputClass} {...register("address")} />
+            </Field>
+            <Field label="Lien he khan cap">
+              <Input className={inputClass} {...register("emergencyContact")} />
+            </Field>
+          </>
+        ) : (
+          <div className="rounded-xl border border-border bg-muted/30 p-3 lg:col-span-2">
+            <p className="text-xs leading-5 text-muted-foreground">
+              Ho so ca nhan cua {user.role === "member" ? "Hoi vien" : "Huan luyen vien"} duoc quan ly o man tuong ung.
+            </p>
+          </div>
+        )}
+
         <Field label="Trang thai">
-          <Input
-            className={inputClass}
-            readOnly
-            value={user.status === "active" ? "Dang hoat dong" : "Da khoa"}
-          />
+          <Input className={inputClass} readOnly value={user.status === "active" ? "Dang hoat dong" : "Da khoa"} />
         </Field>
 
         <Field label="Ma tai khoan">
-          <Input
-            className={inputClass}
-            readOnly
-            value={`USR-${user.userId}`}
-          />
+          <Input className={inputClass} readOnly value={`USR-${user.userId}`} />
         </Field>
       </div>
 
@@ -909,11 +874,7 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
           type="button"
           variant="outline"
         >
-          {user.status === "locked" ? (
-            <Unlock aria-hidden="true" className="size-4" />
-          ) : (
-            <Lock aria-hidden="true" className="size-4" />
-          )}
+          {user.status === "locked" ? <Unlock aria-hidden="true" className="size-4" /> : <Lock aria-hidden="true" className="size-4" />}
           {user.status === "locked" ? "Mo khoa tai khoan" : "Khoa tai khoan"}
         </Button>
 
@@ -925,7 +886,10 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
                 email: user.email,
                 fullName: user.fullName,
                 phone: user.phone ?? "",
-                role: isOperationalRole(user.role) ? user.role : undefined,
+                dateOfBirth: toDateInputValue(user.dateOfBirth),
+                gender: user.gender ?? "",
+                address: user.address ?? "",
+                emergencyContact: user.emergencyContact ?? "",
               })
             }
             type="button"
@@ -947,7 +911,12 @@ function UserProfileForm({ user }: { user: ManagedUser }) {
     </form>
   )
 }
-
+function toDateInputValue(value?: string | null): string {
+  if (!value) return ""
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ""
+  return date.toISOString().slice(0, 10)
+}
 function UserAccessPanel({ user }: { user: ManagedUser }) {
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
@@ -958,20 +927,20 @@ function UserAccessPanel({ user }: { user: ManagedUser }) {
           </span>
           <div>
             <h3 className="text-base font-semibold text-foreground">
-              Quyền theo vai trò {roleLabel(user.role)}
+              Quyá»n theo vai trÃ² {roleLabel(user.role)}
             </h3>
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Các quyền bên dưới được kế thừa từ vai trò tài khoản. Người dùng
-              sẽ được điều hướng vào workspace tương ứng sau khi đăng nhập.
+              CÃ¡c quyá»n bÃªn dÆ°á»›i Ä‘Æ°á»£c káº¿ thá»«a tá»« vai trÃ² tÃ i khoáº£n. NgÆ°á»i dÃ¹ng
+              sáº½ Ä‘Æ°á»£c Ä‘iá»u hÆ°á»›ng vÃ o workspace tÆ°Æ¡ng á»©ng sau khi Ä‘Äƒng nháº­p.
             </p>
           </div>
         </div>
 
         <div className="mt-5 grid gap-3">
           {[
-            "Xem hồ sơ hội viên",
-            "Cập nhật workout plan",
-            "Ghi nhận thao tác vận hành",
+            "Xem há»“ sÆ¡ há»™i viÃªn",
+            "Cáº­p nháº­t workout plan",
+            "Ghi nháº­n thao tÃ¡c váº­n hÃ nh",
           ].map((permission, index) => (
             <label
               className="gm-panel-muted flex items-start gap-3 p-4"
@@ -985,7 +954,7 @@ function UserAccessPanel({ user }: { user: ManagedUser }) {
                   {permission}
                 </span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">
-                  Theo quyền mặc định của {roleLabel(user.role)}.
+                  Theo quyá»n máº·c Ä‘á»‹nh cá»§a {roleLabel(user.role)}.
                 </span>
               </span>
             </label>
@@ -1001,8 +970,8 @@ function UserAccessPanel({ user }: { user: ManagedUser }) {
           {roleLabel(user.role)}
         </p>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          Role được lưu trong hồ sơ tài khoản. Màn đăng nhập không cho người dùng
-          tự chọn vai trò.
+          Role Ä‘Æ°á»£c lÆ°u trong há»“ sÆ¡ tÃ i khoáº£n. MÃ n Ä‘Äƒng nháº­p khÃ´ng cho ngÆ°á»i dÃ¹ng
+          tá»± chá»n vai trÃ².
         </p>
       </aside>
     </div>

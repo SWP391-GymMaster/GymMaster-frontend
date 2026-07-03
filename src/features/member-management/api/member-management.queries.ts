@@ -13,6 +13,7 @@ import {
   getManagedUsers,
   resetManagedUserPassword,
   updateManagedMember,
+  updateManagedTrainer,
   updateManagedUser,
   updateManagedUserStatus,
 } from "@/features/member-management/api/member-management.api"
@@ -23,6 +24,7 @@ import type {
   UpdateUserInput,
   UpdateUserStatusInput,
   UpdateMemberInput,
+  UpdateTrainerInput,
 } from "@/features/member-management/types/member-management.types"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 
@@ -197,6 +199,24 @@ export function useCreateManagedTrainer() {
   return useMutation({
     mutationFn: (input: CreateTrainerInput) =>
       createManagedTrainer(accessToken ?? "", input),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: memberManagementKeys.all })
+    },
+  })
+}
+
+export function useUpdateManagedTrainer() {
+  const accessToken = useAccessToken()
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      input,
+      trainerId,
+    }: {
+      input: UpdateTrainerInput
+      trainerId: number
+    }) => updateManagedTrainer(accessToken ?? "", trainerId, input),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: memberManagementKeys.all })
     },
