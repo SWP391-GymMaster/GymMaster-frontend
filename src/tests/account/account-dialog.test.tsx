@@ -159,7 +159,7 @@ describe("AccountDialog", () => {
     resetAuthSessionForTest()
   })
 
-  it.each(["admin", "staff", "pt", "member"] as const)(
+  it.each(["admin", "staff", "pt"] as const)(
     "opens from the workspace user menu for %s",
     async (role) => {
       renderShell(role)
@@ -219,7 +219,7 @@ describe("AccountDialog", () => {
   })
 
   it("updates the workspace header avatar after upload succeeds", async () => {
-    renderShell("member")
+    renderShell("staff")
     await openAccountDialogFromMenu()
 
     fireEvent.change(screen.getByTestId("account-avatar-input"), {
@@ -235,7 +235,7 @@ describe("AccountDialog", () => {
         }),
       ).toHaveAttribute(
         "src",
-        "https://cdn.gymmaster.local/avatars/user_4.webp",
+        "https://cdn.gymmaster.local/avatars/user_2.webp",
       )
     })
   })

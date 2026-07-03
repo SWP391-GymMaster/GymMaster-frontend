@@ -1,12 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState, type ChangeEvent } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Camera, KeyRound, Save, Upload } from "lucide-react"
+import { Camera, KeyRound, Save } from "lucide-react"
 import { useForm, useWatch, type FieldErrors } from "react-hook-form"
 
-import { UserAvatar } from "@/components/data/UserAvatar"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,10 +15,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import {
-  useUpdateMyAccount,
-  useUploadMyAvatar,
-} from "@/features/account/api/account.queries"
+import { useUpdateMyAccount } from "@/features/account/api/account.queries"
+import { AccountAvatarUploader } from "@/features/account/components/AccountAvatarUploader"
 import {
   accountSchema,
   type AccountFormValues,
@@ -31,9 +28,6 @@ type AccountDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
-
-const maxAvatarBytes = 5 * 1024 * 1024
-const acceptedAvatarTypes = ["image/jpeg", "image/png", "image/webp"]
 
 const inputClassName =
   "min-h-11 rounded-2xl border-border bg-background px-3 text-sm text-foreground"
@@ -64,9 +58,7 @@ function FormErrorSummary({
 export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
   const user = useAuthSessionStore((state) => state.session?.user ?? null)
   const updateAccount = useUpdateMyAccount()
-  const uploadAvatar = useUploadMyAvatar()
   const [formError, setFormError] = useState<string | null>(null)
-  const [avatarError, setAvatarError] = useState<string | null>(null)
 
   const {
     control,
@@ -96,7 +88,6 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
   function handleDialogOpenChange(nextOpen: boolean) {
     if (!nextOpen) {
       setFormError(null)
-      setAvatarError(null)
     }
 
     onOpenChange(nextOpen)
@@ -128,32 +119,6 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
     }
   }
 
-  async function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    event.target.value = ""
-    setAvatarError(null)
-
-    if (!file) {
-      return
-    }
-
-    if (!acceptedAvatarTypes.includes(file.type)) {
-      setAvatarError("Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP.")
-      return
-    }
-
-    if (file.size > maxAvatarBytes) {
-      setAvatarError("Ảnh đại diện tối đa 5 MB.")
-      return
-    }
-
-    try {
-      await uploadAvatar.mutateAsync(file)
-    } catch {
-      // Hook da hien toast; giu loi inline cho cac loi validate phia client.
-    }
-  }
-
   const previewName = watchedFullName || user?.fullName || "GymMaster"
   const isPending = isSubmitting || updateAccount.isPending
 
@@ -169,39 +134,12 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
 
         <div className="grid gap-6 p-6 md:grid-cols-[180px_minmax(0,1fr)]">
           <section className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-[var(--surface-panel-muted)] p-4 text-center">
-            <UserAvatar
+            <AccountAvatarUploader
               avatarUrl={user?.avatarUrl}
-              className="border-primary/20"
+              inputId="account-avatar-file"
+              inputTestId="account-avatar-input"
               name={previewName}
-              size="lg"
             />
-            <div className="grid gap-2">
-              <label
-                className="inline-flex min-h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-foreground transition hover:bg-primary/10 active:scale-[0.98]"
-                htmlFor="account-avatar-file"
-              >
-                <Upload aria-hidden="true" className="size-4" />
-                {uploadAvatar.isPending ? "Đang tải..." : "Chọn ảnh"}
-              </label>
-              <input
-                accept="image/jpeg,image/png,image/webp"
-                aria-describedby="account-avatar-help"
-                className="sr-only"
-                data-testid="account-avatar-input"
-                disabled={uploadAvatar.isPending}
-                id="account-avatar-file"
-                onChange={handleAvatarChange}
-                type="file"
-              />
-              <p className="text-xs leading-5 text-muted-foreground" id="account-avatar-help">
-                JPG, PNG hoặc WebP. Tối đa 5 MB.
-              </p>
-              {avatarError ? (
-                <p className="text-xs font-semibold text-destructive">
-                  {avatarError}
-                </p>
-              ) : null}
-            </div>
           </section>
 
           <form className="grid gap-5" onSubmit={handleSubmit(onSubmit)}>

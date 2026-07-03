@@ -296,13 +296,15 @@ export function WorkspaceShell({
                   </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onSelect={() => setIsAccountOpen(true)}
-                >
-                  <UserRound aria-hidden="true" className="size-4" />
-                  <span>Tài khoản của tôi</span>
-                </DropdownMenuItem>
+                {role !== "member" ? (
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={() => setIsAccountOpen(true)}
+                  >
+                    <UserRound aria-hidden="true" className="size-4" />
+                    <span>Tài khoản của tôi</span>
+                  </DropdownMenuItem>
+                ) : null}
                 {role === "member" ? (
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/member/profile">
@@ -424,7 +426,9 @@ export function WorkspaceShell({
         onClose={() => setIsNotificationsOpen(false)}
       />
       <SettingsDialog open={isSettingsOpen} onOpenChange={setSettingsOpen} />
-      <AccountDialog open={isAccountOpen} onOpenChange={setIsAccountOpen} />
+      {role !== "member" ? (
+        <AccountDialog open={isAccountOpen} onOpenChange={setIsAccountOpen} />
+      ) : null}
       <RestTimerOverlay />
       <ShortcutsHelpOverlay />
     </main>

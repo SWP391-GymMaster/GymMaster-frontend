@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest"
 
 import { AppProviders } from "@/app/providers"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
+import type { UserRole } from "@/types/auth"
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/staff/dashboard",
@@ -27,6 +28,27 @@ vi.mock("@/features/notifications/api/notifications.queries", () => ({
     mutateAsync: vi.fn(),
   }),
 }))
+
+function renderShell(role: UserRole) {
+  render(
+    <AppProviders>
+      <WorkspaceShell
+        description={`${role} workspace`}
+        role={role}
+        title={`${role} Dashboard`}
+      />
+    </AppProviders>,
+  )
+}
+
+function openUserMenu() {
+  const trigger = screen.getByRole("button", { name: /Mở menu người dùng/i })
+  fireEvent.pointerDown(trigger, {
+    button: 0,
+    ctrlKey: false,
+    pointerType: "mouse",
+  })
+}
 
 describe("WorkspaceShell", () => {
   it("does not render placeholder metrics when metrics are omitted", () => {
@@ -73,33 +95,41 @@ describe("WorkspaceShell", () => {
     expect(screen.queryByText("Skeleton only")).not.toBeInTheDocument()
   })
 
-  it("opens a user menu from the desktop identity trigger", async () => {
-    render(
-      <AppProviders>
-        <WorkspaceShell
-          description="Member workspace"
-          role="member"
-          title="Member Dashboard"
-        />
-      </AppProviders>,
-    )
+  it.each(["admin", "staff", "pt"] as const)(
+    "shows the account identity item for %s",
+    async (role) => {
+      renderShell(role)
 
-    const trigger = screen.getByRole("button", { name: /Mở menu người dùng/i })
-    fireEvent.pointerDown(trigger, {
-      button: 0,
-      ctrlKey: false,
-      pointerType: "mouse",
-    })
+      openUserMenu()
+
+      expect(
+        await screen.findByRole("menuitem", { name: /Tài khoản của tôi/i }),
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByRole("menuitem", { name: /Hồ sơ của tôi/i }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole("menuitem", { name: /Cấu hình giao diện/i }),
+      ).toBeInTheDocument()
+    },
+  )
+
+  it("shows the profile identity item for members only", async () => {
+    renderShell("member")
+
+    openUserMenu()
 
     expect(
-      await screen.findByRole("menuitem", { name: /hồ sơ của tôi/i }),
+      await screen.findByRole("menuitem", { name: /Hồ sơ của tôi/i }),
     ).toHaveAttribute("href", "/member/profile")
     expect(
-      screen.getByRole("menuitem", { name: /Tài khoản của tôi/i }),
+      screen.queryByRole("menuitem", { name: /Tài khoản của tôi/i }),
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole("menuitem", { name: /Cấu hình giao diện/i }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole("menuitem", { name: /cấu hình giao diện/i }),
-    ).toBeInTheDocument()
-    expect(screen.queryByRole("dialog", { name: /cấu hình giao diện/i })).not.toBeInTheDocument()
+      screen.queryByRole("dialog", { name: /Cấu hình giao diện/i }),
+    ).not.toBeInTheDocument()
   })
 })

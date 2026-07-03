@@ -10,18 +10,21 @@ import {
 } from "@/features/auth/session/auth-session"
 import { server } from "@/mocks/server"
 import { fail, ok } from "@/mocks/utils/api-response"
+import type { AuthSession } from "@/types/auth"
 
-const authSession = {
+const authSession: AuthSession = {
   accessToken: "access-member",
   refreshToken: "refresh-member",
   expiresAt: "2026-07-02T12:00:00.000Z",
-  role: "member" as const,
+  role: "member",
   user: {
     userId: 4,
     email: "member@gymmaster.local",
     fullName: "Gym Member",
-    role: "member" as const,
-    status: "active" as const,
+    phone: "0900000101",
+    avatarUrl: null,
+    role: "member",
+    status: "active",
     memberProfileId: null,
   },
 }
@@ -33,6 +36,7 @@ function pascalProfile(overrides: Record<string, unknown> = {}) {
     MemberCode: "GM-101",
     Email: "member@gymmaster.local",
     FullName: "Nguyen Minh Anh",
+    AvatarUrl: null,
     Phone: "0900000101",
     DateOfBirth: "1998-04-12T00:00:00.000Z",
     Gender: "male",
@@ -133,5 +137,33 @@ describe("MemberProfileWorkspace", () => {
     expect(
       await screen.findByText("Số điện thoại này đã được sử dụng."),
     ).toBeInTheDocument()
+  })
+
+  it("uploads avatar directly from the member profile edit page", async () => {
+    renderWorkspace()
+
+    const fileInput = await screen.findByTestId("member-profile-avatar-input")
+
+    fireEvent.change(fileInput, {
+      target: {
+        files: [new File(["not-image"], "avatar.txt", { type: "text/plain" })],
+      },
+    })
+
+    expect(
+      await screen.findByText("Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP."),
+    ).toBeInTheDocument()
+
+    fireEvent.change(fileInput, {
+      target: {
+        files: [new File(["avatar"], "avatar.png", { type: "image/png" })],
+      },
+    })
+
+    await waitFor(() => {
+      expect(useAuthSessionStore.getState().session?.user.avatarUrl).toBe(
+        "https://cdn.gymmaster.local/avatars/user_4.webp",
+      )
+    })
   })
 })
