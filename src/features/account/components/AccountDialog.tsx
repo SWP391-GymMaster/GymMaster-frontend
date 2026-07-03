@@ -1,9 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { KeyRound, Save, ShieldCheck } from "lucide-react"
+import { BadgeCheck, Hash, KeyRound, Mail, Save, ShieldCheck } from "lucide-react"
 import { useForm, useWatch, type FieldErrors } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { RoleBadge } from "@/components/data/RoleBadge"
+import { StatusPill, type Status } from "@/components/data/StatusPill"
 import { useUpdateMyAccount } from "@/features/account/api/account.queries"
 import { AccountAvatarUploader } from "@/features/account/components/AccountAvatarUploader"
 import {
@@ -32,6 +33,28 @@ type AccountDialogProps = {
 
 const inputClassName =
   "min-h-11 rounded-2xl border-border bg-background px-3 text-sm text-foreground"
+
+function ReadOnlyRow({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: typeof Mail
+  label: string
+  children: ReactNode
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-2.5">
+      <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <Icon aria-hidden="true" className="size-4" />
+        {label}
+      </span>
+      <span className="min-w-0 truncate text-right text-sm font-medium text-foreground">
+        {children}
+      </span>
+    </div>
+  )
+}
 
 function FormErrorSummary({
   errors,
@@ -123,6 +146,7 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
 
   const previewName = watchedFullName || user?.fullName || "GymMaster"
   const isPending = isSubmitting || updateAccount.isPending
+  const accountStatus: Status = user?.status === "locked" ? "locked" : "active"
 
   return (
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
@@ -208,6 +232,27 @@ export function AccountDialog({ open, onOpenChange }: AccountDialogProps) {
                   </p>
                 ) : null}
               </div>
+            </div>
+
+            {/* Thông tin tài khoản — chỉ xem, không sửa (email là danh tính đăng nhập) */}
+            <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
+                Thông tin tài khoản
+              </p>
+              <div className="mt-2 divide-y divide-border">
+                <ReadOnlyRow icon={Mail} label="Email">
+                  {user?.email ?? "—"}
+                </ReadOnlyRow>
+                <ReadOnlyRow icon={Hash} label="Mã tài khoản">
+                  {user?.userId ? `#${user.userId}` : "—"}
+                </ReadOnlyRow>
+                <ReadOnlyRow icon={BadgeCheck} label="Trạng thái">
+                  <StatusPill status={accountStatus} />
+                </ReadOnlyRow>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                Email và trạng thái do hệ thống quản lý, không thể tự chỉnh sửa.
+              </p>
             </div>
 
             {/* Bảo mật: gợi ý Google thu gọn + nút đổi mật khẩu */}
