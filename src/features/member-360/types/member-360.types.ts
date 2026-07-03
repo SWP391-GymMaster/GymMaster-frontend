@@ -15,6 +15,7 @@ export type Member360Data = {
     id: number
     memberCode: string
     fullName: string
+    avatarUrl?: string | null
     email: string
     phone: string
     status: "active" | "pending" | "expired" | "locked"

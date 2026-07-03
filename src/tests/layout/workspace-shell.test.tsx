@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
+import { AppProviders } from "@/app/providers"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
 
 vi.mock("next/navigation", () => ({
@@ -30,13 +31,15 @@ vi.mock("@/features/notifications/api/notifications.queries", () => ({
 describe("WorkspaceShell", () => {
   it("does not render placeholder metrics when metrics are omitted", () => {
     render(
-      <WorkspaceShell
-        description="A protected workspace"
-        role="staff"
-        title="Staff Dashboard"
-      >
-        <p>Workspace content</p>
-      </WorkspaceShell>,
+      <AppProviders>
+        <WorkspaceShell
+          description="A protected workspace"
+          role="staff"
+          title="Staff Dashboard"
+        >
+          <p>Workspace content</p>
+        </WorkspaceShell>
+      </AppProviders>,
     )
 
     expect(screen.getByText("Staff Dashboard")).toBeInTheDocument()
@@ -49,15 +52,17 @@ describe("WorkspaceShell", () => {
 
   it("renders route-aware metrics when provided", () => {
     render(
-      <WorkspaceShell
-        description="A protected workspace"
-        metrics={[
-          { label: "Today operations", value: "Front desk ready", tone: "dark" },
-          { label: "Access", value: "Staff only" },
-        ]}
-        role="staff"
-        title="Staff Dashboard"
-      />,
+      <AppProviders>
+        <WorkspaceShell
+          description="A protected workspace"
+          metrics={[
+            { label: "Today operations", value: "Front desk ready", tone: "dark" },
+            { label: "Access", value: "Staff only" },
+          ]}
+          role="staff"
+          title="Staff Dashboard"
+        />
+      </AppProviders>,
     )
 
     expect(screen.getByLabelText("Workspace metrics")).toBeInTheDocument()
@@ -70,14 +75,16 @@ describe("WorkspaceShell", () => {
 
   it("opens a user menu from the desktop identity trigger", async () => {
     render(
-      <WorkspaceShell
-        description="Member workspace"
-        role="member"
-        title="Member Dashboard"
-      />,
+      <AppProviders>
+        <WorkspaceShell
+          description="Member workspace"
+          role="member"
+          title="Member Dashboard"
+        />
+      </AppProviders>,
     )
 
-    const trigger = screen.getByRole("button", { name: /mở menu người dùng/i })
+    const trigger = screen.getByRole("button", { name: /Mở menu người dùng/i })
     fireEvent.pointerDown(trigger, {
       button: 0,
       ctrlKey: false,
@@ -87,6 +94,9 @@ describe("WorkspaceShell", () => {
     expect(
       await screen.findByRole("menuitem", { name: /hồ sơ của tôi/i }),
     ).toHaveAttribute("href", "/member/profile")
+    expect(
+      screen.getByRole("menuitem", { name: /Tài khoản của tôi/i }),
+    ).toBeInTheDocument()
     expect(
       screen.getByRole("menuitem", { name: /cấu hình giao diện/i }),
     ).toBeInTheDocument()

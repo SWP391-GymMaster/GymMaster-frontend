@@ -39,6 +39,7 @@ function buildMember360Response(memberId: number) {
       id: member.id,
       memberCode: member.memberCode,
       fullName: member.fullName,
+      avatarUrl: member.avatarUrl ?? null,
       email: member.email,
       phone: member.phone,
       status: member.status,

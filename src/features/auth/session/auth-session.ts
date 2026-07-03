@@ -9,6 +9,7 @@ import {
   refreshSession,
   registerMember,
 } from "@/features/auth/api/auth.api"
+import { normalizeLoginSuccess } from "@/features/auth/api/auth-normalizers"
 import { ApiClientError, registerTokenRefresher } from "@/lib/api/http-client"
 import { getDashboardRoute, isUserRole } from "@/lib/auth/roles"
 import type {
@@ -76,7 +77,8 @@ function persistSession(session: AuthSession | null) {
 }
 
 export function createSessionFromLogin(data: LoginSuccess): AuthSession {
-  const role = data.role ?? data.user.role
+  const normalized = normalizeLoginSuccess(data)
+  const role = normalized.role ?? normalized.user.role
 
   if (!role) {
     throw new ApiClientError({
@@ -85,7 +87,7 @@ export function createSessionFromLogin(data: LoginSuccess): AuthSession {
     })
   }
 
-  if (!isUserRole(role) || !isUserRole(data.user.role)) {
+  if (!isUserRole(role) || !isUserRole(normalized.user.role)) {
     throw new ApiClientError({
       code: "UNKNOWN_ROLE",
       message: "Vai trò sau khi xác thực không hợp lệ.",
@@ -93,11 +95,11 @@ export function createSessionFromLogin(data: LoginSuccess): AuthSession {
   }
 
   return {
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-    expiresAt: data.expiresAt,
+    accessToken: normalized.accessToken,
+    refreshToken: normalized.refreshToken,
+    expiresAt: normalized.expiresAt,
     user: {
-      ...data.user,
+      ...normalized.user,
       role,
     },
     role,

@@ -15,6 +15,7 @@ import {
   UserRound,
 } from "lucide-react"
 
+import { UserAvatar } from "@/components/data/UserAvatar"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -29,6 +30,7 @@ import {
   useMyProfile,
   useUpdateMyProfile,
 } from "@/features/member-profile/api/member-profile.queries"
+import { AccountDialog } from "@/features/account/components/AccountDialog"
 import {
   memberProfileSchema,
   type MemberProfileFormValues,
@@ -236,6 +238,7 @@ export function MemberProfileWorkspace() {
   const profileQuery = useMyProfile()
   const updateProfile = useUpdateMyProfile()
   const [formError, setFormError] = useState<string | null>(null)
+  const [isAccountOpen, setIsAccountOpen] = useState(false)
 
   const profile = profileQuery.data
   const defaultValues = useMemo<MemberProfileFormValues>(
@@ -338,7 +341,8 @@ export function MemberProfileWorkspace() {
   const genderValue = watchedGender || "unspecified"
 
   return (
-    <section className="space-y-6">
+    <>
+      <section className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-3">
         <IdentityItem icon={Mail} label="Email" value={profile.email} />
         <IdentityItem
@@ -351,6 +355,35 @@ export function MemberProfileWorkspace() {
           label="Ngày tham gia"
           value={formatIdentityDate(profile.joinedAt)}
         />
+      </div>
+
+      <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-4">
+            <UserAvatar
+              avatarUrl={profile.avatarUrl}
+              name={profile.fullName}
+              size="lg"
+            />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">
+                Ảnh đại diện và tài khoản
+              </p>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Ảnh, họ tên và số điện thoại được dùng chung trong toàn bộ GymMaster.
+              </p>
+            </div>
+          </div>
+          <Button
+            className="min-h-11 rounded-full active:scale-[0.98]"
+            onClick={() => setIsAccountOpen(true)}
+            type="button"
+            variant="outline"
+          >
+            <UserRound aria-hidden="true" className="size-4" />
+            Tài khoản của tôi
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -533,6 +566,8 @@ export function MemberProfileWorkspace() {
           </Button>
         </aside>
       </div>
-    </section>
+      </section>
+      <AccountDialog open={isAccountOpen} onOpenChange={setIsAccountOpen} />
+    </>
   )
 }

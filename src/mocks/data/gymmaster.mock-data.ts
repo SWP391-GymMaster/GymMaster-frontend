@@ -3,6 +3,7 @@ export type MockMember = {
   memberCode: string
   fullName: string
   email: string
+  avatarUrl?: string | null
   phone: string
   status: "active" | "pending" | "expired"
   currentPackageId?: number
@@ -18,6 +19,7 @@ export type MockUserAccount = {
   userId: number
   fullName: string
   email: string
+  avatarUrl?: string | null
   phone?: string
   role: "admin" | "staff" | "pt" | "member"
   status: "active" | "locked"
@@ -108,6 +110,7 @@ export const members: MockMember[] = [
     memberCode: "GM-101",
     fullName: "Nguyen Minh Anh",
     email: "member@gymmaster.local",
+    avatarUrl: null,
     phone: "0900000101",
     status: "active",
     currentPackageId: 1,
@@ -137,6 +140,7 @@ export const userAccounts: MockUserAccount[] = [
     userId: 1,
     fullName: "GymMaster Admin",
     email: "admin@gymmaster.local",
+    avatarUrl: null,
     phone: "0900000001",
     role: "admin",
     status: "active",
@@ -145,6 +149,7 @@ export const userAccounts: MockUserAccount[] = [
     userId: 2,
     fullName: "Front Desk Staff",
     email: "staff@gymmaster.local",
+    avatarUrl: null,
     phone: "0900000002",
     role: "staff",
     status: "active",
@@ -153,6 +158,7 @@ export const userAccounts: MockUserAccount[] = [
     userId: 3,
     fullName: "Coach PT",
     email: "pt@gymmaster.local",
+    avatarUrl: null,
     phone: "0900000003",
     role: "pt",
     status: "active",
@@ -161,6 +167,7 @@ export const userAccounts: MockUserAccount[] = [
     userId: 4,
     fullName: "Gym Member",
     email: "member@gymmaster.local",
+    avatarUrl: null,
     phone: "0900000101",
     role: "member",
     status: "active",

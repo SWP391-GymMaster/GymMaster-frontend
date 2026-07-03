@@ -377,6 +377,7 @@ function getOrCreateMockSelfProfile() {
       memberCode: `GM-${Math.floor(100 + Math.random() * 900)}`,
       fullName: account?.fullName ?? "Gym Member",
       email: account?.email ?? "member@gymmaster.local",
+      avatarUrl: account?.avatarUrl ?? null,
       phone: account?.phone ?? "",
       status: "active",
     }
@@ -393,6 +394,7 @@ function toPascalMemberResponse(member: (typeof members)[number]) {
     MemberCode: member.memberCode,
     Email: member.email,
     FullName: member.fullName,
+    AvatarUrl: member.avatarUrl ?? null,
     Phone: member.phone || null,
     DateOfBirth: member.dateOfBirth ?? null,
     Gender: member.gender ?? null,

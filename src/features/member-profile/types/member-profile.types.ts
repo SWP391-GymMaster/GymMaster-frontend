@@ -4,6 +4,7 @@ export type MyProfile = {
   memberCode: string
   email: string
   fullName: string
+  avatarUrl: string | null
   phone: string | null
   dateOfBirth: string | null
   gender: string | null

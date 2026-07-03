@@ -23,6 +23,7 @@ import {
   CommandRail,
   MobileCommandHeader,
 } from "@/components/layout/CommandRail";
+import { UserAvatar } from "@/components/data/UserAvatar";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/auth";
 import { useSidebarStore } from "@/stores/useSideBarStore";
@@ -30,6 +31,7 @@ import { SpotlightSearch } from "@/features/billing/components/SpotlightSearch";
 import { NotificationsDrawer } from "@/components/feedback/NotificationsDrawer";
 import { useNotifications } from "@/features/notifications/api/notifications.queries";
 import { SettingsDialog } from "@/features/billing/components/SettingsDialog";
+import { AccountDialog } from "@/features/account/components/AccountDialog";
 import { RouteProgressBar } from "@/components/feedback/RouteProgressBar";
 import { PageAnimateWrapper } from "@/components/layout/PageAnimateWrapper";
 import { RestTimerOverlay } from "@/components/premium/RestTimerOverlay";
@@ -73,6 +75,7 @@ export function WorkspaceShell({
   const logout = useAuthSessionStore((state) => state.logout);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isLogoutPending, setIsLogoutPending] = useState(false);
 
   const { data: notifications = [] } = useNotifications(role);
@@ -268,7 +271,11 @@ export function WorkspaceShell({
                       {roleBadges[role]}
                     </span>
                   </div>
-                  <div className="size-10 shrink-0 rounded-full border border-primary/40 bg-[radial-gradient(circle_at_30%_30%,color-mix(in_oklch,var(--primary)_60%,white),var(--surface-panel-strong))] shadow-[var(--shadow-soft)]" />
+                  <UserAvatar
+                    avatarUrl={currentUser?.avatarUrl}
+                    data-testid="workspace-user-avatar"
+                    name={currentUser?.fullName ?? userLabels[role]}
+                  />
                   <ChevronDown
                     aria-hidden="true"
                     className="size-4 text-muted-foreground"
@@ -289,6 +296,13 @@ export function WorkspaceShell({
                   </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onSelect={() => setIsAccountOpen(true)}
+                >
+                  <UserRound aria-hidden="true" className="size-4" />
+                  <span>Tài khoản của tôi</span>
+                </DropdownMenuItem>
                 {role === "member" ? (
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/member/profile">
@@ -410,6 +424,7 @@ export function WorkspaceShell({
         onClose={() => setIsNotificationsOpen(false)}
       />
       <SettingsDialog open={isSettingsOpen} onOpenChange={setSettingsOpen} />
+      <AccountDialog open={isAccountOpen} onOpenChange={setIsAccountOpen} />
       <RestTimerOverlay />
       <ShortcutsHelpOverlay />
     </main>

@@ -21,6 +21,8 @@ type RawMyProfile = {
   email?: string
   FullName?: string
   fullName?: string
+  AvatarUrl?: string | null
+  avatarUrl?: string | null
   Phone?: string | null
   phone?: string | null
   DateOfBirth?: string | null
@@ -46,6 +48,7 @@ function normalizeProfile(raw: RawMyProfile): MyProfile {
     memberCode: raw.MemberCode ?? raw.memberCode ?? "",
     email: raw.Email ?? raw.email ?? "",
     fullName: raw.FullName ?? raw.fullName ?? "",
+    avatarUrl: raw.AvatarUrl ?? raw.avatarUrl ?? null,
     phone: raw.Phone ?? raw.phone ?? null,
     dateOfBirth: raw.DateOfBirth ?? raw.dateOfBirth ?? null,
     gender: raw.Gender ?? raw.gender ?? null,
