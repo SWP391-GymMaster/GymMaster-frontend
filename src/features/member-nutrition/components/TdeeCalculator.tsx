@@ -198,26 +198,37 @@ export function TdeeCalculator({ isOpen, onClose, onTargetApplied }: TdeeCalcula
       const cG = Math.round((proposedCalorie * cRatio) / 4);
       const fG = Math.round((proposedCalorie * fRatio) / 9);
 
-      setTargetMutation.mutate({
-        dailyCalories: proposedCalorie,
-        proteinG: pG,
-        carbG: cG,
-        fatG: fG,
-      });
-
-      onTargetApplied(proposedCalorie);
+      setTargetMutation.mutate(
+        {
+          dailyCalories: proposedCalorie,
+          proteinG: pG,
+          carbG: cG,
+          fatG: fG,
+        },
+        {
+          onSuccess: () => {
+            onTargetApplied(proposedCalorie);
+            onClose();
+          },
+        }
+      );
     } else {
       // Manual input
-      setTargetMutation.mutate({
-        dailyCalories: manualCalorie,
-        proteinG: manualProtein,
-        carbG: manualCarbs,
-        fatG: manualFat,
-      });
-
-      onTargetApplied(manualCalorie);
+      setTargetMutation.mutate(
+        {
+          dailyCalories: manualCalorie,
+          proteinG: manualProtein,
+          carbG: manualCarbs,
+          fatG: manualFat,
+        },
+        {
+          onSuccess: () => {
+            onTargetApplied(manualCalorie);
+            onClose();
+          },
+        }
+      );
     }
-    onClose();
   }
 
   // Calculate total calories from macros input to show warning/comparison

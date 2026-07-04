@@ -99,14 +99,45 @@ function mockOnlineFoodResults(query: string) {
   return []
 }
 
+// Biến trạng thái lưu trữ calorie target tạm thời trong bộ nhớ giả lập
+let mockCalorieTarget = {
+  dailyCalories: 2200,
+  proteinG: 140,
+  carbG: 270,
+  fatG: 75,
+};
+
 export const nutritionHandlers = [
+  http.get("/api/v1/members/:id/calorie-target", ({ params, request }) => {
+    const role = requireRole(request, ["member", "pt"])
+    if (typeof role !== "string") return role
+
+    return ok({
+      id: 1,
+      memberId: Number(params.id),
+      effectiveDate: new Date().toISOString().slice(0, 10),
+      dailyCalories: mockCalorieTarget.dailyCalories,
+      proteinG: mockCalorieTarget.proteinG,
+      carbG: mockCalorieTarget.carbG,
+      fatG: mockCalorieTarget.fatG,
+    })
+  }),
   http.post("/api/v1/members/:id/calorie-target", async ({ params, request }) => {
     const role = requireRole(request, ["member", "pt"])
     if (typeof role !== "string") return role
     const body = (await request.json()) as Record<string, unknown>
 
+    mockCalorieTarget = {
+      dailyCalories: Number(body.dailyCalories) ?? 2200,
+      proteinG: Number(body.proteinG) ?? 140,
+      carbG: Number(body.carbG) ?? 270,
+      fatG: Number(body.fatG) ?? 75,
+    }
+
     return created({
+      id: 1,
       memberId: Number(params.id),
+      effectiveDate: new Date().toISOString().slice(0, 10),
       ...body,
     })
   }),
@@ -265,12 +296,34 @@ export const nutritionHandlers = [
     const date =
       new URL(request.url).searchParams.get("date") ??
       new Date().toISOString().slice(0, 10)
-    const target = 2200
-    const consumed = mealLogs
-      .filter(
-        (item) => item.memberId === Number(params.id) && item.logDate === date,
-      )
-      .reduce((total, item) => total + calculateMealCalories(item), 0)
+    const target = mockCalorieTarget.dailyCalories
+    
+    // Lấy danh sách logs của ngày đó
+    const todayLogs = mealLogs.filter(
+      (item) => item.memberId === Number(params.id) && item.logDate === date,
+    )
+    
+    const consumed = todayLogs.reduce((total, item) => total + calculateMealCalories(item), 0)
+
+    // Tính lượng macro thực tế đã ăn từ logs
+    let consumedProteinG = 0
+    let consumedCarbG = 0
+    let consumedFatG = 0
+
+    todayLogs.forEach((log) => {
+      log.items.forEach((item) => {
+        const food = foodItems.find((candidate) => candidate.id === item.foodItemId)
+        if (food) {
+          consumedProteinG += (food.proteinG ?? 0) * item.quantity
+          consumedCarbG += (food.carbsG ?? 0) * item.quantity
+          consumedFatG += (food.fatG ?? 0) * item.quantity
+        }
+      })
+    })
+
+    consumedProteinG = Number(consumedProteinG.toFixed(1))
+    consumedCarbG = Number(consumedCarbG.toFixed(1))
+    consumedFatG = Number(consumedFatG.toFixed(1))
 
     return ok({
       memberId: Number(params.id),
@@ -278,6 +331,15 @@ export const nutritionHandlers = [
       consumed,
       target,
       remaining: target - consumed,
+      consumedProteinG,
+      consumedCarbG,
+      consumedFatG,
+      targetProteinG: mockCalorieTarget.proteinG,
+      targetCarbG: mockCalorieTarget.carbG,
+      targetFatG: mockCalorieTarget.fatG,
+      remainingProteinG: Math.max(0, mockCalorieTarget.proteinG - consumedProteinG),
+      remainingCarbG: Math.max(0, mockCalorieTarget.carbG - consumedCarbG),
+      remainingFatG: Math.max(0, mockCalorieTarget.fatG - consumedFatG),
     })
   }),
   http.get("/api/v1/members/:id/calorie-history", ({ params, request }) => {
@@ -290,7 +352,7 @@ export const nutritionHandlers = [
     const daily = memberLogs.map((log) => ({
       date: log.logDate,
       consumed: calculateMealCalories(log),
-      target: 2200,
+      target: mockCalorieTarget.dailyCalories,
     }))
 
     return ok(daily)
