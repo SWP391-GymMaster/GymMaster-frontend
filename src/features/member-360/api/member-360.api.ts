@@ -51,11 +51,17 @@ function normalizeMembership(
   }
 }
 
+type RawMember360Data = Member360Data & {
+  member: Member360Data["member"] & {
+    AvatarUrl?: string | null
+  }
+}
+
 export async function getMember360Data(
   accessToken: string,
   memberId: number,
 ): Promise<Member360Data> {
-  const data = await apiRequest<Member360Data>(
+  const data = await apiRequest<RawMember360Data>(
     `/api/v1/members/${memberId}/profile-360`,
     {
       headers: authHeaders(accessToken),
@@ -64,6 +70,10 @@ export async function getMember360Data(
 
   return {
     ...data,
+    member: {
+      ...data.member,
+      avatarUrl: data.member.avatarUrl ?? data.member.AvatarUrl ?? null,
+    },
     currentMembership: data.currentMembership
       ? normalizeMembership(data.currentMembership)
       : data.currentMembership,

@@ -5,6 +5,7 @@ import {
   progressEntries,
 } from "@/mocks/data/gymmaster.mock-data"
 import { created, fail, ok, requireRole } from "@/mocks/utils/api-response"
+import { vnTodayIso } from "@/lib/date/vn-time"
 
 function isAssignedToPt(memberId: number) {
   return assignments.some(
@@ -30,12 +31,13 @@ export const progressHandlers = [
     }
 
     const weightKg = body.weightKg ?? 0
+    const today = vnTodayIso()
 
     if (
       weightKg <= 0 ||
       (body.bodyFatPct !== undefined && body.bodyFatPct <= 0) ||
       (body.measuredAt !== undefined &&
-        body.measuredAt > new Date().toISOString().slice(0, 10))
+        body.measuredAt > today)
     ) {
       return fail("INVALID_MEASUREMENT", "Progress measurement is invalid", 422)
     }
@@ -43,7 +45,7 @@ export const progressHandlers = [
     const entry = {
       id: Math.max(...progressEntries.map((item) => item.id)) + 1,
       memberId,
-      measuredAt: body.measuredAt ?? new Date().toISOString().slice(0, 10),
+      measuredAt: body.measuredAt ?? today,
       weightKg,
       ...(body.bodyFatPct === undefined ? {} : { bodyFatPct: body.bodyFatPct }),
     }

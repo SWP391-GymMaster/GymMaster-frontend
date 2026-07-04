@@ -156,8 +156,11 @@ export function RenewPackageWizard() {
       packages.data &&
       !renewalPackages.some((item) => item.id === selectedPackageId)
     ) {
-      setSelectedPackageId(null)
-      setValue("packageId", 0, { shouldValidate: false })
+      const timer = setTimeout(() => {
+        setSelectedPackageId(null)
+        setValue("packageId", 0, { shouldValidate: false })
+      }, 0)
+      return () => clearTimeout(timer)
     }
   }, [packages.data, renewalPackages, selectedPackageId, setValue])
 

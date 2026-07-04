@@ -4,6 +4,8 @@ export type AuthUser = {
   userId: number
   email: string
   fullName: string
+  phone?: string | null
+  avatarUrl?: string | null
   role: UserRole
   status: "active" | "locked" | string
   // Id hồ sơ hội viên (member_profiles) — khác userId. null nếu chưa có hồ sơ.

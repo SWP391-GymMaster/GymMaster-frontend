@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 
 import { StatusPill, type Status } from "@/components/data/StatusPill"
+import { UserAvatar } from "@/components/data/UserAvatar"
 import { StateBlock } from "@/components/feedback/StateBlock"
 import { useMemberCheckIns } from "@/features/billing/api/billing.queries"
 import { useMemberProgress } from "@/features/member-progress-tracking/api/member-progress.queries"
@@ -42,6 +43,8 @@ type MemberSocialProfileProps = {
   unavailable?: {
     title: string
     description: string
+    actionHref?: string
+    actionLabel?: string
   }
 }
 
@@ -148,6 +151,15 @@ export function MemberSocialProfile({
           title={unavailable.title}
           tone="empty"
         />
+        {unavailable.actionHref && unavailable.actionLabel ? (
+          <Link
+            className="mt-5 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 active:scale-[0.98]"
+            href={unavailable.actionHref}
+          >
+            {unavailable.actionLabel}
+            <ChevronRight aria-hidden="true" className="size-4" />
+          </Link>
+        ) : null}
       </section>
     )
   }
@@ -291,9 +303,12 @@ function SocialProfileHero({
         <div className="absolute inset-x-0 bottom-0 p-5 md:p-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-end">
-              <div className="grid size-28 shrink-0 place-items-center rounded-[2rem] border border-white/30 bg-white/15 text-3xl font-black text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl md:size-36 md:text-4xl">
-                {getInitials(member.fullName)}
-              </div>
+              <UserAvatar
+                avatarUrl={member.avatarUrl}
+                className="rounded-[2rem] border-white/30 bg-white/15 text-white shadow-[0_24px_60px_rgba(0,0,0,0.28)] backdrop-blur-xl [&_[data-slot=avatar-fallback]]:bg-white/15 [&_[data-slot=avatar-fallback]]:text-white"
+                name={member.fullName}
+                size="xl"
+              />
 
               <div className="min-w-0 pb-1 text-white">
                 <div className="flex flex-wrap items-center gap-2">
@@ -346,6 +361,7 @@ function SocialProfileHero({
           <span>{member.email}</span>
         </div>
         <div className="flex flex-wrap gap-2">
+          <SocialHeroLink href="/member/profile/edit" icon={UserRound} label="Chỉnh sửa hồ sơ" />
           <SocialHeroLink href="/member/progress" icon={TrendingUp} label="Cập nhật tiến độ" />
           <SocialHeroLink href="/member/nutrition/meal-journal" icon={UtensilsCrossed} label="Ghi bữa ăn" />
           <SocialHeroLink href="/member/workout" icon={Dumbbell} label="Xem giáo án" />
@@ -616,6 +632,7 @@ function SocialActionCard() {
     <section className="gm-panel p-5">
       <p className="text-sm font-semibold text-foreground">Hành động nhanh</p>
       <div className="mt-4 grid gap-2">
+        <ActionLink href="/member/profile/edit" icon={UserRound} label="Chỉnh sửa hồ sơ" />
         <ActionLink href="/member/progress" icon={TrendingUp} label="Cập nhật tiến độ" />
         <ActionLink href="/member/nutrition/meal-journal" icon={UtensilsCrossed} label="Ghi bữa ăn" />
         <ActionLink href="/member/membership" icon={CreditCard} label="Gói tập của tôi" />
@@ -910,15 +927,6 @@ function sortWorkouts(items: WorkoutPlan[]) {
     const bDate = b.updatedAt ?? b.createdAt ?? b.startDate ?? ""
     return new Date(bDate).getTime() - new Date(aDate).getTime()
   })
-}
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("")
 }
 
 function toStatus(status?: string | null): Status {

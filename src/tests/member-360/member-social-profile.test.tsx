@@ -110,6 +110,11 @@ describe("MemberSocialProfile", () => {
     expect(screen.getByText("Check-in phòng tập")).toBeInTheDocument()
     expect(
       screen
+        .getAllByRole("link", { name: /Chỉnh sửa hồ sơ/i })
+        .some((link) => link.getAttribute("href") === "/member/profile/edit"),
+    ).toBe(true)
+    expect(
+      screen
         .getAllByRole("link", { name: /Cập nhật tiến độ/i })
         .some((link) => link.getAttribute("href") === "/member/progress"),
     ).toBe(true)
@@ -122,13 +127,19 @@ describe("MemberSocialProfile", () => {
     render(
       <MemberSocialProfile
         unavailable={{
-          title: "Chưa có hồ sơ hội viên",
-          description: "Tài khoản hiện tại chưa liên kết với hồ sơ hội viên.",
+          title: "Hoàn thiện hồ sơ hội viên",
+          description: "Tài khoản hiện tại chưa có hồ sơ hội viên để hiển thị.",
+          actionHref: "/member/profile/edit",
+          actionLabel: "Hoàn thiện hồ sơ",
         }}
       />,
     )
 
-    expect(screen.getByText("Chưa có hồ sơ hội viên")).toBeInTheDocument()
+    expect(screen.getByText("Hoàn thiện hồ sơ hội viên")).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: /Hoàn thiện hồ sơ/i })).toHaveAttribute(
+      "href",
+      "/member/profile/edit",
+    )
     expect(screen.queryByTestId("member-social-profile")).not.toBeInTheDocument()
   })
 })

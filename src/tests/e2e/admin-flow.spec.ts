@@ -157,7 +157,7 @@ test.describe("Admin Dashboard Flow", () => {
     await expect(page.getByText(/Mật khẩu tạm thời:/)).toBeVisible()
 
     await page.getByTestId("user-delete-button").click()
-    await expect(page.getByText("Đã vô hiệu hóa tài khoản")).toBeVisible()
+    await expect(page.getByText("Đã xóa tài khoản")).toBeVisible()
     await expect(page.getByText("Template Staff Lead E2E")).toHaveCount(0)
   })
 

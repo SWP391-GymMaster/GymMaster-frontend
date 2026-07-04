@@ -17,14 +17,12 @@ import {
   Dumbbell,
   Filter,
   Mail,
-  MessageSquare,
   Phone,
   Plus,
   Search,
   ShieldCheck,
   Trash2,
   UserCheck,
-  UserCog,
   UserPlus,
   UserRound,
   UsersRound,
@@ -33,7 +31,11 @@ import type { LucideIcon } from "lucide-react"
 
 import { StatusPill, type Status } from "@/components/data/StatusPill"
 import { formatVnDate } from "@/lib/date/vn-time"
+import { genderLabel, toCanonicalGender } from "@/lib/validation/person"
 import { StateBlock } from "@/components/feedback/StateBlock"
+import { DateOfBirthField } from "@/components/forms/DateOfBirthField"
+import { GenderSelect } from "@/components/forms/GenderSelect"
+import { PhoneField } from "@/components/forms/PhoneField"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -55,18 +57,29 @@ import {
   useCreateManagedTrainer,
   useCreateManagedUser,
   useDeleteManagedMember,
+  useDeleteManagedUser,
   useManagedMembers,
   useManagedTrainers,
   useManagedUsers,
+  useResetManagedUserPassword,
   useUpdateManagedMember,
+  useUpdateManagedTrainer,
+  useUpdateManagedUser,
+  useUpdateManagedUserStatus,
 } from "@/features/member-management/api/member-management.queries"
 import {
   createTrainerSchema,
   createUserSchema,
+  updateMemberSchema,
+  updateTrainerSchema,
+  updateUserSchema,
   type CreateTrainerFormValues,
   type CreateUserFormValues,
+  type UpdateMemberFormValues,
+  type UpdateTrainerFormValues,
 } from "@/features/member-management/schemas/member-management.schemas"
 import type {
+  CreateTrainerResult,
   ManagedMember,
   ManagedTrainer,
   ManagedUser,
@@ -88,37 +101,6 @@ const inputClass =
   "gm-field min-h-11 w-full px-3 text-sm text-foreground transition placeholder:text-muted-foreground"
 const labelClass =
   "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
-
-const modeConfig = {
-  members: {
-    title: "Danh mục hội viên",
-    description: "Tạo, tìm kiếm, cập nhật và xóa mềm hồ sơ hội viên.",
-    createTitle: "Thêm hội viên",
-    icon: UserRound,
-    queryPlaceholder: "Tìm theo tên, email, số điện thoại hoặc mã hội viên...",
-  },
-  users: {
-    title: "Quản lý người dùng & vai trò",
-    description: "Tạo tài khoản người dùng gắn vai trò và mật khẩu tạm thời.",
-    createTitle: "Tạo tài khoản",
-    icon: ShieldCheck,
-    queryPlaceholder: "Tìm người dùng theo tên, email, SĐT hoặc vai trò...",
-  },
-  staff: {
-    title: "Quản lý nhân sự",
-    description: "Tạo và đánh giá tài khoản nhân viên lễ tân.",
-    createTitle: "Thêm nhân sự",
-    icon: Badge,
-    queryPlaceholder: "Tìm nhân sự theo tên, email hoặc số điện thoại...",
-  },
-  trainers: {
-    title: "Quản lý PT",
-    description: "Tạo hồ sơ huấn luyện viên và đánh giá chuyên môn giảng dạy.",
-    createTitle: "Thêm PT",
-    icon: Dumbbell,
-    queryPlaceholder: "Tìm huấn luyện viên theo tên hoặc chuyên môn...",
-  },
-} as const
 
 function toStatus(status: string): Status {
   if (
@@ -488,7 +470,7 @@ function MemberDirectoryTemplate({
             </div>
           </div>
 
-          {/* "Them hoi vien" da bo: hoi vien tu dang ky + mua goi de thanh member. */}
+          {/* "Thêm hoi vien" da bo: hoi vien tu dang ky + mua goi de thanh member. */}
           <SearchToolbar
             action={null}
             onSearch={setQuery}
@@ -555,20 +537,7 @@ function MemberTable({
   selectedId: number | null
   total: number
 }) {
-  const updateMember = useUpdateManagedMember()
   const deleteMember = useDeleteManagedMember()
-
-  async function markExpired(member: ManagedMember) {
-    try {
-      await updateMember.mutateAsync({
-        memberId: member.id,
-        input: { status: "expired" },
-      })
-      toast.success("Đã cập nhật trạng thái hội viên")
-    } catch (error) {
-      toast.error(mapMemberManagementError(error).message)
-    }
-  }
 
   async function removeMember(member: ManagedMember) {
     try {
@@ -654,21 +623,11 @@ function MemberTable({
                             </Link>
                           </Button>
                         ) : null}
-                        <Button
-                          className="rounded-lg border-border bg-card text-foreground hover:bg-muted"
-                          disabled={updateMember.isPending}
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            markExpired(member)
-                          }}
-                          type="button"
-                          variant="outline"
-                        >
-                          Đánh dấu hết hạn
-                        </Button>
+                        <MemberEditDialog member={member} />
                         {canDelete ? (
                           <Button
                             className="rounded-lg"
+                            data-testid="member-delete-button"
                             disabled={deleteMember.isPending}
                             onClick={(event) => {
                               event.stopPropagation()
@@ -743,8 +702,17 @@ function MemberPreviewPanel({
 
       <div className="p-5">
         <div className="flex items-center gap-4">
-          <span className="relative flex size-20 items-center justify-center rounded-full bg-primary/10 text-2xl font-semibold text-primary">
-            {initials(member.fullName)}
+          <span
+            aria-label={`${member.fullName} avatar`}
+            className={cn(
+              "relative flex size-20 items-center justify-center overflow-hidden rounded-full bg-primary/10 bg-cover bg-center text-2xl font-semibold text-primary",
+              member.avatarUrl ? "text-transparent" : "",
+            )}
+            data-testid="member-profile-avatar"
+            role="img"
+            style={member.avatarUrl ? { backgroundImage: `url(${member.avatarUrl})` } : undefined}
+          >
+            {member.avatarUrl ? null : initials(member.fullName)}
             <span
               className={cn(
                 "absolute bottom-1 right-1 size-4 rounded-full border-2 border-card",
@@ -959,8 +927,13 @@ function StaffDirectoryTemplate({
   )
 }
 
-function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
-  if (!user) {
+function StaffProfilePanel({ user: selectedUser }: { user: ManagedUser | null }) {
+  const updateStatus = useUpdateManagedUserStatus()
+  const resetPassword = useResetManagedUserPassword()
+  const deleteUser = useDeleteManagedUser()
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null)
+
+  if (!selectedUser) {
     return (
       <section className={cn(surfaceClass, "p-6")}>
         <StateBlock
@@ -970,6 +943,40 @@ function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
         />
       </section>
     )
+  }
+
+  const user = selectedUser
+
+  async function toggleLock() {
+    try {
+      await updateStatus.mutateAsync({
+        userId: user.userId,
+        input: { status: user.status === "locked" ? "active" : "locked" },
+      })
+      toast.success(user.status === "locked" ? "Đã mo khoa tài khoản" : "Đã khóa tài khoản")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  async function resetStaffPassword() {
+    try {
+      const result = await resetPassword.mutateAsync(user.userId)
+      setTemporaryPassword(result.temporaryPassword)
+      toast.success("Đã tạo mật khẩu tạm thời")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  async function removeStaff() {
+    if (!window.confirm("Xóa tài khoản nhân sự này?")) return
+    try {
+      await deleteUser.mutateAsync(user.userId)
+      toast.success("Đã xóa tài khoản nhân sự")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
   }
 
   return (
@@ -986,9 +993,7 @@ function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
               </h2>
               <StatusPill status={toStatus(user.status)} />
             </div>
-            <p className="mt-1 text-sm font-medium text-primary">
-              Lễ tân · #{user.userId}
-            </p>
+            <p className="mt-1 text-sm font-medium text-primary">Lễ tân · #{user.userId}</p>
             <p className="mt-2 text-sm text-muted-foreground">
               {user.email} · {user.phone ?? "Chưa có SĐT"}
             </p>
@@ -997,23 +1002,34 @@ function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
       </div>
 
       <div className="grid gap-5 p-6">
+        <div className="flex flex-wrap gap-2">
+          <StaffEditDialog user={user} />
+          <Button className="rounded-xl" onClick={toggleLock} type="button" variant="outline">
+            {user.status === "locked" ? "Mở khóa" : "Khóa"}
+          </Button>
+          <Button className="rounded-xl" onClick={resetStaffPassword} type="button" variant="outline">
+            Đặt lại mật khẩu
+          </Button>
+          <Button className="rounded-xl" onClick={removeStaff} type="button" variant="destructive">
+            Xóa
+          </Button>
+        </div>
+
         <section className="gm-panel-muted p-5">
           <p className="mb-5 text-sm font-semibold text-foreground">Thông tin tài khoản</p>
           <div className="grid gap-3">
             {[
-              { label: "Email", value: user.email || "—" },
-              { label: "Số điện thoại", value: user.phone || "—" },
+              { label: "Email", value: user.email || "-" },
+              { label: "Số điện thoại", value: user.phone || "-" },
               { label: "Vai trò", value: "Lễ tân" },
-              {
-                label: "Trạng thái",
-                value: user.status === "active" ? "Hoạt động" : "Đã khóa",
-              },
+              { label: "Trạng thái", value: user.status === "active" ? "Hoạt động" : "Đã khóa" },
               { label: "Mã người dùng", value: `#${user.userId}` },
+              { label: "Ngày sinh", value: formatDateVi(user.dateOfBirth) },
+              { label: "Giới tính", value: formatGenderVi(user.gender) },
+              { label: "Địa chỉ", value: user.address || "-" },
+              { label: "Liên hệ khẩn cấp", value: user.emergencyContact || "-" },
             ].map((row) => (
-              <div
-                className="flex items-center justify-between gap-4 text-sm"
-                key={row.label}
-              >
+              <div className="flex items-center justify-between gap-4 text-sm" key={row.label}>
                 <span className="text-muted-foreground">{row.label}</span>
                 <span className="max-w-[60%] truncate text-right font-semibold text-foreground">
                   {row.value}
@@ -1026,9 +1042,237 @@ function StaffProfilePanel({ user }: { user: ManagedUser | null }) {
               Mật khẩu tạm thời: {user.initialPassword}
             </p>
           ) : null}
+          {temporaryPassword ? (
+            <p className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3 font-mono text-xs font-semibold text-primary">
+              Mật khẩu tạm thời: {temporaryPassword}
+            </p>
+          ) : null}
         </section>
       </div>
     </section>
+  )
+}
+
+function StaffEditDialog({ user }: { user: ManagedUser }) {
+  const updateUser = useUpdateManagedUser()
+  const [open, setOpen] = useState(false)
+  const {
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    register,
+    reset,
+    setValue,
+    watch,
+  } = useForm({
+    resolver: zodResolver(updateUserSchema),
+    values: {
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone ?? "",
+      dateOfBirth: toDateInputValue(user.dateOfBirth),
+      gender: toCanonicalGender(user.gender),
+      address: user.address ?? "",
+      emergencyContact: user.emergencyContact ?? "",
+    },
+  })
+
+  async function onSubmit(values: {
+    fullName: string
+    email: string
+    phone?: string
+    dateOfBirth?: string
+    gender?: string
+    address?: string
+    emergencyContact?: string
+  }) {
+    try {
+      await updateUser.mutateAsync({
+        userId: user.userId,
+        input: {
+          fullName: values.fullName,
+          email: values.email,
+          phone: values.phone || undefined,
+          dateOfBirth: values.dateOfBirth || undefined,
+          gender: values.gender || undefined,
+          address: values.address || undefined,
+          emergencyContact: values.emergencyContact || undefined,
+        },
+      })
+      toast.success("Đã cập nhật nhân sự")
+      setOpen(false)
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => {
+      setOpen(next)
+      if (next) {
+        reset({
+          fullName: user.fullName,
+          email: user.email,
+          phone: user.phone ?? "",
+          dateOfBirth: toDateInputValue(user.dateOfBirth),
+          gender: toCanonicalGender(user.gender),
+          address: user.address ?? "",
+          emergencyContact: user.emergencyContact ?? "",
+        })
+      }
+    }}>
+      <DialogTrigger asChild>
+        <Button className="rounded-xl" type="button" variant="outline">Sửa</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Sửa nhân sự</DialogTitle>
+          <DialogDescription>Cập nhật tài khoản và thông tin cá nhân.</DialogDescription>
+        </DialogHeader>
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field error={errors.fullName?.message as string | undefined} label="Họ và tên">
+              <Input className={inputClass} {...register("fullName")} />
+            </Field>
+            <Field error={errors.email?.message as string | undefined} label="Email">
+              <Input className={inputClass} type="email" {...register("email")} />
+            </Field>
+            <Field error={errors.phone?.message as string | undefined} label="Số điện thoại">
+              <PhoneField className={inputClass} {...register("phone")} />
+            </Field>
+            <Field error={errors.dateOfBirth?.message as string | undefined} label="Ngày sinh">
+              <DateOfBirthField className={inputClass} {...register("dateOfBirth")} />
+            </Field>
+            <Field label="Giới tính">
+              <GenderSelect
+                onChange={(value) => setValue("gender", value, { shouldValidate: true, shouldDirty: true })}
+                value={watch("gender")}
+              />
+            </Field>
+            <Field error={errors.emergencyContact?.message as string | undefined} label="Liên hệ khẩn cấp">
+              <Input className={inputClass} {...register("emergencyContact")} />
+            </Field>
+          </div>
+          <Field error={errors.address?.message as string | undefined} label="Địa chỉ">
+            <Input className={inputClass} {...register("address")} />
+          </Field>
+          <Button className="rounded-xl bg-primary text-primary-foreground" disabled={isSubmitting || updateUser.isPending} type="submit">
+            Lưu
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+// Admin sua ho so ca nhan hoi vien ngay tai cua Members (email read-only).
+function MemberEditDialog({ member }: { member: ManagedMember }) {
+  const updateMember = useUpdateManagedMember()
+  const [open, setOpen] = useState(false)
+  const {
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    register,
+    reset,
+    setValue,
+    watch,
+  } = useForm<UpdateMemberFormValues>({
+    resolver: zodResolver(updateMemberSchema),
+    values: {
+      fullName: member.fullName,
+      phone: member.phone ?? "",
+      dateOfBirth: toDateInputValue(member.dateOfBirth),
+      gender: toCanonicalGender(member.gender),
+      address: member.address ?? "",
+      emergencyContact: member.emergencyContact ?? "",
+    },
+  })
+
+  async function onSubmit(values: UpdateMemberFormValues) {
+    try {
+      await updateMember.mutateAsync({
+        memberId: member.id,
+        input: {
+          fullName: values.fullName,
+          phone: values.phone,
+          dateOfBirth: values.dateOfBirth || undefined,
+          gender: values.gender || undefined,
+          address: values.address || undefined,
+          emergencyContact: values.emergencyContact || undefined,
+        },
+      })
+      toast.success("Đã cập nhật hồ sơ hội viên")
+      setOpen(false)
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => {
+      setOpen(next)
+      if (next) {
+        reset({
+          fullName: member.fullName,
+          phone: member.phone ?? "",
+          dateOfBirth: toDateInputValue(member.dateOfBirth),
+          gender: toCanonicalGender(member.gender),
+          address: member.address ?? "",
+          emergencyContact: member.emergencyContact ?? "",
+        })
+      }
+    }}>
+      <DialogTrigger asChild>
+        <Button
+          className="rounded-lg border-border bg-card text-foreground hover:bg-muted"
+          data-testid="member-edit-open"
+          onClick={(event) => event.stopPropagation()}
+          type="button"
+          variant="outline"
+        >
+          Sửa
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-2xl" onClick={(event) => event.stopPropagation()}>
+        <DialogHeader>
+          <DialogTitle>Sửa hồ sơ hội viên</DialogTitle>
+          <DialogDescription>
+            Cập nhật thông tin cá nhân của {member.fullName}. Email không thể thay đổi.
+          </DialogDescription>
+        </DialogHeader>
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field error={errors.fullName?.message} label="Họ và tên">
+              <Input className={inputClass} data-testid="member-edit-name" {...register("fullName")} />
+            </Field>
+            <Field error={errors.phone?.message} label="Số điện thoại">
+              <PhoneField className={inputClass} {...register("phone")} />
+            </Field>
+            <Field error={errors.dateOfBirth?.message} label="Ngày sinh">
+              <DateOfBirthField className={inputClass} {...register("dateOfBirth")} />
+            </Field>
+            <Field label="Giới tính">
+              <GenderSelect
+                onChange={(value) => setValue("gender", value, { shouldValidate: true, shouldDirty: true })}
+                value={watch("gender")}
+              />
+            </Field>
+            <Field error={errors.address?.message} label="Địa chỉ">
+              <Input className={inputClass} {...register("address")} />
+            </Field>
+            <Field error={errors.emergencyContact?.message} label="Liên hệ khẩn cấp">
+              <Input className={inputClass} {...register("emergencyContact")} />
+            </Field>
+          </div>
+          <Button
+            className="rounded-xl bg-primary text-primary-foreground"
+            data-testid="member-edit-submit"
+            disabled={isSubmitting || updateMember.isPending}
+            type="submit"
+          >
+            Lưu
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -1173,12 +1417,17 @@ function TrainerRosterTemplate({
   )
 }
 
-function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
-  if (!trainer) {
+function TrainerProfilePanel({ trainer: selectedTrainer }: { trainer: ManagedTrainer | null }) {
+  const updateStatus = useUpdateManagedUserStatus()
+  const resetPassword = useResetManagedUserPassword()
+  const deleteTrainer = useDeleteManagedUser()
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null)
+
+  if (!selectedTrainer) {
     return (
       <section className={cn(surfaceClass, "p-6")}>
         <StateBlock
-          description="Tạo hồ sơ PT hoặc điều chỉnh bộ lọc tìm kiếm."
+          description="Tạo hồ sơ PT hoặc dieu chinh bo loc tim kiem."
           title="Chưa chọn PT"
           tone="empty"
         />
@@ -1186,17 +1435,55 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
     )
   }
 
+  const trainer = selectedTrainer
+
   const infoRows = [
-    { label: "Email", value: trainer.email || "—" },
+    { label: "Email", value: trainer.email || "-" },
     { label: "Chuyên môn", value: trainer.specialty || "Chưa cập nhật" },
     {
-      label: "Kinh nghiệm",
-      value: trainer.yearsOfExperience != null ? `${trainer.yearsOfExperience} năm` : "—",
+      label: "Kinh nghiem",
+      value: trainer.yearsOfExperience != null ? `${trainer.yearsOfExperience} nam` : "-",
     },
     { label: "Giới tính", value: formatGenderVi(trainer.gender) },
     { label: "Ngày sinh", value: formatDateVi(trainer.dateOfBirth) },
-    { label: "Ngày tạo hồ sơ", value: formatDateVi(trainer.createdAt) },
+    { label: "Địa chỉ", value: trainer.address || "-" },
+    { label: "Liên hệ khẩn cấp", value: trainer.emergencyContact || "-" },
+    { label: "Ngay tao hồ sơ", value: formatDateVi(trainer.createdAt) },
   ]
+
+  async function toggleLock() {
+    try {
+      await updateStatus.mutateAsync({
+        userId: trainer.userId,
+        input: { status: trainer.status === "locked" ? "active" : "locked" },
+      })
+      toast.success(trainer.status === "locked" ? "Đã mở khóa tài khoản PT" : "Đã khóa tài khoản PT")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  async function resetTrainerPassword() {
+    try {
+      const result = await resetPassword.mutateAsync(trainer.userId)
+      setTemporaryPassword(result.temporaryPassword)
+      toast.success("Đã tạo mật khẩu tạm thời")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  async function removeTrainer() {
+    if (!window.confirm(`Xóa tài khoản PT "${trainer.fullName}"? Hồ sơ và lịch sử vẫn được giữ, email được giải phóng.`)) {
+      return
+    }
+    try {
+      await deleteTrainer.mutateAsync(trainer.userId)
+      toast.success("Đã xóa tài khoản PT")
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
 
   return (
     <section className={cn(surfaceClass, "overflow-hidden")}>
@@ -1204,7 +1491,7 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
         <span className="flex size-24 shrink-0 items-center justify-center rounded-2xl bg-primary text-2xl font-semibold text-primary-foreground shadow-sm">
           {initials(trainer.fullName)}
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-3xl font-semibold tracking-tight text-foreground">
               {trainer.fullName}
@@ -1216,8 +1503,22 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
           </p>
           <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
             <Mail aria-hidden="true" className="size-4" />
-            <span className="truncate">{trainer.email || "—"}</span>
+            <span className="truncate">{trainer.email || "-"}</span>
           </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <TrainerEditDialog trainer={trainer} />
+            <TrainerAccountDialog trainer={trainer} />
+            <Button className="rounded-xl" onClick={toggleLock} type="button" variant="outline">
+              {trainer.status === "locked" ? "Mở khóa" : "Khóa"}
+            </Button>
+            <Button className="rounded-xl" onClick={resetTrainerPassword} type="button" variant="outline">
+              Đặt lại mật khẩu
+            </Button>
+            <Button className="rounded-xl" data-testid="trainer-delete-button" disabled={deleteTrainer.isPending} onClick={removeTrainer} type="button" variant="destructive">
+              <Trash2 aria-hidden="true" className="size-4" />
+              Xóa
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -1226,10 +1527,7 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
           <p className="mb-5 text-sm font-semibold text-foreground">Thông tin hồ sơ</p>
           <div className="grid gap-3">
             {infoRows.map((row) => (
-              <div
-                className="flex items-center justify-between gap-4 text-sm"
-                key={row.label}
-              >
+              <div className="flex items-center justify-between gap-4 text-sm" key={row.label}>
                 <span className="text-muted-foreground">{row.label}</span>
                 <span className="max-w-[60%] truncate text-right font-semibold text-foreground">
                   {row.value}
@@ -1237,6 +1535,11 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
               </div>
             ))}
           </div>
+          {temporaryPassword ? (
+            <p className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-3 font-mono text-xs font-semibold text-primary">
+              Mật khẩu tạm thời: {temporaryPassword}
+            </p>
+          ) : null}
         </section>
 
         <section className="gm-panel-muted p-5">
@@ -1254,12 +1557,165 @@ function TrainerProfilePanel({ trainer }: { trainer: ManagedTrainer | null }) {
   )
 }
 
+function TrainerEditDialog({ trainer }: { trainer: ManagedTrainer }) {
+  const updateTrainer = useUpdateManagedTrainer()
+  const [open, setOpen] = useState(false)
+  const {
+    formState: { errors, isSubmitting },
+    handleSubmit,
+    register,
+    reset,
+    setValue,
+    watch,
+  } = useForm<UpdateTrainerFormValues>({
+    resolver: zodResolver(updateTrainerSchema),
+    values: {
+      specialty: trainer.specialty ?? "",
+      gender: toCanonicalGender(trainer.gender),
+      dateOfBirth: toDateInputValue(trainer.dateOfBirth),
+      yearsOfExperience: trainer.yearsOfExperience?.toString() ?? "",
+      bio: trainer.bio ?? "",
+      address: trainer.address ?? "",
+      emergencyContact: trainer.emergencyContact ?? "",
+    },
+  })
+
+  async function onSubmit(values: UpdateTrainerFormValues) {
+    const yearsOfExperience = values.yearsOfExperience?.trim()
+    try {
+      await updateTrainer.mutateAsync({
+        trainerId: trainer.id,
+        input: {
+          specialty: values.specialty.trim(),
+          gender: values.gender?.trim() || undefined,
+          dateOfBirth: values.dateOfBirth || undefined,
+          yearsOfExperience: yearsOfExperience ? Number(yearsOfExperience) : undefined,
+          bio: values.bio?.trim() || undefined,
+          address: values.address?.trim() || undefined,
+          emergencyContact: values.emergencyContact?.trim() || undefined,
+        },
+      })
+      toast.success("Đã cập nhật hồ sơ PT")
+      setOpen(false)
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => {
+      setOpen(next)
+      if (next) {
+        reset({
+          specialty: trainer.specialty ?? "",
+          gender: toCanonicalGender(trainer.gender),
+          dateOfBirth: toDateInputValue(trainer.dateOfBirth),
+          yearsOfExperience: trainer.yearsOfExperience?.toString() ?? "",
+          bio: trainer.bio ?? "",
+          address: trainer.address ?? "",
+          emergencyContact: trainer.emergencyContact ?? "",
+        })
+      }
+    }}>
+      <DialogTrigger asChild>
+        <Button data-testid="trainer-edit-open" className="rounded-xl" type="button" variant="outline">Sửa hồ sơ</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Sửa hồ sơ PT</DialogTitle>
+          <DialogDescription>Cập nhật chuyên môn và thông tin cá nhân cua PT.</DialogDescription>
+        </DialogHeader>
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field error={errors.specialty?.message} label="Chuyên môn">
+              <Input data-testid="trainer-edit-specialty" className={inputClass} {...register("specialty")} />
+            </Field>
+            <Field label="Giới tính">
+              <GenderSelect
+                onChange={(value) => setValue("gender", value, { shouldValidate: true, shouldDirty: true })}
+                value={watch("gender")}
+              />
+            </Field>
+            <Field error={errors.dateOfBirth?.message} label="Ngày sinh">
+              <DateOfBirthField className={inputClass} {...register("dateOfBirth")} />
+            </Field>
+            <Field error={errors.yearsOfExperience?.message} label="Số năm kinh nghiệm">
+              <Input className={inputClass} max={80} min={0} type="number" {...register("yearsOfExperience")} />
+            </Field>
+            <Field error={errors.address?.message} label="Địa chỉ">
+              <Input className={inputClass} {...register("address")} />
+            </Field>
+            <Field error={errors.emergencyContact?.message} label="Liên hệ khẩn cấp">
+              <Input className={inputClass} {...register("emergencyContact")} />
+            </Field>
+          </div>
+          <Field label="Giới thiệu">
+            <textarea className="gm-field min-h-24 w-full resize-none px-3 py-2 text-sm text-foreground" {...register("bio")} />
+          </Field>
+          <Button data-testid="trainer-edit-submit" className="rounded-xl bg-primary text-primary-foreground" disabled={isSubmitting || updateTrainer.isPending} type="submit">
+            Lưu
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function TrainerAccountDialog({ trainer }: { trainer: ManagedTrainer }) {
+  const updateUser = useUpdateManagedUser()
+  const [open, setOpen] = useState(false)
+  const { handleSubmit, register, reset } = useForm({
+    values: {
+      fullName: trainer.fullName,
+      phone: "",
+    },
+  })
+
+  async function onSubmit(values: { fullName: string; phone?: string }) {
+    try {
+      await updateUser.mutateAsync({
+        userId: trainer.userId,
+        input: {
+          fullName: values.fullName,
+          phone: values.phone || undefined,
+        },
+      })
+      toast.success("Đã cập nhật tài khoản PT")
+      setOpen(false)
+    } catch (error) {
+      toast.error(mapMemberManagementError(error).message)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(next) => {
+      setOpen(next)
+      if (next) reset({ fullName: trainer.fullName, phone: "" })
+    }}>
+      <DialogTrigger asChild>
+        <Button className="rounded-xl" type="button" variant="outline">Sửa tài khoản</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Sửa tài khoản PT</DialogTitle>
+          <DialogDescription>Cập nhật tên hiển thị và số điện thoại tài khoản.</DialogDescription>
+        </DialogHeader>
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+          <Field label="Họ và tên">
+            <Input className={inputClass} {...register("fullName")} />
+          </Field>
+          <Field label="Số điện thoại">
+            <PhoneField className={inputClass} {...register("phone")} />
+          </Field>
+          <Button className="rounded-xl bg-primary text-primary-foreground" type="submit">Lưu</Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
 function formatGenderVi(gender?: string | null): string {
   if (!gender) return "—"
-  const normalized = gender.trim().toLowerCase()
-  if (normalized === "male" || normalized === "nam") return "Nam"
-  if (normalized === "female" || normalized === "nữ" || normalized === "nu") return "Nữ"
-  return gender
+  return genderLabel(gender)
 }
 
 function formatDateVi(value?: string | null): string {
@@ -1271,6 +1727,13 @@ function formatDateVi(value?: string | null): string {
     month: "2-digit",
     year: "numeric",
   })
+}
+
+function toDateInputValue(value?: string | null): string {
+  if (!value) return ""
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ""
+  return date.toISOString().slice(0, 10)
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1456,7 +1919,7 @@ function CreateUserDialog({
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]">
+        <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95 active:scale-[0.98]" data-testid="user-create-open">
           <UserPlus aria-hidden="true" className="size-4" />
           {label}
         </Button>
@@ -1491,7 +1954,7 @@ function CreateTrainerDialog() {
         <DialogHeader className="border-b border-border p-6">
           <DialogTitle>Tạo hồ sơ PT</DialogTitle>
           <DialogDescription>
-            Thêm hồ sơ huấn luyện viên và chuyên môn chính.
+            Tạo tài khoản đăng nhập role PT và hồ sơ huấn luyện viên trong một bước.
           </DialogDescription>
         </DialogHeader>
         <div className="p-6">
@@ -1525,18 +1988,37 @@ function CreateUserPanel({
       password: "",
       phone: "",
       role: fixedRole ?? "staff",
+      dateOfBirth: "",
+      gender: "",
+      address: "",
+      emergencyContact: "",
     },
   })
 
   async function onSubmit(values: CreateUserFormValues) {
     try {
       await createUser.mutateAsync({
-        ...values,
+        fullName: values.fullName,
+        email: values.email,
         role: fixedRole ?? values.role,
         password: values.password || undefined,
         phone: values.phone || undefined,
+        dateOfBirth: values.dateOfBirth || undefined,
+        gender: values.gender || undefined,
+        address: values.address || undefined,
+        emergencyContact: values.emergencyContact || undefined,
       })
-      reset({ email: "", fullName: "", password: "", phone: "", role: fixedRole ?? "staff" })
+      reset({
+        email: "",
+        fullName: "",
+        password: "",
+        phone: "",
+        role: fixedRole ?? "staff",
+        dateOfBirth: "",
+        gender: "",
+        address: "",
+        emergencyContact: "",
+      })
       toast.success("Đã tạo tài khoản người dùng")
       onCreated?.()
     } catch (error) {
@@ -1552,9 +2034,26 @@ function CreateUserPanel({
       <Field error={errors.email?.message} label="Email">
         <Input className={inputClass} data-testid="user-create-email" type="email" {...register("email")} />
       </Field>
-      <Field label="Số điện thoại">
-        <Input className={inputClass} data-testid="user-create-phone" {...register("phone")} />
+      <Field error={errors.phone?.message} label="Số điện thoại">
+        <PhoneField className={inputClass} data-testid="user-create-phone" {...register("phone")} />
       </Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field error={errors.dateOfBirth?.message} label="Ngày sinh">
+          <DateOfBirthField className={inputClass} {...register("dateOfBirth")} />
+        </Field>
+        <Field label="Giới tính">
+          <GenderSelect
+            onChange={(value) => setValue("gender", value, { shouldValidate: true, shouldDirty: true })}
+            value={watch("gender")}
+          />
+        </Field>
+        <Field error={errors.address?.message} label="Địa chỉ">
+          <Input className={inputClass} {...register("address")} />
+        </Field>
+        <Field error={errors.emergencyContact?.message} label="Liên hệ khẩn cấp">
+          <Input className={inputClass} {...register("emergencyContact")} />
+        </Field>
+      </div>
       {!fixedRole ? (
         <Field error={errors.role?.message} label="Vai trò">
           {/* Visually hidden native select for Playwright test compatibility & React Hook Form registration */}
@@ -1564,23 +2063,22 @@ function CreateUserPanel({
             {...register("role")}
           >
             <option value="staff">Lễ tân</option>
-            <option value="pt">PT</option>
-            <option value="member">Hội viên</option>
+            <option value="admin">Quản trị viên</option>
           </select>
 
           <Select
             value={watch("role")}
-            onValueChange={(val: string) => setValue("role", val as "staff" | "pt" | "member", { shouldValidate: true })}
+            onValueChange={(val: string) => setValue("role", val as "staff" | "admin", { shouldValidate: true })}
           >
             <SelectTrigger className="min-h-11 w-full bg-background border border-border rounded-xl px-3 text-sm text-foreground focus-visible:ring-primary/20 focus-visible:border-primary">
               <SelectValue placeholder="Chọn vai trò" />
             </SelectTrigger>
             <SelectContent className="bg-zinc-950 border border-white/10 text-white rounded-xl">
               <SelectItem value="staff" className="focus:bg-white/5 focus:text-white">Lễ tân</SelectItem>
-              <SelectItem value="pt" className="focus:bg-white/5 focus:text-white">PT</SelectItem>
-              <SelectItem value="member" className="focus:bg-white/5 focus:text-white">Hội viên</SelectItem>
+              <SelectItem value="admin" className="focus:bg-white/5 focus:text-white">Quản trị viên</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-xs leading-5 text-muted-foreground">Màn này chỉ tạo tài khoản vận hành (Lễ tân/Quản trị viên). Hội viên tạo ở màn Hội viên, PT tạo ở màn Huấn luyện viên.</p>
         </Field>
       ) : null}
       <Field error={errors.password?.message} label="Mật khẩu">
@@ -1596,27 +2094,72 @@ function CreateUserPanel({
 
 function CreateTrainerPanel({ onCreated }: { onCreated?: () => void }) {
   const createTrainer = useCreateManagedTrainer()
+  const [createdTrainer, setCreatedTrainer] = useState<CreateTrainerResult | null>(null)
   const {
     formState: { errors, isSubmitting },
     handleSubmit,
     register,
     reset,
+    setValue,
+    watch,
   } = useForm<CreateTrainerFormValues>({
     resolver: zodResolver(createTrainerSchema),
     defaultValues: {
+      bio: "",
+      dateOfBirth: "",
+      email: "",
       fullName: "",
+      gender: "",
+      address: "",
+      emergencyContact: "",
+      password: "",
+      phone: "",
       specialty: "",
+      yearsOfExperience: "",
     },
   })
 
+  function resetForAnotherTrainer() {
+    reset({
+      bio: "",
+      dateOfBirth: "",
+      email: "",
+      fullName: "",
+      gender: "",
+      address: "",
+      emergencyContact: "",
+      password: "",
+      phone: "",
+      specialty: "",
+      yearsOfExperience: "",
+    })
+    setCreatedTrainer(null)
+  }
+
   async function onSubmit(values: CreateTrainerFormValues) {
+    const yearsOfExperience = values.yearsOfExperience?.trim()
+    const input = {
+      fullName: values.fullName.trim(),
+      email: values.email.trim(),
+      phone: values.phone?.trim() || undefined,
+      password: values.password || undefined,
+      specialty: values.specialty.trim(),
+      bio: values.bio?.trim() || undefined,
+      gender: values.gender || undefined,
+      dateOfBirth: values.dateOfBirth || undefined,
+      address: values.address?.trim() || undefined,
+      emergencyContact: values.emergencyContact?.trim() || undefined,
+      yearsOfExperience: yearsOfExperience ? Number(yearsOfExperience) : undefined,
+    }
+
     try {
-      await createTrainer.mutateAsync({
-        fullName: values.fullName,
-        specialty: values.specialty,
-        userId: values.userId ? Number(values.userId) : undefined,
-      })
-      reset()
+      const result = await createTrainer.mutateAsync(input)
+      if (result.initialPassword) {
+        setCreatedTrainer(result)
+        return
+      }
+
+      resetForAnotherTrainer()
       toast.success("Đã tạo hồ sơ PT")
       onCreated?.()
     } catch (error) {
@@ -1624,17 +2167,76 @@ function CreateTrainerPanel({ onCreated }: { onCreated?: () => void }) {
     }
   }
 
+  if (createdTrainer?.initialPassword) {
+    return (
+      <div className="grid gap-5">
+        <div className="rounded-xl border border-primary/20 bg-primary/10 p-4">
+          <h3 className="text-lg font-semibold text-foreground">Đã tạo tài khoản PT</h3>
+          <p className="mt-2 text-sm text-muted-foreground">Email: {createdTrainer.trainer.email}</p>
+          <p className="mt-3 rounded-lg border border-primary/20 bg-background px-3 py-2 font-mono text-sm font-semibold text-foreground">
+            Mật khẩu tạm thời: {createdTrainer.initialPassword}
+          </p>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Gửi mật khẩu này cho PT và nhắc họ đổi mật khẩu sau lần đăng nhập đầu.
+          </p>
+        </div>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <Button className="rounded-xl" onClick={resetForAnotherTrainer} type="button" variant="outline">
+            Tạo PT khác
+          </Button>
+          <Button className="rounded-xl bg-primary text-primary-foreground" onClick={onCreated} type="button">
+            Đóng
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-      <Field error={errors.fullName?.message} label="Họ và tên">
-        <Input className={inputClass} data-testid="trainer-create-name" {...register("fullName")} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field error={errors.fullName?.message} label="Họ và tên">
+          <Input className={inputClass} data-testid="trainer-create-name" {...register("fullName")} />
+        </Field>
+        <Field error={errors.email?.message} label="Email">
+          <Input className={inputClass} data-testid="trainer-create-email" type="email" {...register("email")} />
+        </Field>
+        <Field error={errors.phone?.message} label="Số điện thoại">
+          <PhoneField className={inputClass} {...register("phone")} />
+        </Field>
+        <Field error={errors.password?.message} label="Mật khẩu">
+          <Input className={inputClass} placeholder="Để trống để sử dụng mật khẩu tạm thời" type="password" {...register("password")} />
+        </Field>
+        <Field error={errors.specialty?.message} label="Chuyên môn">
+          <Input className={inputClass} data-testid="trainer-create-specialty" {...register("specialty")} />
+        </Field>
+        <Field label="Giới tính">
+          <GenderSelect
+            onChange={(value) => setValue("gender", value, { shouldValidate: true, shouldDirty: true })}
+            value={watch("gender")}
+          />
+        </Field>
+        <Field error={errors.dateOfBirth?.message} label="Ngày sinh">
+          <DateOfBirthField className={inputClass} {...register("dateOfBirth")} />
+        </Field>
+        <Field error={errors.yearsOfExperience?.message} label="Số năm kinh nghiệm">
+          <Input className={inputClass} max={80} min={0} type="number" {...register("yearsOfExperience")} />
+        </Field>
+        <Field error={errors.address?.message} label="Địa chỉ">
+          <Input className={inputClass} {...register("address")} />
+        </Field>
+        <Field error={errors.emergencyContact?.message} label="Liên hệ khẩn cấp">
+          <Input className={inputClass} {...register("emergencyContact")} />
+        </Field>
+      </div>
+
+      <Field label="Giới thiệu">
+        <textarea
+          className="gm-field min-h-24 w-full resize-none px-3 py-2 text-sm text-foreground transition placeholder:text-muted-foreground"
+          {...register("bio")}
+        />
       </Field>
-      <Field error={errors.specialty?.message} label="Chuyên môn">
-        <Input className={inputClass} data-testid="trainer-create-specialty" {...register("specialty")} />
-      </Field>
-      <Field label="ID người dùng liên kết">
-        <Input className={inputClass} type="number" {...register("userId")} />
-      </Field>
+
       <Button className="min-h-11 rounded-xl bg-primary text-primary-foreground hover:brightness-95" data-testid="trainer-create-submit" disabled={isSubmitting || createTrainer.isPending} type="submit">
         <Plus aria-hidden="true" className="size-4" />
         Tạo hồ sơ PT

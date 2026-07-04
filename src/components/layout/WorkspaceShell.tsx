@@ -16,6 +16,7 @@ import {
   Settings,
   Sun,
   Moon,
+  UserCog,
   UserRound,
 } from "lucide-react";
 
@@ -23,6 +24,7 @@ import {
   CommandRail,
   MobileCommandHeader,
 } from "@/components/layout/CommandRail";
+import { UserAvatar } from "@/components/data/UserAvatar";
 import { cn } from "@/lib/utils";
 import type { UserRole } from "@/types/auth";
 import { useSidebarStore } from "@/stores/useSideBarStore";
@@ -166,6 +168,13 @@ export function WorkspaceShell({
     member: "/member/dashboard",
   };
 
+  const profileHrefs: Record<UserRole, string> = {
+    admin: "/admin/profile",
+    staff: "/staff/profile",
+    pt: "/pt/profile",
+    member: "/member/profile/edit",
+  };
+
   async function handleLogout() {
     setIsLogoutPending(true);
     await logout();
@@ -258,6 +267,7 @@ export function WorkspaceShell({
                 <button
                   aria-label="Mở menu người dùng"
                   className="flex items-center gap-3 rounded-2xl px-2 py-1.5 text-left transition hover:bg-muted/70 active:scale-[0.98]"
+                  data-testid="workspace-user-menu-trigger"
                   type="button"
                 >
                   <div className="text-right">
@@ -268,7 +278,11 @@ export function WorkspaceShell({
                       {roleBadges[role]}
                     </span>
                   </div>
-                  <div className="size-10 shrink-0 rounded-full border border-primary/40 bg-[radial-gradient(circle_at_30%_30%,color-mix(in_oklch,var(--primary)_60%,white),var(--surface-panel-strong))] shadow-[var(--shadow-soft)]" />
+                  <UserAvatar
+                    avatarUrl={currentUser?.avatarUrl}
+                    data-testid="workspace-user-avatar"
+                    name={currentUser?.fullName ?? userLabels[role]}
+                  />
                   <ChevronDown
                     aria-hidden="true"
                     className="size-4 text-muted-foreground"
@@ -289,6 +303,12 @@ export function WorkspaceShell({
                   </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link data-testid="my-account-link" href={profileHrefs[role]}>
+                    <UserCog aria-hidden="true" className="size-4" />
+                    <span>Tài khoản của tôi</span>
+                  </Link>
+                </DropdownMenuItem>
                 {role === "member" ? (
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <Link href="/member/profile">

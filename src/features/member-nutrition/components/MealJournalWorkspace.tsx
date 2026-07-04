@@ -30,7 +30,9 @@ export function MealJournalWorkspace() {
     "breakfast" | "lunch" | "dinner" | "snack"
   >("lunch");
   // null = chua dat muc tieu (BE la nguon su that). KHONG bia 2200, KHONG doc localStorage.
-  const [calorieTarget, setCalorieTarget] = useState<number | null>(null);
+  const [optimisticCalorieTarget, setOptimisticCalorieTarget] = useState<
+    number | null
+  >(null);
   const [isTdeeOpen, setIsTdeeOpen] = useState(false);
 
   useEffect(() => {
@@ -78,13 +80,11 @@ export function MealJournalWorkspace() {
     return () => window.removeEventListener("hashchange", handleLocationChange);
   }, [searchParams, router]);
 
-  useEffect(() => {
-    setCalorieTarget(summary.data?.target ?? null);
-  }, [summary.data?.target]);
+  const calorieTarget = optimisticCalorieTarget ?? summary.data?.target ?? null;
 
   function handleTargetApplied(newTarget: number) {
-    setCalorieTarget(newTarget);
-    summary.refetch();
+    setOptimisticCalorieTarget(newTarget);
+    void summary.refetch().finally(() => setOptimisticCalorieTarget(null));
   }
 
   function handleBackToList() {

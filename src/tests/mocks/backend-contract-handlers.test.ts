@@ -133,6 +133,83 @@ describe("backend contract MSW handlers", () => {
     expect(invalidTokenBody.error.code).toBe("INVALID_GOOGLE_TOKEN")
   })
 
+  it("serves account self-service and avatar contracts for signed-in users", async () => {
+    const me = await fetch("/api/v1/auth/me", {
+      headers: authHeaders.member,
+    })
+    const meBody = await readJson<{
+      success: boolean
+      data: { UserId: number; FullName: string; Phone: string; AvatarUrl: string | null }
+    }>(me)
+
+    expect(me.status).toBe(200)
+    expect(meBody.success).toBe(true)
+    expect(meBody.data.UserId).toBe(4)
+    expect(meBody.data.AvatarUrl).toBeNull()
+
+    const duplicate = await fetch("/api/v1/users/me", {
+      method: "PUT",
+      headers: {
+        ...authHeaders.member,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        Phone: "0900000002",
+      }),
+    })
+    const duplicateBody = await readJson<{
+      success: boolean
+      error: { code: string }
+    }>(duplicate)
+
+    expect(duplicate.status).toBe(409)
+    expect(duplicateBody.success).toBe(false)
+    expect(duplicateBody.error.code).toBe("DUPLICATE")
+
+    const updated = await fetch("/api/v1/users/me", {
+      method: "PUT",
+      headers: {
+        ...authHeaders.member,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        FullName: "Nguyen Minh Anh Updated",
+        Phone: "0900000111",
+      }),
+    })
+    const updatedBody = await readJson<{
+      success: boolean
+      data: { FullName: string; Phone: string; AvatarUrl: string | null }
+    }>(updated)
+
+    expect(updated.status).toBe(200)
+    expect(updatedBody.success).toBe(true)
+    expect(updatedBody.data.FullName).toBe("Nguyen Minh Anh Updated")
+    expect(updatedBody.data.Phone).toBe("0900000111")
+    expect(updatedBody.data.AvatarUrl).toBeNull()
+
+    const formData = new FormData()
+    formData.append(
+      "file",
+      new File(["avatar"], "avatar.webp", { type: "image/webp" }),
+    )
+    const avatar = await fetch("/api/v1/users/me/avatar", {
+      method: "POST",
+      headers: authHeaders.member,
+      body: formData,
+    })
+    const avatarBody = await readJson<{
+      success: boolean
+      data: { AvatarUrl: string | null }
+    }>(avatar)
+
+    expect(avatar.status).toBe(200)
+    expect(avatarBody.success).toBe(true)
+    expect(avatarBody.data.AvatarUrl).toBe(
+      "https://cdn.gymmaster.local/avatars/user_4.webp",
+    )
+  })
+
   it("wraps member search responses and enforces auth", async () => {
     const unauthorized = await fetch("/api/v1/members")
     expect(unauthorized.status).toBe(401)
@@ -171,6 +248,50 @@ describe("backend contract MSW handlers", () => {
     expect(response.status).toBe(409)
     expect(body.success).toBe(false)
     expect(body.error.code).toBe("DUPLICATE")
+  })
+
+  it("serves member self-profile endpoints with PascalCase backend shape", async () => {
+    const profile = await fetch("/api/v1/members/me", {
+      headers: authHeaders.member,
+    })
+    const profileBody = await readJson<{
+      success: boolean
+      data: {
+        Id: number
+        MemberCode: string
+        FullName: string
+        JoinedAt: string
+        AvatarUrl: string | null
+      }
+    }>(profile)
+
+    expect(profile.status).toBe(200)
+    expect(profileBody.success).toBe(true)
+    expect(profileBody.data.Id).toBe(101)
+    expect(profileBody.data.MemberCode).toBe("GM-101")
+    expect(profileBody.data.JoinedAt).toMatch(/Z$/)
+    expect(profileBody.data).toHaveProperty("AvatarUrl")
+
+    const updated = await fetch("/api/v1/members/me", {
+      method: "PUT",
+      headers: {
+        ...authHeaders.member,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        FullName: "Test",
+        Phone: "0900000999",
+      }),
+    })
+    const updatedBody = await readJson<{
+      success: boolean
+      data: { FullName: string; Phone: string }
+    }>(updated)
+
+    expect(updated.status).toBe(200)
+    expect(updatedBody.success).toBe(true)
+    expect(updatedBody.data.FullName).toBe("Test")
+    expect(updatedBody.data.Phone).toBe("0900000999")
   })
 
   it("creates pending-payment memberships from sell package contract", async () => {
@@ -324,12 +445,16 @@ describe("backend contract MSW handlers", () => {
     })
     const profileBody = await readJson<{
       success: boolean
-      data: { member: { id: number }; currentMembership: { status: string } }
+      data: {
+        member: { id: number; avatarUrl?: string | null }
+        currentMembership: { status: string }
+      }
     }>(profile)
 
     expect(profile.status).toBe(200)
     expect(profileBody.success).toBe(true)
     expect(profileBody.data.member.id).toBe(101)
+    expect(profileBody.data.member).toHaveProperty("avatarUrl")
     expect(profileBody.data.currentMembership.status).toBe("active")
 
     const invalidProgress = await fetch("/api/v1/members/101/progress", {

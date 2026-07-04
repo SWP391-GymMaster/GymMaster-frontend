@@ -1,7 +1,10 @@
+import {
+  normalizeAuthUser,
+  type RawAuthUser,
+} from "@/features/auth/api/auth-normalizers"
 import { apiRequest } from "@/lib/api/http-client"
 import type {
   AuthMessageSuccess,
-  AuthUser,
   ChangePasswordRequest,
   ForgotPasswordRequest,
   ForgotPasswordSuccess,
@@ -59,12 +62,14 @@ export function changePassword(request: ChangePasswordRequest, accessToken: stri
   })
 }
 
-export function getCurrentUser(accessToken: string) {
-  return apiRequest<AuthUser>(`${authBasePath}/me`, {
+export async function getCurrentUser(accessToken: string) {
+  const raw = await apiRequest<RawAuthUser>(`${authBasePath}/me`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   })
+
+  return normalizeAuthUser(raw)
 }
 
 export function refreshSession(refreshToken: string) {

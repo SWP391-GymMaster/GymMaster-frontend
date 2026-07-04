@@ -28,9 +28,11 @@ export function MemberSelfProfilePage() {
             memberProfileId
               ? undefined
               : {
-                  title: "Chưa có hồ sơ hội viên",
+                  title: "Hoàn thiện hồ sơ hội viên",
                   description:
-                    "Tài khoản hiện tại chưa liên kết với hồ sơ hội viên. Vui lòng đăng ký gói tập hoặc liên hệ quầy lễ tân để kích hoạt hồ sơ.",
+                    "Tài khoản hiện tại chưa có hồ sơ hội viên để hiển thị. Bạn có thể mở trang chỉnh sửa để GymMaster tạo hồ sơ và bổ sung thông tin cá nhân.",
+                  actionHref: "/member/profile/edit",
+                  actionLabel: "Hoàn thiện hồ sơ",
                 }
           }
         />
