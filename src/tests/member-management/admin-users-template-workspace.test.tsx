@@ -33,21 +33,21 @@ describe("AdminUsersTemplateWorkspace", () => {
     })
     fireEvent.click(screen.getByTestId("user-edit-submit"))
 
-    expect(await screen.findByText("Da cap nhat thong tin nguoi dung")).toBeInTheDocument()
+    expect(await screen.findByText("Đã cập nhật thông tin người dùng")).toBeInTheDocument()
     expect((await screen.findAllByText("Template Fidelity Lead")).length).toBeGreaterThan(0)
 
     fireEvent.click(screen.getByTestId("user-toggle-lock-button"))
-    expect(await screen.findByText(/Da khoa tai khoan|ÄÃ£ khÃ³a tÃ i khoáº£n/)).toBeInTheDocument()
+    expect(await screen.findByText(/Đã khóa tài khoản|Đã khóa tài khoản/)).toBeInTheDocument()
 
     const securityTab = screen.getByRole("tab", { name: /B|b/ })
     fireEvent.pointerDown(securityTab)
     fireEvent.mouseDown(securityTab)
     fireEvent.click(securityTab)
     fireEvent.click(await screen.findByTestId("user-reset-password-button"))
-    expect(await screen.findByText(/Mat khau tam thoi:|Máº­t kháº©u táº¡m thá»i:/)).toBeInTheDocument()
+    expect(await screen.findByText(/Mật khẩu tạm thời:|Mật khẩu tạm thời:/)).toBeInTheDocument()
 
     fireEvent.click(screen.getByTestId("user-delete-button"))
-    expect(await screen.findByText(/vo hieu hoa|vÃ´ hiá»‡u hÃ³a/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Đã xóa tài khoản/i)).toBeInTheDocument()
 
     await waitFor(() => {
       expect(screen.queryAllByText("Template Fidelity Lead")).toHaveLength(0)
@@ -64,7 +64,7 @@ describe("AdminUsersTemplateWorkspace", () => {
       "staff",
       "admin",
     ])
-    expect(screen.getByText(/Man nay chi tao tai khoan van hanh/)).toBeInTheDocument()
+    expect(screen.getByText(/Màn này chỉ tạo tài khoản vận hành/)).toBeInTheDocument()
   })
 
   it("keeps account roles immutable in every edit form", async () => {
@@ -72,13 +72,13 @@ describe("AdminUsersTemplateWorkspace", () => {
 
     expect((await screen.findAllByText("GymMaster Admin")).length).toBeGreaterThan(0)
     expect(screen.queryByTestId("user-edit-role")).not.toBeInTheDocument()
-    expect(screen.getByText(/Vai tro duoc gan khi tao tai khoan/)).toBeInTheDocument()
+    expect(screen.getByText(/Vai trò cố định sau khi tạo tài khoản/)).toBeInTheDocument()
 
     fireEvent.click(await screen.findByText("Gym Member"))
 
     expect(screen.queryByTestId("user-edit-role")).not.toBeInTheDocument()
-    expect(screen.getByText(/Vai tro duoc gan khi tao tai khoan/)).toBeInTheDocument()
-    expect(screen.getByText(/Ho so ca nhan cua Hoi vien/)).toBeInTheDocument()
+    expect(screen.getByText(/Vai trò cố định sau khi tạo tài khoản/)).toBeInTheDocument()
+    expect(screen.getByText(/Hồ sơ cá nhân của hội viên/)).toBeInTheDocument()
   })
 
   it("maps blocked role transition errors to the immutable-role guard message", () => {
@@ -92,6 +92,6 @@ describe("AdminUsersTemplateWorkspace", () => {
       ),
     )
 
-    expect(result.message).toMatch(/Vai tro duoc gan khi tao tai khoan/)
+    expect(result.message).toMatch(/Vai trò được gán khi tạo tài khoản/)
   })
 })

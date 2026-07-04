@@ -1,104 +1,125 @@
 import { z } from "zod"
 
+import {
+  PERSON_LIMITS,
+  personFieldSchemas,
+  vnPhonePattern,
+} from "@/lib/validation/person"
+
+// Moi luat "con nguoi" (ho ten/SDT/ngay sinh/gioi tinh/dia chi/lien he khan cap)
+// lay tu lib/validation/person — khong tu che lai o day.
+
 export const memberSearchSchema = z.object({
   query: z.string().trim().optional(),
 })
 
+const emailSchema = z.email("Nhập email hợp lệ.")
+
+// Member bat buoc co SDT (quay le tan tra cuu theo SDT).
+const requiredVnPhone = z
+  .string()
+  .trim()
+  .min(1, "Vui lòng nhập số điện thoại.")
+  .regex(vnPhonePattern, "Số điện thoại Việt Nam không hợp lệ.")
+
+const passwordSchema = z
+  .string()
+  .optional()
+  .refine((value) => !value || value.length >= 6, {
+    message: "Mật khẩu phải có ít nhất 6 ký tự.",
+  })
+
+const specialtySchema = z
+  .string()
+  .trim()
+  .min(2, "Vui lòng nhập chuyên môn.")
+  .max(PERSON_LIMITS.specialty, `Chuyên môn tối đa ${PERSON_LIMITS.specialty} ký tự.`)
+
+const bioSchema = z
+  .string()
+  .trim()
+  .max(PERSON_LIMITS.bio, `Giới thiệu tối đa ${PERSON_LIMITS.bio} ký tự.`)
+  .optional()
+
+const yearsOfExperienceSchema = z
+  .string()
+  .optional()
+  .refine((value) => !value || (Number(value) >= 0 && Number(value) <= 80), {
+    message: "Số năm kinh nghiệm không hợp lệ.",
+  })
+
 export const createMemberSchema = z.object({
-  fullName: z.string().min(2, "Ho ten phai co it nhat 2 ky tu."),
-  email: z.email("Nhap email hop le."),
-  phone: z.string().min(8, "So dien thoai phai co it nhat 8 ky tu."),
-  dateOfBirth: z.string().optional(),
-  gender: z.string().optional(),
-  address: z.string().optional(),
-  emergencyContact: z.string().optional(),
+  fullName: personFieldSchemas.fullName,
+  email: emailSchema,
+  phone: requiredVnPhone,
+  dateOfBirth: personFieldSchemas.dateOfBirth,
+  gender: personFieldSchemas.gender,
+  address: personFieldSchemas.address,
+  emergencyContact: personFieldSchemas.emergencyContact,
 })
 
+// Admin sua ho so ca nhan cua hoi vien (email khong doi — dinh danh tai khoan).
+export const updateMemberSchema = z.object({
+  fullName: personFieldSchemas.fullName,
+  phone: requiredVnPhone,
+  dateOfBirth: personFieldSchemas.dateOfBirth,
+  gender: personFieldSchemas.gender,
+  address: personFieldSchemas.address,
+  emergencyContact: personFieldSchemas.emergencyContact,
+})
+
+// Man Users chi tao tai khoan van hanh; thong tin ca nhan nhap duoc ngay luc tao
+// (giong form tao PT) va ghi vao staff_profiles.
 export const createUserSchema = z.object({
-  fullName: z.string().min(2, "Ho ten phai co it nhat 2 ky tu."),
-  email: z.email("Nhap email hop le."),
-  phone: z.string().optional(),
+  fullName: personFieldSchemas.fullName,
+  email: emailSchema,
+  phone: personFieldSchemas.phone,
   role: z.enum(["staff", "admin"]),
-  password: z
-    .string()
-    .optional()
-    .refine((value) => !value || value.length >= 6, {
-      message: "Mat khau phai co it nhat 6 ky tu.",
-    }),
+  password: passwordSchema,
+  dateOfBirth: personFieldSchemas.dateOfBirth,
+  gender: personFieldSchemas.gender,
+  address: personFieldSchemas.address,
+  emergencyContact: personFieldSchemas.emergencyContact,
 })
 
 export const updateUserSchema = z.object({
-  fullName: z.string().min(2, "Ho ten phai co it nhat 2 ky tu."),
-  email: z.email("Nhap email hop le."),
-  phone: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  gender: z.string().optional(),
-  address: z.string().optional(),
-  emergencyContact: z.string().optional(),
+  fullName: personFieldSchemas.fullName,
+  email: emailSchema,
+  phone: personFieldSchemas.phone,
+  dateOfBirth: personFieldSchemas.dateOfBirth,
+  gender: personFieldSchemas.gender,
+  address: personFieldSchemas.address,
+  emergencyContact: personFieldSchemas.emergencyContact,
 })
 
-export const createTrainerSchema = z
-  .object({
-    fullName: z.string().optional(),
-    email: z.string().optional(),
-    phone: z.string().optional(),
-    password: z
-      .string()
-      .optional()
-      .refine((value) => !value || value.length >= 6, {
-        message: "Mat khau phai co it nhat 6 ky tu.",
-      }),
-    specialty: z.string().min(2, "Vui long nhap chuyen mon."),
-    gender: z.string().optional(),
-    dateOfBirth: z.string().optional(),
-    yearsOfExperience: z
-      .string()
-      .optional()
-      .refine((value) => !value || Number(value) >= 0, {
-        message: "So nam kinh nghiem khong hop le.",
-      }),
-    bio: z.string().optional(),
-    address: z.string().optional(),
-    emergencyContact: z.string().optional(),
-    userId: z.string().optional(),
-  })
-  .superRefine((value, ctx) => {
-    if (value.userId?.trim()) return
-
-    if (!value.fullName?.trim() || value.fullName.trim().length < 2) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Ho ten phai co it nhat 2 ky tu.",
-        path: ["fullName"],
-      })
-    }
-
-    const email = value.email?.trim()
-    if (!email || !z.email().safeParse(email).success) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Nhap email hop le.",
-        path: ["email"],
-      })
-    }
-  })
+// Tao PT = MOT buoc duy nhat (tai khoan + ho so). Duong "lien ket tai khoan co san"
+// da bo theo quyet dinh owner 2026-07-04; tai khoan pt demo do seeder tu gan ho so.
+export const createTrainerSchema = z.object({
+  fullName: personFieldSchemas.fullName,
+  email: emailSchema,
+  phone: personFieldSchemas.phone,
+  password: passwordSchema,
+  specialty: specialtySchema,
+  gender: personFieldSchemas.gender,
+  dateOfBirth: personFieldSchemas.dateOfBirth,
+  yearsOfExperience: yearsOfExperienceSchema,
+  bio: bioSchema,
+  address: personFieldSchemas.address,
+  emergencyContact: personFieldSchemas.emergencyContact,
+})
 
 export const updateTrainerSchema = z.object({
-  specialty: z.string().min(2, "Vui long nhap chuyen mon."),
-  gender: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  yearsOfExperience: z
-    .string()
-    .optional()
-    .refine((value) => !value || Number(value) >= 0, {
-      message: "So nam kinh nghiem khong hop le.",
-    }),
-  bio: z.string().optional(),
-  address: z.string().optional(),
-  emergencyContact: z.string().optional(),
+  specialty: specialtySchema,
+  gender: personFieldSchemas.gender,
+  dateOfBirth: personFieldSchemas.dateOfBirth,
+  yearsOfExperience: yearsOfExperienceSchema,
+  bio: bioSchema,
+  address: personFieldSchemas.address,
+  emergencyContact: personFieldSchemas.emergencyContact,
 })
 
 export type CreateMemberFormValues = z.infer<typeof createMemberSchema>
+export type UpdateMemberFormValues = z.infer<typeof updateMemberSchema>
 export type CreateUserFormValues = z.infer<typeof createUserSchema>
 export type UpdateUserFormValues = z.infer<typeof updateUserSchema>
 export type CreateTrainerFormValues = z.infer<typeof createTrainerSchema>

@@ -93,7 +93,7 @@ describe("ManagementWorkspace", () => {
     fireEvent.click(screen.getByTestId("user-create-submit"))
 
     expect(await screen.findByText("Template Staff Component")).toBeInTheDocument()
-    expect(await screen.findByText(/Mat khau tam thoi:|Máº­t kháº©u táº¡m thá»i:/)).toBeInTheDocument()
+    expect(await screen.findByText(/Mật khẩu tạm thời:|Mật khẩu tạm thời:/)).toBeInTheDocument()
   })
 
   it("lets admin edit, lock, reset, and delete staff from the staff door", async () => {
@@ -102,25 +102,25 @@ describe("ManagementWorkspace", () => {
 
     expect((await screen.findAllByText("Front Desk Staff")).length).toBeGreaterThan(0)
 
-    fireEvent.click(screen.getByRole("button", { name: "Sua" }))
-    fireEvent.change(screen.getByLabelText("Dia chi"), {
+    fireEvent.click(screen.getByRole("button", { name: "Sửa" }))
+    fireEvent.change(screen.getByLabelText("Địa chỉ"), {
       target: { value: "99 Pasteur, Quan 1" },
     })
-    fireEvent.change(screen.getByLabelText("Lien he khan cap"), {
+    fireEvent.change(screen.getByLabelText("Liên hệ khẩn cấp"), {
       target: { value: "Ba - 0905555666" },
     })
-    fireEvent.click(screen.getByRole("button", { name: "Luu" }))
+    fireEvent.click(screen.getByRole("button", { name: "Lưu" }))
 
     expect(await screen.findByText("99 Pasteur, Quan 1")).toBeInTheDocument()
     expect(screen.getByText("Ba - 0905555666")).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole("button", { name: "Khoa" }))
-    expect(await screen.findByRole("button", { name: "Mo khoa" })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Khóa" }))
+    expect(await screen.findByRole("button", { name: "Mở khóa" })).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole("button", { name: "Dat lai mat khau" }))
-    expect(await screen.findByText(/Mat khau tam thoi:/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Đặt lại mật khẩu" }))
+    expect(await screen.findByText(/Mật khẩu tạm thời:/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole("button", { name: "Xoa" }))
+    fireEvent.click(screen.getByRole("button", { name: "Xóa" }))
     expect(confirmSpy).toHaveBeenCalled()
     await waitFor(() => {
       expect(screen.queryAllByText("Front Desk Staff")).toHaveLength(0)
@@ -132,7 +132,7 @@ describe("ManagementWorkspace", () => {
 
     expect((await screen.findAllByText("Coach PT")).length).toBeGreaterThan(0)
 
-    fireEvent.click(screen.getByRole("button", { name: "Them PT" }))
+    fireEvent.click(screen.getByRole("button", { name: "Thêm PT" }))
     fireEvent.change(screen.getByTestId("trainer-create-name"), {
       target: { value: "Template Trainer Component" },
     })
@@ -144,8 +144,8 @@ describe("ManagementWorkspace", () => {
     })
     fireEvent.click(screen.getByTestId("trainer-create-submit"))
 
-    expect(await screen.findByText("Da tao tai khoan PT")).toBeInTheDocument()
-    expect(await screen.findByText(/Mat khau tam thoi:/)).toBeInTheDocument()
+    expect(await screen.findByText("Đã tạo tài khoản PT")).toBeInTheDocument()
+    expect(await screen.findByText(/Mật khẩu tạm thời:/)).toBeInTheDocument()
   })
 
   it("lets admin edit trainer profile, reset password, and lock the trainer account", async () => {
@@ -161,10 +161,10 @@ describe("ManagementWorkspace", () => {
 
     expect((await screen.findAllByText("Power Mobility")).length).toBeGreaterThan(0)
 
-    fireEvent.click(screen.getByRole("button", { name: "Dat lai mat khau" }))
-    expect(await screen.findByText(/Mat khau tam thoi:/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Đặt lại mật khẩu" }))
+    expect(await screen.findByText(/Mật khẩu tạm thời:/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole("button", { name: "Khoa" }))
-    expect(await screen.findByRole("button", { name: "Mo khoa" })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: "Khóa" }))
+    expect(await screen.findByRole("button", { name: "Mở khóa" })).toBeInTheDocument()
   })
 })

@@ -20,15 +20,12 @@ import {
 import { RoleBadge } from "@/components/data/RoleBadge"
 import { StatusPill, type Status } from "@/components/data/StatusPill"
 import { StateBlock } from "@/components/feedback/StateBlock"
+import { DateOfBirthField } from "@/components/forms/DateOfBirthField"
+import { GenderSelect } from "@/components/forms/GenderSelect"
+import { PhoneField } from "@/components/forms/PhoneField"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { toCanonicalGender } from "@/lib/validation/person"
 import {
   useMyPersonalProfile,
   useMyTrainerProfile,
@@ -55,13 +52,6 @@ const inputClass =
 
 const labelClass =
   "text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
-
-const genderOptions = [
-  { value: "unspecified", label: "Chưa cập nhật" },
-  { value: "male", label: "Nam" },
-  { value: "female", label: "Nữ" },
-  { value: "other", label: "Khác" },
-] as const
 
 const emptyPersonalValues: AccountPersonalProfileFormValues = {
   dateOfBirth: "",
@@ -91,16 +81,7 @@ function toPersonalFormValues(
 }
 
 function toFormGender(value?: string | null): AccountPersonalProfileFormValues["gender"] {
-  switch (value?.toLowerCase()) {
-    case "male":
-      return "male"
-    case "female":
-      return "female"
-    case "other":
-      return "other"
-    default:
-      return ""
-  }
+  return toCanonicalGender(value)
 }
 
 function optionalText(value?: string | null) {
@@ -333,12 +314,11 @@ function AccountInfoCard() {
             />
           </Field>
           <Field error={errors.phone?.message} htmlFor="account-profile-phone" label="Số điện thoại">
-            <Input
+            <PhoneField
               aria-invalid={Boolean(errors.phone)}
               className={inputClass}
               data-testid="account-profile-phone"
               id="account-profile-phone"
-              inputMode="tel"
               {...register("phone")}
             />
           </Field>
@@ -410,7 +390,6 @@ function PersonalProfileCard({ role }: AccountProfileWorkspaceProps) {
     reset(toPersonalFormValues(updated))
   }
 
-  const genderValue = watchedGender || "unspecified"
   const disabled = profileQuery.isLoading || isPtNotFound || updateProfile.isPending
 
   return (
@@ -446,46 +425,25 @@ function PersonalProfileCard({ role }: AccountProfileWorkspaceProps) {
           <FormErrorSummary errors={errors} message={null} />
           <div className="grid gap-5 md:grid-cols-2">
             <Field error={errors.dateOfBirth?.message} htmlFor="account-profile-date-of-birth" label="Ngày sinh">
-              <Input
+              <DateOfBirthField
                 aria-invalid={Boolean(errors.dateOfBirth)}
                 className={inputClass}
                 data-testid="account-profile-date-of-birth"
                 disabled={disabled}
                 id="account-profile-date-of-birth"
-                type="date"
                 {...register("dateOfBirth")}
               />
             </Field>
             <Field error={errors.gender?.message} htmlFor="account-profile-gender" label="Giới tính">
-              <Select
+              <GenderSelect
                 disabled={disabled}
-                onValueChange={(value) =>
-                  setValue(
-                    "gender",
-                    (value === "unspecified"
-                      ? ""
-                      : value) as AccountPersonalProfileFormValues["gender"],
-                    { shouldDirty: true, shouldValidate: true },
-                  )
+                id="account-profile-gender"
+                onChange={(value) =>
+                  setValue("gender", value, { shouldDirty: true, shouldValidate: true })
                 }
-                value={genderValue}
-              >
-                <SelectTrigger
-                  aria-invalid={Boolean(errors.gender)}
-                  className="min-h-11 w-full rounded-2xl border border-border bg-background px-3 text-sm text-foreground focus-visible:border-primary/50 focus-visible:ring-4 focus-visible:ring-primary/10"
-                  data-testid="account-profile-gender"
-                  id="account-profile-gender"
-                >
-                  <SelectValue placeholder="Chọn giới tính" />
-                </SelectTrigger>
-                <SelectContent className="rounded-2xl border border-border bg-card text-card-foreground">
-                  {genderOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                testId="account-profile-gender"
+                value={watchedGender}
+              />
             </Field>
             <Field error={errors.address?.message} htmlFor="account-profile-address" label="Địa chỉ">
               <Input

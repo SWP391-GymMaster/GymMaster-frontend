@@ -290,7 +290,7 @@ export const authHandlers = [
     if (hasDuplicatePhone(role, nextPhone)) {
       return fail(
         "DUPLICATE",
-        "So dien thoai nay da duoc su dung.",
+        "Số điện thoại này đã được sử dụng.",
         409,
       )
     }
@@ -429,15 +429,15 @@ export const authHandlers = [
     }
 
     if (!file) {
-      return fail("VALIDATION_ERROR", "Vui long chon anh dai dien.", 422)
+      return fail("VALIDATION_ERROR", "Vui lòng chọn ảnh đại diện.", 422)
     }
 
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      return fail("VALIDATION_ERROR", "Chi ho tro anh JPG, PNG hoac WebP.", 422)
+      return fail("VALIDATION_ERROR", "Chỉ hỗ trợ ảnh JPG, PNG hoặc WebP.", 422)
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      return fail("VALIDATION_ERROR", "Anh dai dien toi da 5 MB.", 422)
+      return fail("VALIDATION_ERROR", "Ảnh đại diện tối đa 5 MB.", 422)
     }
 
     demoUsers[role] = {
@@ -498,7 +498,7 @@ export const authHandlers = [
     await request.json()
 
     return ok({
-      message: "Neu email ton tai, he thong se tao yeu cau dat lai mat khau.",
+      message: "Neu email ton tai, he thong se tao yeu cau dat lai mật khẩu.",
       resetToken: "123456",
     })
   }),
@@ -510,7 +510,7 @@ export const authHandlers = [
     }
 
     return ok({
-      message: "Dat lai mat khau thanh cong.",
+      message: "Đặt lại mật khẩu thành công.",
     })
   }),
   http.post("/api/v1/auth/change-password", async ({ request }) => {
@@ -527,7 +527,7 @@ export const authHandlers = [
     }
 
     return ok({
-      message: "Doi mat khau thanh cong.",
+      message: "Doi mật khẩu thành công.",
     })
   }),
   http.post("/api/v1/auth/google", async ({ request }) => {

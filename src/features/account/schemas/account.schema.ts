@@ -1,33 +1,18 @@
 import { z } from "zod"
 
-const vnPhonePattern = /^(0|\+84)(\d{9,10})$/
+import { personFieldSchemas } from "@/lib/validation/person"
 
+// Luat "con nguoi" lay tu lib/validation/person — dong bo voi moi form khac.
 export const accountSchema = z.object({
-  fullName: z.string().trim().min(1, "Vui lòng nhập họ tên."),
-  phone: z
-    .string()
-    .trim()
-    .optional()
-    .refine((value) => !value || vnPhonePattern.test(value), {
-      message: "Số điện thoại Việt Nam không hợp lệ.",
-    }),
+  fullName: personFieldSchemas.fullName,
+  phone: personFieldSchemas.phone,
 })
 
-const today = new Date()
-today.setHours(0, 0, 0, 0)
-
 export const accountPersonalProfileSchema = z.object({
-  dateOfBirth: z
-    .string()
-    .optional()
-    .refine((value) => {
-      if (!value) return true
-      const date = new Date(value)
-      return !Number.isNaN(date.getTime()) && date <= today
-    }, "Ngày sinh không được ở tương lai."),
-  gender: z.enum(["", "male", "female", "other"]).optional(),
-  address: z.string().trim().optional(),
-  emergencyContact: z.string().trim().optional(),
+  dateOfBirth: personFieldSchemas.dateOfBirth,
+  gender: personFieldSchemas.gender,
+  address: personFieldSchemas.address,
+  emergencyContact: personFieldSchemas.emergencyContact,
 })
 
 export type AccountFormValues = z.infer<typeof accountSchema>
