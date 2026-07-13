@@ -394,13 +394,26 @@ function HighlightStrip({
     )
   }
 
+  // Chi coi Active/PendingPayment la "goi hien tai"; status khac (Cancelled/Expired
+  // tu BE cu) hien "Chua co goi" — khong noi qua don da huy thanh goi hieu luc.
+  const currentPackage =
+    membership && (membership.status === "active" || membership.status === "pending_payment")
+      ? membership
+      : null
+
   return (
     <section className="grid gap-3 md:grid-cols-3">
       <HighlightCard
         icon={CreditCard}
         label="Gói hiện tại"
-        title={membership?.packageName ?? "Chưa có gói"}
-        value={membership?.endDate ? `Đến ${formatShortDate(membership.endDate)}` : "Liên hệ quầy"}
+        title={currentPackage?.packageName ?? "Chưa có gói"}
+        value={
+          currentPackage?.status === "pending_payment"
+            ? "Chờ thanh toán"
+            : currentPackage?.endDate
+              ? `Đến ${formatShortDate(currentPackage.endDate)}`
+              : "Liên hệ quầy"
+        }
       />
       <HighlightCard
         icon={Scale}
@@ -884,12 +897,17 @@ function buildSocialFeed({
     })
   })
 
-  if (membership) {
+  // Nhãn theo status BE trả về: chỉ Active mới là "đang hoạt động",
+  // PendingPayment là đơn chờ — không được nói quá thành gói hiệu lực.
+  if (membership && (membership.status === "active" || membership.status === "pending_payment")) {
+    const isActive = membership.status === "active"
     feed.push({
       id: `membership-${membership.id}`,
       kind: "membership",
-      title: "Gói tập đang hoạt động",
-      body: `${membership.packageName} có hiệu lực đến ${formatShortDate(membership.endDate)}.`,
+      title: isActive ? "Gói tập đang hoạt động" : "Đơn gói tập chờ thanh toán",
+      body: isActive
+        ? `${membership.packageName} có hiệu lực đến ${formatShortDate(membership.endDate)}.`
+        : `${membership.packageName} — hoàn tất thanh toán để kích hoạt gói.`,
       meta: formatShortDate(membership.startDate),
       date: membership.startDate,
       accent: membership.supportsPT ? "Gói có hỗ trợ PT." : "Gói tự tập.",
