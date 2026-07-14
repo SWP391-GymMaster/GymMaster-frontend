@@ -1,0 +1,184 @@
+{
+  "node_count": 1757,
+  "raw_edge_count": 5485,
+  "non_object_edges": 0,
+  "missing_endpoint_edges": 0,
+  "dangling_endpoint_edges": 587,
+  "self_loop_edges": 0,
+  "valid_candidate_edges": 4898,
+  "exact_duplicate_edges": 0,
+  "directed_unique_endpoint_pairs": 4892,
+  "directed_same_endpoint_collapsed_edges": 6,
+  "undirected_unique_endpoint_pairs": 4892,
+  "undirected_same_endpoint_collapsed_edges": 6,
+  "same_endpoint_group_count": 6,
+  "relation_variant_groups": 1,
+  "source_file_variant_groups": 0,
+  "source_location_variant_groups": 5,
+  "context_variant_groups": 0,
+  "post_build_graph_type": "Graph",
+  "post_build_node_count": 1757,
+  "post_build_edge_count": 4892,
+  "post_build_error": "",
+  "producer_suppression": {
+    "path": "C:\\Users\\Administrator\\AppData\\Roaming\\uv\\tools\\graphifyy\\Lib\\site-packages\\graphify\\extract.py",
+    "total_sites": 10,
+    "sites": [
+      {
+        "line": 957,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 1106,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 1108,
+        "name": "seen_doc_refs",
+        "tuple_arity": 0,
+        "sample": "seen_doc_refs: set[str] = set()"
+      },
+      {
+        "line": 1531,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 2000,
+        "name": "seen_keys",
+        "tuple_arity": 0,
+        "sample": "seen_keys: set[tuple] = set()"
+      },
+      {
+        "line": 2881,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 2989,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 3068,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 3563,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 3564,
+        "name": "seen_edges",
+        "tuple_arity": 4,
+        "sample": "seen_edges: set[tuple[str, str, str, str | None]] = set()"
+      }
+    ],
+    "error": ""
+  },
+  "examples": [
+    {
+      "source": "features_admin_dashboard_api_admin_dashboard_api",
+      "target": "features_admin_dashboard_types_admin_dashboard_types",
+      "edge_count": 2,
+      "relations": [
+        "imports_from"
+      ],
+      "source_files": [
+        "features/admin-dashboard/api/admin-dashboard.api.ts"
+      ],
+      "source_locations": [
+        "L2",
+        "L33"
+      ],
+      "contexts": [
+        "import"
+      ]
+    },
+    {
+      "source": "features_admin_dashboard_components_auditlogscontent",
+      "target": "features_admin_dashboard_components_auditlogfilters",
+      "edge_count": 2,
+      "relations": [
+        "imports_from"
+      ],
+      "source_files": [
+        "features/admin-dashboard/components/AuditLogsContent.tsx"
+      ],
+      "source_locations": [
+        "L18",
+        "L19"
+      ],
+      "contexts": [
+        "import"
+      ]
+    },
+    {
+      "source": "features_member_nutrition_api_nutrition_api",
+      "target": "features_member_nutrition_data_nutrition_fallback_data",
+      "edge_count": 2,
+      "relations": [
+        "imports_from",
+        "re_exports"
+      ],
+      "source_files": [
+        "features/member-nutrition/api/nutrition-api.ts"
+      ],
+      "source_locations": [
+        "L1",
+        "L193"
+      ],
+      "contexts": [
+        "export",
+        "import"
+      ]
+    },
+    {
+      "source": "features_pt_training_components_trainernoteform",
+      "target": "features_pt_training_schemas_pt_training_schemas",
+      "edge_count": 2,
+      "relations": [
+        "imports_from"
+      ],
+      "source_files": [
+        "features/pt-training/components/TrainerNoteForm.tsx"
+      ],
+      "source_locations": [
+        "L10",
+        "L9"
+      ],
+      "contexts": [
+        "import"
+      ]
+    },
+    {
+      "source": "features_pt_training_components_workoutplanform",
+      "target": "features_pt_training_schemas_pt_training_schemas",
+      "edge_count": 2,
+      "relations": [
+        "imports_from"
+      ],
+      "source_files": [
+        "features/pt-training/components/WorkoutPlanForm.tsx"
+      ],
+      "source_locations": [
+        "L86",
+        "L87"
+      ],
+      "contexts": [
+        "import"
+      ]
+    }
+  ]
+}

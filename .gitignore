@@ -21,6 +21,8 @@
 
 # local analysis/runtime artifacts
 /.codegraph/
+graphify-out/.graphify_python
+graphify-out/.graphify_root
 
 # production
 /build
