@@ -173,9 +173,10 @@
 | ORM | Entity Framework Core 10 - Code First Migrations |
 | Authentication | JWT Bearer Token + BCrypt |
 | Token Policy | Access 15 phút, Refresh 7 ngày |
-| AI Vision | Google Cloud Vision API |
-| File Storage | Azure Blob Storage |
-| Deploy | Vercel (FE) + Azure App Service (BE) |
+| AI Vision | **Google Gemini Vision** `gemini-2.5-flash` (đã đổi từ Google Cloud Vision) |
+| File Storage (avatar) | **Cloudinary** (đã đổi từ Azure Blob) |
+| Online Payment | **VNPay** sandbox |
+| Deploy | **Google Cloud Run** (FE + BE) + Cloud SQL (đã đổi từ Vercel/Azure — 2026-07-15) |
 
 ---
 

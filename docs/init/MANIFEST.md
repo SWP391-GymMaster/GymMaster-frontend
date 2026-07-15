@@ -29,5 +29,5 @@
 | - | build_db.py | Legacy/Stale |
 | - | test_output.txt | Legacy/Stale |
 
-**Canonical tech stack:** Next.js · ASP.NET Core 10 · SQL Server · EF Core 10 · JWT+BCrypt · Azure/Vercel.
+**Canonical tech stack:** Next.js · ASP.NET Core 10 · SQL Server · EF Core 10 · JWT+BCrypt · **Google Cloud Run + Cloud SQL** · Gemini Vision · Cloudinary · VNPay (đã đổi từ Azure/Vercel — 2026-07-15).
 **Source of truth cho stack:** `CONSTITUTION.md` Layer 3. Backend/database implementation lives outside this frontend repo.

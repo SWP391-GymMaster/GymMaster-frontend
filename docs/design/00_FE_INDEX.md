@@ -1,9 +1,11 @@
 # GymMaster Frontend Docs Pack
 
-**Phiên bản:** v1.0-approved  
+**Phiên bản:** v1.0 — **Implemented (đồng bộ code 2026-07-15)**  
 **Ngôn ngữ:** Tiếng Việt  
 **Owner:** Frontend + UX/UI  
 **Mục tiêu:** Chuẩn hóa toàn bộ kiến trúc frontend, UX/UI, testing, AI workflow, context management và repo workflow cho dự án GymMaster.
+
+> **Trạng thái thực tế:** FE Next.js đã triển khai đầy đủ, deploy trên **Google Cloud Run** (service `gymmaster-os`), gọi backend .NET (`/api/v1/...`) qua `apiRequest()`. Tích hợp: đăng nhập Google, thanh toán **VNPay** (trang `vnpay-return`), quét ảnh món ăn **Gemini AI** (trong meal-journal), avatar qua Cloudinary (backend). Bản đồ module/kiến trúc mới nhất: **`graphify-out/GRAPH_REPORT.md`** (knowledge graph 328 file, cập nhật 2026-07). Route thực tế: `08_ROUTE_MAP_NAVIGATION.md`.
 
 > Runtime UI copy target: final `docs/init/04_REQUIREMENTS.md` requires Vietnamese user-facing UI. Existing English screens are partial migration state. See `docs/07-copy-language-decision.md`.
 
