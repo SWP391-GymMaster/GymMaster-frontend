@@ -29,7 +29,7 @@ describe("TdeeCalculator Upgrade", () => {
     expect(screen.getByText("Tự thiết lập (Manual)")).toBeInTheDocument();
   });
 
-  it("calculates TDEE and applies macro target automatically on TDEE tab", () => {
+  it("calculates TDEE and applies macro target automatically on TDEE tab", async () => {
     const handleTargetApplied = vi.fn();
     renderWithMemberSession(
       <TdeeCalculator isOpen={true} onClose={vi.fn()} onTargetApplied={handleTargetApplied} />
@@ -46,10 +46,13 @@ describe("TdeeCalculator Upgrade", () => {
     const applyButton = screen.getByText("Áp dụng mục tiêu");
     fireEvent.click(applyButton);
 
-    expect(handleTargetApplied).toHaveBeenCalled();
+    // onTargetApplied chạy trong onSuccess của mutation (bất đồng bộ) -> phải chờ
+    await waitFor(() => {
+      expect(handleTargetApplied).toHaveBeenCalled();
+    });
   });
 
-  it("switches to Manual tab, modifies target, and saves manually", () => {
+  it("switches to Manual tab, modifies target, and saves manually", async () => {
     const handleTargetApplied = vi.fn();
     renderWithMemberSession(
       <TdeeCalculator isOpen={true} onClose={vi.fn()} onTargetApplied={handleTargetApplied} />
@@ -75,7 +78,10 @@ describe("TdeeCalculator Upgrade", () => {
     const applyManualButton = screen.getByText("Áp dụng mục tiêu thủ công");
     fireEvent.click(applyManualButton);
 
-    expect(handleTargetApplied).toHaveBeenCalledWith(1800);
+    // onTargetApplied chạy trong onSuccess của mutation (bất đồng bộ) -> phải chờ
+    await waitFor(() => {
+      expect(handleTargetApplied).toHaveBeenCalledWith(1800);
+    });
   });
 
   it("prefills form from BE calorie target when open", async () => {
