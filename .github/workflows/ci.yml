@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    name: Typecheck · Lint · Test · Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests (vitest)
+        run: npx vitest run
+
+      # .env.local khong duoc commit, nen build trong CI phai tu cap bien.
+      # Gia tri chi de build di qua — khong goi backend that o buoc nay.
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_MOCKING: 'enabled'
+          NEXT_PUBLIC_API_BASE_URL: 'http://127.0.0.1:3000'
+          NEXT_PUBLIC_APP_URL: 'http://127.0.0.1:3000'
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: 'ci-placeholder.apps.googleusercontent.com'
+
+      # E2E chua bat: 14 test dang do san tren main (co tu commit b6a5562),
+      # bat len se lam CI do vinh vien. Them lai sau khi sua xong.
+      # - name: E2E (playwright)
+      #   run: npx playwright install --with-deps chromium && npx playwright test
