@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   description: "Frontend quản lý vận hành phòng gym GymMaster.",
   icons: {
     icon: "/assets/gymmaster/gymmaster-mark.svg",
+    apple: "/icons/gymmaster-192.png",
   },
   openGraph: {
     images: ["/assets/gymmaster/gym-operations-cover.webp"],

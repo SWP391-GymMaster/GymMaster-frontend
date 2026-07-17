@@ -25,6 +25,7 @@ import { GenderSelect } from "@/components/forms/GenderSelect"
 import { PhoneField } from "@/components/forms/PhoneField"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { InstallAppAction } from "@/components/pwa/InstallAppAction"
 import { toCanonicalGender } from "@/lib/validation/person"
 import {
   useMyPersonalProfile,
@@ -581,7 +582,10 @@ export function AccountProfileWorkspace({ role }: AccountProfileWorkspaceProps) 
           <PersonalProfileCard role={role} />
           {role === "pt" ? <ProfessionalProfileCard /> : null}
         </div>
-        <SecurityCard />
+        <div className="grid content-start gap-6">
+          <SecurityCard />
+          <InstallAppAction />
+        </div>
       </div>
     </section>
   )

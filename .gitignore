@@ -45,6 +45,8 @@ graphify-out/.graphify_root
 !/openspec/changes/desktop-apple-fitness-uxui-rework/**
 !/openspec/changes/role-aware-member-profile/
 !/openspec/changes/role-aware-member-profile/**
+!/openspec/changes/add-progressive-web-app/
+!/openspec/changes/add-progressive-web-app/**
 
 # debug
 npm-debug.log*
