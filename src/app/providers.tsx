@@ -25,6 +25,15 @@ declare global {
 
 export function AppProviders({ children }: AppProvidersProps) {
   const [queryClient] = useState(() => createQueryClient())
+  // Chi cho o che do mock: khong render children truoc khi MSW san sang.
+  // Truoc day children render ngay, con worker.start() chay bat dong bo -> trang
+  // nao goi API ngay trong useEffect luc mount (vd /member/membership/vnpay-return)
+  // se ban request truoc khi MSW kip bat; onUnhandledRequest:"bypass" cho no lot
+  // ra mang that roi hong -> trang hien man loi. Cac trang dung react-query thoat
+  // nan nho co retry, nen loi nay an rat lau.
+  const [mockReady, setMockReady] = useState(
+    () => !isApiMockingEnabled(process.env.NEXT_PUBLIC_API_MOCKING),
+  )
 
   useEffect(() => {
     if (!isApiMockingEnabled(process.env.NEXT_PUBLIC_API_MOCKING)) {
@@ -44,11 +53,16 @@ export function AppProviders({ children }: AppProvidersProps) {
       await worker.start({ onUnhandledRequest: "bypass" })
       if (!cancelled) {
         window.__GYMMASTER_MSW_READY__ = true
+        setMockReady(true)
       }
     }
 
     void startMocking().catch((error: unknown) => {
       console.error("GymMaster MSW startup failed:", error)
+      // Bat dau that bai thi van phai render, khong de trang trang vinh vien.
+      if (!cancelled) {
+        setMockReady(true)
+      }
     })
 
     return () => {
@@ -60,7 +74,7 @@ export function AppProviders({ children }: AppProvidersProps) {
     <QueryClientProvider client={queryClient}>
       <PwaInstallProvider>
         <PwaLifecycle />
-        {children}
+        {mockReady ? children : null}
         <ConnectivityNotice />
         <Toaster richColors closeButton position="top-right" />
       </PwaInstallProvider>

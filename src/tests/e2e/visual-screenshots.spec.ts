@@ -60,6 +60,12 @@ test.describe("Public / Auth Screenshots", () => {
     await openPage(page, "/reset-password?token=mock-reset-token")
     await page.screenshot({ path: path.join(screenshotDir, "reset-password.png"), fullPage: true })
   })
+
+  test("change-password page", async ({ page }) => {
+    await loginAs(page, "member@gymmaster.local", /\/member\/dashboard$/)
+    await openPage(page, "/change-password")
+    await page.screenshot({ path: path.join(screenshotDir, "change-password.png"), fullPage: true })
+  })
 })
 
 test.describe("Admin Screenshots", () => {
@@ -73,6 +79,8 @@ test.describe("Admin Screenshots", () => {
     { url: "/admin/staff", filename: "admin-staff.png" },
     { url: "/admin/trainers", filename: "admin-trainers.png" },
     { url: "/admin/members", filename: "admin-members.png" },
+    // Route dong [id] — 101 la member dau tien trong mock data.
+    { url: "/admin/members/101", filename: "admin-member-360.png" },
     { url: "/admin/assignments", filename: "admin-assignments.png" },
     { url: "/admin/audit-logs", filename: "admin-audit-logs.png" },
     { url: "/admin/packages", filename: "admin-packages.png" },
@@ -97,6 +105,8 @@ test.describe("Staff Screenshots", () => {
   const staffPages = [
     { url: "/staff/dashboard", filename: "staff-dashboard.png" },
     { url: "/staff/members", filename: "staff-members.png" },
+    // Route dong [id] — 101 la member dau tien trong mock data.
+    { url: "/staff/members/101", filename: "staff-member-360.png" },
     { url: "/staff/check-in", filename: "staff-check-in.png" },
     { url: "/staff/sell-package", filename: "staff-sell-package.png" },
     { url: "/staff/renew-package", filename: "staff-renew-package.png" },
@@ -148,6 +158,12 @@ test.describe("Member Screenshots", () => {
     { url: "/member/nutrition/summary", filename: "member-nutrition-summary.png" },
     { url: "/member/progress", filename: "member-progress.png" },
     { url: "/member/membership", filename: "member-membership.png" },
+    // Query vnp_* la thu VNPay sandbox redirect ve that; vnp_ResponseCode=00 =
+    // thanh cong -> chup duoc man ket qua thay vi man loi.
+    {
+      url: "/member/membership/vnpay-return?vnp_ResponseCode=00&vnp_TxnRef=8001",
+      filename: "member-vnpay-return.png",
+    },
     { url: "/member/notes", filename: "member-notes.png" },
     { url: "/member/profile", filename: "member-profile.png" },
     { url: "/member/profile/edit", filename: "member-profile-edit.png" },

@@ -288,4 +288,37 @@ export const billingHandlers = [
     membership.status = "cancelled"
     return ok(membership)
   }),
+
+  // VNPay — truoc day mock KHONG co 3 endpoint nay, nen o che do mock trang
+  // /member/membership/vnpay-return luon roi vao nhanh catch va hien man loi.
+  http.post("/api/v1/payments/vnpay/create-url", async ({ request }) => {
+    const body = (await request.json()) as { membershipId: number }
+    const membership = memberships.find((item) => item.id === body.membershipId)
+
+    if (!membership) {
+      return fail("NOT_FOUND", "Khong tim thay membership.", 404)
+    }
+
+    return ok({
+      paymentId: 8001,
+      membershipId: membership.id,
+      amount: 900000,
+      // Sandbox that redirect ve day kem query vnp_*; mock tra thang ve trang
+      // ket qua de bam duoc het luong ma khong can ra ngoai internet.
+      payUrl: "/member/membership/vnpay-return?vnp_ResponseCode=00&vnp_TxnRef=8001",
+    })
+  }),
+
+  http.get("/api/v1/payments/vnpay/return", ({ request }) => {
+    const url = new URL(request.url)
+    const paid = url.searchParams.get("vnp_ResponseCode") === "00"
+
+    return ok({
+      paymentId: Number(url.searchParams.get("vnp_TxnRef") ?? 8001),
+      membershipId: 201,
+      status: paid ? "Paid" : "Failed",
+      membershipStatus: paid ? "active" : "pending_payment",
+      paidAt: paid ? new Date().toISOString() : null,
+    })
+  }),
 ]
