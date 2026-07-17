@@ -60,7 +60,6 @@ const routesByRole: Record<AppRole, RouteTarget[]> = {
     { url: "/admin/payments", filename: "payments.png" },
     { url: "/admin/assignments", filename: "assignments.png" },
     { url: "/admin/audit-logs", filename: "audit-logs.png" },
-    { url: "/admin/notifications", filename: "notifications.png" },
   ],
   staff: [
     { url: "/staff/dashboard", filename: "dashboard.png" },

@@ -78,7 +78,6 @@ test.describe("Admin Screenshots", () => {
     { url: "/admin/packages", filename: "admin-packages.png" },
     { url: "/admin/memberships", filename: "admin-memberships.png" },
     { url: "/admin/payments", filename: "admin-payments.png" },
-    { url: "/admin/notifications", filename: "admin-notifications.png" },
     { url: "/admin/profile", filename: "admin-profile.png" },
   ]
 
