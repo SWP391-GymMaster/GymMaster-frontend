@@ -41,6 +41,16 @@ test.describe("Public / Auth Screenshots", () => {
     await page.screenshot({ path: path.join(screenshotDir, "signup.png"), fullPage: true })
   })
 
+  test("landing page", async ({ page }) => {
+    await openPage(page, "/")
+    await page.screenshot({ path: path.join(screenshotDir, "landing.png"), fullPage: true })
+  })
+
+  test("about page", async ({ page }) => {
+    await openPage(page, "/about")
+    await page.screenshot({ path: path.join(screenshotDir, "about.png"), fullPage: true })
+  })
+
   test("forgot-password page", async ({ page }) => {
     await openPage(page, "/forgot-password")
     await page.screenshot({ path: path.join(screenshotDir, "forgot-password.png"), fullPage: true })
@@ -65,6 +75,11 @@ test.describe("Admin Screenshots", () => {
     { url: "/admin/members", filename: "admin-members.png" },
     { url: "/admin/assignments", filename: "admin-assignments.png" },
     { url: "/admin/audit-logs", filename: "admin-audit-logs.png" },
+    { url: "/admin/packages", filename: "admin-packages.png" },
+    { url: "/admin/memberships", filename: "admin-memberships.png" },
+    { url: "/admin/payments", filename: "admin-payments.png" },
+    { url: "/admin/notifications", filename: "admin-notifications.png" },
+    { url: "/admin/profile", filename: "admin-profile.png" },
   ]
 
   for (const item of adminPages) {
@@ -86,6 +101,8 @@ test.describe("Staff Screenshots", () => {
     { url: "/staff/check-in", filename: "staff-check-in.png" },
     { url: "/staff/sell-package", filename: "staff-sell-package.png" },
     { url: "/staff/renew-package", filename: "staff-renew-package.png" },
+    { url: "/staff/payments", filename: "staff-payments.png" },
+    { url: "/staff/profile", filename: "staff-profile.png" },
   ]
 
   for (const item of staffPages) {
@@ -107,6 +124,9 @@ test.describe("PT Screenshots", () => {
     { url: "/pt/members/101/workout", filename: "pt-workout-planner.png" },
     { url: "/pt/members/101/notes", filename: "pt-trainer-notes.png" },
     { url: "/pt/members/101/progress", filename: "pt-member-progress.png" },
+    { url: "/pt/members", filename: "pt-members.png" },
+    { url: "/pt/check-in", filename: "pt-check-in.png" },
+    { url: "/pt/profile", filename: "pt-profile.png" },
   ]
 
   for (const item of ptPages) {
@@ -128,6 +148,10 @@ test.describe("Member Screenshots", () => {
     { url: "/member/nutrition/meal-journal", filename: "member-meal-journal.png" },
     { url: "/member/nutrition/summary", filename: "member-nutrition-summary.png" },
     { url: "/member/progress", filename: "member-progress.png" },
+    { url: "/member/membership", filename: "member-membership.png" },
+    { url: "/member/notes", filename: "member-notes.png" },
+    { url: "/member/profile", filename: "member-profile.png" },
+    { url: "/member/profile/edit", filename: "member-profile-edit.png" },
   ]
 
   for (const item of memberPages) {
