@@ -68,3 +68,11 @@ The performance and contrast findings should be handled through a focused login 
 - The final PWA/OpenSpec staged diff was presented separately from pre-existing/generated `graphify-out/` changes.
 - The owner approved the recommended staged PWA diff on 2026-07-17.
 - No commit, push, or OpenSpec archive was performed as part of this approval; each remains a separate explicit action.
+
+### Spec sync and archive completion (2026-07-17)
+
+- The approved delta created the main `progressive-web-app` capability with 7 requirements and 20 scenarios; no requirements were modified, removed, or renamed.
+- The main capability passed `openspec validate progressive-web-app --strict`.
+- The completed change was archived to `openspec/changes/archive/2026-07-17-add-progressive-web-app/` after explicit owner approval.
+- Post-archive `openspec validate --all --strict` passed 11/11 items with 0 failures.
+- Generated/pre-existing `graphify-out/` changes remained outside the archive commit scope.

@@ -37,4 +37,4 @@
 - [x] 6.2 Run `npm run typecheck`, `npm run lint`, `npm run test -- --run`, `npm run build`, and the production PWA Playwright suite; record every pass, failure, or unrelated baseline issue.
 - [x] 6.3 Complete manual Chromium Application/Lighthouse and iOS Add to Home Screen checklists, including installed launch, standalone detection, one update cycle, offline retry, MSW development startup, and Cache Storage inspection.
 - [x] 6.4 Run strict OpenSpec validation and `graphify update .`, review the final staged diff with the owner, and do not commit, push, or archive until separately approved.
-- [ ] 6.5 After implementation acceptance, archive `add-progressive-web-app` through OpenSpec and re-run strict validation of the archived package.
+- [x] 6.5 After implementation acceptance, archive `add-progressive-web-app` through OpenSpec and re-run strict validation of the archived package.
