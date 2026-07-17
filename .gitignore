@@ -35,6 +35,8 @@ graphify-out/.graphify_root
 # docs/specs
 /docs/workflow-guide/
 /openspec/*
+!/openspec/specs/
+!/openspec/specs/**
 !/openspec/changes/
 /openspec/changes/*
 !/openspec/changes/audit-app-flows-backend-alignment/
@@ -45,6 +47,10 @@ graphify-out/.graphify_root
 !/openspec/changes/desktop-apple-fitness-uxui-rework/**
 !/openspec/changes/role-aware-member-profile/
 !/openspec/changes/role-aware-member-profile/**
+!/openspec/changes/archive/
+/openspec/changes/archive/*
+!/openspec/changes/archive/2026-07-17-add-progressive-web-app/
+!/openspec/changes/archive/2026-07-17-add-progressive-web-app/**
 
 # debug
 npm-debug.log*

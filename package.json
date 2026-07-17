@@ -10,6 +10,7 @@
     "lint": "eslint",
     "test": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:pwa": "playwright test --config=playwright.pwa.config.ts",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:screenshots": "playwright test src/tests/e2e/visual-screenshots.spec.ts"
   },

@@ -3,6 +3,7 @@
 import { PermissionGuard } from "@/features/auth/components/PermissionGuard"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 import { WorkspaceShell } from "@/components/layout/WorkspaceShell"
+import { InstallAppAction } from "@/components/pwa/InstallAppAction"
 import { useMember360Data } from "@/features/member-360/api/member-360.queries"
 import { MemberSocialProfile } from "@/features/member-360/components/MemberSocialProfile"
 
@@ -36,6 +37,9 @@ export function MemberSelfProfilePage() {
                 }
           }
         />
+        <div className="mx-auto mt-6 w-full max-w-3xl">
+          <InstallAppAction />
+        </div>
       </WorkspaceShell>
     </PermissionGuard>
   )

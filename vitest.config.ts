@@ -8,7 +8,12 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
-    exclude: ["**/node_modules/**", "**/.next/**", "**/src/tests/e2e/**"],
+    exclude: [
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/src/tests/e2e/**",
+      "**/src/tests/e2e-pwa/**",
+    ],
     globals: false,
     setupFiles: ["./src/tests/setup.ts"],
   },

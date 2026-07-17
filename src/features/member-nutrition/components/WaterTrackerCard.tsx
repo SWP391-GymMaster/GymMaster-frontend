@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Droplet, Plus, RotateCcw, CloudOff } from "lucide-react";
+import { Droplet, Plus, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { vnDateIso, vnTodayIso } from "@/lib/date/vn-time";
 
 const LOCAL_STORAGE_KEY_WATER = "gymmaster-water-logs";
@@ -60,7 +59,6 @@ function saveLogs(logs: WaterLog[]) {
 }
 
 export function WaterTrackerCard() {
-  const { isOnline, enqueueAction } = useOfflineSync();
   const [logs, setLogs] = useState<WaterLog[]>([]);
   const [todayAmount, setTodayAmount] = useState<number>(0);
   const todayStr = getLocalDateString();
@@ -82,9 +80,6 @@ export function WaterTrackerCard() {
   const percentage = Math.min(Math.round((todayAmount / DAILY_GOAL_ML) * 100), 100);
 
   function handleAddWater(amount: number) {
-    // Enqueue action for offline sync
-    enqueueAction("ADD_WATER", { amount });
-
     // Tactile Feedback
     try {
       if ("vibrate" in navigator) {
@@ -159,12 +154,6 @@ export function WaterTrackerCard() {
         </div>
 
         <div className="flex items-center gap-2">
-          {!isOnline && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-500 border border-amber-500/20 animate-pulse">
-              <CloudOff className="size-3" />
-              Ngoại tuyến
-            </span>
-          )}
           <button
             onClick={handleReset}
             className="rounded-full size-11 flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95 transition"
@@ -235,6 +224,9 @@ export function WaterTrackerCard() {
 
       {/* 7-Day History Chart */}
       <div className="mt-4 pt-3 border-t border-border">
+        <p className="mb-2 text-[10px] font-medium text-muted-foreground">
+          Nhật ký nước chỉ được lưu cục bộ trên thiết bị này.
+        </p>
         <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
           Lịch sử 7 ngày qua
         </p>

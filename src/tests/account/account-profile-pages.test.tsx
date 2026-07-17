@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { http } from "msw"
 import type { ReactNode } from "react"
 import { afterEach, describe, expect, it, vi } from "vitest"
@@ -14,6 +14,7 @@ import {
 } from "@/features/auth/session/auth-session"
 import { server } from "@/mocks/server"
 import { fail, ok } from "@/mocks/utils/api-response"
+import { PWA_INSTALL_DISMISSAL_KEY } from "@/lib/pwa/constants"
 import type { AuthSession, UserRole } from "@/types/auth"
 
 vi.mock("next/navigation", () => ({
@@ -87,6 +88,19 @@ afterEach(() => {
 })
 
 describe("account profile pages", () => {
+  it("surfaces the shared PWA install action on an eligible staff profile", async () => {
+    window.localStorage.removeItem(PWA_INSTALL_DISMISSAL_KEY)
+    setSession("staff")
+    renderWithProviders(<StaffProfilePage />)
+    await screen.findByText("Thông tin cá nhân")
+
+    act(() => {
+      window.dispatchEvent(new Event("beforeinstallprompt", { cancelable: true }))
+    })
+
+    expect(await screen.findByText("Cài ứng dụng để mở nhanh hơn")).toBeInTheDocument()
+  })
+
   it("renders the staff profile page with the personal profile card", async () => {
     setSession("staff")
     renderWithProviders(<StaffProfilePage />)
