@@ -1,0 +1,57 @@
+name: Deploy to Cloud Run
+
+# Chi chay khi bam nut tay (Actions -> Deploy to Cloud Run -> Run workflow).
+on:
+  workflow_dispatch:
+
+jobs:
+  # Phai qua CI (typecheck + lint + vitest + build) truoc khi deploy.
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Deploy gymmaster-os
+    needs: ci
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write        # BAT BUOC de lay OIDC token cho WIF
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xac thuc GCP
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: gymmaster-500004
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      # NEXT_PUBLIC_* duoc INLINE luc build chu khong doc luc chay, nen chung
+      # nam trong ARG cua Dockerfile (mac dinh da tro dung backend Cloud Run).
+      # Doi backend URL thi sua Dockerfile, khong phai sua env cua Cloud Run.
+      - name: Deploy
+        run: |
+          gcloud run deploy gymmaster-os \
+            --source . \
+            --region asia-southeast1 \
+            --allow-unauthenticated \
+            --port 8080 \
+            --quiet
+
+      - name: Kiem tra service song
+        run: |
+          URL=$(gcloud run services describe gymmaster-os \
+            --region asia-southeast1 --format='value(status.url)')
+          echo "Deployed: $URL"
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "$URL/login")
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Smoke test that bai: /login tra ve $CODE"
+            exit 1
+          fi
+          echo "Smoke test OK (200)."
+          echo "### Frontend deployed :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "$URL" >> $GITHUB_STEP_SUMMARY
