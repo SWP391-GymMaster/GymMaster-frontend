@@ -31,6 +31,9 @@ describe("LoginForm", () => {
     expect(screen.queryByText("Lễ tân")).not.toBeInTheDocument()
     expect(screen.queryByText("PT")).not.toBeInTheDocument()
     expect(screen.queryByText("Hội viên")).not.toBeInTheDocument()
+    expect(
+      document.querySelector('script[src="https://accounts.google.com/gsi/client"]'),
+    ).not.toBeInTheDocument()
   })
 
   it("redirects by authenticated backend role", async () => {

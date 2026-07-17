@@ -1,42 +1,23 @@
 "use client";
 
+import { IconBrandGoogle } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { GoogleIdentityButton } from "@/features/auth/components/GoogleIdentityButton";
 import { useAuthSessionStore } from "@/features/auth/session/auth-session";
 import { mapAuthError } from "@/features/auth/utils/auth-error-map";
-import { IconBrandGoogle } from "@tabler/icons-react";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-const GSI_SRC = "https://accounts.google.com/gsi/client";
-
-type GoogleCredentialResponse = { credential?: string };
-
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: {
-            client_id: string;
-            callback: (response: GoogleCredentialResponse) => void;
-          }) => void;
-          renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
-        };
-      };
-    };
-  }
-}
 
 type GoogleLoginButtonProps = {
   onError?: (message: string) => void;
-  // Token gia, chi dung cho mock/test.
+  // Token giả, chỉ dùng cho mock/test.
   idToken?: string;
 };
 
-// Mock/test (MSW) -> dung token gia. Khac di -> Google that neu co Client ID.
 function isMockMode() {
   return (
     process.env.NEXT_PUBLIC_API_MOCKING?.toLowerCase() === "enabled" ||
@@ -51,7 +32,6 @@ export function GoogleLoginButton({
   const router = useRouter();
   const loginWithGoogle = useAuthSessionStore((state) => state.loginWithGoogle);
   const [isPending, setIsPending] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const mockMode = isMockMode();
   const realMode = Boolean(GOOGLE_CLIENT_ID) && !mockMode;
@@ -75,73 +55,23 @@ export function GoogleLoginButton({
     [loginWithGoogle, onError, router],
   );
 
-  // Google Identity Services thật: nạp script, render nút Google, nhận ID token thật.
-  useEffect(() => {
-    if (!realMode) {
-      return;
-    }
+  const handleGoogleCredential = useCallback(
+    (token: string) => {
+      void submitToken(token);
+    },
+    [submitToken],
+  );
 
-    function init() {
-      const google = window.google;
-      if (!google?.accounts?.id || !containerRef.current) {
-        return;
-      }
-
-      google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID as string,
-        callback: (response: GoogleCredentialResponse) => {
-          if (response.credential) {
-            void submitToken(response.credential);
-          }
-        },
-      });
-
-      containerRef.current.replaceChildren();
-      google.accounts.id.renderButton(containerRef.current, {
-        type: "standard",
-        theme: "outline",
-        size: "large",
-        text: "continue_with",
-        shape: "pill",
-        logo_alignment: "center",
-        width: 320,
-      });
-    }
-
-    if (window.google?.accounts?.id) {
-      init();
-      return;
-    }
-
-    let script = document.querySelector<HTMLScriptElement>(`script[src="${GSI_SRC}"]`);
-    const created = !script;
-    if (!script) {
-      script = document.createElement("script");
-      script.src = GSI_SRC;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    }
-    script.addEventListener("load", init);
-
-    return () => {
-      script?.removeEventListener("load", init);
-      if (created) {
-        // giu script lai cho lan sau; khong xoa de tranh nap lai nhieu lan
-      }
-    };
-  }, [realMode, submitToken]);
-
-  // Google THẬT — render nút chính chủ của Google.
   if (realMode) {
     return (
-      <div className="flex w-full justify-center">
-        <div ref={containerRef} data-testid="google-login-button" />
-      </div>
+      <GoogleIdentityButton
+        clientId={GOOGLE_CLIENT_ID as string}
+        onCredential={handleGoogleCredential}
+      />
     );
   }
 
-  // Mock/test — nút giả, gửi token mock (giữ nguyên cho Playwright/Vitest + MSW).
+  // Mock/test: gửi token giả qua đúng auth-session flow hiện có.
   if (mockMode) {
     return (
       <Button
@@ -158,7 +88,7 @@ export function GoogleLoginButton({
     );
   }
 
-  // Chưa cấu hình Client ID (chạy backend thật mà thiếu env).
+  // Backend thật nhưng môi trường chưa có Google Client ID.
   return (
     <Button
       className="min-h-12 w-full rounded-full border-border bg-background text-base font-semibold text-muted-foreground"

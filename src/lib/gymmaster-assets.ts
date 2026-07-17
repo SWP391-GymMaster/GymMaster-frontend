@@ -16,6 +16,7 @@ export const gymMasterAssets = {
 
   // Keep optional page-level aliases pointing to the canonical covers.
   backgrounds: {
+    authOperations: "/assets/gymmaster/gym-operations-cover.webp",
     welcomeGymHero: "/assets/gymmaster/covers/welcome-hero-cover.png",
     authPremiumDark: "/assets/gymmaster/covers/welcome-hero-cover.png",
     adminOperations: "/assets/gymmaster/covers/admin-operations-cover.png",

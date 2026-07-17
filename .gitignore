@@ -43,6 +43,8 @@ graphify-out/.graphify_root
 !/openspec/changes/audit-app-flows-backend-alignment/**
 !/openspec/changes/handle-empty-protected-api-errors/
 !/openspec/changes/handle-empty-protected-api-errors/**
+!/openspec/changes/improve-login-lighthouse-quality/
+!/openspec/changes/improve-login-lighthouse-quality/**
 !/openspec/changes/desktop-apple-fitness-uxui-rework/
 !/openspec/changes/desktop-apple-fitness-uxui-rework/**
 !/openspec/changes/role-aware-member-profile/
