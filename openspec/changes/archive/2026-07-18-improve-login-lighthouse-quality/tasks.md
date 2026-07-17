@@ -56,3 +56,21 @@
 - [x] 8.5 Run typecheck, lint, focused auth/PWA regressions, and three valid local Lighthouse 13.4.0 mobile audits against the same production build.
 - [x] 8.6 Compare the optional-display medians with the 3.792-second LCP baseline and either retain the setting only when every documented criterion passes or revert it before owner review; record the decision and evidence.
 - [x] 8.7 Run strict OpenSpec validation and `graphify update .`, inspect the complete unstaged diff, and present the experiment result without staging, committing, or pushing.
+
+## 9. Evidence-ranked LCP remediation
+
+- [x] 9.1 Record the three production reports' displayed and observed LCP values, common LCP node, TTFB/render-delay phases, render-blocking CSS estimates, initial JavaScript/unused-byte evidence, and the reasons to deprioritize backend, Google, fonts, and copy changes.
+- [x] 9.2 Before editing, preserve a same-build three-run local Lighthouse baseline and the `/login` synchronous request graph, encoded JavaScript transfer, generated HTML size, and route bundle statistics.
+- [x] 9.3 Implement Gate A by moving submit-only Zod/resolver execution behind the login submit boundary while retaining React Hook Form, the existing Zod schema, exact field messages, accessible pending/error states, and unchanged auth/session/redirect behavior.
+- [x] 9.4 Add focused tests proving invalid email and empty password map to the existing fields/messages without an auth mutation, valid credentials use the unchanged login flow, and no Zod/resolver chunk is requested before interaction in a production build.
+- [x] 9.5 Run typecheck, lint, focused auth/PWA tests, build, bundle/request inspection, and three comparable local mobile audits; retain Gate A only when initial encoded JavaScript drops by at least 40 KB, median LCP improves by at least 10 percent, and every existing quality/contract gate remains green.
+- [x] 9.6 Record that Gate A passed its bundle/behavior boundaries but failed its LCP/Performance/TBT comparison, fully revert its application/test source, and keep `next.config.ts` unchanged.
+- [x] 9.7 With owner approval limited to planning, revise the proposal, design, delta spec, and tasks so Gate B is independently approvable; run strict OpenSpec validation and present the proposal-only diff before any configuration edit.
+- [x] 9.8 After separate owner approval of Gate B implementation, preserve the restored same-build HTML, stylesheet/request graph, total first-load transfer, three-run Lighthouse baseline, and representative route/PWA state; then add only `experimental.inlineCss: true` to the existing Next.js configuration and build locally.
+- [x] 9.9 Inspect generated inline styles and encoded HTML/transfer; when the encoded HTML and first-load transfer hard gates fail, short-circuit downstream inline-build audits, automatically restore `next.config.ts`, rebuild the baseline state, and run final typecheck, lint, focused auth/PWA, worker/cache-privacy, and offline-fallback checks with every pass or baseline failure recorded.
+- [x] 9.10 Run strict OpenSpec validation and `graphify update .`, inspect the complete unstaged result, and present all implementation and verification evidence before staging, committing, pushing, deploying, or repeating tasks 6.4 and 6.5.
+
+## 10. Terminal disposition
+
+- [x] 10.1 Record the approved Gate C no-edit feasibility result: conservative separable CSS was 5,641 gzip bytes and about 16.0% of first-party login stylesheet transfer, so both thresholds failed and no tracked runtime CSS/layout candidate was created.
+- [x] 10.2 Record explicit owner approval to stop further login Lighthouse micro-experiments and archive this change as rejected with a known LCP gap; keep tasks 6.4 and 6.5 incomplete because production acceptance was not achieved, and do not sync the unaccepted delta into canonical specs.

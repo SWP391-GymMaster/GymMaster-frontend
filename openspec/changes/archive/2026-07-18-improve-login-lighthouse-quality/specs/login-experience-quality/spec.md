@@ -11,6 +11,10 @@ The frontend SHALL meet the approved mobile production quality budgets for `/log
 - **WHEN** Lighthouse reports a runtime error, audits different deployed revisions, or any required median, worst-case, or accessibility threshold fails
 - **THEN** the production quality gate is not complete and the change MUST NOT be archived as accepted
 
+#### Scenario: Owner ends the optimization stream without acceptance
+- **WHEN** approved follow-up experiments are rejected or infeasible and the owner explicitly stops further optimization
+- **THEN** the change may be archived only as rejected historical evidence, the unmet production budgets remain explicit, and this capability is not synchronized into canonical product specs
+
 ### Requirement: Responsive decorative media delivery
 The login experience SHALL preserve the approved GymMaster OS visual direction while treating the operations cover as optional decorative media. A viewport below the desktop auth breakpoint MUST NOT request the raster operations cover before user interaction, and any desktop cover response used by the login shell MUST be an optimized modern format no larger than 150 KB encoded.
 
@@ -85,3 +89,30 @@ The quality change MUST preserve email/password validation, auth-session mutatio
 #### Scenario: Shared auth-shell routes are smoke tested
 - **WHEN** login, signup, forgot-password, reset-password, and change-password pages render after the shared shell change
 - **THEN** each route retains readable responsive structure, keyboard access, and its existing functional behavior
+
+### Requirement: Evidence-gated critical-path experiments
+Critical-path experiments SHALL remain independently owner-gated, local-only, reversible, and subject to the unchanged production quality thresholds. A failed experiment MUST be restored before review and MUST NOT authorize the next experiment automatically. Planning-artifact approval MUST NOT be treated as approval to edit runtime configuration. A global CSS-inlining experiment MUST require a separate implementation approval and MUST be reverted unless it passes the complete login budget plus representative route and PWA regression checks.
+
+#### Scenario: Gate A fails its performance comparison
+- **WHEN** deferred validation reduces initial encoded JavaScript by at least 40 KB but median LCP improves by less than 10 percent or another quality budget regresses
+- **THEN** the route-scoped implementation is fully reverted, its evidence is recorded, and no runtime configuration edit proceeds automatically
+
+#### Scenario: Revised Gate B planning artifacts are approved
+- **WHEN** the owner approves updating the proposal, design, specification, and tasks so CSS inlining can be evaluated independently
+- **THEN** `next.config.ts` remains unchanged and the experiment remains blocked until the owner separately approves the implementation phase
+
+#### Scenario: Independently approved CSS inlining is evaluated
+- **WHEN** the owner separately approves Gate B implementation and `experimental.inlineCss: true` is applied to a local production build
+- **THEN** three valid local mobile runs meet the full production budgets, encoded `/login` HTML remains at or below 50 KB, total first-load transfer does not regress by more than 5 percent, and the shared auth routes, `/welcome`, four role dashboards, offline fallback, service-worker control, and cache privacy checks pass before the flag may be retained for review
+
+#### Scenario: CSS inlining misses any gate
+- **WHEN** an audit is invalid, a production quality threshold fails, encoded `/login` HTML exceeds 50 KB, first-load transfer regresses by more than 5 percent, or any representative route, authentication, accessibility, PWA, or privacy check fails
+- **THEN** the configuration change is reverted, a restored production build is verified, and no commit, push, deployment, spec synchronization, or archive proceeds
+
+#### Scenario: CSS inlining passes every local gate
+- **WHEN** the independently approved experiment satisfies every performance, transfer, route, authentication, accessibility, PWA, and privacy requirement
+- **THEN** the configuration diff remains unstaged and undeployed until the owner reviews the complete evidence and separately approves the next action
+
+#### Scenario: Final production acceptance is repeated
+- **WHEN** the owner approves the complete unstaged remediation and separately approves its deployment
+- **THEN** tasks 6.4 and 6.5 use the unchanged three-run Lighthouse 13.4.0 production method, and the change remains unarchived unless every original threshold passes

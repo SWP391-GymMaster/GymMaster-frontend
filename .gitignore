@@ -53,6 +53,12 @@ graphify-out/.graphify_root
 /openspec/changes/archive/*
 !/openspec/changes/archive/2026-07-17-add-progressive-web-app/
 !/openspec/changes/archive/2026-07-17-add-progressive-web-app/**
+!/openspec/changes/archive/2026-07-18-fix-protected-offline-fallback/
+!/openspec/changes/archive/2026-07-18-fix-protected-offline-fallback/**
+!/openspec/changes/archive/2026-07-18-evaluate-login-route-css-boundary/
+!/openspec/changes/archive/2026-07-18-evaluate-login-route-css-boundary/**
+!/openspec/changes/archive/2026-07-18-improve-login-lighthouse-quality/
+!/openspec/changes/archive/2026-07-18-improve-login-lighthouse-quality/**
 
 # debug
 npm-debug.log*

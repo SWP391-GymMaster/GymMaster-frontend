@@ -63,11 +63,15 @@ The service worker SHALL use versioned GymMaster cache names and cache only expl
 - **THEN** the worker deletes obsolete caches whose names use the GymMaster PWA prefix and retains unrelated browser/MSW storage
 
 ### Requirement: Honest offline behavior
-The frontend SHALL provide a branded Vietnamese offline fallback for failed document navigations and a visible, accessible connectivity state for an already-open application. The PWA MUST NOT queue writes, synthesize success, or present stale protected data as newly confirmed while offline.
+The frontend SHALL provide a branded Vietnamese offline fallback for failed document navigations and a visible, accessible connectivity state for an already-open application. A browser-controlled protected document navigation SHALL receive the offline document only when its network request genuinely fails; a successful online authentication or permission response MUST remain authoritative. The PWA MUST NOT queue writes, synthesize success, or present stale protected data as newly confirmed while offline.
 
 #### Scenario: Navigation fails while offline
-- **WHEN** a browser-controlled document navigation cannot reach the network
+- **WHEN** a browser-controlled document navigation, including a navigation to a protected route, cannot reach the network
 - **THEN** the service worker returns the pre-cached GymMaster offline document with a retry action and no protected member, payment, membership, or check-in data
+
+#### Scenario: Online protected navigation returns an auth response
+- **WHEN** a protected document navigation successfully receives an unauthenticated or permission-denied application response
+- **THEN** the frontend renders that response and does not replace it with the offline document merely because a connectivity hint reports offline
 
 #### Scenario: Active session loses connectivity
 - **WHEN** an open GymMaster screen receives the browser offline event
@@ -97,7 +101,7 @@ The frontend SHALL detect a waiting GymMaster service-worker update and present 
 - **THEN** the current client remains usable and no in-progress form or operation is discarded automatically
 
 ### Requirement: PWA response security and verification
-The frontend SHALL serve the service worker with JavaScript content type, no-cache/no-store revalidation semantics, a self-only script policy, and MIME-sniffing protection. Automated and manual verification SHALL cover the manifest, icon responses, production registration, offline fallback, update prompt, MSW coexistence, and exclusion of protected requests from caches.
+The frontend SHALL serve the service worker with JavaScript content type, no-cache/no-store revalidation semantics, a self-only script policy, and MIME-sniffing protection. Automated and manual verification SHALL cover the manifest, icon responses, production registration, controlled failed-document offline fallback, live connectivity state, update prompt, MSW coexistence, and exclusion of protected requests from caches. Browser verification MUST distinguish a returned offline document from an online application document that renders an authentication guard.
 
 #### Scenario: Browser fetches the service worker
 - **WHEN** `/sw.js` is requested
@@ -105,4 +109,4 @@ The frontend SHALL serve the service worker with JavaScript content type, no-cac
 
 #### Scenario: PWA acceptance suite runs
 - **WHEN** the production-build PWA verification suite and browser checklist are executed
-- **THEN** all required installability/offline/update cases pass and inspection confirms that no authenticated API or mutation response exists in a GymMaster PWA cache
+- **THEN** all required installability, controlled offline navigation, live connectivity, and update cases pass; the navigation response is proven to be the branded offline document after a genuine network failure; and inspection confirms that no authenticated API, protected document, or mutation response exists in a GymMaster PWA cache

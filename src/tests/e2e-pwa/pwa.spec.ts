@@ -118,12 +118,37 @@ test("shows live connectivity state and serves the branded offline document", as
 
   await context.setOffline(true)
   try {
+    await expect
+      .poll(() => page.evaluate(() => navigator.onLine))
+      .toBe(false)
     await page.evaluate(() => window.dispatchEvent(new Event("offline")))
     await expect(page.getByRole("status")).toContainText(
       "Các thao tác đồng bộ với hệ thống cần kết nối mạng",
     )
 
-    await page.goto("/member/dashboard", { waitUntil: "domcontentloaded" })
+    await context.setOffline(false)
+    await expect
+      .poll(() => page.evaluate(() => navigator.onLine))
+      .toBe(true)
+    await page.setExtraHTTPHeaders({
+      "x-gymmaster-pwa-test-network-error": "1",
+    })
+
+    const offlineResponse = await page.goto("/member/dashboard", {
+      waitUntil: "domcontentloaded",
+    })
+    expect(offlineResponse).not.toBeNull()
+    if (!offlineResponse) {
+      throw new Error("Expected the controlled offline navigation to return a response")
+    }
+
+    expect(offlineResponse.fromServiceWorker()).toBe(true)
+    expect(offlineResponse.status()).toBe(200)
+    expect((await offlineResponse.allHeaders())["content-type"]).toContain("text/html")
+
+    const offlineHtml = await offlineResponse.text()
+    expect(offlineHtml).toContain("Bạn đang ngoại tuyến")
+    expect(offlineHtml).not.toContain("Cần đăng nhập")
     await expect(
       page.getByRole("heading", { name: "Bạn đang ngoại tuyến" }),
     ).toBeVisible()

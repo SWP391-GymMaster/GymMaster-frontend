@@ -13,7 +13,7 @@ export default defineConfig({
   },
   webServer: {
     command:
-      "npm run build && npm run start -- --port 3200 --hostname 127.0.0.1",
+      "npm run build && node scripts/pwa-test-server.mjs",
     url: "http://127.0.0.1:3200/welcome",
     reuseExistingServer: false,
     timeout: 180_000,
