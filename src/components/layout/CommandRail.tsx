@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { usePtActiveMemberStore, type ActiveMemberContext } from "@/stores/usePtActiveMemberStore";
 import {
   Activity,
-  Bell,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
@@ -71,7 +70,6 @@ const navGroupsByRole: Record<UserRole, SidebarGroup[]> = {
         { href: "/admin/memberships", icon: ClipboardList, label: "Hợp đồng" },
         { href: "/admin/payments", icon: CreditCard, label: "Hóa đơn" },
         { href: "/admin/users", icon: UserCog, label: "Tài khoản" },
-        { href: "/admin/notifications", icon: Bell, label: "Thông báo" },
         { href: "/admin/audit-logs", icon: FileClock, label: "Nhật ký" },
       ],
     },

@@ -2,7 +2,6 @@ import { http } from "msw"
 
 import { checkins, members, memberships } from "@/mocks/data/gymmaster.mock-data"
 import { created, fail, ok, requireRole } from "@/mocks/utils/api-response"
-import { addNotification } from "@/mocks/handlers/notifications.handlers"
 
 export const checkinHandlers = [
   http.post("/api/v1/checkins", async ({ request }) => {
@@ -48,31 +47,6 @@ export const checkinHandlers = [
       source: role === "staff" ? "front-desk" : "member",
     }
     checkins.push(checkin)
-
-    // Trigger dynamic notifications for the demo
-    addNotification({
-      title: "Hội viên Check-in thành công",
-      description: `${member.fullName} vừa check-in tại quầy chính.`,
-      type: "checkin",
-      role: "staff",
-      link: `/staff/members/${member.id}`,
-    })
-
-    addNotification({
-      title: "Hội viên Check-in thành công",
-      description: `Hội viên ${member.fullName} vừa check-in tại quầy.`,
-      type: "checkin",
-      role: "admin",
-      link: `/admin/members/${member.id}`,
-    })
-
-    addNotification({
-      title: "Bạn đã Check-in thành công",
-      description: `Đã check-in thành công tại phòng tập lúc ${new Date().toLocaleTimeString("vi-VN")}.`,
-      type: "checkin",
-      role: "member",
-      link: "/member/membership",
-    })
 
     return created(checkin)
   }),

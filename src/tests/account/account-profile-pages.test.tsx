@@ -21,25 +21,6 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
 }))
 
-vi.mock("@/features/notifications/api/notifications.queries", () => ({
-  useNotifications: () => ({
-    data: [],
-    isLoading: false,
-  }),
-  useMarkNotificationRead: () => ({
-    mutate: vi.fn(),
-    mutateAsync: vi.fn(),
-  }),
-  useMarkAllNotificationsRead: () => ({
-    mutate: vi.fn(),
-    mutateAsync: vi.fn(),
-  }),
-  useDeleteNotification: () => ({
-    mutate: vi.fn(),
-    mutateAsync: vi.fn(),
-  }),
-}))
-
 const sessions: Record<UserRole, AuthSession> = {
   admin: makeSession("admin", 1, "GymMaster Admin", "admin@gymmaster.local"),
   staff: makeSession("staff", 2, "Front Desk Staff", "staff@gymmaster.local"),
