@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test"
+import { expect, test, type Locator, type Page } from "@playwright/test"
 
 const roleCases = [
   {
@@ -34,6 +34,17 @@ async function submitLogin(page: Page, email: string, password = "Password123!")
   await page.getByTestId("login-submit-button").click()
 }
 
+async function expectNextKeyboardFocus(page: Page, locator: Locator) {
+  await page.keyboard.press("Tab")
+  await expect(locator).toBeFocused()
+
+  const hasVisibleIndicator = await locator.evaluate((element) => {
+    const style = window.getComputedStyle(element)
+    return style.outlineStyle !== "none" || style.boxShadow !== "none"
+  })
+  expect(hasVisibleIndicator).toBe(true)
+}
+
 test("login page uses email and password without role picker controls", async ({
   page,
 }) => {
@@ -46,6 +57,82 @@ test("login page uses email and password without role picker controls", async ({
   await expect(page.getByRole("button", { name: "Staff" })).toHaveCount(0)
   await expect(page.getByRole("button", { name: "PT" })).toHaveCount(0)
   await expect(page.getByRole("button", { name: "Member" })).toHaveCount(0)
+})
+
+test("mobile login keeps critical content visible without requesting the raster cover", async ({
+  page,
+}) => {
+  const coverRequests: string[] = []
+  page.on("request", (request) => {
+    if (request.url().includes("gym-operations-cover")) {
+      coverRequests.push(request.url())
+    }
+  })
+  await page.setViewportSize({ width: 412, height: 823 })
+
+  await openLogin(page)
+
+  await expect(
+    page.getByRole("heading", { name: "Chào mừng quay lại." }),
+  ).toBeVisible()
+  await expect(page.getByText(/Đăng nhập bằng tài khoản GymMaster/)).toBeVisible()
+  await expect(page.getByTestId("login-email-input")).toBeVisible()
+  await expect(page.getByTestId("login-password-input")).toBeVisible()
+  await expect(page.getByTestId("login-submit-button")).toBeVisible()
+  expect(coverRequests).toEqual([])
+})
+
+test("desktop login requests only the optimized cover within budget", async ({
+  page,
+}) => {
+  const coverResponses: Array<{ bodySize: number; url: string }> = []
+  page.on("response", async (response) => {
+    if (response.url().includes("gym-operations-cover")) {
+      coverResponses.push({
+        bodySize: (await response.body()).byteLength,
+        url: response.url(),
+      })
+    }
+  })
+  await page.setViewportSize({ width: 1440, height: 1000 })
+
+  await openLogin(page)
+  await page.waitForLoadState("networkidle")
+
+  expect(coverResponses).toHaveLength(1)
+  expect(coverResponses[0]?.url).toContain("gym-operations-cover.webp")
+  expect(coverResponses[0]?.bodySize).toBeLessThanOrEqual(150 * 1024)
+})
+
+test("login exposes a predictable keyboard order with visible focus", async ({
+  page,
+}) => {
+  await openLogin(page)
+
+  await expectNextKeyboardFocus(page, page.getByRole("link", { name: "GymMaster OS" }))
+  await expectNextKeyboardFocus(page, page.getByTestId("login-email-input"))
+  await expectNextKeyboardFocus(page, page.getByRole("link", { name: "Quên mật khẩu?" }))
+  await expectNextKeyboardFocus(page, page.getByTestId("login-password-input"))
+  await expectNextKeyboardFocus(page, page.getByTestId("login-submit-button"))
+  await expectNextKeyboardFocus(page, page.getByTestId("google-login-button"))
+})
+
+test("login remains usable with reduced motion when the decorative cover fails", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" })
+  await page.route("**/assets/gymmaster/gym-operations-cover.webp", (route) =>
+    route.abort(),
+  )
+  await page.setViewportSize({ width: 1440, height: 1000 })
+
+  await openLogin(page)
+
+  await expect(
+    page.getByRole("heading", { name: "Chào mừng quay lại." }),
+  ).toBeVisible()
+  await expect(page.getByTestId("login-email-input")).toBeVisible()
+  await expect(page.getByTestId("login-submit-button")).toBeEnabled()
 })
 
 test("google login redirects through backend role without role picker", async ({

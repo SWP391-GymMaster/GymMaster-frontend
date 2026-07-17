@@ -76,6 +76,10 @@ test("registers the production worker and keeps protected traffic out of caches"
     }).catch(() => undefined)
   })
 
+  await page.goto("/login", { waitUntil: "domcontentloaded" })
+  await expect(page.getByTestId("login-submit-button")).toBeVisible()
+  await page.waitForTimeout(1_000)
+
   const cacheSnapshot = await page.evaluate(async () => {
     const names = await caches.keys()
     const urls = (
@@ -101,6 +105,8 @@ test("registers the production worker and keeps protected traffic out of caches"
   )
   expect(cacheSnapshot.urls.some((url) => url.includes("/api/"))).toBe(false)
   expect(cacheSnapshot.urls.some((url) => url.includes("/member/"))).toBe(false)
+  expect(cacheSnapshot.urls.some((url) => url.includes("/login"))).toBe(false)
+  expect(cacheSnapshot.urls.some((url) => url.includes("accounts.google.com"))).toBe(false)
   expect(cacheSnapshot.urls.some((url) => url.includes("_rsc="))).toBe(false)
 })
 

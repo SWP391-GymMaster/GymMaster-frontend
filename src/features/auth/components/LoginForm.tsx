@@ -16,6 +16,7 @@ import {
   authInlineErrorClassName,
   authInputClassName,
   authLabelClassName,
+  authTextLinkClassName,
 } from "@/features/auth/components/auth-form-styles"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 import {
@@ -85,7 +86,7 @@ export function LoginForm() {
             Mật khẩu
           </label>
           <Link
-            className="text-sm font-semibold text-primary transition hover:text-primary hover:underline"
+            className={`text-sm ${authTextLinkClassName}`}
             href="/forgot-password"
           >
             Quên mật khẩu?

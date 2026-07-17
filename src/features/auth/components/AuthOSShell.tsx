@@ -1,7 +1,5 @@
-"use client"
-
 import Link from "next/link"
-import type { ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
 import {
   AlertTriangle,
   ArrowLeft,
@@ -13,6 +11,7 @@ import {
 
 import { cn } from "@/lib/utils"
 import { gymMasterAssets } from "@/lib/gymmaster-assets"
+import { authTextLinkClassName } from "@/features/auth/components/auth-form-styles"
 
 type AuthOSShellProps = {
   children: ReactNode
@@ -33,12 +32,12 @@ export function AuthOSShell({
 }: AuthOSShellProps) {
   return (
     <main
-      className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-8 text-foreground"
-      style={{
-        backgroundImage: `linear-gradient(115deg, color-mix(in oklch, var(--background) 94%, transparent), color-mix(in oklch, var(--background) 75%, transparent) 55%, color-mix(in oklch, var(--background) 35%, transparent)), url(${gymMasterAssets.operationsCover})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-      }}
+      className="auth-os-shell relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 py-8 text-foreground"
+      style={
+        {
+          "--auth-cover-image": `url("${gymMasterAssets.backgrounds.authOperations}")`,
+        } as CSSProperties
+      }
     >
       <section
         className={cn(
@@ -48,7 +47,10 @@ export function AuthOSShell({
       >
         <div className="mb-8 flex flex-col items-center text-center">
           <Link
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-sm font-semibold text-primary transition hover:bg-primary/10 active:scale-[0.98]"
+            className={cn(
+              authTextLinkClassName,
+              "mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-sm hover:bg-primary/10 active:scale-[0.98]",
+            )}
             href="/welcome"
           >
             <Dumbbell aria-hidden="true" className="size-4" />
@@ -83,7 +85,7 @@ export function AuthTextLink({
 }) {
   return (
     <Link
-      className="font-semibold text-primary transition hover:text-primary hover:underline"
+      className={authTextLinkClassName}
       href={href}
     >
       {children}
@@ -104,7 +106,7 @@ export function AuthStateCard({
 }) {
   const icon =
     type === "loading" ? (
-      <Loader2 aria-hidden="true" className="size-8 animate-spin text-primary" />
+      <Loader2 aria-hidden="true" className="size-8 animate-spin text-[var(--auth-link)]" />
     ) : type === "session" ? (
       <LockKeyhole aria-hidden="true" className="size-8 text-muted-foreground" />
     ) : (
@@ -134,7 +136,7 @@ export function AuthStateCard({
 export function AuthSecurityBadge() {
   return (
     <div className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-      <ShieldCheck aria-hidden="true" className="size-3.5 text-primary" />
+      <ShieldCheck aria-hidden="true" className="size-3.5 text-[var(--auth-link)]" />
       Truy cập an toàn theo vai trò
     </div>
   )
@@ -143,7 +145,10 @@ export function AuthSecurityBadge() {
 export function BackToLoginLink() {
   return (
     <Link
-      className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-muted-foreground transition hover:text-primary"
+      className={cn(
+        authTextLinkClassName,
+        "inline-flex items-center justify-center gap-2 text-sm",
+      )}
       href="/login"
     >
       <ArrowLeft aria-hidden="true" className="size-4" />

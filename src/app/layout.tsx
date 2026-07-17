@@ -6,12 +6,13 @@ import { AppProviders } from "@/app/providers";
 
 const interSans = Inter({
   variable: "--font-sans",
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
