@@ -67,6 +67,26 @@ Final acceptance uses Lighthouse 13.4.0 with the mobile preset against the same 
 
 No file under the manifest/service-worker/offline implementation is changed. The optimized auth cover remains an approved same-origin public brand asset, while the cross-origin Google request continues to bypass the PWA cache. Production verification will inspect Cache Storage only as a regression check and must find no Google, auth, API, or protected-route response added by this change.
 
+### 7. Preload the Vietnamese Inter subset and stop preloading unused Geist Mono
+
+The first production acceptance attempt after deployment passed the Performance, TBT, CLS, Accessibility, and contrast budgets but missed the LCP budget. Three valid Lighthouse 13.4.0 mobile runs reported Performance 89/88/90, Accessibility 100 in every run, TBT 94/194/109 milliseconds, CLS 0.049 in every run, and LCP 3.455/3.396/3.402 seconds. The resulting medians are Performance 89, TBT 109 milliseconds, and LCP 3.402 seconds. The LCP candidate is the Vietnamese login description text rather than the decorative cover or Google control.
+
+The generated document currently preloads the Latin subsets of Inter and Geist Mono, while the browser discovers the Inter Vietnamese and Latin Extended font files later through CSS. Because the initial login copy is Vietnamese and Geist Mono is not required for the critical login text, the approved first remediation adds `vietnamese` to the Inter subsets and sets `preload: false` for Geist Mono. Inter retains `display: "swap"`, the existing CSS variables and font-family fallbacks remain unchanged, and no authentication, PWA, route, copy, or Google Identity Services behavior changes.
+
+This is preferred over preloading every available subset because it targets the actual initial-language glyphs while avoiding another unused critical request. It is preferred over changing Inter to `display: "optional"` in this pass because that can intentionally retain the fallback font on a slow first visit and therefore changes the visual rendering trade-off. If the LCP budget still fails after this remediation, `display: "optional"` requires a separate owner approval and production validation.
+
+The local production-build verification generated only the Inter Vietnamese and Latin preload links; Geist Mono remained available through its CSS variable but was absent from the document preloads. The Vietnamese font request moved from late CSS discovery to the initial high-priority preload, and the prior 23 KB Geist Mono preload was removed. Three valid local Lighthouse 13.4.0 mobile runs then reported Performance 87/86/89, LCP 3.798/3.792/3.775 seconds, TBT 120/183/56 milliseconds, CLS 0 in every run, and 100 for Accessibility, Best Practices, and SEO in every run. The resulting medians are Performance 87, LCP 3.792 seconds, and TBT 120 milliseconds. A single earlier local production report measured Performance 86 and LCP 3.952 seconds, so the new result is directionally better but is not a valid three-run A/B proof and still misses the 2.5-second LCP budget. The remaining late Inter Latin Extended request means a separate display-strategy decision is more appropriate than expanding this approved pass silently.
+
+### 8. Evaluate Inter optional display as a local-only experiment
+
+The owner approved a local-only experiment that changes Inter from the Next.js default `display: "swap"` to `display: "optional"` while retaining the Latin/Vietnamese preloads and the disabled Geist Mono preload. Next.js documents `optional` as a very short block period with no swap period, which allows the browser to retain the fallback font for a slow first visit instead of delaying or repainting text for a late Inter response. This experiment changes no copy, layout classes, authentication, PWA, route, Google Identity Services, or backend behavior.
+
+Acceptance compares three Lighthouse 13.4.0 mobile runs from the optional-display production build with the immediately preceding three-run local baseline: median Performance 87, median LCP 3.792 seconds, median TBT 120 milliseconds, worst CLS 0, and 100 for Accessibility, Best Practices, and SEO. The optional setting is retained only when all runs are valid, the median LCP improves by at least 10 percent without regressing the existing Performance/TBT/CLS/accessibility budgets, and normal plus delayed-font mobile/desktop screenshots keep all critical copy, controls, hierarchy, and responsive layout legible. Reaching the production LCP target of 2.5 seconds remains the preferred outcome; a material local improvement below that threshold still requires a separately approved production deployment and the existing production acceptance gate.
+
+If the median LCP improvement is below 10 percent, another quality budget regresses, or fallback rendering is visually unacceptable, the experiment restores the prior implicit `swap` behavior before owner review. Preloading the 85 KB Latin Extended file is explicitly outside this experiment because it could increase critical-path contention and requires its own evidence and approval.
+
+The optional-display build and visual gate completed successfully: generated Inter faces used `font-display: optional`, the two Inter preloads were unchanged, Geist Mono remained absent from preloads, and both normal and deliberately delayed-font screenshots kept the same card, paragraph, and action dimensions at 412x823 and 1440x900 with no overflow or unreadable Vietnamese copy. The performance gate did not pass. Three valid local Lighthouse 13.4.0 mobile runs reported Performance 79/85/84, LCP 3.575/3.790/3.780 seconds, TBT 448/206/237 milliseconds, CLS 0 in every run, and 100 for Accessibility, Best Practices, and SEO in every run. The medians are Performance 84, LCP 3.780 seconds, and TBT 237 milliseconds. Compared with the 3.792-second LCP baseline, the 12-millisecond improvement is approximately 0.3 percent, below the required 10 percent, while Performance and TBT also missed their budgets. The experiment therefore restored Inter's prior implicit `display: "swap"` behavior and did not promote `optional` into the reviewable implementation.
+
 ## Risks / Trade-offs
 
 - **[Removing the mobile photograph makes the narrow login visually plainer]** -> Preserve the branded gradient, glass card, mark, spacing, and responsive hierarchy; capture mobile and desktop screenshots before accepting the visual result.
@@ -75,6 +95,9 @@ No file under the manifest/service-worker/offline implementation is changed. The
 - **[Lighthouse results vary with network and deployment state]** -> Pin the Lighthouse version/preset, audit one deployed revision, use three runs, compare medians, and record raw reports.
 - **[Route-scoped colors can drift from future global theme changes]** -> Define the small auth token set centrally and cover computed contrast in the acceptance audit.
 - **[A shared auth-shell change can affect signup/password pages]** -> Run focused responsive smoke checks on every route importing `AuthOSShell`, while keeping the formal performance budget scoped to `/login`.
+- **[Adding a Vietnamese preload can increase bytes fetched by routes whose initial copy is Latin-only]** -> Keep the change limited to the existing global Inter family, verify generated preload links and transfer timing, and compare three production-like Lighthouse runs before approving deployment.
+- **[Disabling Geist Mono preload can delay the first use of technical monospace metadata]** -> Preserve on-demand font loading through the existing CSS variable and verify that `/login` does not rely on Geist Mono for critical content.
+- **[`optional` can leave the fallback font visible for the entire first visit]** -> Compare normal and deliberately delayed-font screenshots at mobile and desktop sizes; retain the setting only when hierarchy, wrapping, controls, and Vietnamese readability remain acceptable.
 
 ## Migration Plan
 
@@ -84,7 +107,9 @@ No file under the manifest/service-worker/offline implementation is changed. The
 4. Move Google Identity Services to the approved deferred lifecycle with stable loading/error states.
 5. Run targeted auth tests, responsive Playwright checks, full typecheck/lint/unit/build gates, and local production-mode smoke checks.
 6. Present the staged diff and visual/check evidence to the owner; do not commit or push before explicit approval.
-7. After the separately approved deployment, run the three production Lighthouse audits and PWA cache regression check, then complete/archive the change only if every acceptance criterion passes.
+7. After the first production audit misses only the LCP budget, record the evidence, apply the approved Vietnamese Inter/Geist Mono preload remediation, and repeat the local production-build checks before presenting the unstaged diff.
+8. Run the separately approved local-only Inter optional-display experiment, retain or revert it using the documented performance and visual criteria, and present the unstaged result.
+9. After the separately approved follow-up deployment, run the three production Lighthouse audits and PWA cache regression check, then complete/archive the change only if every acceptance criterion passes.
 
 Rollback restores the prior auth-shell asset/style and Google script lifecycle without touching auth-session or PWA files. Because the change does not alter persistent data, backend contracts, or service-worker versions, no data migration or cache purge is required.
 

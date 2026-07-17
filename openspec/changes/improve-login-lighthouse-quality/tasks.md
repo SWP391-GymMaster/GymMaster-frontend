@@ -38,3 +38,21 @@
 - [x] 6.3 Review the complete diff and visual/network evidence, stage only the approved change files, and wait for the owner's explicit approval before commit or push.
 - [ ] 6.4 After the separately approved production deployment, run three valid Lighthouse 13.4.0 mobile audits against the same `/login` revision and verify median Performance at least 85, median LCP at most 2.5 s, median TBT at most 200 ms, worst CLS at most 0.1, Accessibility 100 in every run, and no contrast failure.
 - [ ] 6.5 Present the production reports and final PWA/auth regression evidence to the owner; archive the OpenSpec change only after explicit acceptance.
+
+## 7. Production LCP follow-up
+
+- [x] 7.1 Record the first production acceptance result: median Performance 89, median LCP 3.402 s, median TBT 109 ms, worst CLS 0.049, Accessibility 100 in every run, and no contrast failure; retain the failed LCP gate and the Vietnamese text/font-loading evidence.
+- [x] 7.2 Configure Inter to preload its Latin and Vietnamese subsets and disable Geist Mono preload without changing font families, CSS variables, authentication, PWA, routes, copy, or Google Identity Services behavior.
+- [x] 7.3 Build the production app and inspect generated `/login` markup and font CSS to confirm an Inter Vietnamese preload is present, a Geist Mono preload is absent, and fonts remain available through the existing variables.
+- [x] 7.4 Run typecheck, lint, focused auth/PWA regression tests, and three comparable local production Lighthouse audits; record all results and keep `display: "optional"` outside this pass.
+- [x] 7.5 Run strict OpenSpec validation and `graphify update .`, then present the complete unstaged diff and evidence to the owner without staging, committing, or pushing.
+
+## 8. Local-only Inter optional-display experiment
+
+- [x] 8.1 Record owner approval, the three-run local baseline, the 10 percent minimum LCP improvement rule, the existing quality budgets, the normal/delayed-font visual gate, and the automatic revert conditions.
+- [x] 8.2 Set Inter to `display: "optional"` while retaining the approved Latin/Vietnamese subsets and disabled Geist Mono preload; do not change auth, PWA, routes, copy, layout classes, Google Identity Services, or dependencies.
+- [x] 8.3 Build with production settings and confirm generated CSS uses `font-display: optional`, `/login` still preloads only Inter Latin/Vietnamese, and Geist Mono remains available without a preload.
+- [x] 8.4 Capture and inspect mobile and desktop `/login` screenshots under normal font delivery and deliberately delayed font delivery; verify readable Vietnamese copy, stable hierarchy/wrapping, complete controls, and no overflow.
+- [x] 8.5 Run typecheck, lint, focused auth/PWA regressions, and three valid local Lighthouse 13.4.0 mobile audits against the same production build.
+- [x] 8.6 Compare the optional-display medians with the 3.792-second LCP baseline and either retain the setting only when every documented criterion passes or revert it before owner review; record the decision and evidence.
+- [x] 8.7 Run strict OpenSpec validation and `graphify update .`, inspect the complete unstaged diff, and present the experiment result without staging, committing, or pushing.
