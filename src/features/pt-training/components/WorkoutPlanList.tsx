@@ -392,6 +392,11 @@ function CoachWorkoutPlanCard({
             <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
               {plan.exercises.length} bài tập
             </span>
+            {plan.goal ? (
+              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                Mục tiêu: {plan.goal}
+              </span>
+            ) : null}
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {formatDate(plan.startDate ?? plan.createdAt)}
@@ -809,6 +814,11 @@ function DefaultWorkoutPlanCard({
             <h3 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
               {plan.title}
             </h3>
+            {plan.goal ? (
+              <p className="mt-1 text-sm font-medium text-primary">
+                Mục tiêu: {plan.goal}
+              </p>
+            ) : null}
           </div>
           <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.08em] text-primary">
             {plan.status ?? "—"}
