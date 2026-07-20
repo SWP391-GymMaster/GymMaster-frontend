@@ -99,6 +99,7 @@ export function PtWorkoutPlanWorkspace() {
   function toDraft(plan: WorkoutPlan): WorkoutPlanDraft {
     return {
       title: plan.title,
+      goal: plan.goal,
       exercises: plan.exercises.map((ex, index) => ({
         name: ex.name,
         sets: ex.sets,

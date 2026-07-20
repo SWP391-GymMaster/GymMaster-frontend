@@ -134,6 +134,7 @@ export function WorkoutPlanForm({
   const [activeStep, setActiveStep] = useState(0)
   const [environment, setEnvironment] = useState<TrainingEnvironment>("gym")
   const [goal, setGoal] = useState<TrainingGoal>("hypertrophy")
+  const [customGoal, setCustomGoal] = useState("")
   const [split, setSplit] = useState<TrainingSplit>("full_body")
   const [daysPerWeek, setDaysPerWeek] = useState<number>(3)
   const [presetId, setPresetId] = useState("")
@@ -264,6 +265,7 @@ export function WorkoutPlanForm({
   async function handleSubmit(values: WorkoutPlanFormValues) {
     await onSubmit({
       title: values.title.trim(),
+      goal: customGoal.trim() || formatGoal(goal),
       exercises: values.exercises.map((exercise, index) => ({
         name: exercise.name.trim(),
         sets: exercise.sets,
@@ -282,6 +284,7 @@ export function WorkoutPlanForm({
 
     form.reset({ title: "", exercises: [defaultExercise] })
     setPresetId("")
+    setCustomGoal("")
     setActiveStep(0)
     toast.success("Đã lưu giáo án")
   }
@@ -314,6 +317,15 @@ export function WorkoutPlanForm({
     setActiveStep((step) => Math.max(step - 1, 0))
   }
 
+  // Ten bai tap da ton tai o hang khac trong giao an (case-insensitive), tru hang dang sua.
+  function isDuplicateExerciseName(name: string, exceptIndex: number) {
+    const target = name.trim().toLowerCase()
+    if (!target) return false
+    return form
+      .getValues("exercises")
+      .some((ex, i) => i !== exceptIndex && ex.name.trim().toLowerCase() === target)
+  }
+
   function applyExercise(index: number, exerciseId: string) {
     if (exerciseId === "__custom__") {
       form.setValue(`exercises.${index}.name`, "", { shouldValidate: true })
@@ -323,6 +335,11 @@ export function WorkoutPlanForm({
 
     const exercise = getExerciseById(exerciseId)
     if (!exercise) return
+
+    if (isDuplicateExerciseName(exercise.name, index)) {
+      toast.error(`Bài tập "${exercise.name}" đã có trong giáo án, vui lòng chọn bài khác.`)
+      return
+    }
 
     form.setValue(`exercises.${index}.name`, exercise.name, {
       shouldValidate: true,
@@ -339,22 +356,40 @@ export function WorkoutPlanForm({
   }
 
   function applyPreset(preset: WorkoutPreset) {
-    const presetExercises = preset.exercises.map((item) => {
-      const exercise = getExerciseById(item.exerciseId)
+    const seen = new Set<string>()
+    const presetExercises = preset.exercises
+      .map((item) => {
+        const exercise = getExerciseById(item.exerciseId)
 
-      return {
-        name: item.name ?? exercise?.name ?? "",
-        sets: item.sets ?? exercise?.defaultSets ?? 3,
-        reps: item.reps ?? exercise?.defaultReps ?? "10",
-        note: item.note ?? exercise?.defaultNote ?? "",
-      }
-    })
+        return {
+          name: item.name ?? exercise?.name ?? "",
+          sets: item.sets ?? exercise?.defaultSets ?? 3,
+          reps: item.reps ?? exercise?.defaultReps ?? "10",
+          note: item.note ?? exercise?.defaultNote ?? "",
+        }
+      })
+      // Buoi mau co the chua bai trung ten -> chi giu lan xuat hien dau tien.
+      .filter((ex) => {
+        const key = ex.name.trim().toLowerCase()
+        if (!key) return true
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+
+    const removed = preset.exercises.length - presetExercises.length
 
     form.setValue("title", preset.name, { shouldValidate: true })
     replace(presetExercises)
     setPresetId(preset.id)
     setActiveStep(2)
-    toast.success(`Đã nạp ${presetExercises.length} bài từ buổi mẫu`)
+    if (removed > 0) {
+      toast.warning(
+        `Đã nạp ${presetExercises.length} bài, bỏ ${removed} bài trùng tên trong buổi mẫu.`,
+      )
+    } else {
+      toast.success(`Đã nạp ${presetExercises.length} bài từ buổi mẫu`)
+    }
   }
 
   function onPresetSelect(value: string) {
@@ -449,6 +484,7 @@ export function WorkoutPlanForm({
             environment={environment}
             filteredExercisesCount={filteredExercises.length || exerciseLibrary.length}
             goal={goal}
+            customGoal={customGoal}
             onEnvironmentChange={(value) => {
               setEnvironment(value)
               setPresetId("")
@@ -457,6 +493,7 @@ export function WorkoutPlanForm({
               setGoal(value)
               setPresetId("")
             }}
+            onCustomGoalChange={setCustomGoal}
           />
         ) : null}
 
@@ -503,6 +540,7 @@ export function WorkoutPlanForm({
             environment={environment}
             exercises={currentExercises}
             goal={goal}
+            goalLabel={customGoal.trim() || formatGoal(goal)}
             split={split}
             title={currentTitle}
             onSavePreset={handleSavePreset}
@@ -552,14 +590,18 @@ function TrainingContextStep({
   environment,
   filteredExercisesCount,
   goal,
+  customGoal,
   onEnvironmentChange,
   onGoalChange,
+  onCustomGoalChange,
 }: {
   environment: TrainingEnvironment
   filteredExercisesCount: number
   goal: TrainingGoal
+  customGoal: string
   onEnvironmentChange: (value: TrainingEnvironment) => void
   onGoalChange: (value: TrainingGoal) => void
+  onCustomGoalChange: (value: string) => void
 }) {
   return (
     <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
@@ -598,6 +640,22 @@ function TrainingContextStep({
               {option.label}
             </button>
           ))}
+        </div>
+
+        <div className="mt-4">
+          <label
+            className="text-xs font-medium text-muted-foreground"
+            htmlFor="custom-goal"
+          >
+            Hoặc nhập mục tiêu riêng (tuỳ chọn — sẽ được ưu tiên khi lưu)
+          </label>
+          <Input
+            id="custom-goal"
+            className="mt-1"
+            placeholder="VD: Tăng cơ vai, giảm mỡ bụng..."
+            value={customGoal}
+            onChange={(event) => onCustomGoalChange(event.target.value)}
+          />
         </div>
       </div>
 
@@ -1060,6 +1118,7 @@ function ReviewStep({
   environment,
   exercises,
   goal,
+  goalLabel,
   split,
   title,
   onSavePreset,
@@ -1068,6 +1127,7 @@ function ReviewStep({
   environment: TrainingEnvironment
   exercises: WorkoutPlanFormValues["exercises"]
   goal: TrainingGoal
+  goalLabel: string
   split: TrainingSplit
   title: string
   onSavePreset: (preset: WorkoutPreset) => void
@@ -1174,7 +1234,7 @@ function ReviewStep({
           <p className="text-sm font-semibold text-foreground">Tóm tắt buổi tập</p>
           <div className="mt-4 grid gap-3">
             <ReviewRow label="Môi trường" value={formatEnvironment(environment)} />
-            <ReviewRow label="Mục tiêu" value={formatGoal(goal)} />
+            <ReviewRow label="Mục tiêu" value={goalLabel} />
             <ReviewRow label="Split" value={formatSplit(split)} />
             <ReviewRow label="Lịch tuần tham chiếu" value={`${daysPerWeek} buổi/tuần`} />
             <ReviewRow label="Số bài tập" value={`${exercises.length}`} />

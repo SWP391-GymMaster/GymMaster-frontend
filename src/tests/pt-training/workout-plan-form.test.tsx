@@ -54,6 +54,8 @@ describe("WorkoutPlanForm", () => {
     expect(await screen.findByText("Đã lưu giáo án")).toBeInTheDocument()
     expect(onSubmit).toHaveBeenCalledWith({
       title: "Strength Block",
+      // Khong nhap muc tieu tuy chinh -> lay nhan cua goal mac dinh ("hypertrophy").
+      goal: "Hypertrophy",
       exercises: [
         {
           name: "Deadlift",
