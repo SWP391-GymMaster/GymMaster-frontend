@@ -1,14 +1,14 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ArrowRight, KeyRound, Lock, Mail } from "lucide-react"
+import { ArrowRight, KeyRound, Lock, Mail, RotateCw } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { resetPassword } from "@/features/auth/api/auth.api"
+import { forgotPassword, resetPassword } from "@/features/auth/api/auth.api"
 import {
   authButtonClassName,
   authErrorClassName,
@@ -27,13 +27,22 @@ type ResetPasswordFormProps = {
   resetToken?: string
 }
 
+// Khop voi ResetResendCooldownSeconds ben backend (AuthService.cs).
+// Gui lai som hon 60s thi backend im lang bo qua, khong co mail nao duoc gui.
+const RESEND_COOLDOWN_SECONDS = 60
+
 export function ResetPasswordForm({ email = "", resetToken = "" }: ResetPasswordFormProps) {
   const [message, setMessage] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
+  // Vao trang nay tuc la vua xin OTP xong -> bat dem nguoc ngay tu dau.
+  const [secondsLeft, setSecondsLeft] = useState(RESEND_COOLDOWN_SECONDS)
+  const [isResending, setIsResending] = useState(false)
   const {
     formState: { errors, isSubmitting },
+    getValues,
     handleSubmit,
     register,
+    setValue,
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -43,6 +52,46 @@ export function ResetPasswordForm({ email = "", resetToken = "" }: ResetPassword
       resetToken,
     },
   })
+
+  useEffect(() => {
+    if (secondsLeft <= 0) {
+      return
+    }
+
+    const timer = setTimeout(() => setSecondsLeft((current) => current - 1), 1000)
+    return () => clearTimeout(timer)
+  }, [secondsLeft])
+
+  async function onResend() {
+    const currentEmail = getValues("email").trim()
+
+    if (!currentEmail) {
+      setFormError("Vui lòng nhập email để nhận lại mã.")
+      return
+    }
+
+    setFormError(null)
+    setMessage(null)
+    setIsResending(true)
+
+    try {
+      const result = await forgotPassword({ email: currentEmail })
+      setSecondsLeft(RESEND_COOLDOWN_SECONDS)
+
+      if (result.resetToken) {
+        // Dev (chưa cấu hình email): điền sẵn OTP để test nhanh.
+        setValue("resetToken", result.resetToken)
+      }
+
+      toast.success("Đã gửi lại mã OTP, vui lòng kiểm tra email")
+    } catch (error) {
+      const mappedError = mapAuthError(error)
+      setFormError(mappedError.message)
+      toast.error(mappedError.message)
+    } finally {
+      setIsResending(false)
+    }
+  }
 
   async function onSubmit(values: ResetPasswordFormValues) {
     setFormError(null)
@@ -108,6 +157,31 @@ export function ResetPasswordForm({ email = "", resetToken = "" }: ResetPassword
         {errors.resetToken ? (
           <p className={authErrorClassName}>{errors.resetToken.message}</p>
         ) : null}
+
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <p className="text-xs text-muted-foreground">
+            Không nhận được mã? Kiểm tra cả mục Spam.
+          </p>
+          <button
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-primary transition hover:bg-primary/10 active:scale-[0.98] disabled:pointer-events-none disabled:text-muted-foreground"
+            data-testid="reset-resend-button"
+            disabled={secondsLeft > 0 || isResending}
+            onClick={onResend}
+            type="button"
+          >
+            <RotateCw
+              aria-hidden="true"
+              className={`size-4${isResending ? " animate-spin" : ""}`}
+            />
+            <span aria-live="polite">
+              {isResending
+                ? "Đang gửi..."
+                : secondsLeft > 0
+                  ? `Gửi lại mã sau ${secondsLeft}s`
+                  : "Gửi lại mã"}
+            </span>
+          </button>
+        </div>
       </div>
 
       <div className="space-y-2">

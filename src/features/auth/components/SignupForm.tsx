@@ -33,6 +33,7 @@ export function SignupForm() {
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
+      confirmPassword: "",
       email: "",
       fullName: "",
       password: "",
@@ -44,8 +45,11 @@ export function SignupForm() {
     setFormError(null)
 
     try {
+      // confirmPassword chi phuc vu validate phia FE, khong gui len API.
       const nextPath = await signup({
-        ...values,
+        email: values.email,
+        fullName: values.fullName,
+        password: values.password,
         phone: values.phone?.trim() || undefined,
       })
       toast.success("Đã tạo tài khoản hội viên")
@@ -107,7 +111,7 @@ export function SignupForm() {
 
       <div className="space-y-2">
         <label className={authLabelClassName} htmlFor="phone">
-          Số điện thoại <span className="font-normal text-muted-foreground">(không bắt buộc)</span>
+          Số điện thoại
         </label>
         <div className="relative">
           <Phone
@@ -119,10 +123,15 @@ export function SignupForm() {
             className={authInputClassName}
             data-testid="signup-phone-input"
             id="phone"
+            inputMode="tel"
+            placeholder="VD: 0912345678"
             type="tel"
             {...register("phone")}
           />
         </div>
+        {errors.phone ? (
+          <p className={authErrorClassName}>{errors.phone.message}</p>
+        ) : null}
       </div>
 
       <div className="space-y-2">
@@ -145,6 +154,29 @@ export function SignupForm() {
         </div>
         {errors.password ? (
           <p className={authErrorClassName}>{errors.password.message}</p>
+        ) : null}
+      </div>
+
+      <div className="space-y-2">
+        <label className={authLabelClassName} htmlFor="signup-confirm-password">
+          Nhập lại mật khẩu
+        </label>
+        <div className="relative">
+          <Lock
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            autoComplete="new-password"
+            className={authInputClassName}
+            data-testid="signup-confirm-password-input"
+            id="signup-confirm-password"
+            type="password"
+            {...register("confirmPassword")}
+          />
+        </div>
+        {errors.confirmPassword ? (
+          <p className={authErrorClassName}>{errors.confirmPassword.message}</p>
         ) : null}
       </div>
 
