@@ -392,11 +392,6 @@ function CoachWorkoutPlanCard({
             <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
               {plan.exercises.length} bài tập
             </span>
-            {plan.goal ? (
-              <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                Mục tiêu: {plan.goal}
-              </span>
-            ) : null}
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {formatDate(plan.startDate ?? plan.createdAt)}
@@ -404,6 +399,11 @@ function CoachWorkoutPlanCard({
         </div>
 
         <div className="flex items-center gap-2">
+          {plan.goal ? (
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              Mục tiêu: {plan.goal}
+            </span>
+          ) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
