@@ -148,12 +148,11 @@ export function WorkoutPlanList({
 
   return (
     <div className="space-y-5">
-      {localPlans.map((plan, planIndex) =>
+      {localPlans.map((plan) =>
         mediaMode === "coach" ? (
           <CoachWorkoutPlanCard
             key={plan.id}
             plan={plan}
-            planIndex={planIndex}
             onCopyExercise={(idx) => {
               const exToCopy = plan.exercises[idx]
               if (!exToCopy) return
@@ -283,7 +282,6 @@ export function WorkoutPlanList({
 
 function CoachWorkoutPlanCard({
   plan,
-  planIndex,
   onCopyExercise,
   onDeleteExercise,
   onUpdateExercise,
@@ -295,7 +293,6 @@ function CoachWorkoutPlanCard({
   onDeletePlan,
 }: {
   plan: WorkoutPlan
-  planIndex: number
   onCopyExercise: (idx: number) => void
   onDeleteExercise: (idx: number) => void
   onUpdateExercise: (idx: number, field: "name" | "sets" | "reps" | "note", value: string | number) => void
@@ -306,7 +303,6 @@ function CoachWorkoutPlanCard({
   onCopyPlan: () => void
   onDeletePlan: () => void
 }) {
-  const isFirstPlan = planIndex === 0
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [prevTitle, setPrevTitle] = useState(plan.title)
@@ -390,7 +386,7 @@ function CoachWorkoutPlanCard({
               />
             ) : (
               <h3 className="text-xl font-semibold tracking-tight text-foreground">
-                {isFirstPlan ? `Buổi tập 1: ${plan.title}` : plan.title}
+                {plan.title}
               </h3>
             )}
             <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
