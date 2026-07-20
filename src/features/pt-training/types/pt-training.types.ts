@@ -15,6 +15,7 @@ export type WorkoutPlan = {
   memberId: number
   trainerId: number
   title: string
+  goal?: string
   status?: WorkoutPlanStatus
   startDate?: string
   createdAt?: string
@@ -32,6 +33,7 @@ export type TrainerNote = {
 
 export type WorkoutPlanDraft = {
   title: string
+  goal?: string
   exercises: Array<{
     name: string
     sets: number

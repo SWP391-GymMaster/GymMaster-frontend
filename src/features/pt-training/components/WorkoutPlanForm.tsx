@@ -264,6 +264,7 @@ export function WorkoutPlanForm({
   async function handleSubmit(values: WorkoutPlanFormValues) {
     await onSubmit({
       title: values.title.trim(),
+      goal: formatGoal(goal),
       exercises: values.exercises.map((exercise, index) => ({
         name: exercise.name.trim(),
         sets: exercise.sets,
