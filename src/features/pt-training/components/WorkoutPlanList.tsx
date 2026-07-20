@@ -732,7 +732,7 @@ function SortableCoachExerciseRow({
           />
           <CoachInlineField
             label="Reps"
-            value={exercise.reps}
+            value={exercise.reps || ""}
             onChange={(val) => onUpdate("reps", val)}
             onFocus={handleFieldFocus}
             onCommit={handleFieldBlur}
@@ -772,7 +772,7 @@ function CoachInlineField({
   onCommit,
 }: {
   label: string
-  value: string
+  value: string | null
   onChange?: (val: string) => void
   onFocus?: () => void
   onCommit?: () => void
@@ -781,7 +781,7 @@ function CoachInlineField({
     <label className="grid gap-1">
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       <Input
-        value={value}
+        value={value ?? ""}
         onChange={(e) => onChange?.(e.target.value)}
         onFocus={onFocus}
         onBlur={onCommit}
