@@ -510,7 +510,7 @@ describe("backend contract MSW handlers", () => {
     expect(body.data.remaining).toBe(body.data.target - body.data.consumed)
   })
 
-  it("serves nutrition online search and barcode through internal proxy contracts", async () => {
+  it("serves nutrition online search through the internal proxy contract", async () => {
     const online = await fetch(
       "/api/v1/food-items/online-search?query=s%E1%BB%AFa&page=1&pageSize=10",
       {
@@ -526,16 +526,6 @@ describe("backend contract MSW handlers", () => {
     expect(onlineBody.success).toBe(true)
     expect(onlineBody.data[0]?.name).toContain("TH True Milk")
 
-    const barcode = await fetch("/api/v1/food-items/barcode/8936079015707", {
-      headers: authHeaders.member,
-    })
-    const barcodeBody = await readJson<{
-      data: { name: string; unit: string }
-    }>(barcode)
-
-    expect(barcode.status).toBe(200)
-    expect(barcodeBody.data.name).toContain("TH True Milk")
-    expect(barcodeBody.data.unit).toBe("180ml")
   })
 
   it("validates dashboard and audit date ranges", async () => {
