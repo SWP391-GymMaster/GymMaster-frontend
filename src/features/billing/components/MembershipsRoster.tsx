@@ -30,8 +30,10 @@ import {
 import { useManagedMembers } from "@/features/member-management/api/member-management.queries"
 import type { Membership } from "@/features/billing/types/billing.types"
 
-// Don "Cho thanh toan" qua 10 phut chua duoc xac nhan -> coi nhu da huy (giong staff/payments).
-const PAYMENT_WINDOW_MS = 10 * 60 * 1000
+// Don "Cho thanh toan" qua han chua duoc xac nhan -> coi nhu da huy (giong staff/payments).
+// Phai khop MembershipLifecycle.PendingPaymentTtl ben backend (30 phut) — truoc day FE
+// de 10 phut nen tu phut 10 den 30 man hinh bao "da huy" trong khi backend van cho thanh toan.
+const PAYMENT_WINDOW_MS = 30 * 60 * 1000
 
 type RosterStatus = "active" | "pending_payment" | "expired" | "cancelled"
 

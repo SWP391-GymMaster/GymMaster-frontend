@@ -67,8 +67,9 @@ function StaffPaymentsPageContent() {
   const isLoading = isMembershipsLoading || isPackagesLoading || isMembersLoading
 
   const rows = useMemo(() => {
-    // Don pending qua 10 phut chua thanh toan -> coi nhu het han/huy.
-    const PAYMENT_WINDOW_MS = 10 * 60 * 1000
+    // Don pending qua han chua thanh toan -> coi nhu het han/huy.
+    // Phai khop MembershipLifecycle.PendingPaymentTtl ben backend (30 phut).
+    const PAYMENT_WINDOW_MS = 30 * 60 * 1000
     const now = currentTime
     return (memberships ?? [])
       .map((ms) => {
