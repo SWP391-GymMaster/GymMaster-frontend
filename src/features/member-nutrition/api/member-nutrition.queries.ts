@@ -10,7 +10,6 @@ import {
   searchFoodItems,
   createCustomFoodItem,
   estimateFoodNutrition,
-  fetchFoodByBarcode,
   searchFoodOnline,
   setMemberCalorieTarget,
   getMemberCalorieTarget,
@@ -22,7 +21,6 @@ export const memberNutritionKeys = {
   all: ["member-nutrition"] as const,
   target: (memberId: number) => [...memberNutritionKeys.all, "target", memberId] as const,
   foods: (query: string) => [...memberNutritionKeys.all, "foods", query] as const,
-  barcode: (barcode: string) => [...memberNutritionKeys.all, "barcode", barcode] as const,
   onlineSearch: (query: string) => [...memberNutritionKeys.all, "online-search", query] as const,
   mealLogs: (memberId: number, date: string) =>
     [...memberNutritionKeys.all, "meal-logs", memberId, date] as const,
@@ -179,18 +177,6 @@ export function useMemberCalorieTarget() {
     },
     enabled: Boolean(accessToken) && Boolean(memberId),
     retry: false,
-  })
-}
-
-export function useFoodBarcodeLookup(barcode: string) {
-  const accessToken = useMemberAccessToken()
-  const normalizedBarcode = barcode.trim()
-
-  return useQuery({
-    queryKey: memberNutritionKeys.barcode(normalizedBarcode),
-    queryFn: () => fetchFoodByBarcode(normalizedBarcode, accessToken),
-    enabled: normalizedBarcode.length > 0,
-    staleTime: 5 * 60 * 1000, // cache 5 mins
   })
 }
 

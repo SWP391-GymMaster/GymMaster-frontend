@@ -40,6 +40,20 @@ test("Member adds a meal and sees calorie summary update", async ({ page }) => {
   await expect(page.getByTestId("member-calorie-summary")).toContainText("kcal")
 })
 
+test("Member sees AI food scan without barcode scanner", async ({ page }) => {
+  await loginAsMember(page)
+
+  await page.goto("/member/nutrition/meal-journal")
+  await page.getByRole("button", { name: "Thêm bữa ăn mới" }).click()
+
+  await expect(
+    page.getByRole("button", { name: "Quét ảnh món ăn bằng AI" }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole("button", { name: "Quét mã vạch thực phẩm" }),
+  ).toHaveCount(0)
+})
+
 test("Staff cannot access Member nutrition routes", async ({ page }) => {
   await openLogin(page)
   await submitLogin(page, "staff@gymmaster.local")

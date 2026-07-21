@@ -51,7 +51,6 @@ npm install -D @axe-core/playwright
 
 ```bash
 npm install qrcode.react
-npm install @zxing/browser
 npm install react-dropzone
 ```
 

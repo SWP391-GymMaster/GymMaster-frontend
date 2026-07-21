@@ -70,7 +70,6 @@
 
 | Task | Priority |
 |---|---|
-| Barcode lookup UI | P2 |
 | Notification UI | P2 |
 | Image Food Recognition Assist UI | P3 |
 | Advanced charts | P3 |

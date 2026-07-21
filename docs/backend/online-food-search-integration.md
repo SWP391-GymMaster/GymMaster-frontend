@@ -6,7 +6,7 @@ Tài liệu này đặc tả chi tiết thiết kế kỹ thuật, luồng dữ 
 
 ## 1. Tổng quan Tính năng (Overview)
 
-Tính năng **Online Food Search** cho phép hội viên tra cứu thông tin dinh dưỡng (Calories, Carbs, Protein, Fat, Serving Unit) từ cơ sở dữ liệu mở quốc tế **Open Food Facts** khi tìm kiếm bằng từ khóa hoặc quét mã vạch (Barcode), đóng vai trò làm cơ chế tìm kiếm bổ trợ (fallback) khi cơ sở dữ liệu nội bộ (`Local DB`) chưa có thông tin sản phẩm.
+Tính năng **Online Food Search** cho phép hội viên tra cứu thông tin dinh dưỡng (Calories, Carbs, Protein, Fat, Serving Unit) từ cơ sở dữ liệu mở quốc tế **Open Food Facts** khi tìm kiếm bằng từ khóa, đóng vai trò làm cơ chế tìm kiếm bổ trợ (fallback) khi cơ sở dữ liệu nội bộ (`Local DB`) chưa có thông tin sản phẩm.
 
 ### Thách thức hiện tại:
 - **Rate Limit của Open Food Facts API**: Giới hạn **10 requests/phút** đối với endpoint tìm kiếm bằng từ khóa. Nếu vượt quá giới hạn này, IP của hệ thống/người dùng sẽ bị chặn tạm thời (HTTP `429 Too Many Requests`).
@@ -89,12 +89,7 @@ Nếu team Backend tiếp quản việc gọi API trực tuyến, dưới đây 
 - **Headers**: Khuyến nghị thêm `User-Agent` rõ ràng (tên ứng dụng + email liên hệ) để OFF tăng hạn mức và không chặn IP.
   *Ví dụ:* `User-Agent: GymMasterApp - Web - Version 1.0 - admin@gymmaster.local`
 
-### 4.2. API Tra cứu mã vạch (Barcode Lookup)
-- **Endpoint**: 
-  `GET https://world.openfoodfacts.org/api/v2/product/{barcode}.json`
-- **Method**: `GET`
-
-### 4.3. Định dạng và Ánh xạ dữ liệu (Data Mapping Rules)
+### 4.2. Định dạng và Ánh xạ dữ liệu (Data Mapping Rules)
 Dữ liệu trả về từ Open Food Facts cần được chuẩn hóa trước khi lưu hoặc gửi về Client.
 
 #### Quy tắc làm sạch dữ liệu (Data Cleaning Constraints):
@@ -174,50 +169,11 @@ Authorization: Bearer {access_token}
 **Các trường đặc biệt trong Response:**
 - `source`: Nhà cung cấp dữ liệu (`"open-food-facts"` | `"usda"` | `"local-db"`). FE dùng để hiển thị badge nguồn dữ liệu.
 - `cached`: `true` nếu kết quả được lấy từ Redis cache, giúp FE có thể hiển thị thông tin "Kết quả đã được lưu đệm".
-- `externalId`: Mã sản phẩm từ nguồn bên ngoài (barcode của OFF, `fdcId` của USDA). Dùng để lookup chi tiết sau này.
+- `externalId`: Mã sản phẩm từ nguồn bên ngoài (`fdcId` của USDA). Dùng để lookup chi tiết sau này.
 
 ---
 
-### 6.2. Tra cứu Barcode (Barcode Lookup Proxy)
-
-```
-GET /api/food-items/barcode/{barcode}
-```
-
-**Response thành công (200 OK):**
-```json
-{
-  "success": true,
-  "data": {
-    "name": "Sữa tươi TH True Milk ít đường (TH True Milk)",
-    "unit": "180ml",
-    "caloriesPerUnit": 70,
-    "proteinG": 3.0,
-    "carbsG": 7.5,
-    "fatG": 3.3,
-    "source": "open-food-facts",
-    "externalId": "8936079015707",
-    "imageUrl": "https://images.openfoodfacts.org/..."
-  },
-  "error": null
-}
-```
-
-**Response khi không tìm thấy (404 Not Found):**
-```json
-{
-  "success": false,
-  "data": null,
-  "error": {
-    "code": "FOOD_NOT_FOUND",
-    "message": "Không tìm thấy sản phẩm với mã vạch này."
-  }
-}
-```
-
----
-
-### 6.3. Lưu thực phẩm từ nguồn trực tuyến (Confirm & Save)
+### 6.2. Lưu thực phẩm từ nguồn trực tuyến (Confirm & Save)
 
 Endpoint này thực hiện **Find or Create** pattern — kiểm tra tên trùng trước, nếu đã tồn tại thì trả về bản ghi cũ thay vì báo lỗi.
 
@@ -290,7 +246,6 @@ Bảng so sánh đầy đủ để team Backend quyết định chiến lược 
 | **Giới hạn Free Tier** | 10 req/phút (text search) | 1,000 req/giờ | 5,000 req/ngày | ~10,000/tháng |
 | **API Key** | Không cần | Cần (miễn phí) | Cần (đăng ký thủ công) | Cần (đăng ký) |
 | **Dữ liệu Việt Nam** | ⭐⭐⭐⭐ (crowdsource) | ⭐ (Mỹ là chính) | ⭐⭐⭐ | ⭐ |
-| **Barcode Lookup** | ✅ | ❌ | ✅ | ❌ |
 | **Thực phẩm đóng gói** | ✅ (rất mạnh) | ⚠️ (có nhưng giới hạn) | ✅ | ⚠️ |
 | **Thực phẩm thô/nguyên liệu** | ⚠️ | ✅ (rất mạnh) | ⚠️ | ✅ |
 | **Giấy phép dữ liệu** | Open Database License | Public Domain (CC0) | Cần Attribution | Cần Attribution |
@@ -301,7 +256,7 @@ Bảng so sánh đầy đủ để team Backend quyết định chiến lược 
 ### Chiến lược Fallback đề xuất theo thứ tự ưu tiên:
 
 ```
-1. Open Food Facts  →  Dữ liệu Việt Nam phong phú, miễn phí, barcode tốt
+1. Open Food Facts  →  Dữ liệu Việt Nam phong phú, miễn phí
 2. USDA FoodData    →  Fallback cho thực phẩm thô/nguyên liệu (gà, cá, rau...)
 3. Local DB Fuzzy   →  Fallback cuối: tìm kiếm mờ trong database nội bộ
 ```
@@ -316,12 +271,8 @@ Bảng so sánh đầy đủ để team Backend quyết định chiến lược 
 # Key chuẩn cho text search (normalize trước khi hash)
 online-search:{sha256(query_normalized)}
 
-# Key cho barcode lookup
-barcode-lookup:{barcode}
-
 # Ví dụ cụ thể
 online-search:a3f9d1...  (hash của "sữa tươi")
-barcode-lookup:8936079015707
 ```
 
 **Quy tắc normalize query trước khi tạo cache key:**
@@ -335,7 +286,6 @@ barcode-lookup:8936079015707
 | Loại Cache | TTL | Lý do |
 |---|---|---|
 | Text Search Results | **24 giờ** | Dữ liệu tìm kiếm ít thay đổi |
-| Barcode Lookup | **7 ngày** | Sản phẩm đóng gói rất ổn định |
 | USDA Search Results | **30 ngày** | Dữ liệu khoa học cực kỳ ổn định |
 | Negative Cache (không có kết quả) | **1 giờ** | Tránh spam query vô ích |
 
@@ -411,10 +361,9 @@ Tất cả các lỗi từ endpoint tìm kiếm trực tuyến phải tuân theo
 | Công việc | Ước tính |
 |---|---|
 | Tạo endpoint `GET /api/food-items/online-search` | 1–2 ngày |
-| Tạo endpoint `GET /api/food-items/barcode/{barcode}` | 0.5 ngày |
 | Tích hợp Redis Cache với TTL | 1 ngày |
 | Cập nhật FE để gọi endpoint nội bộ thay vì OFF trực tiếp | 0.5 ngày |
-| **Tổng** | **~3 ngày** |
+| **Tổng** | **~2.5 ngày** |
 
 **Lợi ích đạt được sau Phase 1:**
 - API Key và IP server không bị rate limit theo từng user.
@@ -457,7 +406,6 @@ USDA_REQUEST_TIMEOUT_MS=5000
 # Redis Cache
 REDIS_URL=redis://localhost:6379
 FOOD_SEARCH_CACHE_TTL_SECONDS=86400
-BARCODE_CACHE_TTL_SECONDS=604800
 NEGATIVE_CACHE_TTL_SECONDS=3600
 
 # Feature Flags

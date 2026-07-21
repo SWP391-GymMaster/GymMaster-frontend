@@ -249,7 +249,6 @@ Mobile PT Member 360
 ### Future / UI Prepared
 
 ```text
-Barcode scan
 Image food recognition assist
 Advanced analytics
 Advanced notification center
@@ -1174,7 +1173,7 @@ Build pages as plain full-screen tables.
 Use desktop tables on mobile.
 Hardcode status colors per page.
 Add new UI library.
-Implement barcode/image AI as MVP.
+Implement image AI as MVP.
 Skip permission guard.
 Skip error/empty states.
 Mix too many one-off card styles.

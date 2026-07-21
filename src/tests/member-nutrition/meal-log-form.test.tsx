@@ -10,14 +10,14 @@ afterEach(() => {
 })
 
 describe("MealLogForm", () => {
-  it("does not show frontend-generated quick food suggestions", () => {
+  it("does not show frontend-generated quick suggestions and keeps AI food scan", () => {
     renderWithMemberSession(<MealLogForm date="2026-06-02" />)
 
     expect(screen.queryByRole("button", { name: "ức gà" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "yến mạch" })).not.toBeInTheDocument()
     expect(
       screen.queryByRole("button", { name: "Quét ảnh món ăn bằng AI" }),
-    ).not.toBeInTheDocument()
+    ).toBeInTheDocument()
   })
 
   it("requires a selected food before submit", async () => {

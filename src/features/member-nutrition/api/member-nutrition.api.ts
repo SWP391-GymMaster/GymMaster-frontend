@@ -183,34 +183,6 @@ function normalizeExternalFood(
   }
 }
 
-async function tryBackendBarcodeProxy(
-  barcode: string,
-  accessToken?: string,
-): Promise<CreateCustomFoodInput | null | undefined> {
-  if (!accessToken) return undefined
-
-  const response = await fetch(
-    `/api/v1/food-items/barcode/${encodeURIComponent(barcode)}`,
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  )
-
-  if (response.status === 404) {
-    return null
-  }
-
-  if (!response.ok) {
-    return undefined
-  }
-
-  const payload = await response.json()
-
-  return payload?.data ?? null
-}
-
 async function tryBackendOnlineSearchProxy(
   query: string,
   accessToken?: string,
@@ -237,33 +209,6 @@ async function tryBackendOnlineSearchProxy(
   const payload = await response.json()
 
   return Array.isArray(payload?.data) ? payload.data : undefined
-}
-
-export async function fetchFoodByBarcode(
-  barcode: string,
-  accessToken?: string,
-): Promise<CreateCustomFoodInput | null> {
-  try {
-    const proxiedFood = await tryBackendBarcodeProxy(barcode, accessToken)
-
-    if (proxiedFood !== undefined) {
-      return proxiedFood
-    }
-
-    const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json`)
-    if (!response.ok) {
-      return null
-    }
-    const data = await response.json()
-    if (data.status !== 1 || !data.product) {
-      return null
-    }
-
-    return normalizeExternalFood(data.product, `Sản phẩm ${barcode}`)
-  } catch (error) {
-    console.error("Open Food Facts fetch failed:", error)
-    return null
-  }
 }
 
 export async function searchFoodOnline(

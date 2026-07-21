@@ -209,40 +209,6 @@ export const nutritionHandlers = [
 
     return ok(mockOnlineFoodResults(query))
   }),
-  http.get("/api/v1/food-items/barcode/:barcode", ({ params, request }) => {
-    const role = requireRole(request, ["member", "pt", "admin"])
-    if (typeof role !== "string") return role
-
-    if (params.barcode === "8936079015707") {
-      return ok(
-        externalFoodProduct(
-          "Sữa tươi TH True Milk ít đường",
-          "TH True Milk",
-          "180ml",
-          70,
-          3,
-          7.5,
-          3.3,
-        ),
-      )
-    }
-
-    if (params.barcode === "8934822903102") {
-      return ok(
-        externalFoodProduct(
-          "Nước ngọt Coca-Cola 320ml",
-          "Coca-Cola",
-          "320ml",
-          42,
-          0,
-          10.6,
-          0,
-        ),
-      )
-    }
-
-    return fail("PRODUCT_NOT_FOUND", "Barcode product not found", 404)
-  }),
   http.get("/api/v1/meal-logs", ({ request }) => {
     const role = requireRole(request, ["member"])
     if (typeof role !== "string") return role
@@ -436,47 +402,6 @@ export const nutritionHandlers = [
       })
     }
 
-    return passthrough()
-  }),
-  http.get("https://world.openfoodfacts.org/api/v2/product/*", ({ request }) => {
-    const url = new URL(request.url)
-    const match = url.pathname.match(/\/product\/(\d+)\.json$/)
-    const barcode = match ? match[1] : ""
-
-    if (barcode === "8936079015707") {
-      return HttpResponse.json({
-        status: 1,
-        product: {
-          product_name_vi: "Sữa tươi TH True Milk ít đường",
-          product_name: "Sữa tươi TH True Milk ít đường 180ml",
-          brands: "TH True Milk",
-          serving_size: "180ml",
-          nutriments: {
-            "energy-kcal_100g": 70,
-            proteins_100g: 3,
-            carbohydrates_100g: 7.5,
-            fat_100g: 3.3,
-          },
-        },
-      })
-    }
-    if (barcode === "8934822903102") {
-      return HttpResponse.json({
-        status: 1,
-        product: {
-          product_name_vi: "Nước ngọt Coca-Cola 320ml",
-          product_name: "Coca-Cola 320ml",
-          brands: "Coca-Cola",
-          serving_size: "320ml",
-          nutriments: {
-            "energy-kcal_100g": 42,
-            proteins_100g: 0,
-            carbohydrates_100g: 10.6,
-            fat_100g: 0,
-          },
-        },
-      })
-    }
     return passthrough()
   }),
 ]
