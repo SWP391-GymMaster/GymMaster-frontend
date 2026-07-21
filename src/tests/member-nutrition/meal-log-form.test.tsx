@@ -10,6 +10,16 @@ afterEach(() => {
 })
 
 describe("MealLogForm", () => {
+  it("does not show frontend-generated quick food suggestions", () => {
+    renderWithMemberSession(<MealLogForm date="2026-06-02" />)
+
+    expect(screen.queryByRole("button", { name: "ức gà" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "yến mạch" })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "Quét ảnh món ăn bằng AI" }),
+    ).not.toBeInTheDocument()
+  })
+
   it("requires a selected food before submit", async () => {
     renderWithMemberSession(<MealLogForm date="2026-06-02" />)
 
@@ -33,6 +43,28 @@ describe("MealLogForm", () => {
     expect(
       await screen.findByText("Khẩu phần phải lớn hơn 0."),
     ).toBeInTheDocument()
+  })
+
+  it("keeps quantity input focused while typing multiple digits", async () => {
+    renderWithMemberSession(<MealLogForm date="2026-06-02" />)
+
+    fireEvent.change(screen.getByTestId("member-food-search-input"), {
+      target: { value: "banana" },
+    })
+    fireEvent.click(await screen.findByText("Banana"))
+
+    const quantityInput = screen.getByTestId("member-meal-quantity-input")
+    quantityInput.focus()
+    fireEvent.change(quantityInput, { target: { value: "3" } })
+
+    expect(screen.getByTestId("member-meal-quantity-input")).toBe(quantityInput)
+    expect(quantityInput).toHaveFocus()
+
+    fireEvent.change(quantityInput, { target: { value: "35" } })
+    fireEvent.change(quantityInput, { target: { value: "350" } })
+
+    expect(quantityInput).toHaveFocus()
+    expect(quantityInput).toHaveValue(350)
   })
 
   it("adds the selected food to the list then logs all on confirm", async () => {

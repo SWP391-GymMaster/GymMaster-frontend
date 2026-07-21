@@ -1,16 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   Activity,
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
-  Check,
   CloudLightning,
   Compass,
-  Copy,
   Cpu,
   Dumbbell,
   Layers,
@@ -20,50 +17,13 @@ import {
   Timer,
   UsersRound,
   Volume2,
-  Zap,
   Palette,
 } from "lucide-react";
-import { toast } from "sonner";
 import { gymMasterAssets } from "@/lib/gymmaster-assets";
 import { SettingsDialog } from "@/features/billing/components/SettingsDialog";
 import { useSidebarStore } from "@/stores/useSideBarStore";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
-
-const DEMO_ACCOUNTS = [
-  {
-    role: "Quản trị viên",
-    tag: "Admin",
-    email: "admin@gymmaster.local",
-    password: "Password123!",
-    accent: "destructive" as const,
-    icon: ShieldCheck,
-  },
-  {
-    role: "Nhân viên lễ tân",
-    tag: "Staff",
-    email: "staff@gymmaster.local",
-    password: "Password123!",
-    accent: "steel" as const,
-    icon: UsersRound,
-  },
-  {
-    role: "Huấn luyện viên PT",
-    tag: "PT",
-    email: "pt@gymmaster.local",
-    password: "Password123!",
-    accent: "pending" as const,
-    icon: Dumbbell,
-  },
-  {
-    role: "Hội viên",
-    tag: "Member",
-    email: "member@gymmaster.local",
-    password: "Password123!",
-    accent: "active" as const,
-    icon: Activity,
-  },
-] as const;
 
 const WORKSPACE_CARDS = [
   {
@@ -157,24 +117,6 @@ const INNOVATIONS = [
   },
 ];
 
-const TECH_STACK = [
-  "Next.js 15",
-  "TypeScript",
-  "Tailwind CSS",
-  "shadcn/ui",
-  "TanStack Query",
-  "TanStack Table",
-  "React Hook Form",
-  "Zod",
-  "Zustand",
-  "Recharts",
-  "Framer Motion",
-  "MSW",
-  "Sonner",
-  "Vitest",
-  "Playwright",
-];
-
 // ─── Accent token map ─────────────────────────────────────────────────────────
 // Maps accent keys to semantic status token classes from globals.css
 
@@ -209,22 +151,6 @@ const ACCENT = {
 
 export default function AboutPage() {
   const { isSettingsOpen, setSettingsOpen } = useSidebarStore();
-  const [copied, setCopied] = useState<Record<string, boolean>>({});
-
-  const handleCopy = (text: string, key: string, label: string) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        setCopied((prev) => ({ ...prev, [key]: true }));
-        toast.success(`Đã sao chép ${label}!`);
-        setTimeout(() => {
-          setCopied((prev) => ({ ...prev, [key]: false }));
-        }, 2000);
-      })
-      .catch(() => {
-        toast.error("Không thể truy cập clipboard.");
-      });
-  };
 
   return (
     <div className="min-h-screen scroll-smooth overflow-y-auto bg-background text-foreground">
@@ -402,30 +328,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Section 3: Tech Stack ─────────────────────────────── */}
-        <section>
-          <div className="mb-10 text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-              Tech Stack
-            </p>
-            <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-              Được xây dựng trên nền tảng hiện đại
-            </h2>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {TECH_STACK.map((tech) => (
-              <span
-                key={tech}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-4 py-2 text-xs font-semibold text-muted-foreground backdrop-blur-sm transition hover:border-primary/40 hover:bg-accent hover:text-accent-foreground"
-              >
-                <Zap className="size-3 text-primary/60" />
-                {tech}
-              </span>
-            ))}
-          </div>
-        </section>
-
-        {/* ── Section 4: Client-Side Innovations ───────────────── */}
+        {/* ── Section 3: Client-Side Innovations ───────────────── */}
         <section id="innovations">
           <div className="mb-14 text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">
@@ -464,131 +367,6 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Section 5: Demo Sandbox ───────────────────────────── */}
-        <section id="demo" className="scroll-mt-24">
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-border bg-card p-8 shadow-sm md:p-12">
-            {/* Decorative glows */}
-            <div className="pointer-events-none absolute -bottom-24 -right-24 size-72 rounded-full bg-primary/8 blur-3xl" />
-            <div className="pointer-events-none absolute -left-20 -top-20 size-52 rounded-full bg-muted blur-3xl" />
-
-            <div className="relative mb-10 max-w-xl">
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
-                Demo Sandbox
-              </p>
-              <h2 className="text-2xl font-bold tracking-tight text-card-foreground md:text-3xl">
-                Tài Khoản Thử Nghiệm
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                GymMaster OS phân quyền tự động sau khi đăng nhập. Sử dụng các
-                tài khoản dưới đây để đánh giá từng giao diện nghiệp vụ.
-              </p>
-            </div>
-
-            {/* Credential cards */}
-            <div className="relative grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {DEMO_ACCOUNTS.map((acc, i) => {
-                const Icon = acc.icon;
-                const a = ACCENT[acc.accent];
-                const emailKey = `email-${i}`;
-                const passKey = `pass-${i}`;
-                return (
-                  <div
-                    key={acc.tag}
-                    className="group relative overflow-hidden rounded-[1.5rem] border border-border bg-muted/40 p-5 transition hover:border-primary/20 hover:bg-accent/30"
-                  >
-                    <div className="mb-4 flex items-center gap-3">
-                      <span
-                        className={`flex size-9 items-center justify-center rounded-xl border ${a.icon}`}
-                      >
-                        <Icon className="size-4" />
-                      </span>
-                      <div>
-                        <p className="text-sm font-bold text-foreground">
-                          {acc.role}
-                        </p>
-                        <span
-                          className={`text-[10px] font-semibold uppercase tracking-wider ${a.badge.split(" ").find((s) => s.startsWith("text-"))}`}
-                        >
-                          {acc.tag}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Email row */}
-                    <div className="mb-2.5 flex items-center justify-between gap-2 rounded-xl border border-input bg-background px-3.5 py-2.5">
-                      <div className="min-w-0">
-                        <p className="mb-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
-                          Email
-                        </p>
-                        <p className="truncate font-mono text-xs text-foreground">
-                          {acc.email}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(acc.email, emailKey, "email")}
-                        className="shrink-0 rounded-lg border border-border bg-muted p-1.5 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.96]"
-                        title="Sao chép email"
-                      >
-                        {copied[emailKey] ? (
-                          <Check className="size-3.5 text-primary" />
-                        ) : (
-                          <Copy className="size-3.5" />
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Password row */}
-                    <div className="flex items-center justify-between gap-2 rounded-xl border border-input bg-background px-3.5 py-2.5">
-                      <div className="min-w-0">
-                        <p className="mb-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
-                          Mật khẩu
-                        </p>
-                        <p className="truncate font-mono text-xs text-foreground">
-                          {acc.password}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleCopy(acc.password, passKey, "mật khẩu")
-                        }
-                        className="shrink-0 rounded-lg border border-border bg-muted p-1.5 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground active:scale-[0.96]"
-                        title="Sao chép mật khẩu"
-                      >
-                        {copied[passKey] ? (
-                          <Check className="size-3.5 text-primary" />
-                        ) : (
-                          <Copy className="size-3.5" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* CTA row */}
-            <div className="relative mt-8 flex flex-col items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/5 px-6 py-5 sm:flex-row">
-              <div className="flex items-center gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
-                  <Sparkles className="size-4" />
-                </span>
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  Sao chép email & mật khẩu, sau đó dán vào trang đăng nhập để
-                  trải nghiệm từng vai trò nghiệp vụ.
-                </p>
-              </div>
-              <Link
-                href="/login"
-                className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-primary px-5 text-xs font-bold text-primary-foreground transition hover:brightness-105 active:scale-[0.98]"
-              >
-                Đi tới Đăng nhập
-                <ArrowRight className="size-3.5" />
-              </Link>
-            </div>
-          </div>
-        </section>
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────── */}

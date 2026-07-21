@@ -234,7 +234,10 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
     snack: Cookie,
   }
 
-  function FormContent() {
+  // Render as a helper, not as an inline React component (`<FormContent />`).
+  // An inline component gets a new type on every `watch("quantity")` render,
+  // so React remounts its subtree and the native number input loses focus.
+  function renderFormContent() {
     return (
       <>
         {selectedFood ? (
@@ -409,7 +412,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
     )
   }
 
-  function CartSection() {
+  function renderCartSection() {
     return (
       <section className="gm-panel p-5">
         <div className="flex items-center gap-2">
@@ -520,7 +523,7 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
               </p>
             </div>
           </div>
-          <FormContent />
+          {renderFormContent()}
         </section>
       )}
 
@@ -561,14 +564,14 @@ export function MealLogForm({ date, defaultMealType = "lunch", onSuccess }: Meal
               </div>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto px-5 py-4">
-              <FormContent />
+              {renderFormContent()}
             </div>
           </SheetContent>
         </Sheet>
       )}
     </div>
 
-      <CartSection />
+      {renderCartSection()}
     </div>
   )
 }

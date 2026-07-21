@@ -350,6 +350,17 @@ export async function scanFoodImage(accessToken: string, image: File) {
   })
 }
 
+export async function estimateFoodNutrition(accessToken: string, name: string) {
+  return apiRequest<FoodScanDraft>("/api/v1/foods/estimate-nutrition", {
+    method: "POST",
+    headers: {
+      ...authHeaders(accessToken),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name }),
+  })
+}
+
 export async function confirmAiFood(accessToken: string, draft: FoodScanDraft) {
   return apiRequest<ScannedFoodDto>("/api/v1/foods/confirm-ai-food", {
     method: "POST",

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Plus, Search, Utensils, History, Heart, Info, AlertTriangle, Globe, Lock } from "lucide-react"
+import { Plus, Search, Utensils, History, Heart, Info, AlertTriangle, Globe, Lock, LoaderCircle, Sparkles } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -23,9 +23,9 @@ import {
   useFoodSearch,
   useCreateCustomFoodItem,
   useFoodOnlineSearch,
+  useEstimateFoodNutrition,
 } from "@/features/member-nutrition/api/member-nutrition.queries"
 import { searchFoodItems } from "@/features/member-nutrition/api/member-nutrition.api"
-import { AiFoodScanCard } from "@/features/member-nutrition/components/AiFoodScanCard"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 import { useMember360Data } from "@/features/member-360/api/member-360.queries"
 import {
@@ -38,8 +38,6 @@ import type {
   CreateCustomFoodInput,
 } from "@/features/member-nutrition/types/member-nutrition.types"
 import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
-
-const quickSearches = ["ức gà", "cơm", "chuối", "trứng", "sữa", "yến mạch"]
 
 const LOCAL_STORAGE_KEY_RECENT_FOODS = "gymmaster-recent-foods"
 const LOCAL_STORAGE_KEY_CUSTOM_FOODS = "gymmaster-custom-foods"
@@ -330,21 +328,6 @@ export function FoodSearchPanel({
               </div>
             </div>
 
-            <AiFoodScanCard onSelectFood={onSelectFood} />
-
-            <div className="flex flex-wrap gap-2">
-              {quickSearches.map((quickSearch) => (
-                <Button
-                  className="h-9 rounded-full border-border bg-card px-3 text-xs font-semibold text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98]"
-                  key={quickSearch}
-                  onClick={() => onQueryChange(quickSearch)}
-                  type="button"
-                  variant="outline"
-                >
-                  {quickSearch}
-                </Button>
-              ))}
-            </div>
             {canSearch && foods.data && foods.data.items.length > 0 && (
               <p className="text-xs font-semibold text-muted-foreground px-1">
                 Tìm thấy {foods.data.total.toLocaleString("vi-VN")} kết quả tương thích.
@@ -753,12 +736,15 @@ type CreateCustomFoodDialogProps = {
 export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomFoodDialogProps) {
   const [open, setOpen] = useState(false)
   const createFood = useCreateCustomFoodItem()
+  const estimateFood = useEstimateFoodNutrition()
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    getValues,
     reset,
+    setValue,
   } = useForm<CustomFoodFormInput, unknown, CustomFoodFormValues>({
     resolver: zodResolver(customFoodSchema),
     defaultValues: {
@@ -790,6 +776,27 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
       setOpen(false)
     } catch {
       toast.error("Không thể tạo món ăn. Vui lòng thử lại.")
+    }
+  }
+
+  async function handleAiEstimate() {
+    const name = getValues("name").trim()
+    if (name.length < 2) {
+      toast.error("Nhập tên món ăn có ít nhất 2 ký tự trước khi ước tính.")
+      return
+    }
+
+    try {
+      const estimate = await estimateFood.mutateAsync(name)
+      setValue("name", estimate.name, { shouldDirty: true, shouldValidate: true })
+      setValue("unit", estimate.unit || "100g", { shouldDirty: true, shouldValidate: true })
+      setValue("caloriesPerUnit", estimate.caloriesPerUnit, { shouldDirty: true, shouldValidate: true })
+      setValue("proteinG", estimate.proteinG, { shouldDirty: true, shouldValidate: true })
+      setValue("carbsG", estimate.carbsG, { shouldDirty: true, shouldValidate: true })
+      setValue("fatG", estimate.fatG, { shouldDirty: true, shouldValidate: true })
+      toast.success("AI đã điền dinh dưỡng ước tính cho 100g. Hãy kiểm tra trước khi lưu.")
+    } catch {
+      toast.error("Không thể ước tính bằng AI. Bạn vẫn có thể nhập dinh dưỡng thủ công.")
     }
   }
 
@@ -828,6 +835,27 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
             )}
           </div>
 
+          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-11 w-full rounded-xl border-primary/30 bg-background text-primary hover:bg-primary/10 active:scale-[0.98]"
+              data-testid="member-custom-food-ai-estimate"
+              disabled={estimateFood.isPending}
+              onClick={() => void handleAiEstimate()}
+            >
+              {estimateFood.isPending ? (
+                <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+              ) : (
+                <Sparkles className="size-4" aria-hidden="true" />
+              )}
+              {estimateFood.isPending ? "AI đang ước tính..." : "Ước tính dinh dưỡng bằng AI"}
+            </Button>
+            <p className="mt-2 text-xs leading-5 text-muted-foreground">
+              AI điền calories và macro trung bình cho 100g. Bạn có thể sửa lại trước khi tạo món.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="min-w-0 space-y-2">
               <label className="gm-dialog-label min-h-8" htmlFor="custom-food-unit">
@@ -852,6 +880,7 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <Input
                 id="custom-food-calories"
                 type="number"
+                step="any"
                 className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 data-testid="member-custom-food-calories"
                 {...register("caloriesPerUnit")}
@@ -870,6 +899,8 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <Input
                 id="custom-food-carbs"
                 type="number"
+                step="any"
+                data-testid="member-custom-food-carbs"
                 className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 {...register("carbsG")}
               />
@@ -881,6 +912,8 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <Input
                 id="custom-food-protein"
                 type="number"
+                step="any"
+                data-testid="member-custom-food-protein"
                 className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 {...register("proteinG")}
               />
@@ -892,6 +925,8 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               <Input
                 id="custom-food-fat"
                 type="number"
+                step="any"
+                data-testid="member-custom-food-fat"
                 className="gm-field min-h-12 w-full px-3 text-sm text-foreground focus-visible:ring-primary/20"
                 {...register("fatG")}
               />
@@ -911,7 +946,7 @@ export function CreateCustomFoodDialog({ initialName, onCreated }: CreateCustomF
               </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || createFood.isPending}
+              disabled={isSubmitting || createFood.isPending || estimateFood.isPending}
               className="min-h-11 rounded-full bg-primary px-5 text-primary-foreground hover:brightness-95 active:scale-[0.98]"
               data-testid="member-custom-food-submit"
             >
