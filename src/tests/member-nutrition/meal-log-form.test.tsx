@@ -10,6 +10,13 @@ afterEach(() => {
 })
 
 describe("MealLogForm", () => {
+  it("does not show frontend-generated quick food suggestions", () => {
+    renderWithMemberSession(<MealLogForm date="2026-06-02" />)
+
+    expect(screen.queryByRole("button", { name: "ức gà" })).not.toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "yến mạch" })).not.toBeInTheDocument()
+  })
+
   it("requires a selected food before submit", async () => {
     renderWithMemberSession(<MealLogForm date="2026-06-02" />)
 

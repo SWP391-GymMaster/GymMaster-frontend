@@ -40,8 +40,6 @@ import type {
 } from "@/features/member-nutrition/types/member-nutrition.types"
 import { formatCalories } from "@/features/member-nutrition/utils/nutrition-formatters"
 
-const quickSearches = ["ức gà", "cơm", "chuối", "trứng", "sữa", "yến mạch"]
-
 const LOCAL_STORAGE_KEY_RECENT_FOODS = "gymmaster-recent-foods"
 const LOCAL_STORAGE_KEY_CUSTOM_FOODS = "gymmaster-custom-foods"
 
@@ -333,19 +331,6 @@ export function FoodSearchPanel({
 
             <AiFoodScanCard onSelectFood={onSelectFood} />
 
-            <div className="flex flex-wrap gap-2">
-              {quickSearches.map((quickSearch) => (
-                <Button
-                  className="h-9 rounded-full border-border bg-card px-3 text-xs font-semibold text-foreground hover:border-primary/40 hover:bg-primary/10 active:scale-[0.98]"
-                  key={quickSearch}
-                  onClick={() => onQueryChange(quickSearch)}
-                  type="button"
-                  variant="outline"
-                >
-                  {quickSearch}
-                </Button>
-              ))}
-            </div>
             {canSearch && foods.data && foods.data.items.length > 0 && (
               <p className="text-xs font-semibold text-muted-foreground px-1">
                 Tìm thấy {foods.data.total.toLocaleString("vi-VN")} kết quả tương thích.
