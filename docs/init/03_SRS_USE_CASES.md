@@ -48,7 +48,6 @@
 | UC-21 | View Calorie History | Member/PT | High |
 | UC-22 | View Revenue & Payment Dashboard | Admin | High |
 | UC-23 | View Audit Logs | Admin | Medium |
-| UC-24 | Barcode Lookup | Member | Medium |
 | UC-25 | Basic In-app Reminder | System/Member | Medium |
 | UC-26 | Image Food Recognition Assist | Member | Low / Enhancement |
 

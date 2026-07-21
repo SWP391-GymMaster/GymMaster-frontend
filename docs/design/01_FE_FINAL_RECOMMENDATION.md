@@ -95,5 +95,5 @@ Không cho AI tự thêm library, tự đổi design, tự thêm feature ngoài 
 |---|---|
 | Must-have | Layout, auth UI, role navigation, core CRUD, check-in, assignment, workout, meal journal, dashboard, testing gates |
 | Should-have | Table filter nâng cao, chart polish, responsive tablet, Playwright full demo flow |
-| Could-have | Barcode UI, notification UI, motion polish |
+| Could-have | Notification UI, motion polish |
 | Future | Image Food Recognition Assist UI, advanced dashboard, booking calendar |

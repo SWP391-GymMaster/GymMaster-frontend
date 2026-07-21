@@ -61,7 +61,6 @@ npm install sonner
 | Package | Khi nào dùng |
 |---|---|
 | `qrcode.react` | Hiển thị QR cho Member check-in |
-| `@zxing/browser` | Scan QR/barcode bằng camera |
 | `react-dropzone` | Upload progress photo hoặc meal image enhancement |
 | `@axe-core/playwright` | Optional accessibility check trong Playwright |
 | `prettier-plugin-tailwindcss` | Tự sort Tailwind class |
