@@ -26,7 +26,6 @@ import {
   useEstimateFoodNutrition,
 } from "@/features/member-nutrition/api/member-nutrition.queries"
 import { searchFoodItems } from "@/features/member-nutrition/api/member-nutrition.api"
-import { AiFoodScanCard } from "@/features/member-nutrition/components/AiFoodScanCard"
 import { useAuthSessionStore } from "@/features/auth/session/auth-session"
 import { useMember360Data } from "@/features/member-360/api/member-360.queries"
 import {
@@ -328,8 +327,6 @@ export function FoodSearchPanel({
                 </div>
               </div>
             </div>
-
-            <AiFoodScanCard onSelectFood={onSelectFood} />
 
             {canSearch && foods.data && foods.data.items.length > 0 && (
               <p className="text-xs font-semibold text-muted-foreground px-1">

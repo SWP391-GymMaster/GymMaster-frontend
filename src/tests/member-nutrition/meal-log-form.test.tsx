@@ -15,6 +15,9 @@ describe("MealLogForm", () => {
 
     expect(screen.queryByRole("button", { name: "ức gà" })).not.toBeInTheDocument()
     expect(screen.queryByRole("button", { name: "yến mạch" })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole("button", { name: "Quét ảnh món ăn bằng AI" }),
+    ).not.toBeInTheDocument()
   })
 
   it("requires a selected food before submit", async () => {
