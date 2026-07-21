@@ -174,6 +174,24 @@ export const nutritionHandlers = [
 
     return created(food)
   }),
+  http.post("/api/v1/foods/estimate-nutrition", async ({ request }) => {
+    const role = requireRole(request, ["member"])
+    if (typeof role !== "string") return role
+
+    const body = (await request.json()) as { name?: string }
+    const name = body.name?.trim() || "Món ăn"
+
+    return ok({
+      name,
+      unit: "100g",
+      servingSize: 100,
+      caloriesPerUnit: 165,
+      proteinG: 31,
+      carbsG: 0,
+      fatG: 3.6,
+      source: "AI",
+    })
+  }),
   http.get("/api/v1/food-items/online-search", ({ request }) => {
     const role = requireRole(request, ["member", "pt", "admin"])
     if (typeof role !== "string") return role

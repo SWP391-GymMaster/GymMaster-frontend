@@ -9,6 +9,7 @@ import {
   getMemberMealLogs,
   searchFoodItems,
   createCustomFoodItem,
+  estimateFoodNutrition,
   fetchFoodByBarcode,
   searchFoodOnline,
   setMemberCalorieTarget,
@@ -134,6 +135,15 @@ export function useCreateCustomFoodItem() {
         queryKey: [...memberNutritionKeys.all, "foods"],
       })
     },
+  })
+}
+
+export function useEstimateFoodNutrition() {
+  const accessToken = useMemberAccessToken()
+
+  return useMutation({
+    mutationFn: (name: string) =>
+      estimateFoodNutrition(accessToken ?? "", name),
   })
 }
 
